@@ -1,0 +1,23 @@
+# Mac OS
+.DS_Store
+
+# Node.js
+node_modules
+
+# intellij files
+.idea/
+
+# VSCode files
+.vscode/
+
+# Jekyll Website
+_site/
+
+# build output
+build/
+
+# coverage output
+/coverage/
+
+# log files
+/logs/
