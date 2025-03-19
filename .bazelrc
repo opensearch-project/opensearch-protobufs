@@ -1,0 +1,7 @@
+# Enable proto3 optional fields
+build --proto_compiler=@com_google_protobuf//:protoc
+build --protocopt=--experimental_allow_proto3_optional
+
+# Set C++ standard to C++14
+build --cxxopt=-std=c++14
+build --host_cxxopt=-std=c++14
