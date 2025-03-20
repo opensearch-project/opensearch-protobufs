@@ -1,0 +1,23 @@
+/*
+ * SPDX-License-Identifier: Apache-2.0
+ *
+ * The OpenSearch Contributors require contributions made to
+ * this file be licensed under the Apache-2.0 license or a
+ * compatible open source license.
+ *
+ * Modifications Copyright OpenSearch Contributors. See
+ * GitHub history for details.
+ */
+
+syntax = "proto3";
+package org.opensearch.protobuf.services;
+
+option java_multiple_files = true;
+option java_package = "org.opensearch.protobuf.services";
+option java_outer_classname = "DocumentServiceProto";
+
+import "protos/schemas/document.proto";
+
+service DocumentService {
+  rpc Bulk(BulkRequest) returns (BulkResponse) {}
+}
