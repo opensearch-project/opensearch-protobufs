@@ -10,6 +10,6 @@ This document contains a list of maintainers in this repo. See [opensearch-proje
 | Maintainer           | GitHub ID                                       | Affiliation |
 | -------------------- | ----------------------------------------------- | ----------- |
 | Karen Xu             | [karenyrx](https://github.com/karenyrx)         | Uber        |
+| Philip Chan          | [philiplhchan](https://github.com/philiplhchan) | Uber        |
 | Shuyi Zhang          | [amberzsy](https://github.com/amberzsy)         | Uber        |
 | Xi Lu                | [lucy66hw](https://github.com/lucy66hw)         | Uber        |
-| Philip Chan          | [philiplhchan](https://github.com/philiplhchan) | Uber         |
