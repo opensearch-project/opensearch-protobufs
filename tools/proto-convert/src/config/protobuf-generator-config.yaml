@@ -1,0 +1,20 @@
+generatorName: protobuf-schema
+outputDir: spec/protos
+inputSpec: build/processed-opensearch-openapi.yaml
+templateDir: tools/proto-convert/src/config/protobuf-schema-template/
+additionalProperties:
+  addJsonNameAnnotation: true
+  flattenComplexType: true
+  numberedFieldNumberList: true
+  startEnumsWithUnspecified: true
+  aggregateModelsName: aggregated_models
+  supportMultipleResponses: true
+inlineSchemaOptions:
+  RESOLVE_INLINE_ENUMS: true
+  SKIP_SCHEMA_REUSE: true
+importMappings:
+  google.protobuf.Struct: "google/protobuf/struct"
+typeMappings:
+  object: "google.protobuf.Struct"
+  AnyType: "google.protobuf.Struct"
+
