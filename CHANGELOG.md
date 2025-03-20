@@ -12,6 +12,7 @@ Inspired from [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 - Exclude `com.google.protobuf.*` classes from the `opensearch-protobuf-*` jar and upgrade dependency versions to match core ([#17](https://github.com/opensearch-project/opensearch-protobufs/pull/17))
 - Update jar publishing to sonatype repository with gradle ([#14](https://github.com/opensearch-project/opensearch-protobufs/pull/14))
 - Update jar generation script with proper exit trap and add java build github action workflow ([#24](https://github.com/opensearch-project/opensearch-protobufs/pull/24))
+- Add proto convert preprocessing scripts. ([#7](https://github.com/opensearch-project/opensearch-protobufs/pull/7)
 
 ### Removed
 
