@@ -21,3 +21,43 @@ build/
 
 # log files
 /logs/
+# Bazel generated files
+bazel-*
+bazel-bin
+bazel-out
+bazel-testlogs
+bazel-opensearch-protos
+.bazel-cache/
+.bazelrc.user
+
+# Generated files
+generated/
+
+# Maven output
+maven_output/
+
+# IDE files
+.idea/
+*.iml
+.vscode/
+.project
+.classpath
+.settings/
+
+# Compiled class files
+*.class
+
+# Package files
+*.jar
+*.war
+*.ear
+*.zip
+*.tar.gz
+*.rar
+
+# Logs
+*.log
+
+# OS specific files
+.DS_Store
+Thumbs.db

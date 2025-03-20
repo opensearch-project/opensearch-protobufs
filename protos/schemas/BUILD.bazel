@@ -1,0 +1,46 @@
+# protos/schemas/BUILD.bazel
+load("@rules_proto//proto:defs.bzl", "proto_library")
+load("@rules_java//java:defs.bzl", "java_proto_library")
+package(default_visibility = ["//visibility:public"])
+
+proto_library(
+    name = "common_proto",
+    srcs = ["common.proto"],
+    deps = [
+        "@com_google_protobuf//:struct_proto",
+    ],
+)
+
+proto_library(
+    name = "document_proto",
+    srcs = ["document.proto"],
+    deps = [
+        ":common_proto",
+        "@com_google_protobuf//:struct_proto",
+    ],
+)
+
+proto_library(
+    name = "search_proto",
+    srcs = ["search.proto"],
+    deps = [
+        ":common_proto",
+        "@com_google_protobuf//:struct_proto",
+        ],
+)
+
+# Java proto libraries
+java_proto_library(
+    name = "common_java_proto",
+    deps = [":common_proto"],
+)
+
+java_proto_library(
+    name = "document_java_proto",
+    deps = [":document_proto"],
+)
+
+java_proto_library(
+    name = "search_java_proto",
+    deps = [":search_proto"],
+)
