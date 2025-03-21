@@ -5,7 +5,7 @@ on:
   push:
     branches:
       - 'main'
-
+      - 'maven_publish' #temp for test
 jobs:
   build-and-publish-snapshots:
     runs-on: ubuntu-latest
