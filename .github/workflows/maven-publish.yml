@@ -2,10 +2,10 @@ name: Build and Publish Snapshots to Maven
 
 on:
   workflow_dispatch:
+  pull_request: # temp for testing
   push:
     branches:
       - 'main'
-      - 'maven_publish' #temp for test
 jobs:
   build-and-publish-snapshots:
     runs-on: ubuntu-latest
