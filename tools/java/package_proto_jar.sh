@@ -216,3 +216,14 @@ echo ""
 echo "dependencies {"
 echo "    implementation '${GROUP_ID}:${ARTIFACT_ID}:${VERSION}'"
 echo "}"
+
+mvn deploy:deploy-file \
+  -Dfile=generated/maven/opensearch-protobuf-1.0.0.jar \
+  -DgroupId=org.opensearch \
+  -DartifactId=opensearch-protobuf \
+  -Dversion=1.0.0-SNAPSHOT \
+  -Dpackaging=jar \
+  -DrepositoryId=Snapshots \
+  -Durl=https://aws.oss.sonatype.org/content/repositories/snapshots/ \
+  -Dusername=$SONATYPE_USERNAME \
+  -Dpassword=$SONATYPE_PASSWORD
