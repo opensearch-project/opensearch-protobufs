@@ -4,7 +4,7 @@
 # Configuration
 GROUP_ID="org.opensearch.protobuf"
 ARTIFACT_ID="opensearch-protobuf"
-VERSION="1.0.0"
+VERSION="1.0.0-SNAPSHOT"
 JAR_NAME="${ARTIFACT_ID}-${VERSION}.jar"
 POM_NAME="${ARTIFACT_ID}-${VERSION}.pom"
 OUTPUT_DIR="generated/maven"
@@ -218,10 +218,11 @@ echo "    implementation '${GROUP_ID}:${ARTIFACT_ID}:${VERSION}'"
 echo "}"
 
 mvn deploy:deploy-file \
-  -Dfile=generated/maven/opensearch-protobuf-1.0.0.jar \
-  -DgroupId=org.opensearch \
-  -DartifactId=opensearch-protobuf \
-  -Dversion=1.0.0-SNAPSHOT \
+  -Dfile=${OUTPUT_DIR}/${JAR_NAME} \
+  -DpomFile="${OUTPUT_DIR}/META-INF/maven/${GROUP_ID}/${ARTIFACT_ID}/pom.xml" \
+  -DgroupId=${GROUP_ID} \
+  -DartifactId=${ARTIFACT_ID} \
+  -Dversion=${VERSION} \
   -Dpackaging=jar \
   -DrepositoryId=Snapshots \
   -Durl=https://aws.oss.sonatype.org/content/repositories/snapshots/ \
