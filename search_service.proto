@@ -10,10 +10,10 @@
  */
 
 syntax = "proto3";
-package org.opensearch.protobuf.services;
+package org.opensearch.protobufs.services;
 
 option java_multiple_files = true;
-option java_package = "org.opensearch.protobuf.services";
+option java_package = "org.opensearch.protobufs.services";
 option java_outer_classname = "SearchServiceProto";
 
 import "protos/schemas/search.proto";

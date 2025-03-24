@@ -41,7 +41,7 @@ protoc \
   search_service.proto
 
 # Check if the gRPC stubs were generated
-if [ -f "$OUTPUT_DIR/org/opensearch/protobuf/services/DocumentServiceGrpc.java" ] && [ -f "$OUTPUT_DIR/org/opensearch/protobuf/services/SearchServiceGrpc.java" ]; then
+if [ -f "$OUTPUT_DIR/org/opensearch/protobufs/services/DocumentServiceGrpc.java" ] && [ -f "$OUTPUT_DIR/org/opensearch/protobufs/services/SearchServiceGrpc.java" ]; then
   echo "Successfully generated gRPC stubs!"
 else
   echo "Warning: gRPC stubs may not have been generated correctly."

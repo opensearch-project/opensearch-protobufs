@@ -62,7 +62,7 @@ repositories {
 }
 
 dependencies {
-    implementation 'org.opensearch.protobuf:opensearch-protobuf:1.0.0'
+    implementation 'org.opensearch.protobufs:opensearch-protobufs:1.0.0'
 }
 ```
 
