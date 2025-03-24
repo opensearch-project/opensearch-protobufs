@@ -5,7 +5,7 @@
 syntax = "proto3";
 
 option java_multiple_files = true;
-option java_package = "org.opensearch.protobuf";
+option java_package = "org.opensearch.protobufs";
 option java_outer_classname = "SearchProto";
 option go_package = "opensearchpb";
 

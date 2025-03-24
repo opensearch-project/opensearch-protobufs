@@ -2,8 +2,8 @@
 # Script to package generated Java proto files into a Maven-compatible JAR
 
 # Configuration
-GROUP_ID="org.opensearch.protobuf"
-ARTIFACT_ID="opensearch-protobuf"
+GROUP_ID="org.opensearch.protobufs"
+ARTIFACT_ID="opensearch-protobufs"
 VERSION="1.0.0-SNAPSHOT"
 JAR_NAME="${ARTIFACT_ID}-${VERSION}.jar"
 POM_NAME="${ARTIFACT_ID}-${VERSION}.pom"
@@ -21,7 +21,7 @@ if [ ! -d "generated/java" ] || [ -z "$(find generated/java -name '*.java')" ]; 
 fi
 
 # Step 1.5: Generate gRPC stubs (if not already done)
-if [ ! -f "generated/java/opensearch/proto/services/DocumentServiceGrpc.java" ] || [ ! -f "generated/java/opensearch/proto/services/SearchServiceGrpc.java" ]; then
+if [ ! -f "generated/java/opensearch/protobufs/services/DocumentServiceGrpc.java" ] || [ ! -f "generated/java/opensearch/protobufs/services/SearchServiceGrpc.java" ]; then
   echo "Generating gRPC stubs..."
   ./tools/java/generate_grpc_java.sh
 fi
@@ -217,14 +217,16 @@ echo "dependencies {"
 echo "    implementation '${GROUP_ID}:${ARTIFACT_ID}:${VERSION}'"
 echo "}"
 
-mvn deploy:deploy-file \
-  -Dfile=${OUTPUT_DIR}/${JAR_NAME} \
-  -DpomFile="${OUTPUT_DIR}/META-INF/maven/${GROUP_ID}/${ARTIFACT_ID}/pom.xml" \
-  -DgroupId=${GROUP_ID} \
-  -DartifactId=${ARTIFACT_ID} \
-  -Dversion=${VERSION} \
-  -Dpackaging=jar \
-  -DrepositoryId=Snapshots \
-  -Durl=https://aws.oss.sonatype.org/content/repositories/snapshots/ \
-  -Dusername=$SONATYPE_USERNAME \
-  -Dpassword=$SONATYPE_PASSWORD
+if [[ -z "${SONATYPE_USERNAME}" && "${SONATYPE_PASSWORD}" ]]; then
+  mvn deploy:deploy-file \
+    -Dfile=${OUTPUT_DIR}/${JAR_NAME} \
+    -DpomFile="${OUTPUT_DIR}/META-INF/maven/${GROUP_ID}/${ARTIFACT_ID}/pom.xml" \
+    -DgroupId=${GROUP_ID} \
+    -DartifactId=${ARTIFACT_ID} \
+    -Dversion=${VERSION} \
+    -Dpackaging=jar \
+    -DrepositoryId=Snapshots \
+    -Durl=https://aws.oss.sonatype.org/content/repositories/snapshots/ \
+    -Dusername=$SONATYPE_USERNAME \
+    -Dpassword=$SONATYPE_PASSWORD
+fi
