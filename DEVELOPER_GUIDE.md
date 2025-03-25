@@ -11,41 +11,17 @@ The follow command should output `v25.1`:
 ```
 protoc --version
 ```
-# Compile protos
+# Compile protos and grpc
 ```
-<!-- bazel build //... -->
-bazel build :protos_java
+bazel build //...
 ```
 # Proto generated code
 ## Java
-### Generate Java Code
-Delete generated folder:
-```
-rm -rf generated
-```
-1. Run the provided script to generate Java files from proto files:
+### Generate Java Code and packaging as a Maven/Gradle dependency
 
+To package the generated Java files into a Maven-compatible JAR that can be used as a Gradle dependency, run the provided script:
 ```bash
-./tools/java/generate_java.sh
-```
-
-This script will:
-- Build the Java proto library using Bazel
-- Find all source JAR files containing generated Java code
-- Extract the Java files to the `generated/java` directory
-
-2. You can find the generated Java files in the `generated/java` directory:
-```bash
-find generated/java -name "*.java" | sort
-```
-
-### Packaging as a Maven/Gradle dependency
-
-To package the generated Java files into a Maven-compatible JAR that can be used as a Gradle dependency:
-
-1. Run the provided script:
-```bash
-./tools/java/package_proto_jar.sh
+rm -rf bazel* && rm -rf generated && ./tools/java/package_proto_jar.sh
 ```
 
 This script will:

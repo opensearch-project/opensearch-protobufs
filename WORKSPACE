@@ -5,9 +5,9 @@ load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 # Protocol Buffers dependencies
 http_archive(
     name = "com_google_protobuf",
-    sha256 = "4356e78744dfb2df3890282386c8568c85868116317d9b3ad80eb11c2aecf2ff",
-    strip_prefix = "protobuf-3.25.5",
-    urls = ["https://github.com/protocolbuffers/protobuf/archive/v3.25.5.tar.gz"],
+    sha256 = "946ba5371e423e1220d2cbefc1f65e69a1e81ca5bab62a03d66894172983cfcd",
+    strip_prefix = "protobuf-3.12.0",
+    urls = ["https://github.com/protocolbuffers/protobuf/archive/v3.12.0.tar.gz"],
 )
 
 load("@com_google_protobuf//:protobuf_deps.bzl", "protobuf_deps")
@@ -46,17 +46,26 @@ http_archive(
 load("@io_grpc_grpc_java//:repositories.bzl", "grpc_java_repositories")
 grpc_java_repositories()
 
-# Additional dependencies for gRPC Java
+# Use rules_jvm_external to manage Maven dependencies
 http_archive(
-    name = "com_google_code_findbugs_jsr305",
-    build_file = "@io_grpc_grpc_java//third_party:jsr305.BUILD",
-    sha256 = "766ad2a0783f2687962c8ad74ceecc38a28b9f72a2d085ee438b7813e928d0c7",
-    urls = ["https://repo1.maven.org/maven2/com/google/code/findbugs/jsr305/3.0.2/jsr305-3.0.2.jar"],
+    name = "rules_jvm_external",
+    sha256 = "62133c125bf4109dfd9d2af64830208356ce4ef8b165a6ef15bbff7460b35c3a",
+    strip_prefix = "rules_jvm_external-3.0",
+    url = "https://github.com/bazelbuild/rules_jvm_external/archive/3.0.zip",
 )
 
-http_archive(
-    name = "com_google_guava_guava",
-    build_file = "@io_grpc_grpc_java//third_party:guava.BUILD",
-    sha256 = "36a666e3b71ae7f0f0dca23654b67e086e6c93d192f60ba5dfd5519db6c288c8",
-    urls = ["https://repo1.maven.org/maven2/com/google/guava/guava/31.0.1-jre/guava-31.0.1-jre.jar"],
+load("@rules_jvm_external//:defs.bzl", "maven_install")
+load("@io_grpc_grpc_java//:repositories.bzl", "IO_GRPC_GRPC_JAVA_ARTIFACTS")
+load("@io_grpc_grpc_java//:repositories.bzl", "IO_GRPC_GRPC_JAVA_OVERRIDE_TARGETS")
+
+maven_install(
+    artifacts = IO_GRPC_GRPC_JAVA_ARTIFACTS,
+    generate_compat_repositories = True,
+    override_targets = IO_GRPC_GRPC_JAVA_OVERRIDE_TARGETS,
+    repositories = [
+        "https://repo.maven.apache.org/maven2/",
+    ],
 )
+
+load("@maven//:compat.bzl", "compat_repositories")
+compat_repositories()
