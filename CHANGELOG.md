@@ -9,7 +9,6 @@ Inspired from [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 - Add scripts to create java opensearch-protobuf-1.0.0.jar ([#6](https://github.com/opensearch-project/opensearch-protobufs/pull/6))
 - Add GHA to build and publish snapshots to maven & add mvn process ([#11](https://github.com/opensearch-project/opensearch-protobufs/pull/11))
 - Use java_grpc_library instead of protoc to generate GRPC Java libraries. ([#15](https://github.com/opensearch-project/opensearch-protobufs/pull/15))
-<<<<<<< HEAD
 - Upgrade protobuf, grpc, guava versions to match core. ([#17](https://github.com/opensearch-project/opensearch-protobufs/pull/17))
 - Exclude `com.google.protobuf.*` classes from the `opensearch-protobuf-*` jar and upgrade dependency versions to match core ([#17](https://github.com/opensearch-project/opensearch-protobufs/pull/17))
 - Update jar publishing to sonatype repository with gradle ([#14](https://github.com/opensearch-project/opensearch-protobufs/pull/14))
