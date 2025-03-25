@@ -1,21 +1,25 @@
 #!/bin/bash
 # Script to package generated Java proto files into a Maven-compatible JAR
-set -vex
+set -e
 # Configuration
-GROUP_ID="org.opensearch.protobufs"
-ARTIFACT_ID="opensearch-protobufs"
-VERSION="1.0.0-SNAPSHOT"
+ROOT_DIR="`dirname "$(realpath $0)"`/../.."
+GROUP_ID=`$ROOT_DIR/gradlew properties | grep group: | awk '{print $2}'`
+ARTIFACT_ID=`$ROOT_DIR/gradlew properties | grep artifactName: | awk '{print $2}'`
+VERSION=`$ROOT_DIR/gradlew properties | grep version: | awk '{print $2}'`
 JAR_NAME="${ARTIFACT_ID}-${VERSION}.jar"
 POM_NAME="${ARTIFACT_ID}-${VERSION}.pom"
-OUTPUT_DIR="generated/maven"
+OUTPUT_DIR="$ROOT_DIR/generated/maven"
+OUTPUT_DIR_JAVA="$ROOT_DIR/generated/java"
 MAVEN_LOCAL_REPO="${HOME}/.m2/repository"
+
+echo $GROUP_ID $ARTIFACT_ID $VERSION
 
 # Set up directories
 mkdir -p "${OUTPUT_DIR}/classes"
 mkdir -p "${OUTPUT_DIR}/META-INF/maven/${GROUP_ID}/${ARTIFACT_ID}"
 
 # Step 1: Generate Java files from proto files (if not already done)
-if [ ! -d "generated/java" ] || [ -z "$(find generated/java -name '*.java')" ]; then
+if [ ! -d "$OUTPUT_DIR_JAVA" ] || [ -z "$(find "$OUTPUT_DIR_JAVA" -name '*.java')" ]; then
   echo "Generating Java files from proto files..."
   ./tools/java/generate_java.sh
 fi
@@ -71,7 +75,7 @@ fi
 
 # Step 3: Compile Java files
 echo "Compiling Java files..."
-find generated/java -name "*.java" > "${OUTPUT_DIR}/sources.txt"
+find "$OUTPUT_DIR_JAVA" -name "*.java" > "${OUTPUT_DIR}/sources.txt"
 javac -cp "${PROTOBUF_JAR}:${GRPC_STUB_JAR}:${GRPC_PROTOBUF_JAR}:${GRPC_CORE_JAR}:${GRPC_API_JAR}:${GUAVA_JAR}:${JAVAX_ANNOTATION_JAR}" -d "${OUTPUT_DIR}/classes" @"${OUTPUT_DIR}/sources.txt"
 
 # Step 3: Create POM file
@@ -125,6 +129,23 @@ cat > "${OUTPUT_DIR}/META-INF/maven/${GROUP_ID}/${ARTIFACT_ID}/pom.xml" << EOF
       <version>${JAVAX_ANNOTATION_VERSION}</version>
     </dependency>
   </dependencies>
+  <url>https://github.com/opensearch-project/opensearch-protobufs</url>
+  <scm>
+    <url>https://github.com/opensearch-project/opensearch-protobufs</url>
+  </scm>
+  <inceptionYear>2021</inceptionYear>
+  <licenses>
+    <license>
+      <name>The Apache License, Version 2.0</name>
+      <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+    </license>
+  </licenses>
+  <developers>
+    <developer>
+      <name>OpenSearch</name>
+      <url>https://github.com/opensearch-project/opensearch-protobufs</url>
+    </developer>
+  </developers>
 </project>
 EOF
 
@@ -209,16 +230,9 @@ echo "dependencies {"
 echo "    implementation '${GROUP_ID}:${ARTIFACT_ID}:${VERSION}'"
 echo "}"
 
-if [[ -z "${SONATYPE_USERNAME}" && "${SONATYPE_PASSWORD}" ]]; then
-  mvn deploy:deploy-file \
-    -Dfile=${OUTPUT_DIR}/${JAR_NAME} \
-    -DpomFile="${OUTPUT_DIR}/META-INF/maven/${GROUP_ID}/${ARTIFACT_ID}/pom.xml" \
-    -DgroupId=${GROUP_ID} \
-    -DartifactId=${ARTIFACT_ID} \
-    -Dversion=${VERSION} \
-    -Dpackaging=jar \
-    -DrepositoryId=Snapshots \
-    -Durl=https://aws.oss.sonatype.org/content/repositories/snapshots/ \
-    -Dusername=$SONATYPE_USERNAME \
-    -Dpassword=$SONATYPE_PASSWORD
-fi
+echo "Prepare publishing artifacts"
+PUBLISH_DIR="$OUTPUT_DIR/publish"
+rm -rf "$PUBLISH_DIR" && mkdir -p "$PUBLISH_DIR"
+cp -v "${OUTPUT_DIR}/META-INF/maven/${GROUP_ID}/${ARTIFACT_ID}/pom.xml" "${PUBLISH_DIR}/${JAR_NAME%.jar}.pom" 
+cp -v "${OUTPUT_DIR}/${JAR_NAME}" "${PUBLISH_DIR}"
+

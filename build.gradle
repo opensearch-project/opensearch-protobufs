@@ -1,0 +1,42 @@
+plugins {
+    id 'maven-publish'
+}
+
+ext{
+    artifactName = 'protobufs'
+}
+
+group = 'org.opensearch'
+version = '1.0.0-SNAPSHOT'
+
+repositories {
+    mavenCentral()
+}
+
+publishing {
+    publications {
+        create(MavenPublication) {
+            groupId = group
+            artifactId = artifactName
+            artifact "./generated/maven/publish/${artifactName}-${version}.jar"
+
+            pom {
+                withXml {
+                      def existingPomFile = file("./generated/maven/publish/${artifactName}-${version}.pom")
+                }
+            }
+        }
+    }
+
+    repositories {
+        maven{
+            name = 'Snapshots'
+            url = uri("https://aws.oss.sonatype.org/content/repositories/snapshots/")
+
+            credentials {
+                username = System.getenv("SONATYPE_USERNAME")
+                password = System.getenv("SONATYPE_PASSWORD")
+            }
+        }
+    }
+}
