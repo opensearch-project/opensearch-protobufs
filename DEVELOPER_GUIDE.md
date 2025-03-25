@@ -1,16 +1,6 @@
 # Prerequisites
-Install protoc v25.1
-```
-PB_REL="https://github.com/protocolbuffers/protobuf/releases"
-curl -LO $PB_REL/download/v25.1/protoc-25.1-linux-x86_64.zip
-unzip protoc-25.1-linux-x86_64.zip -d $HOME/.local
-export PATH="$PATH:$HOME/.local/bin"
-```
+Install bazel, using the version in .bazelversion.
 
-The follow command should output `v25.1`:
-```
-protoc --version
-```
 # Compile protos and grpc
 ```
 bazel build //...
@@ -21,7 +11,10 @@ bazel build //...
 
 To package the generated Java files into a Maven-compatible JAR that can be used as a Gradle dependency, run the provided script:
 ```bash
-rm -rf bazel* && rm -rf generated && ./tools/java/package_proto_jar.sh
+#optional
+rm -rf bazel*
+
+rm -rf generated && bazel build //... && ./tools/java/package_proto_jar.sh
 ```
 
 This script will:
