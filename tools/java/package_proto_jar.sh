@@ -12,7 +12,11 @@ OUTPUT_DIR="$ROOT_DIR/generated/maven"
 OUTPUT_DIR_JAVA="$ROOT_DIR/generated/java"
 MAVEN_LOCAL_REPO="${HOME}/.m2/repository"
 
-echo $GROUP_ID $ARTIFACT_ID $VERSION
+if [ -z "$GROUP_ID" ] || [ -z "$ARTIFACT_ID" ] || [ -z "$VERSION" ]; then
+    echo "GROUP_ID/ARTIFACT_ID/VERSION empty, exit 1"
+    exit 1
+fi
+echo "$GROUP_ID $ARTIFACT_ID $VERSION"
 
 # Set up directories
 mkdir -p "${OUTPUT_DIR}/classes"
