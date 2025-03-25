@@ -30,6 +30,9 @@ bazel-opensearch-protos
 .bazel-cache/
 .bazelrc.user
 
+# Gradle
+.gradle/
+
 # Generated files
 generated/
 
