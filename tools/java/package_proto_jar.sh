@@ -95,7 +95,6 @@ cat > "${OUTPUT_DIR}/META-INF/maven/${GROUP_ID}/${ARTIFACT_ID}/pom.xml" << EOF
   <version>${VERSION}</version>
   <name>OpenSearch Protocol Buffers</name>
   <description>Protocol Buffer definitions for OpenSearch</description>
-
   <dependencies>
     <dependency>
       <groupId>com.google.protobuf</groupId>
