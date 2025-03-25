@@ -27,4 +27,6 @@ for jar in $SRC_JARS; do
   (cd "$OUTPUT_DIR" && jar xf "$jar")
 done
 
+rm -rf "$OUTPUT_DIR/com/google/protobuf"
+
 echo "Done! Generated Java files are in $OUTPUT_DIR"

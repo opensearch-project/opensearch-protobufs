@@ -23,8 +23,8 @@ fi
 
 # Step 2: Download protobuf-java and gRPC dependencies if needed
 PROTOBUF_VERSION="3.25.5"
-GRPC_VERSION="1.38.0"
-GUAVA_VERSION="31.0.1-jre"
+GRPC_VERSION="1.68.2"
+GUAVA_VERSION="33.2.1-jre"
 JAVAX_ANNOTATION_VERSION="1.3.2"
 PROTOBUF_JAR="${OUTPUT_DIR}/protobuf-java-${PROTOBUF_VERSION}.jar"
 GRPC_STUB_JAR="${OUTPUT_DIR}/grpc-stub-${GRPC_VERSION}.jar"
@@ -137,7 +137,12 @@ groupId=${GROUP_ID}
 artifactId=${ARTIFACT_ID}
 EOF
 
-# Step 4: Create JAR file
+# Step 4: Ensure Google Protobuf classes are excluded
+echo "Ensuring Google Protobuf classes are excluded..."
+rm -rf "${OUTPUT_DIR}/classes/com/google/protobuf"
+rm -rf "${OUTPUT_DIR}/classes/google/protobuf"
+
+# Step 5: Create JAR file
 echo "Creating JAR file..."
 (cd "${OUTPUT_DIR}/classes" && jar cf "../${JAR_NAME}" .)
 jar uf "${OUTPUT_DIR}/${JAR_NAME}" -C "${OUTPUT_DIR}" META-INF
