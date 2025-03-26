@@ -1,0 +1,146 @@
+openapi: 3.1.0
+info:
+  title: Pet Store API
+  version: 2.0.0
+  description: Pet Store API
+paths:
+  /pets/{petId}:
+    get:
+      summary: Get pet
+      operationId: getPet
+      x-operation-group: get
+      parameters:
+        - $ref: '#/components/parameters/pets___path.petId'
+        - $ref: '#/components/parameters/pets___query.tags'
+      responses:
+        '200':
+          $ref: '#/components/responses/add___201'
+  /pets:
+    post:
+      summary: Add a new pet
+      operationId: AddPet
+      x-operation-group: add
+      parameters:
+        - $ref: '#/components/parameters/pets___query.tags'
+      requestBody:
+        $ref: '#/components/requestBodies/_common___NewPet'
+      responses:
+        '201':
+          $ref: '#/components/responses/add___201'
+components:
+  parameters:
+    pets___path.petId:
+      name: petId
+      in: path
+      required: true
+      schema:
+        type: integer
+    pets___query.tags:
+      name: tags
+      in: query
+      schema:
+        type: array
+        items:
+          type: string
+  requestBodies:
+    _common___NewPet:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/NewPet'
+  responses:
+    add___201:
+      description: Pet added
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Pet'
+  schemas:
+    Pet:
+      allOf:
+        - $ref: '#/components/schemas/PetBase'
+        - oneOf:
+            - $ref: '#/components/schemas/Dog'
+            - $ref: '#/components/schemas/Cat'
+            - $ref: '#/components/schemas/Bird'
+      discriminator:
+        propertyName: type
+    NewPet:
+      allOf:
+        - type: object
+          required:
+            - name
+            - type
+          properties:
+            name:
+              type: string
+            type:
+              type: string
+              enum:
+                - dog
+                - cat
+                - bird
+        - oneOf:
+            - $ref: '#/components/schemas/Dog'
+            - $ref: '#/components/schemas/Cat'
+            - $ref: '#/components/schemas/Bird'
+      discriminator:
+        propertyName: type
+    PetBase:
+      type: object
+      required:
+        - id
+        - name
+        - type
+      properties:
+        id:
+          type: integer
+        underscore_name:
+          type: string
+        underscore_type:
+          type: string
+          enum:
+            - dog
+            - cat
+            - bird
+    Dog:
+      type: object
+      required:
+        - breed
+      properties:
+        isTrained:
+          type: boolean
+        underscore_breed:
+          type: string
+    Cat:
+      type: object
+      required:
+        - color
+      properties:
+        color:
+          type: string
+        livesLeft:
+          type: integer
+    Bird:
+      allOf:
+        - type: object
+          required:
+            - species
+          properties:
+            species:
+              type: string
+        - $ref: '#/components/schemas/BirdAbilities'
+    BirdAbilities:
+      anyOf:
+        - type: object
+          required:
+            - canFly
+          properties:
+            underscore_canFly:
+              type: boolean
+        - type: object
+          required:
+            - canTalk
+          properties:
+            underscore_canTalk:
+              type: boolean

@@ -1,0 +1,173 @@
+openapi: 3.1.0
+info:
+  title: Pet Store API
+  version: 2.0.0
+  description: Pet Store API
+paths:
+  /pets:
+    get:
+      summary: Get pet
+      operationId: getPet.0
+      x-operation-group: get
+      parameters:
+        - $ref: "#/components/parameters/pets___query.tags"
+      responses:
+        '200':
+          $ref: '#/components/responses/get___200'
+    post:
+      summary: Add a new pet
+      operationId: AddPet.0
+      x-operation-group: add
+      parameters:
+        - $ref: "#/components/parameters/pets___query.tags"
+      requestBody:
+        $ref: '#/components/requestBodies/_common___NewPet'
+      responses:
+        '201':
+          $ref: '#/components/responses/add___201'
+  /pets/{petId}:
+    get:
+      summary: Get pet
+      operationId: getPet.1
+      x-operation-group: get
+      parameters:
+        - $ref: '#/components/parameters/pets___path.petId'
+        - $ref: "#/components/parameters/pets___query.tags"
+      responses:
+        '200':
+          $ref: '#/components/responses/add___201'
+  /pet/findByTags:
+    get:
+      tags:
+        - pet
+      summary: Finds Pets by tags.
+      description: Multiple tags can be provided with comma separated strings. Use tag1, tag2, tag3 for testing.
+      operationId: findPetsByTags
+      x-operation-group: FindPets
+      parameters:
+        - name: tags
+          in: query
+          description: Tags to filter by
+          required: false
+          explode: true
+          schema:
+            type: array
+            items:
+              type: string
+      responses:
+        '400':
+          description: Invalid tag value
+components:
+  requestBodies:
+    _common___NewPet:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/_common___NewPet'
+    _common___PetBase:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/_common___PetBase'
+  responses:
+    add___201:
+      description: Pet added
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/_common___Pet'
+    get___200:
+      description: List of pets
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              $ref: '#/components/schemas/_common___Pet'
+  parameters:
+    pets___path.petId:
+      name: petId
+      in: path
+      required: true
+      schema:
+        type: integer
+    pets___query.tags:
+      name: tags
+      in: query
+      schema:
+        type: array
+        items:
+          type: string
+  schemas:
+    _common___PetBase:
+      type: object
+      required: [id, name, type]
+      properties:
+        id:
+          type: integer
+        _name:
+          type: string
+        _type:
+          type: string
+          enum: [dog, cat, bird]
+    aa._common___Dog:
+      type: object
+      required: [breed]
+      properties:
+        _breed:
+          type: string
+        isTrained:
+          type: boolean
+    _common___Cat:
+      type: object
+      required: [color]
+      properties:
+        color:
+          type: string
+        livesLeft:
+          type: integer
+    _common___BirdAbilities:
+      anyOf:
+        - type: object
+          required: [canFly]
+          properties:
+            _canFly:
+              type: boolean
+        - type: object
+          required: [canTalk]
+          properties:
+            _canTalk:
+              type: boolean
+    _common___Bird:
+      allOf:
+        - type: object
+          required: [species]
+          properties:
+            species:
+              type: string
+        - $ref: '#/components/schemas/_common___BirdAbilities'
+    _common___Pet:
+      allOf:
+        - $ref: '#/components/schemas/_common___PetBase'
+        - oneOf:
+            - $ref: '#/components/schemas/aa._common___Dog'
+            - $ref: '#/components/schemas/_common___Cat'
+            - $ref: '#/components/schemas/_common___Bird'
+      discriminator:
+        propertyName: type
+    _common___NewPet:
+      allOf:
+        - type: object
+          required: [name, type]
+          properties:
+            name:
+              type: string
+            type:
+              type: string
+              enum: [dog, cat, bird]
+        - oneOf:
+            - $ref: '#/components/schemas/aa._common___Dog'
+            - $ref: '#/components/schemas/_common___Cat'
+            - $ref: '#/components/schemas/_common___Bird'
+      discriminator:
+        propertyName: type
