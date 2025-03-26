@@ -95,43 +95,6 @@ cat > "${OUTPUT_DIR}/META-INF/maven/${GROUP_ID}/${ARTIFACT_ID}/pom.xml" << EOF
   <version>${VERSION}</version>
   <name>OpenSearch Protocol Buffers</name>
   <description>Protocol Buffer definitions for OpenSearch</description>
-  <dependencies>
-    <dependency>
-      <groupId>com.google.protobuf</groupId>
-      <artifactId>protobuf-java</artifactId>
-      <version>${PROTOBUF_VERSION}</version>
-    </dependency>
-    <dependency>
-      <groupId>io.grpc</groupId>
-      <artifactId>grpc-stub</artifactId>
-      <version>${GRPC_VERSION}</version>
-    </dependency>
-    <dependency>
-      <groupId>io.grpc</groupId>
-      <artifactId>grpc-protobuf</artifactId>
-      <version>${GRPC_VERSION}</version>
-    </dependency>
-    <dependency>
-      <groupId>io.grpc</groupId>
-      <artifactId>grpc-core</artifactId>
-      <version>${GRPC_VERSION}</version>
-    </dependency>
-    <dependency>
-      <groupId>io.grpc</groupId>
-      <artifactId>grpc-api</artifactId>
-      <version>${GRPC_VERSION}</version>
-    </dependency>
-    <dependency>
-      <groupId>com.google.guava</groupId>
-      <artifactId>guava</artifactId>
-      <version>${GUAVA_VERSION}</version>
-    </dependency>
-    <dependency>
-      <groupId>javax.annotation</groupId>
-      <artifactId>javax.annotation-api</artifactId>
-      <version>${JAVAX_ANNOTATION_VERSION}</version>
-    </dependency>
-  </dependencies>
   <url>https://github.com/opensearch-project/opensearch-protobufs</url>
   <scm>
     <url>https://github.com/opensearch-project/opensearch-protobufs</url>
