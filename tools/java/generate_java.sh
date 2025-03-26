@@ -2,8 +2,17 @@
 # Script to generate Java files from proto files using Bazel
 set -vex
 
+function exit_script() {
+    echo "Exit 1"
+    exit 1
+}
+
+# Trap abnormal exit due to bazel not return non-zero status
+trap exit_script TERM INT
+
 # Set up variables
-OUTPUT_DIR="generated/java"
+ROOT_DIR="`dirname "$(realpath $0)"`/../.."
+OUTPUT_DIR="$ROOT_DIR/generated/java"
 BAZEL_BIN_DIR=$(readlink -f bazel-bin)
 
 # Clean up existing output directory
@@ -12,7 +21,7 @@ mkdir -p "$OUTPUT_DIR"
 
 # Build the Java proto library
 echo "Building Java proto library..."
-cd $(dirname "$0")/../.. && bazel build //... && cd - > /dev/null
+cd $ROOT_DIR && bazel build //... && cd - > /dev/null
 
 # Find all source JAR files
 echo "Finding source JAR files..."

@@ -25,7 +25,7 @@ mkdir -p "${OUTPUT_DIR}/META-INF/maven/${GROUP_ID}/${ARTIFACT_ID}"
 # Step 1: Generate Java files from proto files (if not already done)
 if [ ! -d "$OUTPUT_DIR_JAVA" ] || [ -z "$(find "$OUTPUT_DIR_JAVA" -name '*.java')" ]; then
   echo "Generating Java files from proto files..."
-  ./tools/java/generate_java.sh
+  exec "$ROOT_DIR/tools/java/generate_java.sh"
 fi
 
 

@@ -11,6 +11,7 @@ Inspired from [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 - Use java_grpc_library instead of protoc to generate GRPC Java libraries. ([#15](https://github.com/opensearch-project/opensearch-protobufs/pull/15))
 - Exclude `com.google.protobuf.*` classes from the `opensearch-protobuf-*` jar and upgrade dependency versions to match core ([#17](https://github.com/opensearch-project/opensearch-protobufs/pull/17))
 - Update jar publishing to sonatype repository with gradle ([#14](https://github.com/opensearch-project/opensearch-protobufs/pull/14))
+- Update jar generation script with proper exit trap and add java build github action workflow
 
 ### Removed
 

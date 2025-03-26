@@ -30,9 +30,6 @@ bazel-opensearch-protos
 .bazel-cache/
 .bazelrc.user
 
-# Gradle
-.gradle/
-
 # Generated files
 generated/
 
@@ -57,6 +54,10 @@ maven_output/
 *.zip
 *.tar.gz
 *.rar
+
+# Gradle
+.gradle/
+!gradle-wrapper.jar
 
 # Logs
 *.log
