@@ -154,3 +154,6 @@ RUN mkdir -p /dist && \
 
 FROM base AS package-out
 COPY --from=make-package /dist /dist
+
+VOLUME /output
+CMD ["cp", "/dist", "/output/"]
