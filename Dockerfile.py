@@ -1,4 +1,5 @@
 # Usage `docker build --target <stage-name> -t opensearch-proto-python -f Dockerfile.py .` 
+# Dockerfile must be located at the root of: https://github.com/opensearch-project/opensearch-protobufs
 
 ###############################################################################
 # Stage 0: Setup shared environment/base image
