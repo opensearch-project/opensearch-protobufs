@@ -140,7 +140,7 @@ WORKDIR /dist
 
 # Small sanity test script to load and use package
 RUN pip install --no-cache-dir grpcio==$PIP_GRPCIO_VERSION grpcio-tools==$PIP_GRPCIO_TOOLS_VERSION protobuf==$PIP_PROTOBUF_VERSION
-RUN pip install --no-cache-dir /dist/*
+RUN pip install --no-cache-dir *.whl
 RUN echo 'import grpc\n\
 from opensearch_protos.protos.schemas import document_pb2\n\
 \n\
@@ -149,7 +149,7 @@ def testdocument_pb2BulkRequest():\n\
     body = bulk_request.request_body.add()\n\
     body.index.id = "doc1"\n\
     body.index.index = "my_index"\n\
-    body.doc = '{"field1": "value1", "field2": 42}'\n\
+    body.doc = b'"'"'{"field1": "value1", "field2": 42}'"'"'\n\
     print(bulk_request.SerializeToString())\n\
 \n\
 if __name__ == "__main__":\n\
