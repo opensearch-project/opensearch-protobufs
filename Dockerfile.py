@@ -4,9 +4,15 @@ FROM python:3.10-slim AS proto-build
 # docker build --target proto-build -t opensearch-proto-python -f Dockerfile.py .
 # docker build --target proto-run -t opensearch-proto-python -f Dockerfile.py .
 
-ENV PIP_GRPCIO_VERSION=1.69.0
-ENV PIP_GRPCIO_TOOLS_VERSION=1.69.0
-ENV PIP_PROTOBUF_VERSION=4.3.0
+# Notes on OpenSearch trying to match core proto & gRPC versions: 
+# https://github.com/opensearch-project/OpenSearch/blob/main/gradle/libs.versions.toml
+# - No pip package for grpcio 1.68.2 so we use closest 1.68.1 release.
+# - pip packages bump major versions independently of pensource protobuf repo - in both java & python the minor version corresponds to open source release tags.
+# - pip enforces "grpcio-tools 1.68.1 depends on protobuf<6.0dev and >=5.26.1" so we have to bump proto 25.5 -> 26.1.
+
+ENV PIP_GRPCIO_VERSION=1.68.1
+ENV PIP_GRPCIO_TOOLS_VERSION=1.68.1
+ENV PIP_PROTOBUF_VERSION=5.26.1
 
 # Update pip
 RUN pip install --upgrade pip
