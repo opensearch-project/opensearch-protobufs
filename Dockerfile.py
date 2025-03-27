@@ -139,13 +139,13 @@ setup(\n\
     python_requires=">=3.8",\n\
 )' > opensearch_protos_package/setup.py
 
-# # Build the package
-# WORKDIR /build/opensearch_protos_package
-# RUN python -m build
+# Build the package
+WORKDIR /build/opensearch_protos_package
+RUN python -m build
 
-# # Create dist dir and copy wheel
-# RUN mkdir -p /dist && \
-#     cp dist/*.whl /dist/
+# Create dist dir and copy wheel
+RUN mkdir -p /dist && \
+    cp dist/*.whl /dist/
 
 ###############################################################################
 # Stage 4: Helper stage to copy dist from image
