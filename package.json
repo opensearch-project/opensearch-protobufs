@@ -45,7 +45,7 @@
     "json-diff-ts": "^4.0.1",
     "json-schema-to-typescript": "^14.0.4",
     "lodash": "^4.17.21",
-    "protobufjs": "^6.11.2",
+    "protobufjs": "^6.11.4",
     "qs": "^6.12.1",
     "smile-js": "^0.7.0",
     "titlecase": "^1.1.3",
