@@ -4,7 +4,7 @@ This repository stores the Protobufs and generated code used for client <> serve
 
 The [opensearch-api-specification repo](https://github.com/opensearch-project/opensearch-api-specification)  will continue to be the source of truth, and these protobufs will mostly be a downstream consumer of the spec.
 
-This repository will also include a variety of tooling and CI, linters and validators, and generated code, described in more default below.
+This repository will also include a variety of tooling and CI, linters and validators, and generated code, which is described in more detail below.
 
 ## Intended usage of the repo
 The repo will consist of:

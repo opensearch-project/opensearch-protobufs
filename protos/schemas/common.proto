@@ -89,7 +89,6 @@ message ObjectMap {
       // Represents a repeated `Value`.
       ListValue list_value = 6;
     }
-
   }
 
   // `ListValue` is a wrapper around a repeated field of values.
@@ -275,7 +274,7 @@ message ErrorCause {
 
   optional string index_uuid = 9;
 
-  .google.protobuf.Struct additional_details = 10;
+  .google.protobuf.Struct metadata = 10;
 
 }
 message ShardStatistics {
