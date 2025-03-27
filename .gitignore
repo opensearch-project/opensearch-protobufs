@@ -65,3 +65,7 @@ maven_output/
 # OS specific files
 .DS_Store
 Thumbs.db
+
+# proto conversion
+protos/generated/.openapi-generator
+/cloned-repo

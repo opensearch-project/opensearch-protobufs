@@ -18,7 +18,7 @@ const default_api_to_proto_str = default_api_to_proto.join(',');
 
 const command = new Command()
   .description('Preprocess an OpenAPI spec by filtering for specific paths and then sanitizing it.')
-  .addOption(new Option('-i, --input <path>', 'input YAML file').default((path.resolve(__dirname, '../../../build/opensearch-openapi.yaml'))))
+  .addOption(new Option('-i, --input <path>', 'input YAML file').default((path.resolve(__dirname, '../../../opensearch-openapi.yaml'))))
   .addOption(new Option('-o, --output <path>', 'output YAML file').default((path.resolve(__dirname, '../../../build/processed-opensearch-openapi.yaml'))))
   .addOption(
     new Option('-p, --filtered_path <paths>', 'the paths to keep (comma-separated, e.g., /_search,)')

@@ -36,11 +36,12 @@ dependencies {
 ```
 
 
-# Protobuf Convert Tools
+# Protobuf Convert Process
 
-**ProtoConvertTools** consists of the following component
+**ProtoConvertProcess** consists of the following steps:
 - **Preprocessing** Preprocess downloaded [OpenSearch API Specification](https://github.com/opensearch-project/opensearch-api-specification) before convert to Protobuf-schema.
-- **Postprocessing** Postprocess the generated Protobuf files after OpenAPI to Proto conversion.
+- **Conversion** The prepared API specification is transformed into a Protobuf schema using [openapi-generator](https://github.com/OpenAPITools/openapi-generator). 
+- **Postprocessing** The resulting Protobuf files are refined and adjusted to meet the standards after the conversion.
 
 The [Spec Preprocessing](tools/proto-convert/src/PreProcessing.ts) includes two steps:
 
@@ -69,6 +70,10 @@ The [Spec Preprocessing](tools/proto-convert/src/PreProcessing.ts) includes two 
  npm run preprocessing  -i <input_path> -o <output_path>
 ```
 
+**openapi-generator**
+
+OpenAPI Generator offers a range of configuration options. The configuration is specified in the [protobuf-generator-config.yaml](tools/proto-convert/src/config/protobuf-generator-config.yaml).
+OpenAPI Generator supports the customization of mustache templates to generate the desired output, with the templates located in [protobuf-schema-template](tools/proto-convert/src/config/protobuf-schema-template)
 # Ignored files
 
 All generated files are excluded from version control via the `.gitignore` file. This includes:
