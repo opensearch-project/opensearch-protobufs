@@ -156,4 +156,4 @@ FROM base AS package-out
 COPY --from=make-package /dist /dist
 
 VOLUME /output
-CMD ["cp", "/dist", "/output/"]
+CMD ["cp", "-r", "/dist", "/output/"]
