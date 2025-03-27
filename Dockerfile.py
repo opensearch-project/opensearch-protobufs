@@ -1,10 +1,10 @@
 # Usage `docker build --target <stage-name> -t opensearch-proto-python -f Dockerfile.py .` 
 
 ###############################################################################
-# Stage 1: Discover .proto files and build python source with protoc
+# Stage 0: Setup shared environment/base image
 ###############################################################################
 
-FROM python:3.10-slim AS proto-build
+FROM python:3.10-slim AS base
 
 # Notes on OpenSearch trying to match core proto & gRPC versions: 
 # https://github.com/opensearch-project/OpenSearch/blob/main/gradle/libs.versions.toml
@@ -23,6 +23,12 @@ RUN apt-get update && apt-get install -y \
     sed \
     findutils \
     && rm -rf /var/lib/apt/lists/*
+
+###############################################################################
+# Stage 1: Discover .proto files and build python source with protoc
+###############################################################################
+
+FROM base AS proto-build
 WORKDIR /build
 RUN pip install --no-cache-dir grpcio==$PIP_GRPCIO_VERSION grpcio-tools==$PIP_GRPCIO_TOOLS_VERSION protobuf==$PIP_PROTOBUF_VERSION
 
@@ -94,9 +100,9 @@ CMD ["python", "/app/test_imports.py"]
 # Stage 3: Construct python package and generate wheel file
 ###############################################################################
 
-FROM python:3.10-slim AS make-package
+FROM base AS make-package
 WORKDIR /build
-COPY --from=proto-builder /app/generated/python /build/opensearch_protos
+COPY --from=proto-build /build/generated/python /build/opensearch_protos
 RUN pip install --no-cache-dir setuptools wheel build
 
 # Create the Python package structure
@@ -110,7 +116,7 @@ RUN echo 'from setuptools import setup, find_packages\n\
 \n\
 setup(\n\
     name="opensearch-protos",\n\
-    version="0.1.0",\n\
+    version="1.0.0",\n\
     description="OpenSearch Protocol Buffers Python Client",\n\
     author="OpenSearch Contributors",\n\
     author_email="opensearch@example.com",\n\
@@ -133,17 +139,17 @@ setup(\n\
     python_requires=">=3.8",\n\
 )' > opensearch_protos_package/setup.py
 
-# Build the package
-WORKDIR /build/opensearch_protos_package
-RUN python -m build
+# # Build the package
+# WORKDIR /build/opensearch_protos_package
+# RUN python -m build
 
-# Create dist dir and copy wheel
-RUN mkdir -p /dist && \
-    cp dist/*.whl /dist/
+# # Create dist dir and copy wheel
+# RUN mkdir -p /dist && \
+#     cp dist/*.whl /dist/
 
 ###############################################################################
 # Stage 4: Helper stage to copy dist from image
 ###############################################################################
 
-FROM scratch AS package-out
-COPY --from=package-builder /dist /dist
+FROM base AS package-out
+COPY --from=make-package /dist /dist
