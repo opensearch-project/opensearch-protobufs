@@ -70,35 +70,15 @@ RUN bash -c 'set -e; \
     echo "Python code generation completed!"; \
     \
     # Fix imports in generated Python files \
-    find "$OUTPUT_DIR" -name "*.py" -type f -exec sed -i.bak "s/^import protos\./import generated.python.protos./g" {} \; ; \
-    find "$OUTPUT_DIR" -name "*.py" -type f -exec sed -i.bak "s/^from protos\./from generated.python.protos./g" {} \; ; \
+    find "$OUTPUT_DIR" -name "*.py" -type f -exec sed -i.bak "s/^import protos\./import opensearch_protos.protos./g" {} \; ; \
+    find "$OUTPUT_DIR" -name "*.py" -type f -exec sed -i.bak "s/^from protos\./from opensearch_protos.protos./g" {} \; ; \
     find "$OUTPUT_DIR" -name "*.bak" -type f -delete; \
     \
     echo "Done! Generated Python files are in $OUTPUT_DIR"; \
 '
 
 ###############################################################################
-# Stage 2: Create a small image to test generated python source
-###############################################################################
-
-FROM python:3.10-slim as proto-test
-WORKDIR /app
-COPY --from=proto-build /build/generated/python /app/generated/python
-RUN pip install --no-cache-dir grpcio protobuf
-
-# Create a python project structure
-RUN cd /app && \
-    touch generated/__init__.py && \
-    touch generated/python/__init__.py
-ENV PYTHONPATH="/app:${PYTHONPATH}"
-
-# Small discover modules test
-RUN echo 'import sys; print("Python version:", sys.version); print("Available modules:"); import os; print(os.listdir("/app/generated/python"))' > /app/test_imports.py
-
-CMD ["python", "/app/test_imports.py"]
-
-###############################################################################
-# Stage 3: Construct python package and generate wheel file
+# Stage 2: Construct python package and generate wheel file
 ###############################################################################
 
 FROM base AS make-package
@@ -149,11 +129,29 @@ RUN mkdir -p /dist && \
     cp dist/*.whl /dist/
 
 ###############################################################################
-# Stage 4: Helper stage to copy dist from image
+# Stage 3: Helper stage to validate and copy dist from image
 ###############################################################################
 
 FROM base AS package-out
 COPY --from=make-package /dist /dist
+WORKDIR /dist
+
+# Small sanity test script to load and use package
+RUN echo 'import grpc\n\
+from opensearch_protos.protos.schemas import document_pb2\n\
+\n\
+def testdocument_pb2BulkRequest():\n\
+    bulk_request = document_pb2.BulkRequest()\n\
+    body = bulk_request.request_body.add()\n\
+    body.index.id = "doc1"\n\
+    body.index.index = "my_index"\n\
+    body.doc = b'{"field1": "value1", "field2": 42}'\n\
+    print(bulk_request.SerializeToString())\n\
+
+if __name__ == "__main__":\n\
+    testdocument_pb2BulkRequest()\n\
+)' > test.py
+RUN python test.py 
 
 VOLUME /output
 CMD ["cp", "-r", "/dist", "/output/"]
