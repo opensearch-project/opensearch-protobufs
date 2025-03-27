@@ -22,5 +22,6 @@ Inspired from [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 - Alphabetize maintainers ([#6](https://github.com/opensearch-project/opensearch-protobufs/pull/7))
 - Rename opensearch-protobuf to opensearch-protobufs ([#13](https://github.com/opensearch-project/opensearch-protobufs/pull/13))
 - Fix sourcefiles not found ([#18](https://github.com/opensearch-project/opensearch-protobufs/pull/18))
+- Fix ErrorCause and InlineGetDictUserDefined protos ([#29](https://github.com/opensearch-project/opensearch-protobufs/pull/29))
 
 ### Security

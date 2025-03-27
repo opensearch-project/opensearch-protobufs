@@ -310,15 +310,17 @@ message ResponseItem {
 
 message InlineGetDictUserDefined {
   // [optional]
-  optional ObjectMap fields = 1;
+  .google.protobuf.Struct metadata_fields = 1;
+  // [optional]
+  .google.protobuf.Struct fields = 2;
   // [required] Whether the document exists.
-  bool found = 2;
+  bool found = 3;
   // [optional] The sequence number assigned to the document for the operation. Sequence numbers are used to ensure an older version of a document doesn't overwrite a newer version
-  optional int64 seq_no = 3;
+  optional int64 seq_no = 4;
   // [optional] The primary term assigned to the document for the operation.
-  optional int64 primary_term = 4;
+  optional int64 primary_term = 5;
   // [optional] Custom value used to route operations to a specific shard.
-  repeated string routing = 5;
+  repeated string routing = 6;
   // [optional] Contains the document's data
   optional bytes source = 7;
 }
