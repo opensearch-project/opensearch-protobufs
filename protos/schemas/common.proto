@@ -57,7 +57,7 @@ message ScriptLanguage {
     BUILTIN_SCRIPT_LANGUAGE_MUSTACHE = 3;
     BUILTIN_SCRIPT_LANGUAGE_PAINLESS = 4;
   }
-  // [required]
+  // [optional] Default is painless.
   oneof script_language {
     BuiltinScriptLanguage builtin_script_language = 1;
     string string_value = 2;
@@ -77,32 +77,7 @@ message ObjectMap {
   map<string, Value> fields = 1;
 
   message Value {
-    // The kind of value.
     oneof value {
-      // Represents a null value.
-      NullValue null_value = 1;
-      // Represents a double value.
-      GeneralNumber general_number = 2;
-      // Represents a string value.
-      string string_value = 3;
-      // Represents a boolean value.
-      bool bool_value = 4;
-      // Represents a structured value.
-      ObjectMap object_map = 5;
-      // Represents a repeated `Value`.
-      ListValue list_value = 6;
-    }
-  }
-
-  // `ListValue` is a wrapper around a repeated field of values.
-  // The JSON representation for `ListValue` is JSON array.
-  message ListValue {
-    // Repeated field of dynamically typed values.
-    repeated ValueWithoutWrappers value_without_wrappers = 1;
-  }
-
-  message ValueWithoutWrappers {
-    oneof value_without_wrappers {
       NullValue null_value = 1;
       int32 int32 = 2;
       int64 int64 = 3;
@@ -113,6 +88,13 @@ message ObjectMap {
       ObjectMap object_map = 8;
       ListValue list_value = 9;
     }
+  }
+  
+  // `ListValue` is a wrapper around a repeated field of values.
+  // The JSON representation for `ListValue` is JSON array.
+  message ListValue {
+    // Repeated field of dynamically typed values.
+    repeated Value value_without_wrappers = 1;
   }
 }
 
@@ -278,7 +260,7 @@ message ErrorCause {
   optional string index_uuid = 9;
 
   // [optional] The spec actually does not have a field named 'metadata'. This should have adaptor_unnest. 
-  map<string, StringOrStringArray> metadata = 10;
+  map<string, .google.protobuf.Value> metadata = 10;
 
   // [optional] 
   map<string, StringOrStringArray> header = 11;
