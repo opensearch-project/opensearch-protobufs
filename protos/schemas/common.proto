@@ -36,7 +36,7 @@ message Script {
 message InlineScript {
   // [optional]
   // The parameters that can be passed to the script.
-  map<string, .google. params = 1;
+  ObjectMap params = 1;
 
   // [optional]
   // The script's language. Default is painless.
@@ -57,10 +57,12 @@ message ScriptLanguage {
     BUILTIN_SCRIPT_LANGUAGE_MUSTACHE = 3;
     BUILTIN_SCRIPT_LANGUAGE_PAINLESS = 4;
   }
-  // [optional] one of string_vaue or builtin_script_language must be specified.
-  optional BuiltinScriptLanguage builtin_script_language = 1;
-  // [optional] one of string_vaue or builtin_script_language must be specified.
-  optional string string_value = 2;
+  oneof {
+    // [optional] one of string_vaue or builtin_script_language must be specified.
+    optional BuiltinScriptLanguage builtin_script_language = 1;
+    // [optional] one of string_vaue or builtin_script_language must be specified.
+    optional string string_value = 2;
+  }
 }
 
 message StoredScriptId {
