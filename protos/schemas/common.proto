@@ -260,7 +260,7 @@ message ErrorCause {
   optional string index_uuid = 9;
 
   // [optional] The spec actually does not have a field named 'metadata'. This should have adaptor_unnest. 
-  map<string, StringOrStringArray> metadata = 10;
+  map<string, .google.protobuf.Value> metadata = 10;
 
   // [optional] 
   map<string, StringOrStringArray> header = 11;
