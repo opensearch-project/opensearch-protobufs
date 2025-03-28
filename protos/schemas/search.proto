@@ -19,7 +19,7 @@ message SearchRequest {
    // [optional] A list of indices to search for documents. If not provided, the default value will be to search through all indexes.
    repeated string index = 1;
    // [optional] Whether to include the _source field in the response.
-   SourceConfigParam source = 2 [json_name = "_source"];
+   SourceConfigParam source = 2;
    // [optional] A list of source fields to exclude from the response. You can also use this parameter to exclude fields from the subset specified in `source_includes` query parameter. If the `source` parameter is `false`, this parameter is ignored.
    repeated string source_excludes = 3;
    // [optional] A list of source fields to include in the response. If this parameter is specified, only these source fields are returned. You can exclude fields from this subset using the `source_excludes` query parameter. If the `source` parameter is `false`, this parameter is ignored.
