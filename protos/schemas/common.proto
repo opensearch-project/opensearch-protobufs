@@ -274,8 +274,11 @@ message ErrorCause {
 
   optional string index_uuid = 9;
 
-  .google.protobuf.Struct metadata = 10;
+  // [optional] The spec actually does not have a field named 'metadata'. This should have adaptor_unnest. 
+  map<string, StringOrStringArray> metadata = 10;
 
+  // [optional] 
+  map<string, StringOrStringArray> header = 11;
 }
 message ShardStatistics {
   // [required] Number of shards that failed to execute the request. Note that shards that are not allocated will be considered neither successful nor failed. Having failed+successful less than total is thus an indication that some of the shards were not allocated.
