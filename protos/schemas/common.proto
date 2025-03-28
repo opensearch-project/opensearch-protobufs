@@ -57,14 +57,16 @@ message ScriptLanguage {
     BUILTIN_SCRIPT_LANGUAGE_MUSTACHE = 3;
     BUILTIN_SCRIPT_LANGUAGE_PAINLESS = 4;
   }
-  BuiltinScriptLanguage builtin_script_language = 1;
-  string string_value = 2;
+  // [optional] one of string_vaue or builtin_script_language must be specified.
+  optional BuiltinScriptLanguage builtin_script_language = 1;
+  // [optional] one of string_vaue or builtin_script_language must be specified.
+  optional string string_value = 2;
 }
 
 message StoredScriptId {
   // [optional]
   // The parameters that can be passed to the script.
-  ObjectMap params = 1;
+  map<string, .google.protobuf.Value> params = 1;
   // [required]
   // The ID of a stored script previously created using the Create Stored Script API.
   string id = 2;
