@@ -16,8 +16,8 @@ Inspired from [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 - Remove maven pom dependencies ([#26](https://github.com/opensearch-project/opensearch-protobufs/pull/26))
 - Resolve CVE-2023-36665 protobufjs ([#32](https://github.com/opensearch-project/opensearch-protobufs/pull/32))
 - Wrap ScriptLanguage fields into a oneof and mark as required ([#35](https://github.com/opensearch-project/opensearch-protobufs/pull/35))
-- Simplify 'ObjectMap' proto definition and fix comment for 'ScriptLanguage' ([#36](https://github.com/opensearch-project/opensearch-protobufs/pull/36))
 - Prepare scripts/tasks for maven central publication ([#37](https://github.com/opensearch-project/opensearch-protobufs/pull/37))
+- Simplify 'ObjectMap' proto definition and fix type for 'ErrorCause.metadata' ([#36](https://github.com/opensearch-project/opensearch-protobufs/pull/36))
 
 ### Removed
 
