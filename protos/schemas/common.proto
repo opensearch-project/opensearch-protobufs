@@ -36,7 +36,7 @@ message Script {
 message InlineScript {
   // [optional]
   // The parameters that can be passed to the script.
-  ObjectMap params = 1;
+  map<string, .google. params = 1;
 
   // [optional]
   // The script's language. Default is painless.
@@ -66,7 +66,7 @@ message ScriptLanguage {
 message StoredScriptId {
   // [optional]
   // The parameters that can be passed to the script.
-  map<string, .google.protobuf.Value> params = 1;
+  ObjectMap params = 1;
   // [required]
   // The ID of a stored script previously created using the Create Stored Script API.
   string id = 2;
