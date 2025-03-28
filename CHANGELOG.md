@@ -15,6 +15,7 @@ Inspired from [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 - Add proto convert preprocessing scripts. ([#7](https://github.com/opensearch-project/opensearch-protobufs/pull/7)
 - Remove maven pom dependencies ([#26](https://github.com/opensearch-project/opensearch-protobufs/pull/26))
 - Resolve CVE-2023-36665 protobufjs ([#32](https://github.com/opensearch-project/opensearch-protobufs/pull/32))
+- Wrap ScriptLanguage fields into a oneof and mark as required ([#335](https://github.com/opensearch-project/opensearch-protobufs/pull/35))
 
 ### Removed
 
@@ -24,6 +25,5 @@ Inspired from [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 - Fix sourcefiles not found ([#18](https://github.com/opensearch-project/opensearch-protobufs/pull/18))
 - Fix ErrorCause and InlineGetDictUserDefined protos ([#29](https://github.com/opensearch-project/opensearch-protobufs/pull/29))
 - Add missing 'header' field to ErrorCause and fix type of 'metadata' field ([#33](https://github.com/opensearch-project/opensearch-protobufs/pull/33))
-- Add 'optional' keyword to ScriptLanguage fields ([#335](https://github.com/opensearch-project/opensearch-protobufs/pull/35))
 
 ### Security
