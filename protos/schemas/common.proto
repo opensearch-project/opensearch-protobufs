@@ -57,11 +57,10 @@ message ScriptLanguage {
     BUILTIN_SCRIPT_LANGUAGE_MUSTACHE = 3;
     BUILTIN_SCRIPT_LANGUAGE_PAINLESS = 4;
   }
-  oneof {
-    // [optional] one of string_vaue or builtin_script_language must be specified.
-    optional BuiltinScriptLanguage builtin_script_language = 1;
-    // [optional] one of string_vaue or builtin_script_language must be specified.
-    optional string string_value = 2;
+  // [required]
+  oneof script_language {
+    BuiltinScriptLanguage builtin_script_language = 1;
+    string string_value = 2;
   }
 }
 
