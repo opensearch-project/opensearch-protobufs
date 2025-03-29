@@ -94,7 +94,7 @@ message ObjectMap {
   // The JSON representation for `ListValue` is JSON array.
   message ListValue {
     // Repeated field of dynamically typed values.
-    repeated Value value_without_wrappers = 1;
+    repeated Value value = 1;
   }
 }
 
@@ -260,7 +260,7 @@ message ErrorCause {
   optional string index_uuid = 9;
 
   // [optional] The spec actually does not have a field named 'metadata'. This should have adaptor_unnest. 
-  map<string, .google.protobuf.Value> metadata = 10;
+  map<string, ObjectMap.Value> metadata = 10;
 
   // [optional] 
   map<string, StringOrStringArray> header = 11;
