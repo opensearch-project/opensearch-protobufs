@@ -27,6 +27,7 @@ Inspired from [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 - Fix sourcefiles not found ([#18](https://github.com/opensearch-project/opensearch-protobufs/pull/18))
 - Fix ErrorCause and InlineGetDictUserDefined protos ([#29](https://github.com/opensearch-project/opensearch-protobufs/pull/29))
 - Add missing 'header' field to ErrorCause and fix type of 'metadata' field ([#33](https://github.com/opensearch-project/opensearch-protobufs/pull/33))
+- Fix 'Value' fields ([#38](https://github.com/opensearch-project/opensearch-protobufs/pull/38))
 
 ### Security
 - Resolve CVE-2023-36665 protobufjs ([#32](https://github.com/opensearch-project/opensearch-protobufs/pull/32))
