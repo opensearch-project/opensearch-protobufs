@@ -18,6 +18,7 @@ Inspired from [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 - Wrap ScriptLanguage fields into a oneof and mark as required ([#35](https://github.com/opensearch-project/opensearch-protobufs/pull/35))
 - Prepare scripts/tasks for maven central publication ([#37](https://github.com/opensearch-project/opensearch-protobufs/pull/37))
 - Simplify 'ObjectMap' proto definition and fix type for 'ErrorCause.metadata' ([#36](https://github.com/opensearch-project/opensearch-protobufs/pull/36))
+- Add GHA to convert from spec to proto ([#39](https://github.com/opensearch-project/opensearch-protobufs/pull/39))
 
 ### Removed
 
