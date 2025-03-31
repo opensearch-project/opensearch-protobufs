@@ -16,4 +16,5 @@ importMappings:
 typeMappings:
   object: "google.protobuf.Struct"
   AnyType: "google.protobuf.Struct"
-
+openapiGeneratorIgnoreList:
+  - "README.md"

@@ -67,5 +67,6 @@ maven_output/
 Thumbs.db
 
 # proto conversion
-protos/generated/.openapi-generator
+protos/tools/.openapi-generator/
+protos/tools/.openapi-generator-ignore
 /cloned-repo
