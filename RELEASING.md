@@ -2,6 +2,7 @@
 
 **DO NOT cut a tag by going to release section of Github UI. It will mess up the Github Action.**
 
+Note: A maintainer must remember to perform steps 1, 2 and 4.
 1. Run these commands from the upstream opensearch-protobufs repository, not a forked one: 
 ```
 git checkout main
