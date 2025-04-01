@@ -5,13 +5,37 @@ package {{#lambda.lowercase}}{{{packageName}}};{{/lambda.lowercase}}
 
 {{#imports}}
 {{#import}}
-import public "{{{import}}}.proto";
+import "{{{import}}}.proto";
 {{/import}}
 {{/imports}}
 
+message ObjectMap {
+  map<string, Value> fields = 1;
+
+  message Value {
+    oneof value {
+      int32 int32 = 1;
+      int64 int64 = 2;
+      float float = 3;
+      double double = 4;
+      string string = 5;
+      bool bool = 6;
+      ObjectMap object_map = 7;
+      ListValue list_value = 8;
+    }
+  }
+
+  // `ListValue` is a wrapper around a repeated field of values.
+  // The JSON representation for `ListValue` is JSON array.
+  message ListValue {
+    // Repeated field of dynamically typed values.
+    repeated Value value = 1;
+  }
+}
+
 {{#models}}
 {{#model}}
-{{#isEnum}}{{>enum}}{{/isEnum}}{{^isEnum}}message {{classname}} {
+{{^isAlias}}{{#isEnum}}{{>enum}}{{/isEnum}}{{^isEnum}}message {{classname}} {
 
 {{#oneOf}}
 {{#-first}}
@@ -20,7 +44,7 @@ import public "{{{import}}}.proto";
         {{#description}}
         // {{{.}}}
         {{/description}}
-        {{#vendorExtensions.x-protobuf-type}}{{{.}}} {{/vendorExtensions.x-protobuf-type}}{{{vendorExtensions.x-protobuf-data-type}}} {{{name}}} = {{vendorExtensions.x-protobuf-index}}{{#vendorExtensions.x-protobuf-packed}} [packed=true]{{/vendorExtensions.x-protobuf-packed}};
+        {{#vendorExtensions.x-protobuf-type}}{{{.}}}{{/vendorExtensions.x-protobuf-type}}{{{vendorExtensions.x-protobuf-data-type}}} {{{name}}} = {{vendorExtensions.x-protobuf-index}}{{#vendorExtensions.x-protobuf-packed}} [packed=true]{{/vendorExtensions.x-protobuf-packed}};
 
         {{/vars}}
     }
@@ -51,5 +75,6 @@ import public "{{{import}}}.proto";
 {{/oneOf}}
 }
 {{/isEnum}}
+{{/isAlias}}
 {{/model}}
 {{/models}}

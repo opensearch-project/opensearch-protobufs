@@ -1,12 +1,11 @@
 {{>partial_header}}
 syntax = "proto3";
 
-package {{#lambda.lowercase}}{{{packageName}}}.{{{apiPackage}}}.{{{classname}}};{{/lambda.lowercase}}
+package {{#lambda.lowercase}}{{{packageName}}}.{{{apiPackage}}};{{/lambda.lowercase}}
 
-import "google/protobuf/empty.proto";
 {{#imports}}
 {{#import}}
-import public "{{{.}}}.proto";
+import "{{{.}}}.proto";
 {{/import}}
 {{/imports}}
 
@@ -19,6 +18,7 @@ message {{operationId}}Request {
   // {{{.}}}
   {{/description}}
   {{#vendorExtensions.x-protobuf-type}}{{.}} {{/vendorExtensions.x-protobuf-type}}{{^isMap}}{{^required}}{{^vendorExtensions.x-protobuf-type}}optional {{/vendorExtensions.x-protobuf-type}}{{/required}}{{/isMap}}{{vendorExtensions.x-protobuf-data-type}} {{paramName}} = {{vendorExtensions.x-protobuf-index}}{{#vendorExtensions.x-protobuf-json-name}} [json_name="{{vendorExtensions.x-protobuf-json-name}}"]{{/vendorExtensions.x-protobuf-json-name}};
+
   {{/allParams}}
 
 }
@@ -33,11 +33,13 @@ message {{operationId}}Response {
 
 {{#supportMultipleResponses}}
 message {{operationId}}Response {
+
     oneof response {
     {{#responses}}
         {{{vendorExtensions.x-oneOf-response-type}}} {{vendorExtensions.x-oneOf-response-name}} = {{vendorExtensions.x-oneOf-response-index}};
     {{/responses}}
     }
+
 }
 {{/supportMultipleResponses}}
 {{/operation}}
