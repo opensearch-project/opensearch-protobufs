@@ -6,11 +6,15 @@ allprojects {
     ext {
         artifactName = 'protobufs'
     }
-    version = '1.0.0'
     group = 'org.opensearch'
+    def build = new Properties()
+    file("version.properties").withInputStream { build.load(it) }
+    version = build.getProperty("version")
     var isSnapshot = System.getProperty("build.snapshot", "true")
     if (isSnapshot.toBoolean() && !version.endsWith("SNAPSHOT")) {
         version = version + "-SNAPSHOT"
+    } else if (!isSnapshot && version.endsWith("SNAPSHOT")) {
+        throw GradleException("Expecting release (non-SNAPSHOT) build but version is not set accordingly: " + version)
     }
 }
 
