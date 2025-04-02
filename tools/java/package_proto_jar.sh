@@ -177,19 +177,40 @@ echo "Ensuring Google Protobuf classes are excluded..."
 rm -rf "${OUTPUT_DIR_MAVEN}/classes/com/google/protobuf"
 rm -rf "${OUTPUT_DIR_MAVEN}/classes/google/protobuf"
 
-# Step 5: Create JAR file
-echo "Creating JAR file..."
+# Step 5: Create JAR files
+echo "Creating main JAR file..."
 (cd "${OUTPUT_DIR_MAVEN}/classes" && jar cf "../${JAR_NAME}" .)
 jar uf "${OUTPUT_DIR_MAVEN}/${JAR_NAME}" -C "${OUTPUT_DIR_MAVEN}" META-INF
 
-# Step 5: Install to local Maven repository
+# Create sources JAR
+echo "Creating sources JAR file..."
+SOURCES_JAR_NAME="${ARTIFACT_ID}-${VERSION}-sources.jar"
+(cd "$OUTPUT_DIR_JAVA" && jar cf "${OUTPUT_DIR_MAVEN}/${SOURCES_JAR_NAME}" .)
+
+# Create javadoc JAR
+echo "Creating javadoc JAR file..."
+JAVADOC_JAR_NAME="${ARTIFACT_ID}-${VERSION}-javadoc.jar"
+JAVADOC_DIR="${OUTPUT_DIR_MAVEN}/javadoc"
+mkdir -p "${JAVADOC_DIR}"
+
+# Generate javadoc
+echo "Generating javadoc..."
+find "$OUTPUT_DIR_JAVA" -name "*.java" > "${OUTPUT_DIR_MAVEN}/javadoc_sources.txt"
+javadoc -d "${JAVADOC_DIR}" -classpath "${PROTOBUF_JAR}:${GRPC_STUB_JAR}:${GRPC_PROTOBUF_JAR}:${GRPC_CORE_JAR}:${GRPC_API_JAR}:${GUAVA_JAR}:${JAVAX_ANNOTATION_JAR}" @"${OUTPUT_DIR_MAVEN}/javadoc_sources.txt" || echo "Javadoc generation had warnings, but continuing..."
+
+# Package javadoc into JAR
+(cd "${JAVADOC_DIR}" && jar cf "${OUTPUT_DIR_MAVEN}/${JAVADOC_JAR_NAME}" .)
+
+# Step 6: Install to local Maven repository
 echo "Installing to local Maven repository..."
 GROUP_PATH=$(echo ${GROUP_ID} | tr '.' '/')
 ARTIFACT_PATH="${MAVEN_LOCAL_REPO}/${GROUP_PATH}/${ARTIFACT_ID}/${VERSION}"
 mkdir -p "${ARTIFACT_PATH}"
 
-# Copy JAR file
+# Copy JAR files
 cp "${OUTPUT_DIR_MAVEN}/${JAR_NAME}" "${ARTIFACT_PATH}/"
+cp "${OUTPUT_DIR_MAVEN}/${SOURCES_JAR_NAME}" "${ARTIFACT_PATH}/"
+cp "${OUTPUT_DIR_MAVEN}/${JAVADOC_JAR_NAME}" "${ARTIFACT_PATH}/"
 
 # Copy POM file
 cp "${OUTPUT_DIR_MAVEN}/META-INF/maven/${GROUP_ID}/${ARTIFACT_ID}/pom.xml" "${ARTIFACT_PATH}/${POM_NAME}"
@@ -249,4 +270,10 @@ PUBLISH_DIR="$OUTPUT_DIR_MAVEN/publish"
 rm -rf "$PUBLISH_DIR" && mkdir -p "$PUBLISH_DIR"
 cp -v "${OUTPUT_DIR_MAVEN}/META-INF/maven/${GROUP_ID}/${ARTIFACT_ID}/pom.xml" "${PUBLISH_DIR}/${JAR_NAME%.jar}.pom" 
 cp -v "${OUTPUT_DIR_MAVEN}/${JAR_NAME}" "${PUBLISH_DIR}"
+cp -v "${OUTPUT_DIR_MAVEN}/${SOURCES_JAR_NAME}" "${PUBLISH_DIR}"
+cp -v "${OUTPUT_DIR_MAVEN}/${JAVADOC_JAR_NAME}" "${PUBLISH_DIR}"
 
+echo "Generated JAR files:"
+echo "  Main JAR: ${OUTPUT_DIR_MAVEN}/${JAR_NAME}"
+echo "  Sources JAR: ${OUTPUT_DIR_MAVEN}/${SOURCES_JAR_NAME}"
+echo "  Javadoc JAR: ${OUTPUT_DIR_MAVEN}/${JAVADOC_JAR_NAME}"
