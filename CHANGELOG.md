@@ -24,6 +24,7 @@ Inspired from [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 - Document steps to cut a release ([#44](https://github.com/opensearch-project/opensearch-protobufs/pull/44))
 - Add missing SearchRequestBody and ErrorResponse fields ([#45](https://github.com/opensearch-project/opensearch-protobufs/pull/45))
 - Generate javadoc jar and sources jar ([#49](https://github.com/opensearch-project/opensearch-protobufs/pull/49))
+- Upload javadoc and sources jar to maven ([#50](https://github.com/opensearch-project/opensearch-protobufs/pull/50))
 
 ### Removed
 

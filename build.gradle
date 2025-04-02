@@ -28,7 +28,8 @@ publishing {
             groupId = group
             artifactId = artifactName
             artifact "./generated/maven/publish/${artifactName}-${version}.jar"
-
+            artifact(source: "./generated/maven/publish/${artifactName}-${version}-sources.jar", classifier: 'sources')
+            artifact(source: "./generated/maven/publish/${artifactName}-${version}-javadoc.jar", classifier: 'javadoc')
         }
     }
 
