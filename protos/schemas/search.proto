@@ -165,10 +165,12 @@ message SearchRequest {
   optional TrackHits track_total_hits = 45;
   // [optional] Whether returned aggregations and suggested terms should include their types in the response. Default is true.
   optional bool typed_keys = 46;
+  // [optional] Enables or disables verbose mode for the search pipeline.
+  optional bool verbose_pipeline = 47;
   // [optional] Whether to include the document version as a match. Default is false
-  optional bool version = 47;
+  optional bool version = 48;
   // [optional] Search Request body
-  SearchRequestBody request_body = 48;
+  SearchRequestBody request_body = 49;
 }
 
 message SearchRequestBody {
