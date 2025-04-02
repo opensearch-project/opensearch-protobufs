@@ -21,6 +21,7 @@ Inspired from [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 - Add GHA to convert from spec to proto ([#39](https://github.com/opensearch-project/opensearch-protobufs/pull/39))
 - Ignore OpenApi-generator generated unnecessary files and add signoff/label:skip-changelog to generated PR ([#40](https://github.com/opensearch-project/opensearch-protobufs/pull/40))
 - Add release drafter action and jenkins workflow in preparation for 0.1.0 maven release ([#43](https://github.com/opensearch-project/opensearch-protobufs/pull/43))
+- Document steps to cut a release ([#44](https://github.com/opensearch-project/opensearch-protobufs/pull/44))
 
 ### Removed
 
