@@ -38,6 +38,7 @@ jobs:
           cache: gradle
       - name: Build with Gradle
         run: |
+          ./tools/java/package_proto_jar.sh -c true -s false
           ./gradlew --no-daemon -Dbuild.snapshot=false publishCreatePublicationToLocalRepoRepository && tar -C build -cvf artifacts.tar.gz repository
       - name: Draft a release
         uses: softprops/action-gh-release@v1
