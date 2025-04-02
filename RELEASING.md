@@ -13,4 +13,4 @@ git push origin <version>
 ```
 2. Wait for Github Actions to run and open the newly created issue. Two maintainers should comment `approve` in the issue.
 3. Wait for Jenkins to be triggered, pull the artifacts built by Actions, push to sonatype release channel on remote. Wait for an hour or so for Sonatype to copy it into Maven Central.
-4. Bump [version.properties](./version.properties) via a PR.
+4. Bump [version.properties](./version.properties) and upload [CHANGELOG.md](./CHANGELOG.md) via a PR.

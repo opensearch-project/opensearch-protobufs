@@ -3,6 +3,15 @@
 Inspired from [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 
 ## [Unreleased]
+### Added
+- Bump version.properties and update changelog after 0.1.0 release  ([#51](https://github.com/opensearch-project/opensearch-protobufs/pull/51))
+### Removed
+
+### Fixed
+
+### Security
+
+## [0.1.0] - 2025-04-02
 
 ### Added
 - Add bulk + search protos and bazel to compile ([#5](https://github.com/opensearch-project/opensearch-protobufs/pull/5))
