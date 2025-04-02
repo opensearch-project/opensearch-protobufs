@@ -23,7 +23,7 @@ Inspired from [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 - Add release drafter action and jenkins workflow in preparation for 0.1.0 maven release ([#43](https://github.com/opensearch-project/opensearch-protobufs/pull/43))
 - Document steps to cut a release ([#44](https://github.com/opensearch-project/opensearch-protobufs/pull/44))
 - Add missing SearchRequestBody and ErrorResponse fields ([#45](https://github.com/opensearch-project/opensearch-protobufs/pull/45))
-- Generate javadocs jar and sources jar  ([#4](https://github.com/opensearch-project/opensearch-protobufs/pull/48))
+- Generate javadoc jar and sources jar ([#49](https://github.com/opensearch-project/opensearch-protobufs/pull/49))
 
 ### Removed
 
