@@ -2020,7 +2020,6 @@ message FieldValue {
     string string_value = 2;
     ObjectMap object_map = 3;
     bool bool_value = 4;
-    NullValue null_value = 5;
   }
 }
 
