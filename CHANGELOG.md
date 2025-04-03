@@ -11,5 +11,6 @@ Inspired from [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 ### Removed
 
 ### Fixed
+- Fix derived type ([#57](https://github.com/opensearch-project/opensearch-protobufs/pull/57))
 
 ### Security
