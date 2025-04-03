@@ -1,8 +1,9 @@
 generatorName: protobuf-schema
-outputDir: protos/tools
+outputDir: protos/generated
 inputSpec: build/processed-opensearch-openapi.yaml
 templateDir: tools/proto-convert/src/config/protobuf-schema-template/
 additionalProperties:
+  packageName: org.opensearch.protobufs
   addJsonNameAnnotation: true
   flattenComplexType: true
   numberedFieldNumberList: true
@@ -11,10 +12,8 @@ additionalProperties:
 inlineSchemaOptions:
   RESOLVE_INLINE_ENUMS: true
   SKIP_SCHEMA_REUSE: true
-importMappings:
-  google.protobuf.Struct: "google/protobuf/struct"
 typeMappings:
-  object: "google.protobuf.Struct"
-  AnyType: "google.protobuf.Struct"
+  object: "ObjectMap"
+  AnyType: "ObjectMap"
 openapiGeneratorIgnoreList:
   - "README.md"
