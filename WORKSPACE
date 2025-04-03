@@ -65,6 +65,9 @@ load("@rules_jvm_external//:defs.bzl", "maven_install")
 maven_install(
     artifacts = IO_GRPC_GRPC_JAVA_ARTIFACTS + [
         "io.netty:netty-handler:4.1.118.Final",
+        "commons-codec:commons-codec:1.13",
+        "org.jetbrains.kotlin:kotlin-stdlib:1.6.0",
+        "com.squareup.okio:okio-jvm:3.4.0",
     ],
     generate_compat_repositories = True,
     override_targets = IO_GRPC_GRPC_JAVA_OVERRIDE_TARGETS,
