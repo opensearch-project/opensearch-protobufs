@@ -640,7 +640,7 @@ message SlicedScroll {
   optional string field = 1;
 
   // [required] The id of the slice
-  string id = 2;
+  int32 id = 2;
 
   // [required] The maximum number of slices
   int32 max = 3;
