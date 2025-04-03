@@ -213,68 +213,97 @@ message SearchRequestBody {
 
   // [optional] Profile provides timing information about the execution of individual components of a search request. Using the Profile API, you can debug slow requests and understand how to improve their performance.
   optional bool profile = 13;
-
+  
+  // [optional] Customizable sequence of processing stages applied to search queries.
+  // TODO add to spec
+  optional string search_pipeline = 14;
+  
+  // [optional] Enables or disables verbose mode for the search pipeline.
+  // TODO add to spec
+  optional bool verbose_pipeline = 15;
+  
   // [optional] The DSL query to use in the request.
-  optional QueryContainer query = 14;
+  optional QueryContainer query = 16;
 
   // [optional] Can be used to improve precision by reordering just the top (for example 100 - 500) documents returned by the `query` and `post_filter` phases.
-  // TODO not supported yet
-  // repeated Rescore rescore = 15;
+  repeated Rescore rescore = 17;
 
   // [optional] The script_fields parameter allows you to include custom fields whose values are computed using scripts in your search results. This can be useful for calculating values dynamically based on the document data. You can also retrieve derived fields by using a similar approach.
-  map<string, ScriptField> script_fields = 16;
+  map<string, ScriptField> script_fields = 18;
 
   // [optional] The search_after parameter provides a live cursor that uses the previous page's results to obtain the next page's results. It is similar to the scroll operation in that it is meant to scroll many queries in parallel. You can use search_after only when sorting is applied.
-  repeated FieldValue search_after = 17;
+  repeated FieldValue search_after = 19;
 
   // [optional] The number of results to return. Default is 10.
-  optional int32 size = 18;
+  optional int32 size = 20;
 
   // [optional] You can use the scroll operation to retrieve a large number of results. For example, for machine learning jobs, you can request an unlimited number of results in batches.
-  // TODO not supported yet
-  // optional SlicedScroll slice = 19;
+  optional SlicedScroll slice = 21;
 
   // [optional] Sorting allows your users to sort results in a way that's most meaningful to them. By default, full-text queries sort results by the relevance score. You can choose to sort the results by any field value in either ascending or descending order by setting the order parameter to asc or desc.
-  repeated SortCombinations sort = 20;
+  repeated SortCombinations sort = 22;
 
   // [optional] Whether to include the _source field in the response.
-  optional SourceConfig source = 21;
+  optional SourceConfig source = 23;
 
   // [optional] The fields to search for in the request. Specify a format to return results in a certain format, such as date and time.
-  repeated FieldAndFormat fields = 22;
+  repeated FieldAndFormat fields = 24;
 
   // [optional] The suggest feature suggests similar looking terms based on a provided text by using a suggester. The suggest request part is defined alongside the query part in a _search request. If the query part is left out, only suggestions are returned.
-  // TODO not supported yet
-  // optional Suggester suggest = 23;
+  optional Suggester suggest = 25;
 
   // [optional] The maximum number of documents OpenSearch should process before terminating the request. If a query reaches this limit, OpenSearch terminates the query early. OpenSearch collects documents before sorting. Use with caution. OpenSearch applies this parameter to each shard handling the request. When possible, let OpenSearch perform early termination automatically. Avoid specifying this parameter for requests that target data streams with backing indices across multiple data tiers. If set to `0` (default), the query does not terminate early. Default is 0.
-  optional int32 terminate_after = 24;
+  optional int32 terminate_after = 26;
 
   // [optional] The period of time to wait for a response. Default is no timeout. If no response is received before the timeout expires, the request fails and returns an error. Defaults to no timeout.
-  optional string timeout = 25;
+  optional string timeout = 27;
 
   // [optional] Whether to return document scores. Default is false.
-  optional bool track_scores = 26;
+  optional bool track_scores = 28;
 
+  // [optional] Whether to return scores with named queries. Default is false.
+  // TODO add to spec
+  optional bool include_named_queries_score = 29;
+  
   // [optional] Whether to include the document version in the response.
-  optional bool version = 27;
+  optional bool version = 30;
 
   // [optional] Whether to return sequence number and primary term of the last operation of each document hit.
-  optional bool seq_no_primary_term = 28;
+  optional bool seq_no_primary_term = 31;
 
   // [optional] A list of stored fields to return as part of a hit. If no fields are specified, no stored fields are included in the response. If this option is specified, the _source parameter defaults to false. You can pass _source: true to return both source fields and stored fields in the search response.
-  repeated string stored_fields = 29;
+  repeated string stored_fields = 32;
 
   // [optional] Point in Time (PIT) lets you run different queries against a dataset that is fixed in time.
-  optional PointInTimeReference pit = 30;
+  optional PointInTimeReference pit = 33;
 
   // [optional] Value to associate with the request for additional logging.
-  repeated string stats = 31;
+  repeated string stats = 34;
 
   // [optional] Defines the aggregations that are run as part of the search request.
   // TODO not supported yet
   // map<string, AggregationContainer> aggs = 32;
+    
+  // [optional] 
+  // TODO add to spec (since 2.14)
+  map<string, ObjectMap> derived = 35;
+}
 
+message DerivedField {
+  // [required]
+  string name = 1;
+  // [required]
+  string type = 2;
+  // [required]
+  Script script = 3;
+  // [optional]
+  optional string prefilter_field = 4;
+  // [optional]
+  map<string, ObjectMap> properties = 5;
+  // [optional]
+  optional bool ignore_malformed = 6;
+  // [optional]
+  optional string format = 7;
 }
 
 message TrackHits {
@@ -565,6 +594,66 @@ message Profile {
 
 }
 
+message RescoreQuery {
+
+  // [required] A second query only on the Top-K results returned by the query and post_filter phases.
+  QueryContainer rescore_query = 1;
+
+  // [optional] The relative importance of the original query as compared to the rescore query.
+  optional float query_weight = 2;
+
+  // [optional] The relative importance of the rescore query as compared to the original query.
+  optional float rescore_query_weight = 3;
+
+  enum ScoreMode {
+    SCORE_MODE_INVALID = 0;
+    // Average the original score and the rescore query score.
+    SCORE_MODE_AVG = 1;
+    // Take the max of original score and the rescore query score.
+    SCORE_MODE_MAX = 2;
+    // Take the min of the original score and the rescore query score.
+    SCORE_MODE_MIN = 3;
+    // Multiply the original score by the rescore query score. Useful for function query rescores.
+    SCORE_MODE_MULTIPLY = 4;
+    // Add the original score and the rescore query score. The default.
+    SCORE_MODE_TOTAL = 5;
+  }
+
+  // [optional] Control the way the scores are combined.
+  ScoreMode score_mode = 4;
+
+}
+
+message Rescore {
+
+  // [required] Contains the rescore_query, which is the secondary query used to adjust the scores of the initial results
+  RescoreQuery query = 1;
+
+  // [optional] The number of docs which will be examined on each shard can be controlled.
+  optional int32 window_size = 2;
+
+}
+
+message SlicedScroll {
+
+  // [optional] Specific document field by which slicing is performed.
+  optional string field = 1;
+
+  // [required] The id of the slice
+  string id = 2;
+
+  // [required] The maximum number of slices
+  int32 max = 3;
+
+}
+
+message Suggester {
+
+  // [optional] Global suggest text, to avoid repetition when the same text is used in several suggesters
+  optional string text = 1;
+
+}
+
 message ShardProfile {
 
   // [required] Profiling information about the aggregation execution.
@@ -658,7 +747,7 @@ message NumberMap {
 
 message PointInTimeReference {
   // [required] ID for the PIT to search. If you provide a pit object, this parameter is required.
-  optional string id = 1;
+  string id = 1;
 
   // [optional] Period of time used to extend the life of the PIT. Units can be `nanos`, `micros`, `ms` (milliseconds), `s` (seconds), `m` (minutes), `h` (hours) and `d` (days). Also accepts \"0\" without a unit and \"-1\" to indicate an unspecified value.
   optional string keep_alive = 2;

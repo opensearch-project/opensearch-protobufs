@@ -543,7 +543,7 @@ message InnerHits {
   repeated FieldAndFormat docvalue_fields = 5;
 
   // [optional] Whether to return details about how OpenSearch computed the document's score. Default is false.
-  bool explain = 6;
+  optional bool explain = 6;
 
   // [optional] Highlighting emphasizes the search term(s) in the results so you can emphasize the query matches.
   optional Highlight highlight = 7;
@@ -558,7 +558,7 @@ message InnerHits {
   optional bool seq_no_primary_term = 10;
 
   // [optional] Retrieve selected fields from a search
-  repeated string fields = 11;
+  repeated FieldAndFormat fields = 11;
 
   // [optional] How the inner hits should be sorted per inner_hits. By default the hits are sorted by the score.
   repeated SortCombinations sort = 12;
@@ -579,7 +579,7 @@ message InnerHits {
 
 message ScriptField {
   Script script = 1;
-  bool ignore_failure = 2;
+  optional bool ignore_failure = 2;
 }
 
 message Highlight {
@@ -995,7 +995,7 @@ message FieldCollapse {
   repeated InnerHits inner_hits = 2;
 
   // [optional] Use to control the maximum number of concurrent searches allowed in this phase.
-  int32 max_concurrent_group_searches = 3;
+  optional int32 max_concurrent_group_searches = 3;
 
   // [optional] Nested collapse within this collapse.
   FieldCollapse collapse = 4;
