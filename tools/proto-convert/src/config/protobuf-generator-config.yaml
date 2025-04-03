@@ -12,8 +12,6 @@ additionalProperties:
 inlineSchemaOptions:
   RESOLVE_INLINE_ENUMS: true
   SKIP_SCHEMA_REUSE: true
-importMappings:
-  ObjectMap: "google/protobuf/struct"
 typeMappings:
   object: "ObjectMap"
   AnyType: "ObjectMap"
