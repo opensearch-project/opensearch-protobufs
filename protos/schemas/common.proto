@@ -579,7 +579,7 @@ message InnerHits {
 
 message ScriptField {
   Script script = 1;
-  bool ignore_failure = 2;
+  optional bool ignore_failure = 2;
 }
 
 message Highlight {
@@ -2020,6 +2020,7 @@ message FieldValue {
     string string_value = 2;
     ObjectMap object_map = 3;
     bool bool_value = 4;
+    NullValue null_value = 5;
   }
 }
 
