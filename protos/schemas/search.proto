@@ -286,7 +286,7 @@ message SearchRequestBody {
     
   // [optional] 
   // TODO add to spec (since 2.14)
-  map<string, ObjectMap> derived = 35;
+  map<string, DerivedField> derived = 35;
 }
 
 message DerivedField {
