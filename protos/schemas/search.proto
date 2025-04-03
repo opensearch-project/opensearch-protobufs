@@ -286,21 +286,7 @@ message SearchRequestBody {
     
   // [optional] 
   // TODO add to spec (since 2.14)
-  message Derived {
-    oneof derived {
-      MapOfDerivedField map_of_derived_fields = 1; 
-      ArrayOfDerivedField array_of_derived_fields = 2; 
-    }
-  }
-  optional Derived derived = 35;
-}
-
-message ArrayOfDerivedField {
-  repeated DerivedField derived_fields = 1; 
-}
-
-message MapOfDerivedField {
-  map<string, ObjectMap> derived_fields = 1;
+  map<string, ObjectMap> derived = 35;
 }
 
 message DerivedField {
