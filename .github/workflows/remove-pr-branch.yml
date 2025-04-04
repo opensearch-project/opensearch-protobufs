@@ -9,7 +9,7 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: write
-    if: github.repository == 'opensearch-project/opensearch-protobufs' && github.event.pull_request.head.ref = 'auto-pr-branch'
+    if: github.repository == 'opensearch-project/opensearch-protobufs' && github.event.pull_request.head.ref == 'auto-pr-branch'
     steps:
     - name: Delete merged branch
       uses: actions/github-script@v7
