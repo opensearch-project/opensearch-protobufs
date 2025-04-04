@@ -9,30 +9,7 @@ import "{{{import}}}.proto";
 {{/import}}
 {{/imports}}
 
-message ObjectMap {
-  map<string, Value> fields = 1;
-
-  message Value {
-    oneof value {
-      int32 int32 = 1;
-      int64 int64 = 2;
-      float float = 3;
-      double double = 4;
-      string string = 5;
-      bool bool = 6;
-      ObjectMap object_map = 7;
-      ListValue list_value = 8;
-    }
-  }
-
-  // `ListValue` is a wrapper around a repeated field of values.
-  // The JSON representation for `ListValue` is JSON array.
-  message ListValue {
-    // Repeated field of dynamically typed values.
-    repeated Value value = 1;
-  }
-}
-
+{{>custom_message}}
 {{#models}}
 {{#model}}
 {{^isAlias}}{{#isEnum}}{{>enum}}{{/isEnum}}{{^isEnum}}message {{classname}} {
