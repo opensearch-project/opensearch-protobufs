@@ -9,6 +9,7 @@ Inspired from [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 - Address vulnerability issues([#56](https://github.com/opensearch-project/opensearch-protobufs/pull/56/))
 - Record source file commit id and change Struct to ObjectMap type for generated protos. ([#61](https://github.com/opensearch-project/opensearch-protobufs/pull/61))
 - Address okio vulnerability issue ([#57](https://github.com/opensearch-project/opensearch-protobufs/pull/57/))
+- Add auto remove workflow for auto-pr-branch ([#62](https://github.com/opensearch-project/opensearch-protobufs/pull/62))
 ### Removed
 
 ### Fixed
