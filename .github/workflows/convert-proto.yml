@@ -1,4 +1,4 @@
-name: Proto Convert
+name: Auto Proto Convert
 
 on:
   workflow_dispatch:
@@ -7,9 +7,9 @@ on:
         description: ''
         required: false
 jobs:
-  build:
+  auto-proto-convert:
     runs-on: ubuntu-latest
-
+    if: github.repository == 'opensearch-project/opensearch-protobufs'
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
@@ -50,6 +50,7 @@ jobs:
             const latestCommit = commits.data[0].sha;
             core.setOutput("latest_commit", latestCommit);
             console.log("Latest commit: " + latestCommit);
+
       - name: Run Proto Conversion
         run: npm ci && npm run preprocessing
 
