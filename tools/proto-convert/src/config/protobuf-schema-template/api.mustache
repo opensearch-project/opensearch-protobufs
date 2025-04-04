@@ -13,6 +13,7 @@ import "{{{.}}}.proto";
 {{#operation}}
 {{#hasParams}}
 message {{operationId}}Request {
+
   {{#allParams}}
   {{#description}}
   // {{{.}}}
@@ -20,7 +21,6 @@ message {{operationId}}Request {
   {{#vendorExtensions.x-protobuf-type}}{{.}} {{/vendorExtensions.x-protobuf-type}}{{^isMap}}{{^required}}{{^vendorExtensions.x-protobuf-type}}optional {{/vendorExtensions.x-protobuf-type}}{{/required}}{{/isMap}}{{vendorExtensions.x-protobuf-data-type}} {{paramName}} = {{vendorExtensions.x-protobuf-index}}{{#vendorExtensions.x-protobuf-json-name}} [json_name="{{vendorExtensions.x-protobuf-json-name}}"]{{/vendorExtensions.x-protobuf-json-name}};
 
   {{/allParams}}
-
 }
 
 {{/hasParams}}
@@ -30,7 +30,6 @@ message {{operationId}}Response {
 }
 
 {{/vendorExtensions.x-grpc-response}}
-
 {{#supportMultipleResponses}}
 message {{operationId}}Response {
 
