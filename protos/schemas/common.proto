@@ -2016,15 +2016,6 @@ message FieldValue {
   }
 }
 
-message FieldValueResponse {
-  oneof value{
-    double double_value = 1;
-    string string_value = 2;
-    .google.protobuf.Struct object = 3;
-    bool bool_value = 4;
-  }
-}
-
 message IdsQuery {
 
   float boost = 1;
