@@ -25,6 +25,11 @@ jobs:
           distribution: temurin
           java-version: 17
 
+      - name: Install buf
+        run: |
+          npm install -g @bufbuild/buf
+          buf --version
+
       - name: Download Release Assets
         uses: robinraju/release-downloader@v1
         with:
@@ -33,6 +38,7 @@ jobs:
           fileName: 'opensearch-openapi.yaml'
           tag: 'main-latest'
           preRelease: true
+
       - name: Get Latest Commit ID
         id: get_commit
         uses: actions/github-script@v6
@@ -69,10 +75,15 @@ jobs:
       #      - name: Post Process Protobuf
       #        run: npm run postprocessing
 
+      - name: Reformat proto files
+        run: |
+          buf format -w protos/generated
+
       - name: Configure Git User
         run: |
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
+
       - name: Check for changes
         id: check_changes
         run: |
