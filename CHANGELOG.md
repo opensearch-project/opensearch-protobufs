@@ -16,5 +16,6 @@ Inspired from [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 ### Fixed
 - Fix derived type ([#57](https://github.com/opensearch-project/opensearch-protobufs/pull/57))
 - Fix slice id type ([#58](https://github.com/opensearch-project/opensearch-protobufs/pull/58))
+- Fix QueryContainer protos for matchall, match none, and term query ([#60](https://github.com/opensearch-project/opensearch-protobufs/pull/60))
 
 ### Security
