@@ -953,20 +953,7 @@ message Explanation {
   // [required] Explains what type of calculation is performed
   string description = 1;
   // [optional] Shows any subcalculations performed.
-  repeated ExplanationDetail details = 2;
-  // [required] Shows the result of the calculation,
-  double value = 3;
-
-}
-
-message ExplanationDetail {
-
-  // [required] Explains what type of calculation is performed
-  string description = 1;
-
-  // [required] Shows any subcalculations performed.
-  repeated ExplanationDetail details = 2;
-
+  repeated Explanation details = 2;
   // [required] Shows the result of the calculation,
   double value = 3;
 
