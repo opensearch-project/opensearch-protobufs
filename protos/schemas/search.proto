@@ -526,7 +526,7 @@ message Hit {
   
   // [optional] Contains field values for the documents.
   // TODO: No field named "meta_fields" in the spec. Needs adaptor_unnest.
-  ObjectMap meta_fields = 21;
+  optional ObjectMap meta_fields = 21;
 }
 
 message ClusterStatistics {
