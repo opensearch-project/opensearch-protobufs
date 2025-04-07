@@ -369,7 +369,7 @@ message ResponseBody {
   optional ClusterStatistics clusters = 6;
 
   // [optional] Retrieved specific fields in the search response
-  optional .google.protobuf.Struct fields = 7;
+  optional ObjectMap fields = 7;
 
   // [optional] Highest returned document _score.
   optional float max_score = 8; // TODO where is this used? remove?
@@ -481,7 +481,7 @@ message Hit {
   optional Explanation explanation = 5;
 
   // [optional] Contains field values for the documents.
-  optional .google.protobuf.Struct fields = 6;
+  optional ObjectMap fields = 6;
 
   // [optional] An additional highlight element for each search hit that includes the highlighted fields and the highlighted fragments.
   map<string, StringArray> highlight = 7;
@@ -526,7 +526,7 @@ message Hit {
   
   // [optional] Contains field values for the documents.
   // TODO: No field named "meta_fields" in the spec. Needs adaptor_unnest.
-  optional .google.protobuf.Struct meta_fields = 21;
+  ObjectMap meta_fields = 21;
 }
 
 message ClusterStatistics {
