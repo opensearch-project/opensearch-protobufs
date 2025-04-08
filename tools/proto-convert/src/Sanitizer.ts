@@ -1,6 +1,6 @@
 import _ from "lodash";
 import type {OpenAPIV3} from "openapi-types";
-
+import {traverse} from "./utils/OpenApiTraverser";
 /**
  * Sanitizer class:
  * Provides a static method to sanitize a spec by updating $ref strings
@@ -9,7 +9,7 @@ import type {OpenAPIV3} from "openapi-types";
 export class Sanitizer {
   public sanitize(spec: any): any {
     this.sanitize_ref(spec);
-    this.sanitize_spec(spec as OpenAPIV3.Document);
+    this.sanitize_spec_name(spec as OpenAPIV3.Document);
     return spec;
   }
 
@@ -50,7 +50,7 @@ export class Sanitizer {
     return ref;
   }
 
-  public sanitize_spec(OpenApiSpec: OpenAPIV3.Document): void {
+  public sanitize_spec_name(OpenApiSpec: OpenAPIV3.Document): void {
     if (OpenApiSpec.components && OpenApiSpec.components.schemas) {
       for (const schemaName in OpenApiSpec.components.schemas) {
         if (OpenApiSpec.components.schemas.hasOwnProperty(schemaName)) {
@@ -62,83 +62,39 @@ export class Sanitizer {
         delete OpenApiSpec.components.schemas[schemaName]
       }
     }
-    if (OpenApiSpec.components && OpenApiSpec.components.responses) {
-      for (const schemaName in OpenApiSpec.components.responses) {
-        const schema = OpenApiSpec.components.responses[schemaName];
-        if ("content" in schema && schema.content != undefined) {
-          const content = schema.content;
-          if ("application/json" in content) {
-            const jsonContent = content["application/json"];
-            if ("schema" in jsonContent && jsonContent.schema != undefined) {
-              const schema = jsonContent.schema as OpenAPIV3.SchemaObject;
-              this.sanitize_schema(schema)
-            }
-          }
+    traverse(OpenApiSpec, {
+      // Run sanitize_schema on all top-level component schemas
+      onSchema: (schema, _schemaName) => {
+        if (!('$ref' in schema)) {
+          this.sanitize_schema(schema);
+        }
+      },
+      onRequestSchema: (schema) => this.sanitize_schema(schema),
+      onResponseSchema: (schema) => this.sanitize_schema(schema),
+      onParameter: (param, _paramName) => {
+        if (param.name.startsWith('_')) {
+          param.name = `underscore${param.name}`;
         }
       }
-    }
-    if (OpenApiSpec.components && OpenApiSpec.components.requestBodies) {
-      for (const schemaName in OpenApiSpec.components.requestBodies) {
-        const schema = OpenApiSpec.components.requestBodies[schemaName];
-        if ("content" in schema && schema.content != undefined) {
-          const content = schema.content;
-          if ("application/json" in content) {
-            const jsonContent = content["application/json"];
-            if ("schema" in jsonContent && jsonContent.schema != undefined) {
-              const schema = jsonContent.schema as OpenAPIV3.SchemaObject;
-              this.sanitize_schema(schema)
-            }
-          }
-        }
-      }
-    }
-
-    if (OpenApiSpec.components && OpenApiSpec.components.parameters) {
-      for (const schemaName in OpenApiSpec.components.parameters) {
-        if (OpenApiSpec.components.parameters.hasOwnProperty(schemaName)) {
-          const schema = OpenApiSpec.components.parameters[schemaName];
-          if ("name" in schema && schema.name != undefined) {
-            const propName = schema.name
-            if (propName.startsWith("_")) {
-              const newPropName = "underscore" + propName;
-              schema.name = newPropName;
-            }
-          }
-        }
-      }
-    }
-  }
+    });
+}
 
   public sanitize_schema(schema: OpenAPIV3.SchemaObject): void {
-    if (schema == undefined) {
-        return
+    if (!schema) return;
+
+    if (schema.properties) {
+      this.rename_properties_name(schema.properties as Record<string, OpenAPIV3.SchemaObject>);
     }
-    if ("properties" in schema) {
-      const properties = schema.properties as Record<string, OpenAPIV3.SchemaObject>
-      this.rename_properties_name(properties)
-    }
-    if("oneOf" in schema && schema.oneOf != undefined) {
-      const oneOfs = schema.oneOf
-      for (const oneOf of oneOfs) {
-        if (oneOf && "properties" in oneOf) {
-          const properties = oneOf.properties as Record<string, OpenAPIV3.SchemaObject>
-          this.rename_properties_name(properties)
-        }
-      }
-    } else if("allOf" in schema && schema.allOf != undefined) {
-      const allOfs = schema.allOf
-      for (const allOf of allOfs) {
-        if (allOf && "properties" in allOf) {
-          const properties = allOf.properties as Record<string, OpenAPIV3.SchemaObject>
-          this.rename_properties_name(properties)
-        }
-      }
-    } else if("anyOf" in schema && schema.anyOf != undefined) {
-      const anyOfs = schema.anyOf
-      for (const anyOf of anyOfs) {
-        if (anyOf && "properties" in anyOf) {
-          const properties = anyOf.properties as Record<string, OpenAPIV3.SchemaObject>
-          this.rename_properties_name(properties)
+
+    const composed = ['oneOf', 'allOf', 'anyOf'] as const;
+    for (const key of composed) {
+      const schemas = schema[key];
+      if (Array.isArray(schemas)) {
+        for (const sub of schemas) {
+          if (sub && 'properties' in sub) {
+            const props = sub.properties as Record<string, OpenAPIV3.SchemaObject>;
+            this.rename_properties_name(props);
+          }
         }
       }
     }
