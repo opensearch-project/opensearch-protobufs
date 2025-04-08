@@ -4,6 +4,7 @@ import Filter from './Filter';
 import { Sanitizer } from './Sanitizer';
 import Logger from './utils/logger';
 import * as path from 'path';
+import {TypeModifier} from "./TypeModifier";
 
 let config_filtered_path: string[] | undefined;
 try {
@@ -42,12 +43,14 @@ const opts = command.opts() as PreprocessingOpts;
 const logger = new Logger();
 const filter = new Filter(logger);
 const sanitizer = new Sanitizer();
+const type_modifier = new TypeModifier();
 try {
   logger.info(`PreProcessing ${opts.filtered_path.join(', ')} into ${opts.output} ...`)
   const original_spec = read_yaml(opts.input);
   const filtered_spec = filter.filter_spec(original_spec, opts.filtered_path);
   const sanitized_spec = sanitizer.sanitize(filtered_spec);
-  write_yaml(opts.output, sanitized_spec);
+  const type_modified_spec = type_modifier.modify(sanitized_spec);
+  write_yaml(opts.output, type_modified_spec);
 
 } catch (err) {
   logger.error(`Error in preprocessing: ${err}`);
