@@ -145,24 +145,15 @@ message Refresh {
     // Whether to refresh the affected shards immediately.
     bool bool = 1;
 
-    RefreshOneOf refresh_one_of = 2;
+    // Do not refresh the affected shards.
+    bool refresh_false = 2;
 
-    RefreshOneOf1 refresh_one_of1 = 3;
+    // Refresh the affected shards immediately.
+    bool refresh_true = 3;
 
-    RefreshOneOf2 refresh_one_of2 = 4;
+    // Wait for the changes to become visible before replying.
+    bool refresh_wait_for = 4;
   }
-}
-enum RefreshOneOf {
-  REFRESH_ONE_OF_UNSPECIFIED = 0;
-  REFRESH_ONE_OF_FALSE = 1;
-}
-enum RefreshOneOf1 {
-  REFRESH_ONE_OF1_UNSPECIFIED = 0;
-  REFRESH_ONE_OF1_TRUE = 1;
-}
-enum RefreshOneOf2 {
-  REFRESH_ONE_OF2_UNSPECIFIED = 0;
-  REFRESH_ONE_OF2_WAIT_FOR = 1;
 }
 message ResponseItem {
   // HTTP status code returned for the operation.
@@ -325,45 +316,27 @@ message UpdateOperation {
 }
 message VersionType {
   oneof version_type {
-    VersionTypeOneOf version_type_one_of = 1;
+    // The version number must be higher than the current version.
+    bool version_type_external = 1;
 
-    VersionTypeOneOf1 version_type_one_of1 = 2;
+    // The version number must be higher than or equal to the current version.
+    bool version_type_external_gte = 2;
 
-    VersionTypeOneOf2 version_type_one_of2 = 3;
+    // The version number is forced to be the given value.
+    bool version_type_force = 3;
 
-    VersionTypeOneOf3 version_type_one_of3 = 4;
+    // The version number is managed internally by OpenSearch.
+    bool version_type_internal = 4;
   }
-}
-enum VersionTypeOneOf {
-  VERSION_TYPE_ONE_OF_UNSPECIFIED = 0;
-  VERSION_TYPE_ONE_OF_EXTERNAL = 1;
-}
-enum VersionTypeOneOf1 {
-  VERSION_TYPE_ONE_OF1_UNSPECIFIED = 0;
-  VERSION_TYPE_ONE_OF1_EXTERNAL_GTE = 1;
-}
-enum VersionTypeOneOf2 {
-  VERSION_TYPE_ONE_OF2_UNSPECIFIED = 0;
-  VERSION_TYPE_ONE_OF2_FORCE = 1;
-}
-enum VersionTypeOneOf3 {
-  VERSION_TYPE_ONE_OF3_UNSPECIFIED = 0;
-  VERSION_TYPE_ONE_OF3_INTERNAL = 1;
 }
 message WaitForActiveShardOptions {
   oneof wait_for_active_shard_options {
-    WaitForActiveShardOptionsOneOf wait_for_active_shard_options_one_of = 1;
+    // Wait for all shards to be active.
+    bool wait_for_active_shard_options_all = 1;
 
-    WaitForActiveShardOptionsOneOf1 wait_for_active_shard_options_one_of1 = 2;
+    // Wait for the number of shards specified in the index settings.
+    bool wait_for_active_shard_options_index_setting = 2;
   }
-}
-enum WaitForActiveShardOptionsOneOf {
-  WAIT_FOR_ACTIVE_SHARD_OPTIONS_ONE_OF_UNSPECIFIED = 0;
-  WAIT_FOR_ACTIVE_SHARD_OPTIONS_ONE_OF_ALL = 1;
-}
-enum WaitForActiveShardOptionsOneOf1 {
-  WAIT_FOR_ACTIVE_SHARD_OPTIONS_ONE_OF1_UNSPECIFIED = 0;
-  WAIT_FOR_ACTIVE_SHARD_OPTIONS_ONE_OF1_INDEX_SETTING = 1;
 }
 message WaitForActiveShards {
   oneof wait_for_active_shards {
