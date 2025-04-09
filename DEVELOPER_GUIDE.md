@@ -25,7 +25,7 @@ This script will:
 - Install the JAR to your local Maven repository
 
 2. To use the JAR in a Gradle project, add the following to your build.gradle:
-where VERSION is the number set in [version.properties](./version.properties)
+where VERSION is the number set in [version.properties](./version.properties) (e.g. 0.3.0)
 
 If using local Maven: 
 ```
