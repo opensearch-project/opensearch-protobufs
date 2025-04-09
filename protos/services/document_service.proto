@@ -23,5 +23,14 @@ service DocumentService {
   rpc Bulk(BulkRequest) returns (BulkResponse) {}
   
   // Ingest a single document to an index
-  /* rpc IndexDocument(IndexDocumentRequest) returns (IndexDocumentResponse) {} */
+  rpc IndexDocument(IndexDocumentRequest) returns (IndexDocumentResponse) {}
+
+  // Update a single document in an index
+  rpc UpdateDocument(UpdateDocumentRequest) returns (UpdateDocumentResponse) {}
+
+  // Get a single document from an index
+  rpc GetDocument(GetDocumentRequest) returns (GetDocumentResponse) {}
+
+  // Delete a single document from an index
+  rpc DeleteDocument(DeleteDocumentRequest) returns (DeleteDocumentResponse) {}
 }
