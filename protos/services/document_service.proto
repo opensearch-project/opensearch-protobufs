@@ -19,5 +19,9 @@ option java_outer_classname = "DocumentServiceProto";
 import "protos/schemas/document.proto";
 
 service DocumentService {
+  // Bulk add, update, or delete multiple documents in a single request.
   rpc Bulk(BulkRequest) returns (BulkResponse) {}
+  
+  // Ingest a single document to an index
+  /* rpc IndexDocument(IndexDocumentRequest) returns (IndexDocumentResponse) {} */
 }
