@@ -25,13 +25,28 @@ This script will:
 - Install the JAR to your local Maven repository
 
 2. To use the JAR in a Gradle project, add the following to your build.gradle:
-```groovy
+where VERSION is the number set in [version.properties](./version.properties) (e.g. 0.3.0)
+
+If using local Maven: 
+```
 repositories {
     mavenLocal()
 }
 
 dependencies {
-    implementation 'org.opensearch.protobufs:opensearch-protobufs:1.0.0'
+    implementation 'org.opensearch.protobufs:opensearch-protobufs:{VERSION}-SNAPSHOT'
+}
+```
+If using snapshot jar uploaded to sonatype: 
+```
+repositories {
+  maven {
+    url = 'https://aws.oss.sonatype.org/content/repositories/snapshots'
+  }
+}
+
+dependencies {
+    implementation 'org.opensearch.protobufs:opensearch-protobufs:{VERSION}-SNAPSHOT'
 }
 ```
 
