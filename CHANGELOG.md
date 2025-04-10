@@ -15,5 +15,6 @@ Inspired from [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 
 ### Fixed
 - Fix missing `optional` keywords in IndexDocument, UpdateDocument, GetDocument, DeleteDocument protos ([#75](https://github.com/opensearch-project/opensearch-protobufs/pull/75)))
+- Fix terms query `routing` parameter ([#84](https://github.com/opensearch-project/opensearch-protobufs/pull/84))
 
 ### Security

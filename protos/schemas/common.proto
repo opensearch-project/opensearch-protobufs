@@ -1637,7 +1637,7 @@ message TermsLookupField {
 
   // [optional]
   // Custom routing value of the document from which to fetch term values. If a custom routing value was provided when the document was indexed, this parameter is required.
-  repeated string routing = 4;
+  optional string routing = 4;
   
   // [optional] 
   optional bool store = 5;
