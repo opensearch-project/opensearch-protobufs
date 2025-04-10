@@ -8,6 +8,8 @@ Inspired from [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 - Preprocessing spec for changing const to boolean. ([#72](https://github.com/opensearch-project/opensearch-protobufs/pull/72))
 - Add IndexDocument, UpdateDocument, GetDocument, DeleteDocument protos and move services to protos/services folder ([#73](https://github.com/opensearch-project/opensearch-protobufs/pull/73)))
 - Preprocessing oneof by aggregating array of item and single item ([#76](https://github.com/opensearch-project/opensearch-protobufs/pull/76))
+- Preprocessing oneof by removing oneOf if only one item ([#77](https://github.com/opensearch-project/opensearch-protobufs/pull/77))
+
 
 ### Removed
 

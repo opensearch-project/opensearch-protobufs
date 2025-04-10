@@ -3,16 +3,17 @@ import { traverse } from './utils/OpenApiTraverser';
 import isEqual from 'lodash.isequal';
 
 
-export class TypeModifier {
+export class SchemaModifier {
     public modify(OpenApiSpec: OpenAPIV3.Document): any {
         traverse(OpenApiSpec, {
             onSchemaProperty: (schema) => {
                 this.handleAdditionalPropertiesUndefined(schema)
+                this.collapseOrMergeOneOfArray(schema)
             },
             onSchema: (schema, schemaName) => {
                 if (!schema || this.isReferenceObject(schema)) return;
                 this.handleOneOfConst(schema, schemaName)
-                this.handleOneOfSimplification(schema)
+                this.collapseOrMergeOneOfArray(schema)
                 this.handleAdditionalPropertiesUndefined(schema)
             }
         });
@@ -59,7 +60,7 @@ export class TypeModifier {
     // Simplify schemas with `oneOf` by aggregating items.
     // If there are only two `oneOf` items and one matches an array schema, remove oneOf type and set type to array.
     // If there are more than two `oneOf` items and one matches an array schema, remove that item from `oneOf`.
-    handleOneOfSimplification(schema: OpenAPIV3.SchemaObject): void{
+    collapseOrMergeOneOfArray(schema: OpenAPIV3.SchemaObject): void{
         if (!('$ref' in schema) && Array.isArray(schema.oneOf)) {
             const oneOfs = schema.oneOf;
 
@@ -68,22 +69,28 @@ export class TypeModifier {
 
             for (const oneOf of oneOfs) {
                 if (this.isArraySchemaObject(oneOf)) {
-                    arraySet.add(JSON.stringify(oneOf.items))
+                    const { type, $ref, additionalProperties} = oneOf.items as any;
+                    const oneOfStr = JSON.stringify({ type, $ref, additionalProperties});
+                    arraySet.add(oneOfStr)
                 }
             }
             for (const oneOf of oneOfs) {
-                const oneOfStr = JSON.stringify(oneOf);
+                const { type, $ref, additionalProperties} = oneOf as any;
+                const oneOfStr = JSON.stringify({ type, $ref, additionalProperties});
                 if (arraySet.has(oneOfStr)) {
-                    if(oneOfs.length == 2) {
-                        schema.type = 'array';
-                        (schema as OpenAPIV3.ArraySchemaObject).items = oneOf
-                        delete schema.oneOf;
-                    } else if (oneOfs.length > 2) {
-                        deleteIndx = oneOfs.findIndex(item => isEqual(item, oneOf));
-                        oneOfs.splice(deleteIndx, 1);
-                    }
+                    deleteIndx = oneOfs.findIndex(item => isEqual(item, oneOf));
+                    oneOfs.splice(deleteIndx, 1);
                 }
             }
+            this.collapseSingleItemOneOf(schema);
+        }
+    }
+
+    collapseSingleItemOneOf(schema: OpenAPIV3.SchemaObject): void {
+        if (Array.isArray(schema.oneOf) && schema.oneOf.length === 1) {
+            const [singleOneOf] = schema.oneOf as OpenAPIV3.SchemaObject[];
+            Object.assign(schema, singleOneOf);
+            delete schema.oneOf;
         }
     }
 
