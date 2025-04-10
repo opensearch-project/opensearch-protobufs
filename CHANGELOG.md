@@ -9,6 +9,7 @@ Inspired from [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 - Add IndexDocument, UpdateDocument, GetDocument, DeleteDocument protos and move services to protos/services folder ([#73](https://github.com/opensearch-project/opensearch-protobufs/pull/73)))
 - Preprocessing oneof by removing oneOf if only one item ([#77](https://github.com/opensearch-project/opensearch-protobufs/pull/77))
 - Move some shared enums to top level ([#80](https://github.com/opensearch-project/opensearch-protobufs/pull/80))
+- Fix terms query protos ([#83](https://github.com/opensearch-project/opensearch-protobufs/pull/83))
 
 ### Removed
 

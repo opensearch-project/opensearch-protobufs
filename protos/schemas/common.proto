@@ -1598,14 +1598,27 @@ message TermsLookupFieldStringArrayMap {
   }
 }
 
+enum ValueType {
+    VALUE_TYPE_UNSPECIFIED = 0;
+    VALUE_TYPE_BITMAP = 1;
+    VALUE_TYPE_DEFAULT = 2;
+}
+
 message TermsQueryField {
   // [optional]
   // A floating-point value that specifies the weight of this field toward the relevance score. Values above 1.0 increase the field's relevance. Values between 0.0 and 1.0 decrease the field's relevance.
   // Default is 1.0.
   optional float boost = 1;
-
+  
+  // [optional]
+  // Query name for query tagging
+  optional string name = 2; 
+  
+  // [optional] Specifies the types of values used for filtering. Valid values are default and bitmap. If omitted, the value defaults to default.
+  optional ValueType value_type = 3; 
+  
   // [required]
-  map<string, TermsLookupFieldStringArrayMap> terms_lookup_field_string_array_map = 2;
+  map<string, TermsLookupFieldStringArrayMap> terms_lookup_field_string_array_map = 4;
 }
 
 message TermsLookupField {
@@ -1625,6 +1638,10 @@ message TermsLookupField {
   // [optional]
   // Custom routing value of the document from which to fetch term values. If a custom routing value was provided when the document was indexed, this parameter is required.
   repeated string routing = 4;
+  
+  // [optional] 
+  optional bool store = 5;
+  
 }
 
 message TermsSetQuery {
