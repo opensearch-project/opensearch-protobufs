@@ -18,10 +18,10 @@ message BulkRequest {
   optional SourceConfigParam underscore_source = 3;
 
   // A comma-separated list of source fields to exclude from the response.
-  optional Fields underscore_source_excludes = 4;
+  repeated string underscore_source_excludes = 4;
 
   // A comma-separated list of source fields to include in the response.
-  optional Fields underscore_source_includes = 5;
+  repeated string underscore_source_includes = 5;
 
   // ID of the pipeline to use to preprocess incoming documents. If the index has a default ingest pipeline specified, then setting the value to `_none` disables the default ingest pipeline for this request. If a final pipeline is configured it will always run, regardless of the value of this parameter.
   optional string pipeline = 6;
@@ -33,7 +33,7 @@ message BulkRequest {
   optional bool require_alias = 8;
 
   // Custom value used to route operations to a specific shard.
-  optional StringOrStringArray routing = 9;
+  repeated string routing = 9;
 
   // Period each action waits for the following operations: automatic index creation, dynamic mapping updates, waiting for active shards.
   optional string timeout = 10;
@@ -57,7 +57,7 @@ message BulkRequest {
   optional string source = 16;
 
   // Used to reduce the response. This parameter takes a comma-separated list of filters. It supports using wildcards to match any field or part of a field’s name. You can also exclude fields with \"-\".
-  optional StringOrStringArray filter_path = 17;
+  repeated string filter_path = 17;
 }
 
 message BulkResponse {

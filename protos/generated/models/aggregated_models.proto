@@ -59,14 +59,6 @@ message ErrorCause {
 
   repeated ErrorCause suppressed = 6;
 }
-message Fields {
-  oneof fields {
-    // The path to a field or an array of paths. Some APIs support wildcards in the path, which allows you to select multiple fields.
-    string string = 1;
-
-    StringArray string_array = 2;
-  }
-}
 message InlineGetDictUserDefined {
   // The fields retrieved from the document.
   optional ObjectMap fields = 1;
@@ -239,20 +231,20 @@ message SourceConfigParam {
   oneof source_config_param {
     bool fetch = 1;
 
-    Fields fields = 2;
+    StringArray fields = 2;
   }
 }
 message SourceFilter {
   oneof source_filter {
-    Fields includes = 1;
+    StringArray includes = 1;
 
     SourceFilterOneOf source_filter_one_of = 2;
   }
 }
 message SourceFilterOneOf {
-  optional Fields excludes = 1;
+  repeated string excludes = 1;
 
-  optional Fields includes = 2;
+  repeated string includes = 2;
 }
 message StoredScriptId {
   // Specifies any named parameters that are passed into the script as variables.  Use parameters instead of hard-coded values to decrease compilation time.
@@ -263,13 +255,6 @@ message StoredScriptId {
 }
 message StringArray {
   repeated string string_array = 1;
-}
-message StringOrStringArray {
-  oneof string_or_string_array {
-    string string = 1;
-
-    StringArray string_array = 2;
-  }
 }
 message UpdateAction {
   // When `false` disables the setting `result` in the response to `noop` if no change to the document occurred.
