@@ -10,18 +10,23 @@ option go_package = "opensearchpb";
 
 import "google/protobuf/struct.proto";
 
+message WaitForActiveShardOptions {
+  oneof wait_for_active_shard_options {
+    // Wait for all shards to be active.
+    bool wait_for_active_shard_options_all = 1;
+
+    // Wait for the number of shards specified in the index settings.
+    bool wait_for_active_shard_options_index_setting = 2;
+  }
+}
 message WaitForActiveShards {
-
-  enum WaitForActiveShardOptions {
-    WAIT_FOR_ACTIVE_SHARD_OPTIONS_UNSPECIFIED = 0;
-    WAIT_FOR_ACTIVE_SHARD_OPTIONS_ALL = 1;
-  }
-
   oneof wait_for_active_shards {
-    int32 int32_value = 1;
-    WaitForActiveShardOptions wait_for_active_shard_options = 2;
-  }
+    // The number of active shards to wait for.
+    int32 count = 1;
 
+    // Determines how many shards to wait for.
+    WaitForActiveShardOptions option = 2;
+  }
 }
 
 message Script {
@@ -49,27 +54,24 @@ message InlineScript {
   string source = 4;
 }
 
+enum BuiltinScriptLanguage {
+  BUILTIN_SCRIPT_LANGUAGE_UNSPECIFIED = 0;
+  BUILTIN_SCRIPT_LANGUAGE_EXPRESSION = 1;
+  BUILTIN_SCRIPT_LANGUAGE_JAVA = 2;
+  BUILTIN_SCRIPT_LANGUAGE_MUSTACHE = 3;
+  BUILTIN_SCRIPT_LANGUAGE_PAINLESS = 4;
+}
+
 message ScriptLanguage {
-  enum BuiltinScriptLanguage {
-    BUILTIN_SCRIPT_LANGUAGE_UNSPECIFIED = 0;
-    BUILTIN_SCRIPT_LANGUAGE_EXPRESSION = 1;
-    BUILTIN_SCRIPT_LANGUAGE_JAVA = 2;
-    BUILTIN_SCRIPT_LANGUAGE_MUSTACHE = 3;
-    BUILTIN_SCRIPT_LANGUAGE_PAINLESS = 4;
-  }
-  // [optional] Default is painless.
-  oneof script_language {
-    BuiltinScriptLanguage builtin_script_language = 1;
-    string string_value = 2;
-  }
+  optional BuiltinScriptLanguage builtin = 1;
+
+  optional string custom = 2;
 }
 
 message StoredScriptId {
-  // [optional]
-  // The parameters that can be passed to the script.
-  ObjectMap params = 1;
-  // [required]
-  // The ID of a stored script previously created using the Create Stored Script API.
+  // Specifies any named parameters that are passed into the script as variables.  Use parameters instead of hard-coded values to decrease compilation time.
+  optional ObjectMap params = 1;
+  // The unique identifier for a resource.
   string id = 2;
 }
 
@@ -152,14 +154,11 @@ message GeneralNumber {
 }
 
 message SourceConfigParam {
-
   oneof source_config_param {
-    // `true` or `false` to return the `_source` field or not
-    bool bool_value = 1;
-    // list of fields to be retrieved from `_source`
-    StringArray string_array = 2;
-  }
+    bool fetch = 1;
 
+    StringArray fields = 2;
+  }
 }
 
 message StringArray{
