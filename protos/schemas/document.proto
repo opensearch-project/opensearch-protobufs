@@ -25,15 +25,6 @@ message BulkRequest {
   // [optional] ID of the pipeline to use to preprocess incoming documents. If the index has a default ingest pipeline specified, then setting the value to `_none` disables the default ingest pipeline for this request. If a final pipeline is configured it will always run, regardless of the value of this parameter.
   optional string pipeline = 5;
 
-  enum Refresh {
-    REFRESH_UNSPECIFIED = 0;
-    // `REFRESH_FALSE` do nothing with refreshes.
-    REFRESH_FALSE = 1;
-    // `REFRESH_TRUE` makes the changes show up in search results immediately, but hurts cluster performance.
-    REFRESH_TRUE = 2;
-    // `REFRESH_WAIT_FOR` waits for a refresh. Requests take longer to return, but cluster performance doesn't suffer.
-    REFRESH_WAIT_FOR = 3;
-  }
   // [optional] The enum of whether to refresh the affected shards after performing the indexing operations. Default is false
   optional Refresh refresh = 6;
   // [optional] If `true`, the request's actions must target an index alias. Defaults to false.
@@ -97,6 +88,22 @@ message BulkRequestBody {
   optional bytes object = 17;
 }
 
+enum OpType {
+  OP_TYPE_UNSPECIFIED = 0;
+  // Index a document only if it doesn't exist. Similarly as PUT <index>/_create/<_id>, will throw error if the document exist
+  OP_TYPE_CREATE = 1;
+  // A document ID is included in the request. default value.
+  OP_TYPE_INDEX = 2;
+}
+
+enum VersionType {
+  VERSION_TYPE_UNSPECIFIED = 0;
+  // Retrieve the document if the specified version number is greater than the document's current version
+  VERSION_TYPE_EXTERNAL = 1;
+  // Retrieve the document if the specified version number is greater than or equal to the document's current version
+  VERSION_TYPE_EXTERNAL_GTE = 2;
+}
+
 message IndexOperation {
   // [optional] The document ID. If no ID is specified, a document ID is automatically generated.
   optional string id = 1;
@@ -111,25 +118,11 @@ message IndexOperation {
   // [optional] Only perform the operation if the document has this sequence number
   optional int64 if_seq_no = 5;
 
-  enum OpType {
-    OP_TYPE_UNSPECIFIED = 0;
-    // Index a document only if it doesn't exist. Similarly as PUT <index>/_create/<_id>, will throw error if the document exist
-    OP_TYPE_CREATE = 1;
-    // A document ID is included in the request. default value.
-    OP_TYPE_INDEX = 2;
-  }
   // [optional] Set to create to only index the document if it does not already exist (put if absent). If a document with the specified `_id` already exists, the indexing operation will fail. Same as using the `<index>/_create` endpoint. Valid values: `index`, `create`. If document id is specified, it defaults to `index`. Otherwise, it defaults to `create`.
   optional OpType op_type = 6;
   // [optional] Explicit version number for concurrency control. The specified version must match the current version of the document for the request to succeed.
   optional int64 version = 7;
 
-  enum VersionType {
-    VERSION_TYPE_UNSPECIFIED = 0;
-    // Retrieve the document if the specified version number is greater than the document's current version
-    VERSION_TYPE_EXTERNAL = 1;
-    // Retrieve the document if the specified version number is greater than or equal to the document's current version
-    VERSION_TYPE_EXTERNAL_GTE = 2;
-  }
   // [optional] Assigns a specific type to the document.
   optional VersionType version_type = 8;
 
@@ -160,13 +153,6 @@ message CreateOperation {
   // [optional] Explicit version number for concurrency control. The specified version must match the current version of the document for the request to succeed.
   optional int64 version = 6;
 
-  enum VersionType {
-    VERSION_TYPE_UNSPECIFIED = 0;
-    // Retrieve the document if the specified version number is greater than the document's current version
-    VERSION_TYPE_EXTERNAL = 1;
-    // Retrieve the document if the specified version number is greater than or equal to the document's current version
-    VERSION_TYPE_EXTERNAL_GTE = 2;
-  }
   // [optional] Assigns a specific type to the document.
   optional VersionType version_type = 7;
 
@@ -216,13 +202,6 @@ message DeleteOperation {
   // [optional] Explicit version number for concurrency control. The specified version must match the current version of the document for the request to succeed.
   optional int64 version = 6;
 
-  enum VersionType {
-    VERSION_TYPE_UNSPECIFIED = 0;
-    // Retrieve the document if the specified version number is greater than the document's current version
-    VERSION_TYPE_EXTERNAL = 1;
-    // Retrieve the document if the specified version number is greater than or equal to the document's current version
-    VERSION_TYPE_EXTERNAL_GTE = 2;
-  }
   // [optional] Assigns a specific type to the document.
   optional VersionType version_type = 7;
 
@@ -325,6 +304,16 @@ message InlineGetDictUserDefined {
   optional bytes source = 7;
 }
 
+enum Refresh {
+  REFRESH_UNSPECIFIED = 0;
+  // `REFRESH_FALSE` do nothing with refreshes.
+  REFRESH_FALSE = 1;
+  // `REFRESH_TRUE` makes the changes show up in search results immediately, but hurts cluster performance.
+  REFRESH_TRUE = 2;
+  // `REFRESH_WAIT_FOR` waits for a refresh. Requests take longer to return, but cluster performance doesn't suffer.
+  REFRESH_WAIT_FOR = 3;
+}
+
 // index document.
 message IndexDocumentRequest {
   // [optional] Creates or indexes a specific ID.
@@ -336,26 +325,11 @@ message IndexDocumentRequest {
   // [optional] Only perform the operation if the document has this sequence number. Can not be set if op_type=create.
   optional int64 if_seq_no = 4;
 
-  enum OpType {
-    OP_TYPE_INVALID = 0;
-    // Index a document only if it doesn't exist. Similarly as PUT <index>/_create/<_id>, will throw error if the document exist
-    OP_TYPE_CREATE = 1;
-    // A document ID is included in the request. default value.
-    OP_TYPE_INDEX = 2;
-  }
   // [optional] Set to create to only index the document if it does not already exist (put if absent). If a document with the specified `_id` already exists, the indexing operation will fail. Same as using the `<index>/_create` endpoint. Valid values: `index`, `create`. If document id is specified, it defaults to `index`. Otherwise, it defaults to `create`.
   optional OpType op_type = 5;
   // [optional] ID of the pipeline to use to preprocess incoming documents. If the index has a default ingest pipeline specified, then setting the value to `_none` disables the default ingest pipeline for this request. If a final pipeline is configured it will always run, regardless of the value of this parameter.
   optional string pipeline = 6;
-  enum Refresh {
-    REFRESH_INVALID = 0;
-    // `REFRESH_FALSE` do nothing with refreshes.
-    REFRESH_FALSE = 1;
-    // `REFRESH_TRUE` makes the changes show up in search results immediately, but hurts cluster performance.
-    REFRESH_TRUE = 2;
-    // `REFRESH_WAIT_FOR` waits for a refresh. Requests take longer to return, but cluster performance doesn't suffer.
-    REFRESH_WAIT_FOR = 3;
-  }
+
   // [optional] enum of whether to refresh the affected shards after performing the indexing operations. Default is false
   optional Refresh refresh = 7;
   // [optional] If `true`, the request's actions must target an index alias. Defaults to false. Can not be set if op_type=create.
@@ -368,13 +342,7 @@ message IndexDocumentRequest {
   optional string timeout = 10;
   // [optional] Explicit version number for concurrency control. The specified version must match the current version of the document for the request to succeed.
   optional int64 version = 11;
-  enum VersionType {
-    VERSION_TYPE_INVALID = 0;
-    // Retrieve the document if the specified version number is greater than the document's current version
-    VERSION_TYPE_EXTERNAL = 1;
-    // Retrieve the document if the specified version number is greater than or equal to the document's current version
-    VERSION_TYPE_EXTERNAL_GTE = 2;
-  }
+
   // [optional] Assigns a specific type to the document.
   optional VersionType version_type = 12;
   // [optional] The number of active shards that must be available before OpenSearch processes the request. Default is 1 (only the primary shard). Set to all or a positive integer. Values greater than 1 require replicas. For example, if you specify a value of 3, the index must have two replicas distributed across two additional nodes for the operation to succeed.
@@ -412,6 +380,15 @@ message IndexDocumentErrorResponse {
   optional int32 status = 2;
 }
 
+enum Result {
+  RESULT_UNSPECIFIED = 0;
+  RESULT_CREATED = 1;
+  RESULT_DELETED = 2;
+  RESULT_NOOP = 3;
+  RESULT_NOT_FOUND = 4;
+  RESULT_UPDATED = 5;
+}
+
 message IndexDocumentResponseBody {
   // [optional] The document type.
   optional string type = 1 [json_name = "_type"];
@@ -422,14 +399,6 @@ message IndexDocumentResponseBody {
   // [optional] The primary term assigned when the document was indexed.
   optional int64 primary_term = 4 [json_name = "_primary_term"];
 
-  enum Result {
-    RESULT_INVALID = 0;
-    RESULT_CREATED = 1;
-    RESULT_DELETED = 2;
-    RESULT_NOOP = 3;
-    RESULT_NOT_FOUND = 4;
-    RESULT_UPDATED = 5;
-  }
   // [optional] The result of the index operation.
   optional Result result = 5;
   // [optional] The sequence number assigned when the document was indexed.
@@ -453,15 +422,6 @@ message DeleteDocumentRequest {
   // [optional] Only perform the operation if the document has this sequence number.
   optional int64 if_seq_no = 4;
 
-  enum Refresh {
-    REFRESH_INVALID = 0;
-    // `REFRESH_FALSE` do nothing with refreshes.
-    REFRESH_FALSE = 1;
-    // `REFRESH_TRUE` makes the changes show up in search results immediately, but hurts cluster performance.
-    REFRESH_TRUE = 2;
-    // `REFRESH_WAIT_FOR` waits for a refresh. Requests take longer to return, but cluster performance doesn't suffer.
-    REFRESH_WAIT_FOR = 3;
-  }
   // [optional] enum of whether to refresh the affected shards after performing the indexing operations. Default is false
   optional Refresh refresh = 5;
   // Custom value used to route operations to a specific shard.
@@ -472,13 +432,6 @@ message DeleteDocumentRequest {
   optional string timeout = 7;
   // [optional] Explicit version number for concurrency control. The specified version must match the current version of the document for the request to succeed.
   optional int64 version = 8;
-  enum VersionType {
-    VERSION_TYPE_INVALID = 0;
-    // Retrieve the document if the specified version number is greater than the document's current version
-    VERSION_TYPE_EXTERNAL = 1;
-    // Retrieve the document if the specified version number is greater than or equal to the document's current version
-    VERSION_TYPE_EXTERNAL_GTE = 2;
-  }
   // [optional] Assigns a specific type to the document.
   optional VersionType version_type = 9;
   // [optional] The number of active shards that must be available before OpenSearch processes the request. Default is 1 (only the primary shard). Set to all or a positive integer. Values greater than 1 require replicas. For example, if you specify a value of 3, the index must have two replicas distributed across two additional nodes for the operation to succeed.
@@ -494,15 +447,6 @@ message DeleteDocumentResponseBody {
   optional string index = 3 [json_name = "_index"];
   // [optional] The primary term assigned when the document was indexed.
   optional int64 primary_term = 4 [json_name = "_primary_term"];
-
-  enum Result {
-    RESULT_INVALID = 0;
-    RESULT_CREATED = 1;
-    RESULT_DELETED = 2;
-    RESULT_NOOP = 3;
-    RESULT_NOT_FOUND = 4;
-    RESULT_UPDATED = 5;
-  }
   // [optional] The result of the index operation.
   optional Result result = 5;
   // [optional] The sequence number assigned when the document was indexed.
@@ -549,15 +493,7 @@ message UpdateDocumentRequest {
   optional int64 if_seq_no = 7;
   // [optional] The script language.
   optional string lang = 8;
-  enum Refresh {
-    REFRESH_INVALID = 0;
-    // `REFRESH_FALSE` do nothing with refreshes.
-    REFRESH_FALSE = 1;
-    // `REFRESH_TRUE` makes the changes show up in search results immediately, but hurts cluster performance.
-    REFRESH_TRUE = 2;
-    // `REFRESH_WAIT_FOR` waits for a refresh. Requests take longer to return, but cluster performance doesn't suffer.
-    REFRESH_WAIT_FOR = 3;
-  }
+
   // [optional] enum of whether to refresh the affected shards after performing the indexing operations. Default is false
   optional Refresh refresh = 9;
   // [optional] If `true`, the request's actions must target an index alias. Defaults to false.
@@ -638,15 +574,6 @@ message UpdateDocumentResponseBody {
   optional string index = 3 [json_name = "_index"];
   // [optional] The primary term assigned when the document was indexed.
   optional int64 primary_term = 4 [json_name = "_primary_term"];
-
-  enum Result {
-    RESULT_INVALID = 0;
-    RESULT_CREATED = 1;
-    RESULT_DELETED = 2;
-    RESULT_NOOP = 3;
-    RESULT_NOT_FOUND = 4;
-    RESULT_UPDATED = 5;
-  }
   // [optional] The result of the index operation.
   optional Result result = 5;
   // [optional] The sequence number assigned when the document was indexed.
@@ -685,13 +612,6 @@ message GetDocumentRequest {
   repeated string stored_fields = 10;
   // [optional] Explicit version number for concurrency control. The specified version must match the current version of the document for the request to succeed.
   optional int64 version = 11;
-  enum VersionType {
-    VERSION_TYPE_INVALID = 0;
-    // Retrieve the document if the specified version number is greater than the document's current version
-    VERSION_TYPE_EXTERNAL = 1;
-    // Retrieve the document if the specified version number is greater than or equal to the document's current version
-    VERSION_TYPE_EXTERNAL_GTE = 2;
-  }
   // [optional] Assigns a specific type to the document.
   optional VersionType version_type = 12;
 
