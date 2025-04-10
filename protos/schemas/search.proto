@@ -610,7 +610,7 @@ message RescoreQuery {
   optional float rescore_query_weight = 3;
 
   enum ScoreMode {
-    SCORE_MODE_INVALID = 0;
+    SCORE_MODE_UNSPECIFIED = 0;
     // Average the original score and the rescore query score.
     SCORE_MODE_AVG = 1;
     // Take the max of original score and the rescore query score.

@@ -305,7 +305,7 @@ message InlineGetDictUserDefined {
 }
 
 enum Refresh {
-  REFRESH_INVALID = 0;
+  REFRESH_UNSPECIFIED = 0;
   // `REFRESH_FALSE` do nothing with refreshes.
   REFRESH_FALSE = 1;
   // `REFRESH_TRUE` makes the changes show up in search results immediately, but hurts cluster performance.
@@ -381,7 +381,7 @@ message IndexDocumentErrorResponse {
 }
 
 enum Result {
-  RESULT_INVALID = 0;
+  RESULT_UNSPECIFIED = 0;
   RESULT_CREATED = 1;
   RESULT_DELETED = 2;
   RESULT_NOOP = 3;
