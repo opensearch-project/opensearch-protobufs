@@ -109,6 +109,7 @@ export function traverseSchema(
         if (Array.isArray(subschemas)) {
             for (const sub of subschemas) {
                 if (!('$ref' in sub)) {
+                    visitors.onSchema?.(sub, `${key}`);
                     traverseSchema(sub, visitors);
                 }
             }

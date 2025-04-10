@@ -85,18 +85,8 @@ export class Sanitizer {
     if (schema.properties) {
       this.rename_properties_name(schema.properties as Record<string, OpenAPIV3.SchemaObject>);
     }
-
-    const composed = ['oneOf', 'allOf', 'anyOf'] as const;
-    for (const key of composed) {
-      const schemas = schema[key];
-      if (Array.isArray(schemas)) {
-        for (const sub of schemas) {
-          if (sub && 'properties' in sub) {
-            const props = sub.properties as Record<string, OpenAPIV3.SchemaObject>;
-            this.rename_properties_name(props);
-          }
-        }
-      }
+    if (schema.required) {
+      this.rename_required_name(schema.required);
     }
   }
 
@@ -106,6 +96,15 @@ export class Sanitizer {
         const newPropName = "underscore" + propName;
         properties[newPropName] = properties[propName];
         delete properties[propName];
+      }
+    }
+  }
+
+  public rename_required_name(requireList: string[]) {
+    for (var index in requireList) {
+      var propName = requireList[index];
+      if(propName.startsWith("_")) {
+        requireList[index] = "underscore" + propName;
       }
     }
   }
