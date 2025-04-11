@@ -39,3 +39,7 @@ export function write_text (file_path: string, text: string): void {
     writeFileSync(file_path, text)
 }
 
+export function compressMultipleUnderscores(str: string): string {
+    return str.replace(/_+/g, '_');
+}
+

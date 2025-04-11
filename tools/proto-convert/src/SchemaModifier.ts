@@ -1,6 +1,7 @@
 import type {OpenAPIV3} from "openapi-types";
 import { traverse } from './utils/OpenApiTraverser';
 import isEqual from 'lodash.isequal';
+import { compressMultipleUnderscores } from './utils/helper';
 
 
 export class SchemaModifier {
@@ -40,7 +41,7 @@ export class SchemaModifier {
             for (const item of schema.oneOf) {
                 if (item && !('$ref' in item) && item.type === 'string' && 'const' in item) {
                     item.type = 'boolean';
-                    item.title = `${schemaName}_${item.const}`;
+                    item.title = compressMultipleUnderscores(`${schemaName}_${item.const}`);
                     delete item.const;
                 }
             }
