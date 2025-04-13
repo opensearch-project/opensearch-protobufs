@@ -5,6 +5,7 @@ import { Sanitizer } from './Sanitizer';
 import Logger from './utils/logger';
 import * as path from 'path';
 import {SchemaModifier} from "./SchemaModifier";
+import type {OpenAPIV3} from "openapi-types";
 
 let config_filtered_path: string[] | undefined;
 try {
@@ -41,15 +42,13 @@ type PreprocessingOpts = {
 const opts = command.opts() as PreprocessingOpts;
 
 const logger = new Logger();
-const filter = new Filter(logger);
-const sanitizer = new Sanitizer();
-const schema_modifier = new SchemaModifier();
+
 try {
   logger.info(`PreProcessing ${opts.filtered_path.join(', ')} into ${opts.output} ...`)
-  const original_spec = read_yaml(opts.input);
-  const filtered_spec = filter.filter_spec(original_spec, opts.filtered_path);
-  const sanitized_spec = sanitizer.sanitize(filtered_spec);
-  const schema_modified_spec = schema_modifier.modify(sanitized_spec);
+  const original_spec = read_yaml(opts.input)
+  const filtered_spec = new Filter().filter_spec(original_spec, opts.filtered_path);
+  const sanitized_spec = new Sanitizer().sanitize(filtered_spec);
+  const schema_modified_spec = new SchemaModifier(sanitized_spec).modify();
   write_yaml(opts.output, schema_modified_spec);
 
 } catch (err) {

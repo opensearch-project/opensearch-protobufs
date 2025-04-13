@@ -1,6 +1,7 @@
 import {mkdirSync, writeFileSync, readFileSync} from 'fs'
 import {parse, visit, Document} from 'yaml'
 import {dirname} from "path";
+import {OpenAPIV3} from "openapi-types";
 
 export function read_yaml<T = Record<string, any>> (file_path: string, exclude_schema: boolean = false): T {
     const doc = parse(readFileSync(file_path, 'utf8'))
@@ -41,5 +42,45 @@ export function write_text (file_path: string, text: string): void {
 
 export function compressMultipleUnderscores(str: string): string {
     return str.replace(/_+/g, '_');
+}
+
+export function resolveObj(
+    obj: OpenAPIV3.SchemaObject | OpenAPIV3.ReferenceObject | undefined,
+    root: OpenAPIV3.Document
+): OpenAPIV3.SchemaObject | undefined {
+    if (!obj) return undefined;
+
+    if ("$ref" in obj) {
+        return resolveRef(obj.$ref, root);
+    }
+    return obj as OpenAPIV3.SchemaObject;
+}
+
+export function resolveRef(
+    ref: string,
+    root: OpenAPIV3.Document
+): OpenAPIV3.SchemaObject | undefined {
+    if (!ref.startsWith("#/")) {
+        return undefined;
+    }
+
+    const pathParts = ref.replace(/^#\//, "").split("/");
+
+    let current: any = root;
+    for (const part of pathParts) {
+        if (current == null || typeof current !== "object") {
+            return undefined;
+        }
+        current = current[part];
+    }
+
+    if (!current) {
+        return undefined;
+    }
+    if ("$ref" in current) {
+        return resolveObj(current, root);
+    }
+
+    return current as OpenAPIV3.SchemaObject;
 }
 
