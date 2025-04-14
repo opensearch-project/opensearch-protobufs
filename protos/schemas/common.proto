@@ -564,7 +564,7 @@ message InnerHits {
   repeated SortCombinations sort = 12;
 
   // [optional] Select what fields of the source are returned
-  optional SourceConfig source = 13 [json_name = "_source"];
+  optional SourceConfig source = 13;
 
   // [optional] A list of stored fields to return as part of a hit. If no fields are specified, no stored fields are included in the response. If this option is specified, the _source parameter defaults to false. You can pass _source: true to return both source fields and stored fields in the search response.
   repeated string stored_fields = 14;
@@ -2685,7 +2685,7 @@ message InlineGet {
     .google.protobuf.Struct struct_source = 6;
 
     // Use bytes for better latency/performance, as it reduces payload size over the wire
-    bytes source = 7 [json_name = "_source"];
+    bytes source = 7;
 
   }
 }
