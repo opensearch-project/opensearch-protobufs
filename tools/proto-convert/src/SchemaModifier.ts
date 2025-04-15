@@ -1,9 +1,12 @@
 import type {OpenAPIV3} from "openapi-types";
 import {traverse} from './utils/OpenApiTraverser';
 import isEqual from 'lodash.isequal';
-import {compressMultipleUnderscores, resolveObj} from './utils/helper';
+import {compressMultipleUnderscores, isPrimitiveType, resolveObj, isReferenceObject, isEmptyObjectSchema} from './utils/helper';
 import Logger from "./utils/logger";
 
+
+const DEFAULT_MAP_KEY = 'field' // default key for simplified additionalProperties
+const DEFAULT_MAP_VALUE = 'value' // default value for simplified additionalProperties
 
 export class SchemaModifier {
     logger: Logger
@@ -19,11 +22,21 @@ export class SchemaModifier {
                 this.collapseOrMergeOneOfArray(schema)
             },
             onSchema: (schema, schemaName) => {
-                if (!schema || this.isReferenceObject(schema)) return;
+                if (!schema || isReferenceObject(schema)) return;
                 this.handleAdditionalPropertiesUndefined(schema)
                 this.handleOneOfConst(schema, schemaName)
                 this.collapseOrMergeOneOfArray(schema)
-                this.CollapseOneOfObjectPropContainsTitleSchema(schema)
+                this.collapseOneOfObjectPropContainsTitleSchema(schema)
+            },
+        });
+        const visit = new Set();
+        traverse(this.root, {
+            onSchemaProperty: (schema) => {
+                this.simplifySingleMapSchema(schema, visit)
+            },
+            onSchema: (schema) => {
+                if (!schema || isReferenceObject(schema)) return;
+                this.simplifySingleMapSchema(schema, visit)
             },
         });
         return this.root
@@ -32,14 +45,10 @@ export class SchemaModifier {
     // Converts `additionalProperties: true` or `additionalProperties: {}` to `type: object`.
     // Example: { additionalProperties: true } -> { type: 'object' }
     handleAdditionalPropertiesUndefined(schema: OpenAPIV3.SchemaObject): void {
-        if (schema.additionalProperties === true || ( typeof schema.additionalProperties === 'object' &&  this.isEmptyObjectSchema(schema.additionalProperties as OpenAPIV3.SchemaObject))) {
+        if (schema.additionalProperties === true || ( typeof schema.additionalProperties === 'object' && isEmptyObjectSchema(schema.additionalProperties as OpenAPIV3.SchemaObject))) {
             schema.type = 'object';
             delete schema.additionalProperties;
         }
-    }
-
-    isReferenceObject(schema: any): schema is OpenAPIV3.ReferenceObject {
-        return schema !== null && typeof schema === 'object' && '$ref' in schema;
     }
 
     // Converts `oneOf` schemas with `const` values to boolean types.
@@ -54,16 +63,6 @@ export class SchemaModifier {
                 }
             }
         }
-    }
-    isEmptyObjectSchema(schema: OpenAPIV3.SchemaObject): boolean {
-        return (
-            schema.type === 'object' &&
-            !schema.properties &&
-            !schema.allOf &&
-            !schema.anyOf &&
-            !schema.oneOf &&
-            !('$ref' in schema)
-        );
     }
 
     // Simplify schemas with `oneOf` by aggregating items.
@@ -131,7 +130,7 @@ export class SchemaModifier {
      *    properties: { exampleTitle: { type: "string" } }
      *  }
      **/
-    CollapseOneOfObjectPropContainsTitleSchema(schema: OpenAPIV3.SchemaObject): void {
+    collapseOneOfObjectPropContainsTitleSchema(schema: OpenAPIV3.SchemaObject): void {
         // TODO: might need to handle oneOf more than 2
         if (!Array.isArray(schema.oneOf) || schema.oneOf.length !== 2) {
             return;
@@ -147,7 +146,7 @@ export class SchemaModifier {
      *
      * */
     private tryCollapseIfMatching(schema: OpenAPIV3.SchemaObject, maybeSimple: OpenAPIV3.SchemaObject | OpenAPIV3.ReferenceObject,
-        maybeComplex: OpenAPIV3.SchemaObject | OpenAPIV3.ReferenceObject, indexOfSimple: number): boolean {
+                                  maybeComplex: OpenAPIV3.SchemaObject | OpenAPIV3.ReferenceObject, indexOfSimple: number): boolean {
         let foundMath = false;
         if (! ('title' in maybeSimple && typeof (maybeSimple.title) === 'string')) {
             return false;
@@ -188,5 +187,102 @@ export class SchemaModifier {
             return true;
         }
         return false;
+    }
+
+    createAdditionalPropertySchema(): OpenAPIV3.SchemaObject {
+        return {
+            type: "object",
+            properties: {
+                [DEFAULT_MAP_KEY]: {
+                    type: "string"
+                }
+            }
+        };
+    }
+
+    /**
+     * Reconstructs the additional property schema putting map key into map values.
+     **/
+    reconstructAdditionalPropertySchema(schema: OpenAPIV3.SchemaObject | OpenAPIV3.ReferenceObject, visit: Set<any>): OpenAPIV3.SchemaObject | OpenAPIV3.ReferenceObject {
+        const complexObject = resolveObj(schema, this.root);
+
+        if (!complexObject || visit.has(complexObject)) {
+            return schema;
+        }
+        if (Array.isArray(complexObject?.allOf)) {
+            complexObject?.allOf.push(this.createAdditionalPropertySchema());
+        } else if (Array.isArray(complexObject.oneOf)) {
+            for (const sub in complexObject.oneOf) {
+                this.reconstructAdditionalPropertySchema(complexObject.oneOf[sub], visit);
+            }
+        } else if (Array.isArray(complexObject.anyOf)) {
+            for (const sub in complexObject.anyOf) {
+                this.reconstructAdditionalPropertySchema(complexObject.anyOf[sub], visit);
+            }
+        } else if (complexObject.type === 'object' && complexObject.properties) {
+            if (complexObject.properties[DEFAULT_MAP_KEY]) {
+                this.logger.error("Error: additionalProperties key already exists in the schema "+complexObject);
+            }
+            complexObject.properties[DEFAULT_MAP_KEY] = this.createAdditionalPropertySchema().properties?.[DEFAULT_MAP_KEY] as OpenAPIV3.SchemaObject || {};
+        } else if (isPrimitiveType(complexObject)) {
+            const defaultValueName = complexObject.title ?? DEFAULT_MAP_VALUE;
+            const constructSchema = this.createAdditionalPropertySchema();
+            constructSchema.properties = constructSchema.properties || {};
+            constructSchema.properties[defaultValueName] = schema;
+            return constructSchema;
+        }
+        visit.add(complexObject)
+        return schema
+    }
+
+    /**
+     * Transforms SchemaObject that single-key maps (`minProperties = 1` and `maxProperties = 1`) into standard schema by reconstructing
+     * the additional property definitions.
+     * Example:
+     *  Input:
+     * {
+     *   type: "object",
+     *   additionalProperties: {
+     *     - ref: "#/components/schemas/Model"
+     *   },
+     *   minProperties: 1,
+     *   maxProperties: 1,
+     * };
+     * Model:
+     *  properties: {
+     *      properties1: string
+     *      properties2: string
+     *  }
+     *
+     *
+     *Output:
+     *  {
+     *    ref: "#/components/schemas/Example
+     *  }
+     *
+     *  Model:
+     *  properties: {
+     *      field: string
+     *      properties1: string
+     *      properties2: string
+     *  }
+     *
+     **/
+    simplifySingleMapSchema(schema: OpenAPIV3.SchemaObject, visit: Set<any>): void {
+        if (schema.type === 'object' && typeof schema.additionalProperties === 'object' &&
+            !Array.isArray(schema.additionalProperties) && schema.minProperties === 1 && schema.maxProperties === 1){
+
+            const reconstructAdditionalPropertySchema = this.reconstructAdditionalPropertySchema(schema.additionalProperties, visit);
+
+            Object.assign(schema, reconstructAdditionalPropertySchema)
+
+            delete schema.additionalProperties;
+            delete schema.minProperties;
+            delete schema.maxProperties;
+            delete schema.type
+            if ('propertyNames' in schema) {
+                delete schema.propertyNames;
+            }
+        }
     }
 }
