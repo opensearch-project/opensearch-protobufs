@@ -12,81 +12,146 @@ import "google/protobuf/struct.proto";
 import "protos/schemas/common.proto";
 
 
-// The bulk operation lets you add, update, or delete multiple documents in a single request, index name needs to be specified in `BulkRequestBody`
 message BulkRequest {
-  // [optional] If not provided here, index will be required in the BulkRequestBody instead
-  optional string index = 1;
-  // [optional] Set `true` or `false` to return the `_source` field or not, or a list of fields to return.
-  optional SourceConfigParam source = 2;
-  // [optional] A list of source fields to exclude from the response.
-  repeated string source_excludes = 3;
-  // [optional] A list of source fields to include in the response.
-  repeated string source_includes = 4;
-  // [optional] ID of the pipeline to use to preprocess incoming documents. If the index has a default ingest pipeline specified, then setting the value to `_none` disables the default ingest pipeline for this request. If a final pipeline is configured it will always run, regardless of the value of this parameter.
-  optional string pipeline = 5;
+  // Name of the data stream, index, or index alias to perform bulk actions on.
+  string index = 1;
 
-  // [optional] The enum of whether to refresh the affected shards after performing the indexing operations. Default is false
-  optional Refresh refresh = 6;
-  // [optional] If `true`, the request's actions must target an index alias. Defaults to false.
-  optional bool require_alias = 7;
-  // [optional] Custom value used to route operations to a specific shard.
-  optional string routing = 8;
-  // [optional] Period each action waits for the following operations: automatic index creation, dynamic mapping updates, waiting for active shards.
-  // pattern: ^([0-9\.]+)(?:d|h|m|s|ms|micros|nanos)$
-  // Defaults to 1m (one minute). This guarantees OpenSearch waits for at least the timeout before failing. The actual wait time could be longer, particularly when multiple waits occur.
-  optional string timeout = 9;
-  // [deprecated] The default document type for documents that don't specify a type. Default is _doc. We highly recommend ignoring this parameter and using a type of _doc for all indexes.
-  optional string type = 10;
-  // [optional] The number of active shards that must be available before OpenSearch processes the request. Default is 1 (only the primary shard). Set to all or a positive integer. Values greater than 1 require replicas. For example, if you specify a value of 3, the index must have two replicas distributed across two additional nodes for the operation to succeed.
-  optional WaitForActiveShards wait_for_active_shards = 11;
-  // [required] The request body contains create, delete, index, and update actions and their associated source data
-  repeated BulkRequestBody request_body = 12;
+  repeated BulkRequestInner bulk_request_inner = 2;
 
-  // [optional] Controls how document source fields are returned in the response.
-  // - If not set, source is returned as bytes (default, recommended for better performance)
-  // - If set to SOURCE_TYPE_STRUCT: source is returned as a structured protobuf message
-  // Note: Using SOURCE_TYPE_STRUCT may impact performance due to additional serialization overhead
-  // Note: This diverges from the API spec.
-  optional SourceType source_type = 13;
+  // `true` or `false` to return the `_source` field or not, or a list of fields to return.
+  optional SourceConfigParam underscore_source = 3;
+
+  // A comma-separated list of source fields to exclude from the response.
+  repeated string underscore_source_excludes = 4;
+
+  // A comma-separated list of source fields to include in the response.
+  repeated string underscore_source_includes = 5;
+
+  // ID of the pipeline to use to preprocess incoming documents. If the index has a default ingest pipeline specified, then setting the value to `_none` disables the default ingest pipeline for this request. If a final pipeline is configured it will always run, regardless of the value of this parameter.
+  optional string pipeline = 6;
+
+  // If `true`, OpenSearch refreshes the affected shards to make this operation visible to search, if `wait_for` then wait for a refresh to make this operation visible to search, if `false` do nothing with refreshes. Valid values: `true`, `false`, `wait_for`.
+  optional Refresh refresh = 7;
+
+  // If `true`, the request's actions must target an index alias.
+  optional bool require_alias = 8;
+
+  // Custom value used to route operations to a specific shard.
+  repeated string routing = 9;
+
+  // Period each action waits for the following operations: automatic index creation, dynamic mapping updates, waiting for active shards.
+  optional string timeout = 10;
+
+  // Default document type for items which don't provide one.
+  optional string type = 11;
+
+  // The number of shard copies that must be active before proceeding with the operation. Set to all or any positive integer up to the total number of shards in the index (`number_of_replicas+1`).
+  optional WaitForActiveShards wait_for_active_shards = 12;
+
+  // Whether to pretty format the returned JSON response.
+  optional bool pretty = 13;
+
+  // Whether to return human readable values for statistics.
+  optional bool human = 14;
+
+  // Whether to include the stack trace of returned errors.
+  optional bool error_trace = 15;
+
+  // The URL-encoded request definition. Useful for libraries that do not accept a request body for non-POST requests.
+  optional string source = 16;
+
+  // Used to reduce the response. This parameter takes a comma-separated list of filters. It supports using wildcards to match any field or part of a field’s name. You can also exclude fields with \"-\".
+  repeated string filter_path = 17;
 }
 
-message BulkRequestBody {
+message BulkRequestInner {
+  optional OperationContainer operation_container = 1;
 
-  // [required] operation to perform (index, create, update, or delete)
+  optional UpdateAction update_action = 2;
+
+  optional ObjectMap object_map = 3;
+}
+
+message OperationContainer {
   oneof operation_container {
-    // Indexes the specified document. If the document exists, replaces the document and increments the version. It must followed with source data to be indexed in `doc` field.
-    IndexOperation index = 1;
-    // Indexes the specified document if it does not already exist. It must followed with the source data to be indexed in `object` field.
-    CreateOperation create = 2;
-    // Performs a partial document update. It must followed with the partial document and update options in in `doc` field.
+    WriteOperation index = 1;
+
+    WriteOperation create = 2;
+
     UpdateOperation update = 3;
-    // Removes the specified document from the index.
-    DeleteOperation delete = 4;
+
+    OperationBase delete = 4;
   }
-
-  // [optional] Set to false to disable setting 'result' in the response to 'noop' if no change to the document occurred.
-  optional bool detect_noop = 5;
-
-  // [optional] The partial document to index. Required for update, index operations
-  optional bytes doc = 15;
-
-  // [optional] When `true`, uses the contents of 'doc' as the value of 'upsert'. If a document exists, it is updated; if it does not exist, a new document is indexed with the parameters specified in the `doc` field. it's only supported for the `update` operation.
-  optional bool doc_as_upsert = 7;
-  // [optional] Script for more complex document updates by defining the script with the `source` or `id` from a document
-  optional Script script = 8;
-
-  // [optional] When `true`, executes the script whether or not the document exists.
-  optional bool scripted_upsert = 9;
-
-  // [optional] Defines how to fetch a source. Fetching can be disabled entirely, or the source can be filtered.
-  optional SourceConfig source = 10;
-
-  // [optional] If the document does not already exist, the contents of 'upsert' are inserted as a new document. If the document exists, the 'script' is executed. it's only supported for the `update` operation.
-  optional bytes upsert = 16;
-
-  // Use bytes for better latency/performance, as it reduces payload size over the wire
-  optional bytes object = 17;
 }
+
+message OperationBase {
+  // The routing value for the document.
+  optional string routing = 1;
+
+  optional int64 if_primary_term = 2;
+
+  // The sequence number of the document.
+  optional int64 if_seq_no = 3;
+
+  optional int64 version = 4;
+
+  optional VersionType version_type = 5;
+
+  // The unique identifier for a resource.
+  optional string underscore_id = 6;
+
+  optional string underscore_index = 7;
+}
+
+message UpdateAction {
+  // When `false` disables the setting `result` in the response to `noop` if no change to the document occurred.
+  optional bool detect_noop = 1;
+
+  // A partial update to an existing document.
+  optional ObjectMap doc = 2;
+
+  // When `true`, uses the contents of `doc` as the value of `upsert`.
+  optional bool doc_as_upsert = 3;
+
+  optional Script script = 4;
+
+  // When `true`, executes the script whether or not the document exists.
+  optional bool scripted_upsert = 5;
+
+  // If the document does not already exist, the contents of `upsert` are inserted as a new document. If the document exists, the `script` is executed.
+  optional ObjectMap upsert = 6;
+
+  optional SourceConfig underscore_source = 7;
+}
+
+message WriteOperation {
+  // The routing value for the document.
+  optional string routing = 1;
+
+  optional int64 if_primary_term = 2;
+
+  // The sequence number of the document.
+  optional int64 if_seq_no = 3;
+
+  optional int64 version = 4;
+
+  optional VersionType version_type = 5;
+
+  // The unique identifier for a resource.
+  optional string underscore_id = 6;
+
+  optional string underscore_index = 7;
+
+  // A map from the full name of fields to the name of dynamic templates. If a name matches a dynamic template, then that template will be applied regardless of other match predicates defined in the template. If a field is already defined in the mapping, then this parameter won't be used.
+  map<string, string> dynamic_templates = 8;
+
+  // The pipeline ID for preprocessing documents. When the index has a default ingest pipeline specified, then setting the value to `_none` disables the default ingest pipeline for this request. When a final pipeline is configured, that pipeline will always run, regardless of the value of this parameter.
+  optional string pipeline = 9;
+
+  // When `true`, require that all actions target an index alias rather than an index. Default is `false`.
+  optional bool require_alias = 10;
+}
+
 
 enum OpType {
   OP_TYPE_UNSPECIFIED = 0;
@@ -96,115 +161,44 @@ enum OpType {
   OP_TYPE_INDEX = 2;
 }
 
-enum VersionType {
-  VERSION_TYPE_UNSPECIFIED = 0;
-  // Retrieve the document if the specified version number is greater than the document's current version
-  VERSION_TYPE_EXTERNAL = 1;
-  // Retrieve the document if the specified version number is greater than or equal to the document's current version
-  VERSION_TYPE_EXTERNAL_GTE = 2;
-}
+message VersionType {
+  oneof version_type {
+    // The version number must be higher than the current version.
+    bool version_type_external = 1;
 
-message IndexOperation {
-  // [optional] The document ID. If no ID is specified, a document ID is automatically generated.
-  optional string id = 1;
-  // [optional] Name of the the data stream, index, or index alias to perform the action on. This parameter is required if index not specified in bulk request.
-  optional string index = 2;
+    // The version number must be higher than or equal to the current version.
+    bool version_type_external_gte = 2;
 
-  // [optional] Custom value used to route operations to a specific shard.
-  optional string routing = 3;
+    // The version number is forced to be the given value.
+    bool version_type_force = 3;
 
-  // [optional] Only perform the operation if the document has this primary term.
-  optional int64 if_primary_term = 4;
-  // [optional] Only perform the operation if the document has this sequence number
-  optional int64 if_seq_no = 5;
-
-  // [optional] Set to create to only index the document if it does not already exist (put if absent). If a document with the specified `_id` already exists, the indexing operation will fail. Same as using the `<index>/_create` endpoint. Valid values: `index`, `create`. If document id is specified, it defaults to `index`. Otherwise, it defaults to `create`.
-  optional OpType op_type = 6;
-  // [optional] Explicit version number for concurrency control. The specified version must match the current version of the document for the request to succeed.
-  optional int64 version = 7;
-
-  // [optional] Assigns a specific type to the document.
-  optional VersionType version_type = 8;
-
-  // [optional] A map from the full name of fields to the name of dynamic templates. Defaults to an empty map. If a name matches a dynamic template, then that template will be applied regardless of other match predicates defined in the template. If a field is already defined in the mapping, then this parameter won't be used.
-  // TODO where is this used? remove it?
-  // map<string, string> dynamic_templates = 9;
-
-  // [optional] ID of the pipeline to use to preprocess incoming documents. If the index has a default ingest pipeline specified, then setting the value to `_none` disables the default ingest pipeline for this request. If a final pipeline is configured it will always run, regardless of the value of this parameter.
-  optional string pipeline = 10;
-
-  // [optional] If `true`, the request's actions must target an index alias. Defaults to false.
-  optional bool require_alias = 11;
-
-}
-
-message CreateOperation {
-  // [optional] The document ID. If no ID is specified, a document ID is automatically generated.
-  optional string id = 1;
-  // [optional] Name of the the data stream, index, or index alias to perform the action on. This parameter is required if index not specified in bulk request.
-  optional string index = 2;
-
-  // [optional] Custom value used to route operations to a specific shard.
-  optional string routing = 3;
-  // [optional] Only perform the operation if the document has this primary term
-  optional int64 if_primary_term = 4;
-  // [optional] Only perform the operation if the document has this sequence number
-  optional int64 if_seq_no = 5;
-  // [optional] Explicit version number for concurrency control. The specified version must match the current version of the document for the request to succeed.
-  optional int64 version = 6;
-
-  // [optional] Assigns a specific type to the document.
-  optional VersionType version_type = 7;
-
-  // [optional] A map from the full name of fields to the name of dynamic templates. Defaults to an empty map. If a name matches a dynamic template, then that template will be applied regardless of other match predicates defined in the template. If a field is already defined in the mapping, then this parameter won't be used.
-  // TODO where is this used? remove it?
-  // map<string, string> dynamic_templates = 10;
-
-  // [optional] ID of the pipeline to use to preprocess incoming documents. If the index has a default ingest pipeline specified, then setting the value to `_none` disables the default ingest pipeline for this request. If a final pipeline is configured it will always run, regardless of the value of this parameter.
-  optional string pipeline = 8;
-
-  // [optional] If `true`, the request's actions must target an index alias. Defaults to false.
-  optional bool require_alias = 9;
-
+    // The version number is managed internally by OpenSearch.
+    bool version_type_internal = 4;
+  }
 }
 
 message UpdateOperation {
-  // [required] The document ID.
-  optional string id = 1;
-  // [optional] Name of the the data stream, index, or index alias to perform the action on. This parameter is required if index not specified in bulk request.
-  optional string index = 2;
-  // [optional] Custom value used to route operations to a specific shard.
-  optional string routing = 3;
+  // The routing value for the document.
+  optional string routing = 1;
 
-  // [optional] Only perform the operation if the document has this primary term
-  optional int64 if_primary_term = 4;
-  // [optional] Only perform the operation if the document has this sequence number
-  optional int64 if_seq_no = 5;
-  // [optional] If `true`, the request's actions must target an index alias. Defaults to false.
-  optional bool require_alias = 6;
-  // [optional] Specify how many times an update should be retried in the case of a version conflict.
-  optional int32 retry_on_conflict = 7;
+  optional int64 if_primary_term = 2;
 
-}
+  // The sequence number of the document.
+  optional int64 if_seq_no = 3;
 
-message DeleteOperation {
-  // [required] The document ID.
-  optional string id = 1;
-  // [optional] Name of the the data stream, index, or index alias to perform the action on. This parameter is required if index not specified in bulk request.
-  optional string index = 2;
-  // [optional] Custom value used to route operations to a specific shard.
-  optional string routing = 3;
+  optional int64 version = 4;
 
-  // [optional] Only perform the operation if the document has this primary term
-  optional int64 if_primary_term = 4;
-  // [optional] Only perform the operation if the document has this sequence number
-  optional int64 if_seq_no = 5;
-  // [optional] Explicit version number for concurrency control. The specified version must match the current version of the document for the request to succeed.
-  optional int64 version = 6;
+  optional VersionType version_type = 5;
 
-  // [optional] Assigns a specific type to the document.
-  optional VersionType version_type = 7;
+  // The unique identifier for a resource.
+  optional string underscore_id = 6;
 
+  optional string underscore_index = 7;
+
+  // When `true`, the request's actions must target an index alias.
+  optional bool require_alias = 8;
+
+  optional int32 retry_on_conflict = 9;
 }
 
 // Bulk response contains the individual results of each operation in the request, returned in the order submitted. The success or failure of an individual operation does not affect other operations in the request.
@@ -247,71 +241,73 @@ message Item {
 }
 
 message ResponseItem {
+  // HTTP status code returned for the operation.
+  int32 status = 1;
 
-  // [optional] The document type.
-  optional string type = 1;
+  optional ErrorCause error = 2;
 
-  message Id {
-    oneof id {
-      NullValue null_value = 1;
-      string string = 2;
-    }
-  }
-  // [optional] The document ID associated with the operation.
-  optional Id id = 2;
+  // Result of the operation. Successful values are `created`, `deleted`, and `updated`.
+  optional string result = 3;
 
-  // [optional] Name of the index associated with the operation. If the operation targeted a data stream, this is the backing index into which the document was written.
-  optional string index = 3;
+  optional bool forced_refresh = 4;
 
-  // [optional] HTTP status code returned for the operation.
-  // TODO: use grpc status code instead
-  optional int32 status = 4;
-  // [optional] Contains additional information about the failed operation.
-  optional ErrorCause error = 5;
+  optional InlineGetDictUserDefined get = 5;
 
-  // [optional] The primary term assigned to the document for the operation.
-  optional int64 primary_term = 6;
+  // The document type.
+  optional string underscore_type = 6;
 
-  // [optional] Result of the operation. Successful values are `created`, `deleted`, and `updated`.
-  optional string result = 7;
-  // [optional] The sequence number assigned to the document for the operation. Sequence numbers are used to ensure an older version of a document doesn't overwrite a newer version
-  optional int64 seq_no = 8;
-  // [optional] Contains shard information for the operation. This parameter is only returned for successful operations.
-  optional ShardInfo shards = 9;
-  // [optional] The document version associated with the operation. The document version is incremented each time the document is updated. This parameter is only returned for successful actions.
-  optional int64 version = 10;
-  // [optional] if `true`, it requires immediate visibility of the document
-  optional bool forced_refresh = 11;
-  // [optional]
-  optional InlineGetDictUserDefined get = 12;
+  // The document ID associated with the operation.
+  optional string underscore_id = 7;
+
+  // The name of the index associated with the operation. If the operation targets a data stream, this is the backing index into which the document was written.
+  optional string underscore_index = 8;
+
+  // The primary term assigned to the document for the operation.
+  optional int64 underscore_primary_term = 9;
+
+  // The sequence number of the document.
+  optional int64 underscore_seq_no = 10;
+
+  optional ShardStatistics underscore_shards = 11;
+
+  optional int64 underscore_version = 12;
 }
 
 
 message InlineGetDictUserDefined {
-  // [optional]
-  ObjectMap metadata_fields = 1;
-  // [optional]
-  ObjectMap fields = 2;
-  // [required] Whether the document exists.
-  bool found = 3;
-  // [optional] The sequence number assigned to the document for the operation. Sequence numbers are used to ensure an older version of a document doesn't overwrite a newer version
-  optional int64 seq_no = 4;
-  // [optional] The primary term assigned to the document for the operation.
-  optional int64 primary_term = 5;
-  // [optional] Custom value used to route operations to a specific shard.
-  repeated string routing = 6;
-  // [optional] Contains the document's data
-  optional bytes source = 7;
+  // The fields retrieved from the document.
+  optional ObjectMap fields = 1;
+
+  // Whether the document was found.
+  bool found = 2;
+
+  // The sequence number of the document.
+  optional int64 underscore_seq_no = 3;
+
+  // The primary term of the document.
+  optional int32 underscore_primary_term = 4;
+
+  // The routing value for the document.
+  optional string underscore_routing = 5;
+
+  // The source of the document.
+  optional ObjectMap underscore_source = 6;
 }
 
-enum Refresh {
-  REFRESH_UNSPECIFIED = 0;
-  // `REFRESH_FALSE` do nothing with refreshes.
-  REFRESH_FALSE = 1;
-  // `REFRESH_TRUE` makes the changes show up in search results immediately, but hurts cluster performance.
-  REFRESH_TRUE = 2;
-  // `REFRESH_WAIT_FOR` waits for a refresh. Requests take longer to return, but cluster performance doesn't suffer.
-  REFRESH_WAIT_FOR = 3;
+message Refresh {
+  oneof refresh {
+    // Whether to refresh the affected shards immediately.
+    bool bool = 1;
+
+    // Do not refresh the affected shards.
+    bool refresh_false = 2;
+
+    // Refresh the affected shards immediately.
+    bool refresh_true = 3;
+
+    // Wait for the changes to become visible before replying.
+    bool refresh_wait_for = 4;
+  }
 }
 
 // index document.
