@@ -19,6 +19,7 @@ ENV PIP_GRPC_VERSION=1.62.3
 ENV PIP_PROTOBUF_VERSION=4.$PROTO_VERSION
 
 RUN pip install --upgrade pip
+RUN pip install mypy-protobuf
 RUN apt-get update && apt-get install -y \
     git \
     sed \
@@ -54,7 +55,7 @@ RUN bash -c 'set -e; \
     \
     # Discover proto files \
     SCHEMA_PROTO_FILES=$(find "$PROTO_DIR/schemas" -name "*.proto") && \
-    SERVICE_PROTO_FILES=$(find "$ROOT_DIR" -maxdepth 1 -name "*.proto") && \
+    SERVICE_PROTO_FILES=$(find "$PROTO_DIR/services" -name "*.proto") && \
     ALL_PROTO_FILES="$SCHEMA_PROTO_FILES $SERVICE_PROTO_FILES" && \
     \
     # Compile proto \
@@ -62,6 +63,7 @@ RUN bash -c 'set -e; \
         --proto_path="$ROOT_DIR" \
         --python_out="$OUTPUT_DIR" \
         --grpc_python_out="$OUTPUT_DIR" \
+        --mypy_out="$OUTPUT_DIR" \
         $ALL_PROTO_FILES'
 
 # Cleanup - fix package name in imports
