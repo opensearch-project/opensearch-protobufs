@@ -1,11 +1,15 @@
 name: Auto Proto Convert
 
 on:
+  # Allows manual triggers from the GitHub UI
   workflow_dispatch:
-    inputs:
-      input_param:
-        description: ''
-        required: false
+
+  # Allows external triggers from opensearch spec repositories
+  repository_dispatch:
+    types: [trigger]
+
+run-name: ${{ github.event_name == 'workflow_dispatch' && 'Auto Proto Convert Triggered Manually' || 'Auto Proto Convert Triggered By Spec' }}
+
 jobs:
   auto-proto-convert:
     runs-on: ubuntu-latest
