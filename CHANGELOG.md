@@ -8,6 +8,7 @@ Inspired from [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 - Replace required property name from _* to underscore_* and remove duplicate __ from modified title ([#88](https://github.com/opensearch-project/opensearch-protobufs/pull/88))
 - Preprocessing spec for collapse oneOf if childComplexOneOf property contains child SimpleOneOf. ([#89](https://github.com/opensearch-project/opensearch-protobufs/pull/89))
 - Preprocessing spec for reconstructing a standard schema from single-key map. ([#90](https://github.com/opensearch-project/opensearch-protobufs/pull/90))
+- Using official protobuf generator. ([#91](https://github.com/opensearch-project/opensearch-protobufs/pull/91))
 
 ### Removed
 
