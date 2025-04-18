@@ -84,3 +84,32 @@ export function resolveRef(
     return current as OpenAPIV3.SchemaObject;
 }
 
+export function isPrimitiveType(schema: OpenAPIV3.SchemaObject): boolean {
+    if (schema.type === undefined || schema.type === "array") {
+        return false;
+    }
+
+    const primitiveTypes: Array<OpenAPIV3.NonArraySchemaObjectType> = [
+        'string',
+        'number',
+        'integer',
+        'boolean'
+    ];
+
+    return primitiveTypes.includes(schema.type);
+}
+
+export function isEmptyObjectSchema(schema: OpenAPIV3.SchemaObject): boolean {
+    return (
+        schema.type === 'object' &&
+        !schema.properties &&
+        !schema.allOf &&
+        !schema.anyOf &&
+        !schema.oneOf &&
+        !('$ref' in schema)
+    );
+}
+
+export function isReferenceObject(schema: any): schema is OpenAPIV3.ReferenceObject {
+    return schema !== null && typeof schema === 'object' && '$ref' in schema;
+}
