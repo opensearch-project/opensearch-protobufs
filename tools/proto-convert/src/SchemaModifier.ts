@@ -18,11 +18,13 @@ export class SchemaModifier {
     public modify(): OpenAPIV3.Document {
         traverse(this.root, {
             onSchemaProperty: (schema) => {
+                this.deduplicateEnumValue(schema)
                 this.handleAdditionalPropertiesUndefined(schema)
                 this.collapseOrMergeOneOfArray(schema)
             },
             onSchema: (schema, schemaName) => {
                 if (!schema || isReferenceObject(schema)) return;
+                this.deduplicateEnumValue(schema)
                 this.handleAdditionalPropertiesUndefined(schema)
                 this.handleOneOfConst(schema, schemaName)
                 this.collapseOrMergeOneOfArray(schema)
@@ -284,5 +286,27 @@ export class SchemaModifier {
                 delete schema.propertyNames;
             }
         }
+    }
+
+    /**
+     * Removes duplicate enum values
+     * Example:
+     *   input:
+     *    Operator: { type: string, enum: [AND, and, or, OR] }
+     *   output:
+     *    Operator: { type: string enum: [and, or] }
+     *
+     **/
+    deduplicateEnumValue(schema: { enum?: string[] }): void {
+        if (!schema.enum || !Array.isArray(schema.enum)) {
+            return;
+        }
+        const enumSet = new Set<string>();
+        for (const value of schema.enum) {
+            const enumValue = value.toLowerCase();
+            enumSet.add(enumValue)
+        }
+
+        schema.enum = Array.from(enumSet)
     }
 }
