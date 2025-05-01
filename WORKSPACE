@@ -2,7 +2,35 @@ workspace(name = "proto_workspace")
 
 load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 
-# Protocol Buffers dependencies
+"""
+Explicitely pin a recent version of com_google_googleapis to avoid compatibility issues.
+
+Latest py_proto_library definition fails with:
+`plugin attribute not supported`. 
+"""
+
+http_archive(
+    name = "com_google_googleapis",
+    sha256 = "ec7e30c7082e6ae7ae41c2688137fa3d3cd4496badf970b2883f388a3c0103e6",
+    strip_prefix = "googleapis-cc6c360ec4509ef0288d5e2c85bd6ec1a3b1de83",
+    urls = ["https://github.com/googleapis/googleapis/archive/cc6c360ec4509ef0288d5e2c85bd6ec1a3b1de83.zip"],
+)
+
+load("@com_google_googleapis//:repository_rules.bzl", "switched_rules_by_language")
+switched_rules_by_language(
+    name = "com_google_googleapis_imports",
+    grpc = True,
+    python = True,
+)
+
+"""
+Protoc compiler - 3.25.5 and associated C dependencies.
+Includes native support for language specific rules.
+
+Patched to fix compatibility with @upb//bazel:upb_proto_library:
+` Path 'google/protobuf/timestamp.proto' is not beneath 'src/google/protobuf'`
+"""
+
 http_archive(
     name = "com_google_protobuf",
     sha256 = "4356e78744dfb2df3890282386c8568c85868116317d9b3ad80eb11c2aecf2ff",
@@ -14,7 +42,13 @@ load("@com_google_protobuf//:protobuf_deps.bzl", "protobuf_deps")
 
 protobuf_deps()
 
-# Java rules
+"""
+Language rules.
+Includes libraries required for compilation/linking compiled protos.
+Includes language specfic platoform support (JMV, python interpreter). 
+"""
+
+# Java
 http_archive(
     name = "rules_java",
     sha256 = "f8ae9ed3887df02f40de9f4f7ac3873e6dd7a471f9cddf63952538b94b59aeb3",
@@ -22,9 +56,6 @@ http_archive(
         "https://github.com/bazelbuild/rules_java/releases/download/7.6.1/rules_java-7.6.1.tar.gz",
     ],
 )
-
-# load("@rules_java//java:repositories.bzl", "rules_java_dependencies")
-# rules_java_dependencies()
 
 # Proto rules
 http_archive(
@@ -40,7 +71,27 @@ rules_proto_dependencies()
 
 rules_proto_toolchains()
 
-# gRPC dependencies
+# Add rules_proto_grpc
+http_archive(
+    name = "rules_proto_grpc",
+    sha256 = "9ba7299c5eb6ec45b6b9a0ceb9916d0ab96789ac8218269322f0124c0c0d24e2",
+    strip_prefix = "rules_proto_grpc-4.5.0",
+    urls = ["https://github.com/rules-proto-grpc/rules_proto_grpc/releases/download/4.5.0/rules_proto_grpc-4.5.0.tar.gz"],
+)
+
+load("@rules_proto_grpc//:repositories.bzl", "rules_proto_grpc_toolchains", "rules_proto_grpc_repos")
+rules_proto_grpc_toolchains()
+rules_proto_grpc_repos()
+
+load("@rules_proto_grpc//python:repositories.bzl", rules_proto_grpc_python_repos = "python_repos")
+rules_proto_grpc_python_repos()
+
+"""
+Service definitions need additional gRPC dependencies.
+Defined for each language. 
+"""
+
+# Java
 http_archive(
     name = "io_grpc_grpc_java",
     sha256 = "dc1ad2272c1442075c59116ec468a7227d0612350c44401237facd35aab15732",
@@ -51,6 +102,23 @@ http_archive(
 load("@io_grpc_grpc_java//:repositories.bzl", "IO_GRPC_GRPC_JAVA_ARTIFACTS", "IO_GRPC_GRPC_JAVA_OVERRIDE_TARGETS", "grpc_java_repositories")
 
 grpc_java_repositories()
+
+# Python
+http_archive(
+    name = "com_github_grpc_grpc",
+    strip_prefix = "grpc-1.72.0",
+    urls = ["https://github.com/grpc/grpc/archive/v1.72.0.tar.gz"],
+    sha256 = "4a8aa99d5e24f80ea6b7ec95463e16af5bd91aa805e26c661ef6491ae3d2d23c",
+)
+
+load("@com_github_grpc_grpc//bazel:grpc_deps.bzl", "grpc_deps")
+grpc_deps()
+
+load("@com_github_grpc_grpc//bazel:grpc_extra_deps.bzl", "grpc_extra_deps")
+grpc_extra_deps()
+
+load("@com_github_grpc_grpc//bazel:grpc_python_deps.bzl", "grpc_python_deps")
+grpc_python_deps()
 
 # Use rules_jvm_external to manage Maven dependencies
 http_archive(
