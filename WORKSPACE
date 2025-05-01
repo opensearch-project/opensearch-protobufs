@@ -35,10 +35,6 @@ http_archive(
     urls = ["https://github.com/protocolbuffers/protobuf/archive/v3.25.5.tar.gz"],
 )
 
-build_file_content = """
-build --@com_google_protobuf//:use_upb=False
-"""
-
 load("@com_google_protobuf//:protobuf_deps.bzl", "protobuf_deps")
 
 protobuf_deps()
