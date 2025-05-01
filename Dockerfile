@@ -1,8 +1,15 @@
 # docker build --no-cache --platform=linux/amd64 -t bazel-5.4.1 .
 # docker run --platform=linux/amd64 -it bazel-5.4.1 bash
-# bazel build 
-# //protos/schemas:common_proto_py //protos/schemas:document_proto_py //protos/schemas:search_proto_py
-# //protos/services:document_service_grpc_python //protos/services:search_service_grpc_python
+
+# BUILD LIBRARIES
+
+# JAVA
+# bazel build //protos/schemas:common_java_proto //protos/schemas:document_java_proto //protos/schemas:search_java_proto
+# bazel build //protos/services:document_service_grpc_java //protos/services:search_service_grpc_java
+
+# PYTHON
+# bazel build //protos/schemas:common_proto_py //protos/schemas:document_proto_py //protos/schemas:search_proto_py
+# bazel build //protos/services:document_service_grpc_python //protos/services:search_service_grpc_python
 
 FROM ubuntu:22.04 AS base-bazel
 
