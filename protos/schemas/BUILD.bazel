@@ -1,6 +1,9 @@
 # protos/schemas/BUILD.bazel
 load("@rules_proto//proto:defs.bzl", "proto_library")
 load("@rules_java//java:defs.bzl", "java_proto_library")
+load("@com_github_grpc_grpc//bazel:python_rules.bzl", "py_proto_library", "py_grpc_library")
+
+
 package(default_visibility = ["//visibility:public"])
 
 proto_library(
@@ -42,5 +45,24 @@ java_proto_library(
 
 java_proto_library(
     name = "search_java_proto",
+    deps = [":search_proto"],
+)
+
+"""
+Python schema libraries
+"""
+
+py_proto_library(
+    name = "common_proto_py",
+    deps = [":common_proto"],
+)
+
+py_proto_library(
+    name = "document_proto_py",
+    deps = [":document_proto"],
+)
+
+py_proto_library(
+    name = "search_proto_py",
     deps = [":search_proto"],
 )
