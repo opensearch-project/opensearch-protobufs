@@ -26,9 +26,6 @@ switched_rules_by_language(
 """
 Protoc compiler - 3.25.5 and associated C dependencies.
 Includes native support for language specific rules.
-
-Patched to fix compatibility with @upb//bazel:upb_proto_library:
-` Path 'google/protobuf/timestamp.proto' is not beneath 'src/google/protobuf'`
 """
 
 http_archive(
@@ -37,6 +34,10 @@ http_archive(
     strip_prefix = "protobuf-3.25.5",
     urls = ["https://github.com/protocolbuffers/protobuf/archive/v3.25.5.tar.gz"],
 )
+
+build_file_content = """
+build --@com_google_protobuf//:use_upb=False
+"""
 
 load("@com_google_protobuf//:protobuf_deps.bzl", "protobuf_deps")
 
