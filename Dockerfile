@@ -3,6 +3,9 @@
 
 # BUILD LIBRARIES
 
+# ALL
+# bazel build //...
+
 # JAVA
 # bazel build //protos/schemas:common_java_proto //protos/schemas:document_java_proto //protos/schemas:search_java_proto
 # bazel build //protos/services:document_service_grpc_java //protos/services:search_service_grpc_java
@@ -30,7 +33,7 @@ RUN apt-get update && apt-get install -y \
 RUN apt-get install software-properties-common -y
 RUN add-apt-repository ppa:deadsnakes/ppa -y
 RUN apt-get install python3.10 python3.10-dev -y
-RUN apt-get install python3-pip
+RUN apt-get install python3-pip -y
 
 RUN curl -fsSL https://github.com/bazelbuild/bazel/releases/download/$BAZEL_VERSION/bazel-$BAZEL_VERSION-installer-linux-x86_64.sh -o bazel-installer.sh \
     && chmod +x bazel-installer.sh \
@@ -45,5 +48,3 @@ WORKDIR /build
 
 # Copy entire repository for convenience
 COPY . .
-
-# RUN bazel build //...
