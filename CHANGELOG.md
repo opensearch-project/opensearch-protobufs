@@ -10,7 +10,7 @@ Inspired from [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 - Preprocessing spec for reconstructing a standard schema from single-key map. ([#90](https://github.com/opensearch-project/opensearch-protobufs/pull/90))
 - Using official protobuf generator. ([#91](https://github.com/opensearch-project/opensearch-protobufs/pull/91))
 - Preprocessing spec for deduplicating enum values. ([#93](https://github.com/opensearch-project/opensearch-protobufs/pull/93))
-
+- Address Generator Build Failure. ([#95](https://github.com/opensearch-project/opensearch-protobufs/pull/95))
 ### Removed
 
 ### Fixed
