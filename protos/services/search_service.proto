@@ -20,4 +20,7 @@ import "protos/schemas/search.proto";
 
 service SearchService {
   rpc Search(SearchRequest) returns (SearchResponse) {}
+
+  // Server side grpc stream endpoint
+  rpc ServerStreamSearch(SearchRequest) returns (stream SearchResponse) {}
 }
