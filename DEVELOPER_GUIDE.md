@@ -27,7 +27,13 @@ This script will:
 2. To use the JAR in a Gradle project, add the following to your build.gradle:
 where VERSION is the number set in [version.properties](./version.properties) (e.g. 0.3.0)
 
-If using local Maven: 
+If using jar stored locally:
+```
+dependencies {
+  implementation files("${rootProject.projectDir}/protobufs-{VERSION}-SNAPSHOT.jar")
+```
+
+If using local Maven:
 ```
 repositories {
     mavenLocal()
@@ -37,7 +43,7 @@ dependencies {
     implementation 'org.opensearch.protobufs:opensearch-protobufs:{VERSION}-SNAPSHOT'
 }
 ```
-If using snapshot jar uploaded to sonatype: 
+If using snapshot jar uploaded to sonatype:
 ```
 repositories {
   maven {
@@ -55,7 +61,7 @@ dependencies {
 
 **ProtoConvertProcess** consists of the following steps:
 - **Preprocessing** Preprocess downloaded [OpenSearch API Specification](https://github.com/opensearch-project/opensearch-api-specification) before convert to Protobuf-schema.
-- **Conversion** The prepared API specification is transformed into a Protobuf schema using [openapi-generator](https://github.com/OpenAPITools/openapi-generator). 
+- **Conversion** The prepared API specification is transformed into a Protobuf schema using [openapi-generator](https://github.com/OpenAPITools/openapi-generator).
 - **Postprocessing** The resulting Protobuf files are refined and adjusted to meet the standards after the conversion.
 
 The [Spec Preprocessing](tools/proto-convert/src/PreProcessing.ts) includes two steps:
@@ -73,7 +79,7 @@ The [Spec Preprocessing](tools/proto-convert/src/PreProcessing.ts) includes two 
 2. Install project dependencies:
 
 
-    npm run preprocessing -- --help 
+    npm run preprocessing -- --help
 **Arguments**
 
 - `--input <path>`: The path read downloaded opensearch-api-specification yaml file, defaults to `<repository-root>/build/opensearch-openapi.yaml`.
