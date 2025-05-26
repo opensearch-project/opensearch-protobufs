@@ -22,6 +22,9 @@ service DocumentService {
   // Bulk add, update, or delete multiple documents in a single request.
   rpc Bulk(BulkRequest) returns (BulkResponse) {}
   
+  // Stream bulk requests to add, update, or delete multiple documents, and receive responses in a stream.
+  rpc StreamBulk(stream BulkRequest) returns (stream BulkResponse) {}
+  
   // Ingest a single document to an index
   rpc IndexDocument(IndexDocumentRequest) returns (IndexDocumentResponse) {}
 
