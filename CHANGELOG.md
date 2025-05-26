@@ -13,6 +13,7 @@ Inspired from [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 - Address Generator Build Failure. ([#95](https://github.com/opensearch-project/opensearch-protobufs/pull/95))
 - Add http code at the end of response. ([#97](https://github.com/opensearch-project/opensearch-protobufs/pull/97))
 - Add GRPC Search server-side streaming endpoint ([#98](https://github.com/opensearch-project/opensearch-protobufs/pull/98))
+- Add bi-directional streaming Bulk GRPC endpoint ([#101](https://github.com/opensearch-project/opensearch-protobufs/pull/101))
 
 ### Removed
 
