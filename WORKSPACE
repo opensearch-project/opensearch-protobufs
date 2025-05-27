@@ -45,14 +45,14 @@ Includes libraries required for compilation/linking compiled protos.
 Includes language specfic platoform support (JMV, python interpreter). 
 """
 
-# Java
-http_archive(
-    name = "rules_java",
-    sha256 = "f8ae9ed3887df02f40de9f4f7ac3873e6dd7a471f9cddf63952538b94b59aeb3",
-    urls = [
-        "https://github.com/bazelbuild/rules_java/releases/download/7.6.1/rules_java-7.6.1.tar.gz",
-    ],
-)
+# # Java
+# http_archive(
+#     name = "rules_java",
+#     sha256 = "f8ae9ed3887df02f40de9f4f7ac3873e6dd7a471f9cddf63952538b94b59aeb3",
+#     urls = [
+#         "https://github.com/bazelbuild/rules_java/releases/download/7.6.1/rules_java-7.6.1.tar.gz",
+#     ],
+# )
 
 # Python - Depends on `protocol_compiler`
 http_archive(
@@ -62,29 +62,49 @@ http_archive(
     url = "https://github.com/bazelbuild/rules_python/archive/refs/tags/0.17.3.tar.gz",
 )
 
-load("@rules_python//python:repositories.bzl", "py_repositories")
+load("@rules_python//python:repositories.bzl", "py_repositories", "python_register_toolchains")
 
 py_repositories()
 
-bind(
-    name = "protocol_compiler",
-    actual = "@com_google_protobuf//:protoc",
+python_register_toolchains(
+    name = "python310",
+    python_version = "3.10",
 )
 
-bind(
-    name = "protocol_compiler",
-    actual = "@com_google_protobuf//:protoc",
+load("@python310//:defs.bzl", "interpreter")
+load("@rules_python//python:pip.bzl", "pip_parse")
+
+pip_parse(
+    name = "pip",
+    python_interpreter_target = interpreter,
+    requirements_lock = "//third_party:requirements.txt",
 )
 
-bind(
-    name = "python_headers",
-    actual = "@com_google_protobuf//:python_headers",
-)
+load("@pip//:requirements.bzl", "install_deps")
+install_deps()
 
-bind(
-    name = "protobuf_python",
-    actual = "@com_google_protobuf//:protobuf_python",
-)
+load("@com_google_protobuf//:protobuf_deps.bzl", "protobuf_deps")
+protobuf_deps()
+
+# bind(
+#     name = "protocol_compiler",
+#     actual = "@com_google_protobuf//:protoc",
+# )
+
+# bind(
+#     name = "protocol_compiler",
+#     actual = "@com_google_protobuf//:protoc",
+# )
+
+# bind(
+#     name = "python_headers",
+#     actual = "@com_google_protobuf//:python_headers",
+# )
+
+# bind(
+#     name = "protobuf_python",
+#     actual = "@com_google_protobuf//:protobuf_python",
+# )
 
 # Proto rules
 http_archive(
@@ -121,43 +141,43 @@ grpc_extra_deps()
 load("@com_github_grpc_grpc//bazel:grpc_python_deps.bzl", "grpc_python_deps")
 grpc_python_deps()
 
-# Java
-http_archive(
-    name = "io_grpc_grpc_java",
-    sha256 = "dc1ad2272c1442075c59116ec468a7227d0612350c44401237facd35aab15732",
-    strip_prefix = "grpc-java-1.68.2",
-    urls = ["https://github.com/grpc/grpc-java/archive/v1.68.2.tar.gz"],
-)
+# # Java
+# http_archive(
+#     name = "io_grpc_grpc_java",
+#     sha256 = "dc1ad2272c1442075c59116ec468a7227d0612350c44401237facd35aab15732",
+#     strip_prefix = "grpc-java-1.68.2",
+#     urls = ["https://github.com/grpc/grpc-java/archive/v1.68.2.tar.gz"],
+# )
 
-load("@io_grpc_grpc_java//:repositories.bzl", "IO_GRPC_GRPC_JAVA_ARTIFACTS", "IO_GRPC_GRPC_JAVA_OVERRIDE_TARGETS", "grpc_java_repositories")
+# load("@io_grpc_grpc_java//:repositories.bzl", "IO_GRPC_GRPC_JAVA_ARTIFACTS", "IO_GRPC_GRPC_JAVA_OVERRIDE_TARGETS", "grpc_java_repositories")
 
-grpc_java_repositories()
+# grpc_java_repositories()
 
-# Use rules_jvm_external to manage Maven dependencies
-http_archive(
-    name = "rules_jvm_external",
-    sha256 = "62133c125bf4109dfd9d2af64830208356ce4ef8b165a6ef15bbff7460b35c3a",
-    strip_prefix = "rules_jvm_external-3.0",
-    url = "https://github.com/bazelbuild/rules_jvm_external/archive/3.0.zip",
-)
+# # Use rules_jvm_external to manage Maven dependencies
+# http_archive(
+#     name = "rules_jvm_external",
+#     sha256 = "62133c125bf4109dfd9d2af64830208356ce4ef8b165a6ef15bbff7460b35c3a",
+#     strip_prefix = "rules_jvm_external-3.0",
+#     url = "https://github.com/bazelbuild/rules_jvm_external/archive/3.0.zip",
+# )
 
-load("@rules_jvm_external//:defs.bzl", "maven_install")
+# load("@rules_jvm_external//:defs.bzl", "maven_install")
 
-maven_install(
-    artifacts = IO_GRPC_GRPC_JAVA_ARTIFACTS + [
-        "io.netty:netty-handler:4.1.118.Final",
-        "commons-codec:commons-codec:1.13",
-        "org.jetbrains.kotlin:kotlin-stdlib:1.6.0",
-        "com.google.protobuf:protobuf-java:3.25.5",
-        "com.squareup.okio:okio:3.4.0",
-    ],
-    generate_compat_repositories = True,
-    override_targets = IO_GRPC_GRPC_JAVA_OVERRIDE_TARGETS,
-    repositories = [
-        "https://repo.maven.apache.org/maven2/",
-    ],
-)
+# maven_install(
+#     artifacts = IO_GRPC_GRPC_JAVA_ARTIFACTS + [
+#         "io.netty:netty-handler:4.1.118.Final",
+#         "commons-codec:commons-codec:1.13",
+#         "org.jetbrains.kotlin:kotlin-stdlib:1.6.0",
+#         "com.google.protobuf:protobuf-java:3.25.5",
+#         "com.squareup.okio:okio:3.4.0",
+#     ],
+#     generate_compat_repositories = True,
+#     override_targets = IO_GRPC_GRPC_JAVA_OVERRIDE_TARGETS,
+#     repositories = [
+#         "https://repo.maven.apache.org/maven2/",
+#     ],
+# )
 
-load("@maven//:compat.bzl", "compat_repositories")
+# load("@maven//:compat.bzl", "compat_repositories")
 
-compat_repositories()
+# compat_repositories()

@@ -1,9 +1,13 @@
-# docker build --no-cache --platform=linux/amd64 -t bazel-5.4.1 .
+# docker build --platform=linux/amd64 -t bazel-5.4.1 .
 # docker run --user bazeluser --platform=linux/amd64 -it bazel-5.4.1 bash
 
-# BUILD LIBRARIES
 
-# ALL
+# docker build -t bazel-5.4.1 .
+# docker run --user bazeluser -it bazel-5.4.1 bash
+
+
+# BUILD LIBRARIES
+# bazel clean --expunge
 # bazel build //...
 
 # JAVA
@@ -34,6 +38,8 @@ RUN apt-get install software-properties-common -y
 RUN add-apt-repository ppa:deadsnakes/ppa -y
 RUN apt-get install python3.10 python3.10-dev -y
 RUN apt-get install python3-pip -y
+RUN apt-get install protobuf-compiler -y
+RUN apt-get install python3-protobuf -y
 
 RUN curl -fsSL https://github.com/bazelbuild/bazel/releases/download/$BAZEL_VERSION/bazel-$BAZEL_VERSION-installer-linux-x86_64.sh -o bazel-installer.sh \
     && chmod +x bazel-installer.sh \
@@ -42,7 +48,7 @@ RUN curl -fsSL https://github.com/bazelbuild/bazel/releases/download/$BAZEL_VERS
 
 RUN bazel --version
 
-FROM base-bazel AS build-java
+FROM base-bazel AS user-bazel
 
 WORKDIR /build
 
@@ -55,5 +61,9 @@ RUN chown -R bazeluser:bazeluser /home/bazeluser && \
     chmod 755 /home/bazeluser
 USER bazeluser
 
+FROM user-bazel AS dev-bazel
+
 # Copy entire repository for convenience
+# Ensure copy of local repo is not cached 
+ARG CACHEBUST=1
 COPY . .

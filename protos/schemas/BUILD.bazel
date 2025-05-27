@@ -1,6 +1,6 @@
 # protos/schemas/BUILD.bazel
 load("@rules_proto//proto:defs.bzl", "proto_library")
-load("@rules_java//java:defs.bzl", "java_proto_library")
+# load("@rules_java//java:defs.bzl", "java_proto_library")
 load("@rules_python//python:proto.bzl", "py_proto_library")
 
 package(default_visibility = ["//visibility:public"])
@@ -31,21 +31,21 @@ proto_library(
         ],
 )
 
-# Java proto libraries
-java_proto_library(
-    name = "common_java_proto",
-    deps = [":common_proto"],
-)
+# # Java proto libraries
+# java_proto_library(
+#     name = "common_java_proto",
+#     deps = [":common_proto"],
+# )
 
-java_proto_library(
-    name = "document_java_proto",
-    deps = [":document_proto"],
-)
+# java_proto_library(
+#     name = "document_java_proto",
+#     deps = [":document_proto"],
+# )
 
-java_proto_library(
-    name = "search_java_proto",
-    deps = [":search_proto"],
-)
+# java_proto_library(
+#     name = "search_java_proto",
+#     deps = [":search_proto"],
+# )
 
 """
 Python schema libraries
@@ -53,18 +53,24 @@ Python schema libraries
 
 py_proto_library(
     name = "common_py_pb2",
-    visibility = ["//visibility:public"],
-    deps = [":common_proto"],
+    deps = [
+        ":common_proto",
+        "@com_google_protobuf//:protobuf_python"
+    ],
 )
 
 py_proto_library(
     name = "document_py_pb2",
-    visibility = ["//visibility:public"],
-    deps = [":document_proto"],
+    deps = [
+        ":document_proto",
+        "@com_google_protobuf//:protobuf_python"
+    ],
 )
 
 py_proto_library(
     name = "search_py_pb2",
-    visibility = ["//visibility:public"],
-    deps = [":search_proto"],
+    deps = [
+        ":search_proto",
+        "@com_google_protobuf//:protobuf_python"
+    ],
 )
