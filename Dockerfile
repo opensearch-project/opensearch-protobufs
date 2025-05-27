@@ -1,11 +1,6 @@
 # docker build --platform=linux/amd64 -t bazel-5.4.1 .
 # docker run --user bazeluser --platform=linux/amd64 -it bazel-5.4.1 bash
 
-
-# docker build -t bazel-5.4.1 .
-# docker run --user bazeluser -it bazel-5.4.1 bash
-
-
 # BUILD LIBRARIES
 # bazel clean --expunge
 # bazel build //...

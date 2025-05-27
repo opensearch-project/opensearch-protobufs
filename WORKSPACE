@@ -107,17 +107,18 @@ protobuf_deps()
 # )
 
 # Proto rules
+
 http_archive(
     name = "rules_proto",
-    sha256 = "37005d35aba73a843b34f194c0c41633a0b2fd90f8b84c91b391b995ffc593f2",
-    strip_prefix = "rules_proto-5.3.0-21.7",
-    urls = ["https://github.com/bazelbuild/rules_proto/archive/refs/tags/5.3.0-21.7.zip"],
+    sha256 = "14a225870ab4e91869652cfd69ef2028277fc1dc4910d65d353b62d6e0ae21f4",
+    strip_prefix = "rules_proto-7.1.0",
+    url = "https://github.com/bazelbuild/rules_proto/releases/download/7.1.0/rules_proto-7.1.0.tar.gz",
 )
 
-load("@rules_proto//proto:repositories.bzl", "rules_proto_dependencies", "rules_proto_toolchains")
-
+load("@rules_proto//proto:repositories.bzl", "rules_proto_dependencies")
 rules_proto_dependencies()
 
+load("@rules_proto//proto:toolchains.bzl", "rules_proto_toolchains")
 rules_proto_toolchains()
 
 """
