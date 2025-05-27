@@ -1,5 +1,5 @@
 # docker build --no-cache --platform=linux/amd64 -t bazel-5.4.1 .
-# docker run --platform=linux/amd64 -it bazel-5.4.1 bash
+# docker run --user bazeluser --platform=linux/amd64 -it bazel-5.4.1 bash
 
 # BUILD LIBRARIES
 
@@ -45,6 +45,15 @@ RUN bazel --version
 FROM base-bazel AS build-java
 
 WORKDIR /build
+
+# Run as non-root - Required for rules_python
+# See: https://github.com/bazelbuild/rules_python/pull/713
+# Create group and user
+RUN groupadd -r bazeluser && useradd -r -m -g bazeluser bazeluser
+RUN chown -R bazeluser:bazeluser /build
+RUN chown -R bazeluser:bazeluser /home/bazeluser && \
+    chmod 755 /home/bazeluser
+USER bazeluser
 
 # Copy entire repository for convenience
 COPY . .
