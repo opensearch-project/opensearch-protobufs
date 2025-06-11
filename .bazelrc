@@ -1,10 +1,6 @@
-# Enable proto3 optional fields
-build --proto_compiler=@com_google_protobuf//:protoc
-build --protocopt=--experimental_allow_proto3_optional
+# Enable Bzlmod
+common --enable_bzlmod
 
 # Set C++ standard to C++14
 build --cxxopt=-std=c++14
 build --host_cxxopt=-std=c++14
-
-# Enable deprecated java_common.compile parameters
-build --incompatible_java_common_parameters=false
