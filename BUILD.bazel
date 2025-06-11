@@ -1,30 +1,24 @@
-# protos/BUILD.bazel
 load("@rules_java//java:defs.bzl", "java_proto_library")
-load("@io_grpc_grpc_java//:java_grpc_library.bzl", "java_grpc_library")
+load("@grpc_java//:java_grpc_library.bzl", "java_grpc_library")
 
 package(default_visibility = ["//visibility:public"])
 
-# Java proto library
 java_proto_library(
     name = "protos_java",
     deps = [
         "//protos/services:document_service_proto",
         "//protos/services:search_service_proto"
     ],
-    visibility = ["//visibility:public"],
 )
 
-# Java gRPC library
 java_grpc_library(
     name = "document_service_grpc_java",
     srcs = ["//protos/services:document_service_proto"],
     deps = [":protos_java"],
-    visibility = ["//visibility:public"],
 )
 
 java_grpc_library(
     name = "search_service_grpc_java",
     srcs = ["//protos/services:search_service_proto"],
     deps = [":protos_java"],
-    visibility = ["//visibility:public"],
 )
