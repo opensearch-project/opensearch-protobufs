@@ -1,14 +1,3 @@
-# docker build --platform=linux/amd64 -t os-protos-build .
-# docker run --user bazeluser --platform=linux/amd64 -it os-protos-build bash
-
-# BUILD LIBRARIES
-# bazel clean --expunge
-# bazel build //...
-
-# JAVA
-# bazel build //protos/schemas:common_java_proto //protos/schemas:document_java_proto //protos/schemas:search_java_proto
-# bazel build //protos/services:document_service_grpc_java //protos/services:search_service_grpc_java
-
 FROM ubuntu:22.04 AS base-bazel
 
 ENV BAZEL_VERSION=8.2.0
@@ -23,6 +12,7 @@ RUN apt-get update && apt-get install -y \
     python3 \
     g++ \
     gcc \
+    sudo \
     && apt-get clean
 
 RUN apt-get install software-properties-common -y
@@ -51,12 +41,17 @@ RUN echo "bazeluser ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers
 RUN chown -R bazeluser:bazeluser /build
 RUN chown -R bazeluser:bazeluser /home/bazeluser && \
     chmod 755 /home/bazeluser
-    
+
 USER bazeluser
 
-FROM user-bazel AS dev-bazel
+FROM user-bazel AS build-bazel
 
 # Copy entire repository for convenience
 # Ensure copy of local repo is not cached 
 ARG CACHEBUST=1
 COPY . .
+
+FROM user-bazel AS build-java-bazel
+
+USER bazeluser
+RUN sudo ./tools/java/package_proto_jar.sh -c true
