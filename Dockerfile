@@ -47,9 +47,11 @@ WORKDIR /build
 # See: https://github.com/bazelbuild/rules_python/pull/713
 # Create group and user
 RUN groupadd -r bazeluser && useradd -r -m -g bazeluser bazeluser
+RUN echo "bazeluser ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers
 RUN chown -R bazeluser:bazeluser /build
 RUN chown -R bazeluser:bazeluser /home/bazeluser && \
     chmod 755 /home/bazeluser
+    
 USER bazeluser
 
 FROM user-bazel AS dev-bazel
