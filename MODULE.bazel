@@ -3,20 +3,29 @@ module(
     version = "1.0",
 )
 
+bazel_dep(name = "rules_cc", version = "0.0.9")
 bazel_dep(name = "rules_java", version = "7.6.1")
 bazel_dep(name = "rules_proto", version = "7.1.0")
 bazel_dep(name = "protobuf", version = "25.5", repo_name = "com_google_protobuf")
 bazel_dep(name = "rules_jvm_external", version = "5.3")
-bazel_dep(name = "grpc_java", version = "1.71.1", repo_name = "io_grpc_grpc_java")
+
+ext_grpc = use_extension("//:tools/grpc_deps.bzl", "grpc_deps")
+use_repo(ext_grpc, "grpc_java")
 
 maven = use_extension("@rules_jvm_external//:extensions.bzl", "maven")
 maven.install(
     artifacts = [
+        "io.grpc:grpc-core:1.68.2",
+        "io.grpc:grpc-protobuf:1.68.2",
+        "io.grpc:grpc-stub:1.68.2",
         "io.netty:netty-handler:4.1.118.Final",
         "commons-codec:commons-codec:1.13",
         "org.jetbrains.kotlin:kotlin-stdlib:1.6.0",
-        "com.google.protobuf:protobuf-java:25.5",
+        "com.google.protobuf:protobuf-java:3.25.5",
+        "com.google.guava:guava:31.1-jre",
         "com.squareup.okio:okio:3.4.0",
+        "org.apache.tomcat:annotations-api:6.0.53",
+        "javax.annotation:javax.annotation-api:1.3.2",
     ],
     repositories = [
         "https://repo.maven.apache.org/maven2",
