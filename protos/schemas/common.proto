@@ -1130,23 +1130,23 @@ message KnnField {
 
   // [optional]
   // The final number of nearest neighbors to return as top hits.
-  int32 k = 2;
+  optional int32 k = 2;
 
   // [optional]
   // The minimum similarity score for a neighbor to be considered a hit.
-  float min_score = 3;
+  optional float min_score = 3;
 
   // [optional]
   // The maximum physical distance in vector space for a neighbor to be considered a hit.
-  float max_distance = 4;
+  optional float max_distance = 4;
 
   // [optional]
   // Filters for the kNN search query. The kNN search will return the top k documents that also match this filter. If filter is not provided, all documents are allowed to match.
-  QueryContainer filter = 5;
+  optional QueryContainer filter = 5;
 
   // [optional]
   // Boost value to apply to kNN scores
-  float boost = 6;
+  optional float boost = 6;
 
   // [optional]
   // Method parameters are dependent on the combination of engine and method used to create the index.
