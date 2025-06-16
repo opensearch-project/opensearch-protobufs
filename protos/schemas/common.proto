@@ -471,8 +471,7 @@ message QueryContainer {
   // [optional]
   // Knn query is to search for the k-nearest neighbors to a query point across an index of vectors. To determine the neighbors, you can specify the space (the distance function) you want to use to measure the distance between points.
   // If provided, no other fields should be provided inside QueryContainer
-  // Only 1 entry can be provided in the map
-  map<string, KnnField> knn = 24;
+  optional KNNQuery knn = 24;
 
   // [optional]
   // The match all query returns all documents. This query can be useful in testing large document sets if you need to return the entire set.
@@ -1123,41 +1122,62 @@ message PipeSeparatedFlagsSimpleQueryStringFlag {
 
 }
 
-message KnnField {
+message KNNQuery {
+  // [required] Specifies the vector field against which to run a search quer
+  string field = 1; 
+  
   // [optional]
   // Query vector. Must have the same number of dimensions as the vector field you are searching against.
-  repeated float vector = 1;
+  repeated float vector = 2;
 
   // [optional]
   // The final number of nearest neighbors to return as top hits.
-  int32 k = 2;
+  optional int32 k = 3;
 
   // [optional]
   // The minimum similarity score for a neighbor to be considered a hit.
-  float min_score = 3;
+  optional float min_score = 4;
 
   // [optional]
   // The maximum physical distance in vector space for a neighbor to be considered a hit.
-  float max_distance = 4;
+  optional float max_distance = 5;
 
   // [optional]
   // Filters for the kNN search query. The kNN search will return the top k documents that also match this filter. If filter is not provided, all documents are allowed to match.
-  QueryContainer filter = 5;
+  optional QueryContainer filter = 6;
 
   // [optional]
   // Boost value to apply to kNN scores
-  float boost = 6;
+  optional float boost = 7;
+
+  // [optional] The name of the query for query tagging.
+  optional string underscore_name = 8;
 
   // [optional]
   // Method parameters are dependent on the combination of engine and method used to create the index.
   // Available method ef_search see https://opensearch.org/docs/latest/search-plugins/knn/approximate-knn/#ef_search and nprobes "https://opensearch.org/docs/latest/search-plugins/knn/approximate-knn/#nprobes"
-  map<string, int32> method_parameters = 7;
+  optional ObjectMap method_parameters = 9;
 
   // [optional]
   // Available in version later than 2.17
   // To explicitly apply rescoring, provide the rescore parameter in a query on a quantized index and specify the oversample_factor "https://opensearch.org/docs/latest/search-plugins/knn/approximate-knn/#rescoring-quantized-results-using-full-precision"
-  map<string, float> rescore = 8;
+  optional KnnQueryRescore rescore = 10;
+  
+  // [optional] When true, retrieves scores for all nested field documents within each parent document. Used with nested queries. For more information, see Vector search with nested fields.
+  optional bool expand_nested_docs = 11;
 
+}
+
+message RescoreContext {
+  optional float oversample_factor = 1;
+}
+
+message KnnQueryRescore {
+  oneof knn_query_rescore {
+    bool enable = 1;
+
+    RescoreContext context = 2;
+  }
 }
 
 message MatchQueryTypeless {
