@@ -338,161 +338,92 @@ message ShardSearchFailure {
   optional string status = 5;
 }
 
-// The fields in this message are effectively oneOf
 message QueryContainer {
+  oneof query_container{
+    // A Boolean (bool) query can combine several query clauses into one advanced query. The clauses are combined with Boolean logic to find matching documents returned in the results.
+    BoolQuery bool = 1;
 
-  // [optional]
-  // A Boolean (bool) query can combine several query clauses into one advanced query. The clauses are combined with Boolean logic to find matching documents returned in the results.
-  // If provided, no other fields should be provided inside QueryContainer
-  optional BoolQuery bool = 1;
+    // A boosting query returns documents that match a positive query. Among those documents, the ones that also match the negative query are scored lower in relevance (their relevance score is multiplied by the negative boosting factor).
+    BoostingQuery boosting = 2;
 
-  // [optional]
-  // A boosting query returns documents that match a positive query. Among those documents, the ones that also match the negative query are scored lower in relevance (their relevance score is multiplied by the negative boosting factor).
-  // If provided, no other fields should be provided inside QueryContainer
-  optional BoostingQuery boosting = 2;
+    // A constant_score query wraps a filter query and assigns all documents in the results a relevance score equal to the value of the boost parameter.
+    ConstantScoreQuery constant_score = 3;
 
-  // [optional]
-  // A constant_score query wraps a filter query and assigns all documents in the results a relevance score equal to the value of the boost parameter.
-  // If provided, no other fields should be provided inside QueryContainer
-  optional ConstantScoreQuery constant_score = 3;
+    // A disjunction max (dis_max) query returns any document that matches one or more query clauses. For documents that match multiple query clauses, the relevance score is set to the highest relevance score from all matching query clauses.
+    DisMaxQuery dis_max = 4;
 
-  // [optional]
-  // A disjunction max (dis_max) query returns any document that matches one or more query clauses. For documents that match multiple query clauses, the relevance score is set to the highest relevance score from all matching query clauses.
-  // If provided, no other fields should be provided inside QueryContainer
-  optional DisMaxQuery dis_max = 4;
+    // Use a function_score query if you need to alter the relevance scores of documents returned in the results. A function_score query defines a query and one or more functions that can be applied to all results or subsets of the results to recalculate their relevance scores.
+    FunctionScoreQuery function_score = 5;
 
-  // [optional]
-  // Use a function_score query if you need to alter the relevance scores of documents returned in the results. A function_score query defines a query and one or more functions that can be applied to all results or subsets of the results to recalculate their relevance scores.
-  // If provided, no other fields should be provided inside QueryContainer
-  FunctionScoreQuery function_score = 5;
+    // Use the exists query to search for documents that contain a specific field.
+    ExistsQuery exists = 6;
 
-  // [optional]
-  // Use the exists query to search for documents that contain a specific field.
-  // If provided, no other fields should be provided inside QueryContainer
-  optional ExistsQuery exists = 6;
+    // Fuzzy query is to searches for documents containing terms that are similar to the search term within the maximum allowed Damerau–Levenshtein distance. The Damerau–Levenshtein distance measures the number of one-character changes needed to change one term to another term.
+    FuzzyQuery fuzzy = 7;
 
-  // [optional]
-  // Fuzzy query is to searches for documents containing terms that are similar to the search term within the maximum allowed Damerau–Levenshtein distance. The Damerau–Levenshtein distance measures the number of one-character changes needed to change one term to another term.
-  // If provided, no other fields should be provided inside QueryContainer
-  // Only 1 entry can be provided in the map
-  map<string, FuzzyQuery> fuzzy = 7;
+    // Use the ids query to search for documents with one or more specific document ID values in the _id field. For example, the following query requests documents with the IDs 34229 and 91296.
+    IdsQuery ids = 8;
 
-  // [optional]
-  // Use the ids query to search for documents with one or more specific document ID values in the _id field. For example, the following query requests documents with the IDs 34229 and 91296.
-  // If provided, no other fields should be provided inside QueryContainer
-  optional IdsQuery ids = 8;
+    // Prefix query is to search for terms that begin with a specific prefix.
+    PrefixQuery prefix = 9;
 
-  // [optional]
-  // Prefix query is to search for terms that begin with a specific prefix.
-  // If provided, no other fields should be provided inside QueryContainer
-  // Only 1 entry can be provided in the map
-  map<string, PrefixQuery> prefix = 9;
+    // Returns documents that contain terms within a provided range.
+    RangeQuery range = 10;
 
-  // [optional]
-  // Returns documents that contain terms within a provided range.
-  // If provided, no other fields should be provided inside QueryContainer
-  // Only 1 entry can be provided in the map
-  map<string, RangeQuery> range = 10;
+    // Returns documents that contain terms matching a regular expression.
+    RegexpQuery regexp = 11;
 
-  // [optional]
-  // Returns documents that contain terms matching a regular expression.
-  // If provided, no other fields should be provided inside QueryContainer
-  // Only 1 entry can be provided in the map
-  map<string, RegexpQuery> regexp = 11;
+    // Term query is to search for an exact term in a field. The term query does not analyze the search term. The term query only searches for the exact term you provide.
+    TermQuery term = 12;
 
-  // [optional]
-  // Term query is to search for an exact term in a field. The term query does not analyze the search term. The term query only searches for the exact term you provide.
-  // If provided, no other fields should be provided inside QueryContainer
-  // Only 1 entry can be provided in the map
-  map<string, TermQuery> term = 12;
+    // Terms query field is to search for documents containing one or more terms in a specific field. Use the terms query to search for multiple terms in the same field.
+    TermsQueryField terms = 13;
 
-  // [optional]
-  // Terms query field is to search for documents containing one or more terms in a specific field. Use the terms query to search for multiple terms in the same field.
-  // If provided, no other fields should be provided inside QueryContainer
-  optional TermsQueryField terms = 13;
+    // terms set query is to search for documents that match a minimum number of exact terms in a specified field. A terms_set query is similar to a terms query, except that you can specify the minimum number of matching terms that are required in order to return a document. You can specify this number either in a field in the index or with a script.
+    TermsSetQuery terms_set = 14;
 
-  // [optional]
-  // terms set query is to search for documents that match a minimum number of exact terms in a specified field. A terms_set query is similar to a terms query, except that you can specify the minimum number of matching terms that are required in order to return a document. You can specify this number either in a field in the index or with a script.
-  // If provided, no other fields should be provided inside QueryContainer
-  // Only 1 entry can be provided in the map
-  map<string, TermsSetQuery> terms_set = 14;
+    // Returns documents that contain terms matching a wildcard pattern.
+    WildcardQuery wildcard = 15;
 
-  // [optional]
-  // Returns documents that contain terms matching a wildcard pattern.
-  // If provided, no other fields should be provided inside QueryContainer
-  // Only 1 entry can be provided in the map
-  map<string, WildcardQuery> wildcard = 15;
+    // Use the match query for full-text search on a specific document field. If you run a match query on a text field, the match query analyzes the provided search string and returns documents that match any of the string's terms. If you run a match query on an exact-value field, it returns documents that match the exact value. The preferred way to search exact-value fields is to use a filter because, unlike a query, a filter is cached.
+    MatchQueryTypeless match = 16;
 
-  // [optional]
-  // Use the match query for full-text search on a specific document field. If you run a match query on a text field, the match query analyzes the provided search string and returns documents that match any of the string's terms. If you run a match query on an exact-value field, it returns documents that match the exact value. The preferred way to search exact-value fields is to use a filter because, unlike a query, a filter is cached.
-  // If provided, no other fields should be provided inside QueryContainer
-  // Only 1 entry can be provided in the map
-  map<string, MatchQueryTypeless> match = 16;
+    // The match_bool_prefix query analyzes the provided search string and creates a Boolean query from the string's terms. It uses every term except the last term as a whole word for matching. The last term is used as a prefix. The match_bool_prefix query returns documents that contain either the whole-word terms or terms that start with the prefix term, in any order.
+    MatchBoolPrefixQuery match_bool_prefix = 17;
 
-  // [optional]
-  // The match_bool_prefix query analyzes the provided search string and creates a Boolean query from the string's terms. It uses every term except the last term as a whole word for matching. The last term is used as a prefix. The match_bool_prefix query returns documents that contain either the whole-word terms or terms that start with the prefix term, in any order.
-  // If provided, no other fields should be provided inside QueryContainer
-  // Only 1 entry can be provided in the map
-  map<string, MatchBoolPrefixQuery> match_bool_prefix = 17;
+    // Use the match_phrase query to match documents that contain an exact phrase in a specified order. You can add flexibility to phrase matching by providing the slop parameter.
+    MatchPhraseQuery match_phrase = 18;
 
-  // [optional]
-  // Use the match_phrase query to match documents that contain an exact phrase in a specified order. You can add flexibility to phrase matching by providing the slop parameter.
-  // If provided, no other fields should be provided inside QueryContainer
-  // Only 1 entry can be provided in the map
-  map<string, MatchPhraseQuery> match_phrase = 18;
+    // Use the match_phrase_prefix query to specify a phrase to match in order. The documents that contain the phrase you specify will be returned. The last partial term in the phrase is interpreted as a prefix, so any documents that contain phrases that begin with the phrase and prefix of the last term will be returned.
+    MatchPhrasePrefixQuery match_phrase_prefix = 19;
 
-  // [optional]
-  // Use the match_phrase_prefix query to specify a phrase to match in order. The documents that contain the phrase you specify will be returned. The last partial term in the phrase is interpreted as a prefix, so any documents that contain phrases that begin with the phrase and prefix of the last term will be returned.
-  // If provided, no other fields should be provided inside QueryContainer
-  // Only 1 entry can be provided in the map
-  map<string, MatchPhrasePrefixQuery> match_phrase_prefix = 19;
+    // A multi-match operation functions similarly to the match operation. You can use a multi_match query to search multiple fields.
+    MultiMatchQuery multi_match = 20;
 
-  // [optional]
-  // A multi-match operation functions similarly to the match operation. You can use a multi_match query to search multiple fields.
-  // If provided, no other fields should be provided inside QueryContainer
-  MultiMatchQuery multi_match = 20;
+    // A query_string query parses the query string based on the query string syntax. It provides for creating powerful yet concise queries that can incorporate wildcards and search multiple fields.
+    QueryStringQuery query_string = 21;
 
-  // [optional]
-  // A query_string query parses the query string based on the query string syntax. It provides for creating powerful yet concise queries that can incorporate wildcards and search multiple fields.
-  // If provided, no other fields should be provided inside QueryContainer
-  optional QueryStringQuery query_string = 21;
+    // Use the simple_query_string type to specify multiple arguments delineated by regular expressions directly in the query string. Simple query string has a less strict syntax than query string because it discards any invalid portions of the string and does not return errors for invalid syntax.
+    SimpleQueryStringQuery simple_query_string = 22;
 
-  // [optional]
-  // Use the simple_query_string type to specify multiple arguments delineated by regular expressions directly in the query string. Simple query string has a less strict syntax than query string because it discards any invalid portions of the string and does not return errors for invalid syntax.
-  // If provided, no other fields should be provided inside QueryContainer
-  optional SimpleQueryStringQuery simple_query_string = 22;
+    // Returns documents based on the order and proximity of matching terms.
+    IntervalsQuery intervals = 23;
 
-  // [optional]
-  // Returns documents based on the order and proximity of matching terms.
-  // If provided, no other fields should be provided inside QueryContainer
-  // Only 1 entry can be provided in the map
-  map<string, IntervalsQuery> intervals = 23;
+    // Knn query is to search for the k-nearest neighbors to a query point across an index of vectors. To determine the neighbors, you can specify the space (the distance function) you want to use to measure the distance between points.
+    KnnQuery knn = 24;
 
-  // [optional]
-  // Knn query is to search for the k-nearest neighbors to a query point across an index of vectors. To determine the neighbors, you can specify the space (the distance function) you want to use to measure the distance between points.
-  // If provided, no other fields should be provided inside QueryContainer
-  optional KnnQuery knn = 24;
+    // The match all query returns all documents. This query can be useful in testing large document sets if you need to return the entire set.
+    MatchAllQuery match_all = 25;
 
-  // [optional]
-  // The match all query returns all documents. This query can be useful in testing large document sets if you need to return the entire set.
-  // If provided, no other fields should be provided inside QueryContainer
-  optional MatchAllQuery match_all = 25;
+    // This is the inverse of the match_all query, which matches no documents.
+    MatchNoneQuery match_none = 26;
 
-  // [optional]
-  // This is the inverse of the match_all query, which matches no documents.
-  // If provided, no other fields should be provided inside QueryContainer
-  optional MatchNoneQuery match_none = 26;
+    // Use a script_score query to customize the score calculation by using a script. For an expensive scoring function, you can use a script_score query to calculate the score only for the returned documents that have been filtered.
+    ScriptScoreQuery script_score = 27;
 
-  // [optional]
-  // Use a script_score query to customize the score calculation by using a script. For an expensive scoring function, you can use a script_score query to calculate the score only for the returned documents that have been filtered.
-  // If provided, no other fields should be provided inside QueryContainer
-  optional ScriptScoreQuery script_score = 27;
-
-  // [optional]
-  // The nested query acts as a wrapper for other queries to search nested fields. The nested field objects are searched as though they were indexed as separate documents. If an object matches the search, the nested query returns the parent document at the root level.
-  // If provided, no other fields should be provided inside QueryContainer
-  optional NestedQuery nested = 28;
-
+    // The nested query acts as a wrapper for other queries to search nested fields. The nested field objects are searched as though they were indexed as separate documents. If an object matches the search, the nested query returns the parent document at the root level.
+    NestedQuery nested = 28;
+  }
 }
 
 message NestedQuery {
@@ -1068,16 +999,18 @@ message SimpleQueryStringQuery {
 }
 
 message WildcardQuery {
+  // [required] Specifies the field against which to run a search query
+  string field = 1;
 
   // Floating point number used to decrease or increase the relevance scores of the query. Boost values are relative to the default value of 1.0. A boost value between 0 and 1.0 decreases the relevance score. A value greater than 1.0 increases the relevance score.
-  float boost = 1;
+  float boost = 2;
 
-  string name = 2 [json_name = "_name"];
+  string name = 3 [json_name = "_name"];
 
   // Allows case insensitive matching of the pattern with the indexed field values when set to `true`. Default is `false` which means the case sensitivity of matching depends on the underlying field's mapping.
-  bool case_insensitive = 3;
+  bool case_insensitive = 4;
 
-  MultiTermQueryRewrite rewrite = 4;
+  MultiTermQueryRewrite rewrite = 5;
   enum MultiTermQueryRewrite {
     MULTI_TERM_QUERY_REWRITE_UNSPECIFIED = 0;
     MULTI_TERM_QUERY_REWRITE_CONSTANT_SCORE = 1;
@@ -1089,10 +1022,10 @@ message WildcardQuery {
   }
 
   // Wildcard pattern for terms you wish to find in the provided field. Required, when wildcard is not set.
-  string value = 5;
+  string value = 6;
 
   // Wildcard pattern for terms you wish to find in the provided field. Required, when value is not set.
-  string wildcard = 6;
+  string wildcard = 7;
 
 }
 
@@ -1123,7 +1056,7 @@ message PipeSeparatedFlagsSimpleQueryStringFlag {
 }
 
 message KnnQuery {
-  // [required] Specifies the vector field against which to run a search quer
+  // [required] Specifies the vector field against which to run a search query
   string field = 1; 
   
   // [optional]
@@ -1181,11 +1114,12 @@ message KnnQueryRescore {
 }
 
 message MatchQueryTypeless {
+  string field = 1;
   oneof match_query_typeless {
     // Standard match query for performing a full-text search, including options for fuzzy matching.
-    MatchQuery match_query = 1;
+    MatchQuery match_query = 2;
     // Simplified match query syntax by combining the <field> and query parameters
-    ObjectMap object_map = 2;
+    ObjectMap object_map = 3;
   }
 }
 
@@ -1475,24 +1409,26 @@ message IntervalsMatch {
 }
 
 message IntervalsQuery {
+  // [required] Specifies the field against which to run a search query
+  string field = 1;
 
   // Floating point number used to decrease or increase the relevance scores of the query. Boost values are relative to the default value of 1.0. A boost value between 0 and 1.0 decreases the relevance score. A value greater than 1.0 increases the relevance score.
-  float boost = 1;
+  float boost = 2;
 
-  string name = 2 [json_name = "_name"];
+  string name = 3 [json_name = "_name"];
 
   oneof intervals_query {
-    IntervalsAllOf all_of = 3;
+    IntervalsAllOf all_of = 4;
 
-    IntervalsAnyOf any_of = 4;
+    IntervalsAnyOf any_of = 5;
 
-    IntervalsFuzzy fuzzy = 5;
+    IntervalsFuzzy fuzzy = 6;
 
-    IntervalsMatch match = 6;
+    IntervalsMatch match = 7;
 
-    IntervalsPrefix prefix = 7;
+    IntervalsPrefix prefix = 8;
 
-    IntervalsWildcard wildcard = 8;
+    IntervalsWildcard wildcard = 9;
   }
 
 }
@@ -1569,19 +1505,21 @@ message IntervalsContainer {
 }
 
 message PrefixQuery {
+  // [required] Specifies the field against which to run a search query
+  string field = 1;
 
   // [optional]
   // Floating point number used to decrease or increase the relevance scores of the query. Boost values are relative to the default value of 1.0. A boost value between 0 and 1.0 decreases the relevance score. A value greater than 1.0 increases the relevance score.
-  float boost = 1;
+  float boost = 2;
 
   // [optional]
   // Query name for query tagging
-  string name = 2 [json_name = "_name"];
+  string name = 3 [json_name = "_name"];
 
   // [optional]
   // Determines how OpenSearch rewrites the query.
   // Default is constant_score.
-  MultiTermQueryRewrite rewrite = 3;
+  MultiTermQueryRewrite rewrite = 4;
   enum MultiTermQueryRewrite {
     MULTI_TERM_QUERY_REWRITE_UNSPECIFIED = 0;
     // Uses the constant_score_boolean method for fewer matching terms. Otherwise, this method finds all matching terms in sequence and returns matching documents using a bit set.
@@ -1605,11 +1543,11 @@ message PrefixQuery {
 
   // [required]
   // The term to search for in the field specified in <field>.
-  string value = 4;
+  string value = 5;
 
   // [optional]
   // Allows ASCII case insensitive matching of the value with the indexed field values when set to `true`. Default is `false` which means the case sensitivity of matching depends on the underlying field's mapping.
-  bool case_insensitive = 5;
+  bool case_insensitive = 6;
 
 }
 
@@ -1669,44 +1607,50 @@ message TermsLookupField {
 }
 
 message TermsSetQuery {
+  // [required] Specifies the field against which to run a search query
+  string field = 1;
+  
   // [optional]
   // Floating point number used to decrease or increase the relevance scores of the query. Boost values are relative to the default value of 1.0. A boost value between 0 and 1.0 decreases the relevance score. A value greater than 1.0 increases the relevance score.
-  float boost = 1;
+  float boost = 2;
 
   // [optional]
   // Query name for query tagging
-  string name = 2 [json_name = "_name"];
+  string name = 3 [json_name = "_name"];
 
   // [optional]
   // The name of the numeric field that specifies the number of matching terms required in order to return a document in the results.
-  string minimum_should_match_field = 3;
+  string minimum_should_match_field = 4;
 
   // [optional]
   // A script that returns the number of matching terms required in order to return a document in the results.
-  Script minimum_should_match_script = 4;
+  Script minimum_should_match_script = 5;
 
   // [required]
   // The array of terms to search for in the field specified in <field>. A document is returned in the results only if the required number of terms matches the document's field values exactly, with the correct spacing and capitalization.
-  repeated string terms = 5;
+  repeated string terms = 6;
 
 }
 
 message TermQuery {
+  // [required] Specifies the field against which to run a search query
+  string field = 1;
+  
   // [optional]
   // Floating point number used to decrease or increase the relevance scores of the query. Boost values are relative to the default value of 1.0. A boost value between 0 and 1.0 decreases the relevance score. A value greater than 1.0 increases the relevance score.
-  optional float boost = 1;
+  optional float boost = 2;
 
   // [optional]
   // Query name for query tagging
-  optional string name = 2 [json_name = "_name"];
+  optional string name = 3 [json_name = "_name"];
 
   // [required]
   // Term you wish to find in the provided <field>. To return a document, the term must exactly match the field value, including whitespace and capitalization.
-  FieldValue value = 3;
+  FieldValue value = 4;
 
   // [optional]
   // Allows ASCII case insensitive matching of the value with the indexed field values when set to `true`. When `false`, the case sensitivity of matching depends on the underlying field's mapping.
-  optional bool case_insensitive = 4;
+  optional bool case_insensitive = 5;
 
 }
 
@@ -1819,29 +1763,34 @@ message RandomScoreFunction {
 
 // TODO: need to revisit RangeQuery def
 message RangeQuery {
+  // [required] Specifies the field against which to run a search query
+  string field = 1;
+  
   oneof range_query{
-    DateRangeQuery date_range_query = 1;
-    NumberRangeQuery number_range_query = 2;
+    DateRangeQuery date_range_query = 2;
+    NumberRangeQuery number_range_query = 3;
   }
 }
 
 message RegexpQuery {
+  // [required] Specifies the field against which to run a search query
+  string field = 1;
 
   // Floating point number used to decrease or increase the relevance scores of the query. Boost values are relative to the default value of 1.0. A boost value between 0 and 1.0 decreases the relevance score. A value greater than 1.0 increases the relevance score.
-  float boost = 1;
+  float boost = 2;
 
-  string name = 2 [json_name = "_name"];
+  string name = 3 [json_name = "_name"];
 
   // Allows case insensitive matching of the regular expression value with the indexed field values when set to `true`. When `false`, case sensitivity of matching depends on the underlying field's mapping.
-  bool case_insensitive = 3;
+  bool case_insensitive = 4;
 
   // Enables optional operators for the regular expression.
-  string flags = 4;
+  string flags = 5;
 
   // Maximum number of automaton states required for the query.
-  int32 max_determinized_states = 5;
+  int32 max_determinized_states = 6;
 
-  MultiTermQueryRewrite rewrite = 6;
+  MultiTermQueryRewrite rewrite = 7;
   enum MultiTermQueryRewrite {
     MULTI_TERM_QUERY_REWRITE_UNSPECIFIED = 0;
     MULTI_TERM_QUERY_REWRITE_CONSTANT_SCORE = 1;
@@ -1853,7 +1802,7 @@ message RegexpQuery {
   }
 
   // Regular expression for terms you wish to find in the provided field.
-  string value = 7;
+  string value = 8;
 
 }
 
@@ -1951,27 +1900,29 @@ message NumberRangeQuery {
 }
 
 message FuzzyQuery {
+  // [required] Specifies the field against which to run a search query
+  string field = 1;
 
   // [optional]
   // Floating point number used to decrease or increase the relevance scores of the query. Boost values are relative to the default value of 1.0. A boost value between 0 and 1.0 decreases the relevance score. A value greater than 1.0 increases the relevance score.
-  float boost = 1;
+  float boost = 2;
 
   // [optional]
   // Query name for query tagging
-  string name = 2 [json_name = "_name"];
+  string name = 3 [json_name = "_name"];
 
   // [optional]
-  // The maximum number of terms to which the query can expand. Fuzzy queries “expand to” a number of matching terms that are within the distance specified in fuzziness. Then OpenSearch tries to match those terms. Default is 50.
-  int32 max_expansions = 3;
+  // The maximum number of terms to which the query can expand. Fuzzy queries "expand to" a number of matching terms that are within the distance specified in fuzziness. Then OpenSearch tries to match those terms. Default is 50.
+  int32 max_expansions = 4;
 
   // [optional]
   // The number of leading characters that are not considered in fuzziness. Default is 0.
-  int32 prefix_length = 4;
+  int32 prefix_length = 5;
 
   // [optional]
   // Determines how OpenSearch rewrites the query.
   // Default is constant_score.
-  MultiTermQueryRewrite rewrite = 5;
+  MultiTermQueryRewrite rewrite = 6;
   enum MultiTermQueryRewrite {
     MULTI_TERM_QUERY_REWRITE_UNSPECIFIED = 0;
     // Uses the constant_score_boolean method for fewer matching terms. Otherwise, this method finds all matching terms in sequence and returns matching documents using a bit set.
@@ -1994,10 +1945,10 @@ message FuzzyQuery {
   }
   // [optional]
   // Specifies whether to allow transpositions of two adjacent characters (ab to ba) as edits. Default is true.
-  bool transpositions = 6;
+  bool transpositions = 7;
   // [optional]
   // The number of character edits (insert, delete, substitute) needed to change one word to another when determining whether a term matched a value.
-  Fuzziness fuzziness = 7;
+  Fuzziness fuzziness = 8;
 
   message Value {
     oneof value {
@@ -2009,7 +1960,7 @@ message FuzzyQuery {
 
   // [required]
   // Term you wish to find in the provided <field>.
-  Value value = 8;
+  Value value = 9;
 }
 
 message Fuzziness{
@@ -2101,29 +2052,32 @@ message MatchAllQuery {
 }
 
 message MatchBoolPrefixQuery {
+  // [required] Specifies the field against which to run a search query
+  string field = 1;
+  
   // [optional]
   // Floating point number used to decrease or increase the relevance scores of the query. Boost values are relative to the default value of 1.0. A boost value between 0 and 1.0 decreases the relevance score. A value greater than 1.0 increases the relevance score.
-  float boost = 1;
+  float boost = 2;
 
   // [optional]
   // Query name for query tagging
-  string name = 2 [json_name = "_name"];
+  string name = 3 [json_name = "_name"];
 
   // [optional]
   // The analyzer used to tokenize the query string text.
   // Default is the index-time analyzer specified for the default_field. If no analyzer is specified for the default_field, the analyzer is the default analyzer for the index.
-  string analyzer = 3;
+  string analyzer = 4;
 
   // [optional]
   // The number of character edits (insert, delete, substitute) that it takes to change one word to another when determining whether a term matched a value.
   // For example, the distance between wined and wind is 1.
   // The default, AUTO, chooses a value based on the length of each term and is a good choice for most use cases.
-  Fuzziness fuzziness = 4;
+  Fuzziness fuzziness = 5;
 
   // [optional]
   // Determines how OpenSearch rewrites the query.
   // Default is constant_score.
-  MultiTermQueryRewrite fuzzy_rewrite = 5;
+  MultiTermQueryRewrite fuzzy_rewrite = 6;
   enum MultiTermQueryRewrite {
     MULTI_TERM_QUERY_REWRITE_UNSPECIFIED = 0;
     // Uses the constant_score_boolean method for fewer matching terms. Otherwise, this method finds all matching terms in sequence and returns matching documents using a bit set.
@@ -2149,31 +2103,31 @@ message MatchBoolPrefixQuery {
   // Setting fuzzy_transpositions to true (default) adds swaps of adjacent characters to the insert, delete, and substitute operations of the fuzziness option.
   // For example, the distance between wind and wnid is 1 if fuzzy_transpositions is true (swap “n” and “i”) and 2 if it is false (delete “n”, insert “n”). If fuzzy_transpositions is false, rewind and wnid have the same distance (2) from wind, despite the more human-centric opinion that wnid is an obvious typo.
   // The default(true) is a good choice for most use cases.
-  bool fuzzy_transpositions = 6;
+  bool fuzzy_transpositions = 7;
 
   // [optional]
   // The maximum number of terms to which the query can expand. Fuzzy queries “expand to” a number of matching terms that are within the distance specified in fuzziness. Then OpenSearch tries to match those terms.
   // Default is 50.
-  int32 max_expansions = 7;
+  int32 max_expansions = 8;
 
   // [optional]
   // If the query string contains multiple search terms and you use the or operator, the number of terms that need to match for the document to be considered a match.
   // For example, if minimum_should_match is 2, wind often rising does not match The Wind Rises. If minimum_should_match is 1, it matches.
-  MinimumShouldMatch minimum_should_match = 8;
+  MinimumShouldMatch minimum_should_match = 9;
 
   // [optional]
   // If the query string contains multiple search terms, whether all terms need to match (and) or only one term needs to match (or) for a document to be considered a match.
   // Default is or.
-  Operator operator = 9;
+  Operator operator = 10;
   
   // [optional]
   // The number of leading characters that are not considered in fuzziness.
   // Default is 0.
-  int32 prefix_length = 10;
+  int32 prefix_length = 11;
 
   // [required]
   // Terms you wish to find in the provided field. The last term is used in a prefix query.
-  string query = 11;
+  string query = 12;
 
 }
 
@@ -2228,32 +2182,34 @@ message MatchPhrasePrefixQuery {
 }
 
 message MatchPhraseQuery {
+  // [required] Specifies the field against which to run a search query
+  string field = 1;
 
   // [optional]
   // Floating point number used to decrease or increase the relevance scores of the query. Boost values are relative to the default value of 1.0. A boost value between 0 and 1.0 decreases the relevance score. A value greater than 1.0 increases the relevance score.
-  float boost = 1;
+  float boost = 2;
 
   // [optional]
   // Query name for query tagging
-  string name = 2 [json_name = "_name"];
+  string name = 3 [json_name = "_name"];
 
   // [optional]
   // The analyzer used to tokenize the query string text.
   // Default is the index-time analyzer specified for the default_field. If no analyzer is specified for the default_field, the analyzer is the default analyzer for the index.
-  string analyzer = 3;
+  string analyzer = 4;
 
   // [required]
   // The query string to use for search.
-  string query = 4;
+  string query = 5;
 
   // [optional]
   // Controls the degree to which words in a query can be misordered and still be considered a match. From the Lucene documentation: “The number of other words permitted between words in query phrase. For example, to switch the order of two words requires two moves (the first move places the words atop one another), so to permit reorderings of phrases, the slop must be at least two. A value of zero requires an exact match.”
-  int32 slop = 5;
+  int32 slop = 6;
 
   // [optional]
   // In some cases, the analyzer removes all terms from a query string. For example, the stop analyzer removes all terms from the string an but this. In those cases, zero_terms_query specifies whether to match no documents (none) or all documents (all). Valid values are none and all.
   // Default is none.
-  ZeroTermsQuery zero_terms_query = 6;
+  ZeroTermsQuery zero_terms_query = 7;
 
 }
 
