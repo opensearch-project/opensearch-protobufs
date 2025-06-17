@@ -471,7 +471,7 @@ message QueryContainer {
   // [optional]
   // Knn query is to search for the k-nearest neighbors to a query point across an index of vectors. To determine the neighbors, you can specify the space (the distance function) you want to use to measure the distance between points.
   // If provided, no other fields should be provided inside QueryContainer
-  optional KNNQuery knn = 24;
+  optional KnnQuery knn = 24;
 
   // [optional]
   // The match all query returns all documents. This query can be useful in testing large document sets if you need to return the entire set.
@@ -1122,7 +1122,7 @@ message PipeSeparatedFlagsSimpleQueryStringFlag {
 
 }
 
-message KNNQuery {
+message KnnQuery {
   // [required] Specifies the vector field against which to run a search quer
   string field = 1; 
   
