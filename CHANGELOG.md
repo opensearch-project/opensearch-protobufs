@@ -15,6 +15,7 @@ Inspired from [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 - Add GRPC Search server-side streaming endpoint ([#98](https://github.com/opensearch-project/opensearch-protobufs/pull/98))
 - Add bi-directional streaming Bulk GRPC endpoint ([#101](https://github.com/opensearch-project/opensearch-protobufs/pull/101))
 - Update KNN protos ([#103](https://github.com/opensearch-project/opensearch-protobufs/pull/103))
+- Update BoolQuery protos ([#153](https://github.com/opensearch-project/opensearch-protobufs/pull/1035)
 
 ### Removed
 

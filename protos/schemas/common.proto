@@ -1309,25 +1309,29 @@ message MatchQuery {
 
 message BoolQuery {
 
-  // Floating point number used to decrease or increase the relevance scores of the query. Boost values are relative to the default value of 1.0. A boost value between 0 and 1.0 decreases the relevance score. A value greater than 1.0 increases the relevance score.
-  float boost = 1;
+  // [optional] Floating point number used to decrease or increase the relevance scores of the query. Boost values are relative to the default value of 1.0. A boost value between 0 and 1.0 decreases the relevance score. A value greater than 1.0 increases the relevance score.
+  optional float boost = 1;
 
-  string name = 2 [json_name = "_name"];
+  // [optional] The name of the query for query tagging.
+  optional string underscore_name = 2 [json_name = "_name"];
 
-  // The clause (query) must appear in matching documents. However, unlike `must`, the score of the query will be ignored.
+  // [optional] The clause (query) must appear in matching documents. However, unlike `must`, the score of the query will be ignored.
   repeated QueryContainer filter = 3;
 
-  MinimumShouldMatch minimum_should_match = 4;
+  // [optional]
+  optional MinimumShouldMatch minimum_should_match = 4;
 
-  // The clause (query) must appear in matching documents and will contribute to the score.
+  // [optional]The clause (query) must appear in matching documents and will contribute to the score.
   repeated QueryContainer must = 5;
 
-  // The clause (query) must not appear in the matching documents. Because scoring is ignored, a score of `0` is returned for all documents.
+  // [optional] The clause (query) must not appear in the matching documents. Because scoring is ignored, a score of `0` is returned for all documents.
   repeated QueryContainer must_not = 6;
 
-  // The clause (query) should appear in the matching document.
+  // [optional] The clause (query) should appear in the matching document.
   repeated QueryContainer should = 7;
-
+  
+  // [optional] Ensures correct behavior when a query contains only `must_not` clauses. By default set to true, OpenSearch adds a match-all clause to ensure results are returned from Lucene, with the `must_not` conditions applied as filters. If set to false, the query may return no results, as Lucene typically requires at least one positive condition.
+  optional bool adjust_pure_negative = 8;
 }
 
 message MinimumShouldMatch{
