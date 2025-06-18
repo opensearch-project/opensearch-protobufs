@@ -47,7 +47,7 @@ If using snapshot jar uploaded to sonatype:
 ```
 repositories {
   maven {
-    url = 'https://aws.oss.sonatype.org/content/repositories/snapshots'
+    url = 'https://central.sonatype.com/repository/maven-snapshots/'
   }
 }
 
