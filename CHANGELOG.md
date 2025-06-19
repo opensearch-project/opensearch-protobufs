@@ -16,7 +16,9 @@ Inspired from [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 - Add bi-directional streaming Bulk GRPC endpoint ([#101](https://github.com/opensearch-project/opensearch-protobufs/pull/101))
 - Update KNN protos ([#103](https://github.com/opensearch-project/opensearch-protobufs/pull/103))
 - Update BoolQuery protos ([#105](https://github.com/opensearch-project/opensearch-protobufs/pull/105)
+- Update the maven snapshot publish endpoint and credential ([#107](https://github.com/opensearch-project/opensearch-protobufs/pull/107))  
 - Add oneof to QueryContainer and convert single-element maps to dedicated messages ([#106](https://github.com/opensearch-project/opensearch-protobufs/pull/106)
+
 
 ### Removed
 
