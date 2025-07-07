@@ -54,71 +54,43 @@ Includes language specfic platoform support (JMV, python interpreter).
 #     ],
 # )
 
-# Python - Depends on `protocol_compiler`
+# Python
+load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
+
 http_archive(
     name = "rules_python",
-    sha256 = "8c15896f6686beb5c631a4459a3aa8392daccaab805ea899c9d14215074b60ef",
-    strip_prefix = "rules_python-0.17.3",
-    url = "https://github.com/bazelbuild/rules_python/archive/refs/tags/0.17.3.tar.gz",
+    sha256 = "fa532d635f29c038a64c8062724af700c30cf6b31174dd4fac120bc561a1a560",
+    strip_prefix = "rules_python-1.5.1",
+    url = "https://github.com/bazel-contrib/rules_python/releases/download/1.5.1/rules_python-1.5.1.tar.gz",
 )
 
-load("@rules_python//python:repositories.bzl", "py_repositories", "python_register_toolchains")
+load("@rules_python//python:repositories.bzl", "py_repositories")
 
 py_repositories()
 
-python_register_toolchains(
-    name = "python310",
-    python_version = "3.10",
-)
-
-load("@python310//:defs.bzl", "interpreter")
 load("@rules_python//python:pip.bzl", "pip_parse")
 
 pip_parse(
     name = "pip",
-    python_interpreter_target = interpreter,
     requirements_lock = "//third_party:requirements.txt",
 )
 
 load("@pip//:requirements.bzl", "install_deps")
 install_deps()
 
-load("@com_google_protobuf//:protobuf_deps.bzl", "protobuf_deps")
-protobuf_deps()
-
-# bind(
-#     name = "protocol_compiler",
-#     actual = "@com_google_protobuf//:protoc",
-# )
-
-# bind(
-#     name = "protocol_compiler",
-#     actual = "@com_google_protobuf//:protoc",
-# )
-
-# bind(
-#     name = "python_headers",
-#     actual = "@com_google_protobuf//:python_headers",
-# )
-
-# bind(
-#     name = "protobuf_python",
-#     actual = "@com_google_protobuf//:protobuf_python",
-# )
 
 # Proto rules
-
 http_archive(
     name = "rules_proto",
-    sha256 = "14a225870ab4e91869652cfd69ef2028277fc1dc4910d65d353b62d6e0ae21f4",
-    strip_prefix = "rules_proto-7.1.0",
-    url = "https://github.com/bazelbuild/rules_proto/releases/download/7.1.0/rules_proto-7.1.0.tar.gz",
+    sha256 = "dc3fb206a2cb3441b485eb1e423165b231235a1ea9b031b4433cf7bc1fa460dd",
+    strip_prefix = "rules_proto-5.3.0-21.7",
+    urls = [
+        "https://github.com/bazelbuild/rules_proto/archive/refs/tags/5.3.0-21.7.tar.gz",
+    ],
 )
 
-load("@rules_proto//proto:repositories.bzl", "rules_proto_dependencies")
+load("@rules_proto//proto:repositories.bzl", "rules_proto_dependencies", "rules_proto_toolchains")
 rules_proto_dependencies()
-
-load("@rules_proto//proto:toolchains.bzl", "rules_proto_toolchains")
 rules_proto_toolchains()
 
 """
