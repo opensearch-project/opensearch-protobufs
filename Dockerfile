@@ -15,10 +15,12 @@
 
 FROM ubuntu:22.04 AS base-bazel
 
-ENV BAZEL_VERSION=5.4.1
+ENV BAZEL_VERSION=7.0.0
 ENV DEBIAN_FRONTEND=noninteractive
 
 RUN apt-get update && apt-get install -y \
+    tree \
+    vim \
     curl \
     git \
     zip \
