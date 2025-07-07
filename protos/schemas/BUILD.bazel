@@ -53,24 +53,15 @@ Python schema libraries
 
 py_proto_library(
     name = "common_py_pb2",
-    deps = [
-        ":common_proto",
-        "@com_google_protobuf//:protobuf_python"
-    ],
+    deps = [":common_proto"],
 )
 
 py_proto_library(
     name = "document_py_pb2",
-    deps = [
-        ":document_proto",
-        "@com_google_protobuf//:protobuf_python"
-    ],
+    deps = [":document_proto"],
 )
 
 py_proto_library(
     name = "search_py_pb2",
-    deps = [
-        ":search_proto",
-        "@com_google_protobuf//:protobuf_python"
-    ],
+    deps = [":search_proto"],
 )
