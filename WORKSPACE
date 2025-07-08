@@ -6,11 +6,15 @@ load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 Protoc compiler - 3.25.5 and associated C dependencies.
 Includes some native support for language specific rules.
 """
+
 http_archive(
     name = "com_google_absl",
-    sha256 = "3c743204df78366ad2eaf236d6631d83f6bc928d1705dd0000b872e53b73dc6a",
-    strip_prefix = "abseil-cpp-20240116.1",
-    urls = ["https://github.com/abseil/abseil-cpp/archive/refs/tags/20240116.1.tar.gz"],
+    sha256 = "f50e5ac311a81382da7fa75b97310e4b9006474f9560ac46f54a9967f07d4ae3",
+    strip_prefix = "abseil-cpp-20240722.0",
+    urls = [
+        "https://storage.googleapis.com/grpc-bazel-mirror/github.com/abseil/abseil-cpp/archive/20240722.0.tar.gz",
+        "https://github.com/abseil/abseil-cpp/archive/20240722.0.tar.gz",
+    ],
 )
 
 http_archive(
@@ -84,6 +88,16 @@ grpc_deps()
 
 load("@com_github_grpc_grpc//bazel:grpc_extra_deps.bzl", "grpc_extra_deps")
 grpc_extra_deps()
+
+bind(
+    name = "grpc++_codegen_proto",
+    actual = "@com_github_grpc_grpc//:grpc++_codegen_proto",
+)
+
+bind(
+    name = "grpc_cpp_plugin",
+    actual = "@com_github_grpc_grpc//:grpc_cpp_plugin",
+)
 
 # python repos last to ensure we pick up the correct gRPC and protobuf versions
 load("@rules_proto_grpc//python:repositories.bzl", rules_proto_grpc_python_repos = "python_repos")
