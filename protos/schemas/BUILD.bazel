@@ -1,15 +1,13 @@
 # protos/schemas/BUILD.bazel
 load("@rules_proto//proto:defs.bzl", "proto_library")
-load("@rules_python//python:proto.bzl", "py_proto_library")
+load("@rules_proto_grpc//python:defs.bzl", "python_proto_library")
 
 package(default_visibility = ["//visibility:public"])
 
 proto_library(
     name = "common_proto",
     srcs = ["common.proto"],
-    deps = [
-        "@com_google_protobuf//:struct_proto",
-    ],
+    deps = ["@com_google_protobuf//:struct_proto""],
 )
 
 proto_library(
@@ -17,7 +15,7 @@ proto_library(
     srcs = ["document.proto"],
     deps = [
         ":common_proto",
-        "@com_google_protobuf//:struct_proto",
+        "@com_google_protobuf//:struct_proto"",
     ],
 )
 
@@ -26,21 +24,21 @@ proto_library(
     srcs = ["search.proto"],
     deps = [
         ":common_proto",
-        "@com_google_protobuf//:struct_proto",
-        ],
+        "@com_google_protobuf//:struct_proto"",
+    ],
 )
 
-py_proto_library(
-    name = "common_py_pb2",
-    deps = [":common_proto"],
+python_proto_library(
+    name = "common_python_proto",
+    protos = [":common_proto"],
 )
 
-py_proto_library(
-    name = "document_py_pb2",
-    deps = [":document_proto"],
+python_proto_library(
+    name = "document_python_proto",
+    protos = [":document_proto"],
 )
 
-py_proto_library(
-    name = "search_py_pb2",
-    deps = [":search_proto"],
+python_proto_library(
+    name = "search_python_proto",
+    protos = [":search_proto"],
 )
