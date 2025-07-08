@@ -7,7 +7,7 @@ package(default_visibility = ["//visibility:public"])
 proto_library(
     name = "common_proto",
     srcs = ["common.proto"],
-    deps = ["@com_google_protobuf//:struct_proto""],
+    deps = ["@com_google_protobuf//:struct_proto"],
 )
 
 proto_library(
@@ -15,7 +15,7 @@ proto_library(
     srcs = ["document.proto"],
     deps = [
         ":common_proto",
-        "@com_google_protobuf//:struct_proto"",
+        "@com_google_protobuf//:struct_proto",
     ],
 )
 
@@ -24,7 +24,7 @@ proto_library(
     srcs = ["search.proto"],
     deps = [
         ":common_proto",
-        "@com_google_protobuf//:struct_proto"",
+        "@com_google_protobuf//:struct_proto",
     ],
 )
 
