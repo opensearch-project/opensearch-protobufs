@@ -3,7 +3,9 @@
 
 # BUILD LIBRARIES
 # bazel clean --expunge
-# bazel build //...
+
+# NO BAZEL MOD - AUTOMATICALLY INCLUDES PROTOBUF 3.19.6
+# bazel build //... --noenable_bzlmod
 
 # JAVA
 # bazel build //protos/schemas:common_java_proto //protos/schemas:document_java_proto //protos/schemas:search_java_proto
@@ -19,6 +21,7 @@ ENV BAZEL_VERSION=7.0.0
 ENV DEBIAN_FRONTEND=noninteractive
 
 RUN apt-get update && apt-get install -y \
+    tmux \
     tree \
     vim \
     curl \

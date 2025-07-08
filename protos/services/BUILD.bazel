@@ -15,7 +15,6 @@ proto_library(
 python_grpc_library(
     name = "document_service_python_proto",
     protos = [":document_service_proto"],
-    # deps = ["//protos/schemas:document_proto"],
 )
 
 
