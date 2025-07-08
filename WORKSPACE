@@ -61,10 +61,6 @@ load("@rules_proto_grpc//:repositories.bzl", "rules_proto_grpc_repos", "rules_pr
 rules_proto_grpc_repos()
 rules_proto_grpc_toolchains()
 
-# load("@rules_proto//proto:repositories.bzl", "rules_proto_dependencies", "rules_proto_toolchains")
-# rules_proto_dependencies()
-# rules_proto_toolchains()
-
 """
 Official gRPC bazel dependencies.
 We must match the version used in OS core exactly - 1.68.2.
@@ -88,16 +84,6 @@ grpc_deps()
 
 load("@com_github_grpc_grpc//bazel:grpc_extra_deps.bzl", "grpc_extra_deps")
 grpc_extra_deps()
-
-bind(
-    name = "grpc++_codegen_proto",
-    actual = "@com_github_grpc_grpc//:grpc++_codegen_proto",
-)
-
-bind(
-    name = "grpc_cpp_plugin",
-    actual = "@com_github_grpc_grpc//:grpc_cpp_plugin",
-)
 
 # python repos last to ensure we pick up the correct gRPC and protobuf versions
 load("@rules_proto_grpc//python:repositories.bzl", rules_proto_grpc_python_repos = "python_repos")
