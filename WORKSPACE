@@ -1,11 +1,25 @@
 workspace(name = "proto_workspace")
 
+workspace_constraints = """
+constraint_setting(name = "protobuf_version")
+constraint_value(
+    name = "protobuf_3_25_5",
+    constraint_setting = ":protobuf_version",
+)
+"""
+
 load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 
 """
 Protoc compiler - 3.25.5 and associated C dependencies.
 Includes some native support for language specific rules.
 """
+http_archive(
+    name = "com_google_absl",
+    sha256 = "3c743204df78366ad2eaf236d6631d83f6bc928d1705dd0000b872e53b73dc6a",
+    strip_prefix = "abseil-cpp-20240116.1",
+    urls = ["https://github.com/abseil/abseil-cpp/archive/refs/tags/20240116.1.tar.gz"],
+)
 
 http_archive(
     name = "com_google_protobuf",
@@ -16,23 +30,6 @@ http_archive(
 
 load("@com_google_protobuf//:protobuf_deps.bzl", "protobuf_deps")
 protobuf_deps()
-
-bind(
-    name = "protobuf",
-    actual = "@com_google_protobuf//:protobuf",
-)
-
-bind(
-    name = "protocol_compiler",
-    actual = "@com_google_protobuf//:protoc",
-)
-
-http_archive(
-    name = "com_google_absl",
-    sha256 = "3c743204df78366ad2eaf236d6631d83f6bc928d1705dd0000b872e53b73dc6a",
-    strip_prefix = "abseil-cpp-20240116.1",
-    urls = ["https://github.com/abseil/abseil-cpp/archive/refs/tags/20240116.1.tar.gz"],
-)
 
 """
 Pin compatible version of go rules.
@@ -68,9 +65,6 @@ load("@rules_proto_grpc//:repositories.bzl", "rules_proto_grpc_repos", "rules_pr
 rules_proto_grpc_repos()
 rules_proto_grpc_toolchains()
 
-load("@rules_proto_grpc//python:repositories.bzl", rules_proto_grpc_python_repos = "python_repos")
-rules_proto_grpc_python_repos()
-
 # load("@rules_proto//proto:repositories.bzl", "rules_proto_dependencies", "rules_proto_toolchains")
 # rules_proto_dependencies()
 # rules_proto_toolchains()
@@ -80,6 +74,16 @@ Official gRPC bazel dependencies.
 We must match the version used in OS core exactly - 1.68.2.
 Explicitely bind protobuf/protoc version before this step to ensure we pick up correct versions.
 """
+
+bind(
+    name = "protobuf",
+    actual = "@com_google_protobuf//:protobuf",
+)
+
+bind(
+    name = "protocol_compiler",
+    actual = "@com_google_protobuf//:protoc",
+)
 
 http_archive(
     name = "com_github_grpc_grpc",
@@ -98,3 +102,7 @@ grpc_deps()
 
 load("@com_github_grpc_grpc//bazel:grpc_extra_deps.bzl", "grpc_extra_deps")
 grpc_extra_deps()
+
+# python repos last to ensure we pick up the correct gRPC and protobuf versions
+load("@rules_proto_grpc//python:repositories.bzl", rules_proto_grpc_python_repos = "python_repos")
+rules_proto_grpc_python_repos()
