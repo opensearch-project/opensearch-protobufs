@@ -1,13 +1,5 @@
 workspace(name = "proto_workspace")
 
-workspace_constraints = """
-constraint_setting(name = "protobuf_version")
-constraint_value(
-    name = "protobuf_3_25_5",
-    constraint_setting = ":protobuf_version",
-)
-"""
-
 load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 
 """
@@ -74,16 +66,6 @@ Official gRPC bazel dependencies.
 We must match the version used in OS core exactly - 1.68.2.
 Explicitely bind protobuf/protoc version before this step to ensure we pick up correct versions.
 """
-
-bind(
-    name = "protobuf",
-    actual = "@com_google_protobuf//:protobuf",
-)
-
-bind(
-    name = "protocol_compiler",
-    actual = "@com_google_protobuf//:protoc",
-)
 
 http_archive(
     name = "com_github_grpc_grpc",
