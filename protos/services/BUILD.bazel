@@ -1,9 +1,25 @@
 # protos/services/BUILD.bazel
-# load("@rules_proto//proto:defs.bzl", "proto_library")
-# load("@rules_proto_grpc//python:defs.bzl", "python_proto_library")  # Changed path
-# load("@rules_proto_grpc//python:defs.bzl", "python_grpc_library")   # Changed path
+load("@rules_proto//proto:defs.bzl", "proto_library")
+load("@rules_proto_grpc//python:defs.bzl", "python_grpc_library")
 
 package(default_visibility = ["//visibility:public"])
+
+proto_library(
+    name = "document_service_proto",
+    srcs = ["document_service.proto"],
+    deps = [
+        "//protos/schemas:document_proto",
+    ],
+)
+
+python_grpc_library(
+    name = "document_service_python_proto",
+    protos = [":document_service_proto"],
+    # deps = ["//protos/schemas:document_proto"],
+)
+
+
+
 
 # python_proto_library(
 #     name = "document_service_python_proto",
@@ -21,13 +37,7 @@ package(default_visibility = ["//visibility:public"])
 
 
 
-# proto_library(
-#     name = "document_service_proto",
-#     srcs = ["document_service.proto"],
-#     deps = [
-#         "//protos/schemas:document_proto",
-#     ],
-# )
+
 
 # py_proto_library(
 #     name = "document_service_py_pb2",
