@@ -93,11 +93,21 @@ gRPC 1.68.2.
 """
 
 http_archive(
+    name = "com_google_absl",
+    sha256 = "3c743204df78366ad2eaf236d6631d83f6bc928d1705dd0000b872e53b73dc6a",
+    strip_prefix = "abseil-cpp-20240116.1",
+    urls = ["https://github.com/abseil/abseil-cpp/archive/refs/tags/20240116.1.tar.gz"],
+)
+
+http_archive(
     name = "com_github_grpc_grpc",
     strip_prefix = "grpc-1.68.2",
     urls = ["https://github.com/grpc/grpc/archive/v1.68.2.tar.gz"],
     sha256 = "afbc5d78d6ba6d509cc6e264de0d49dcd7304db435cbf2d630385bacf49e066c",
-    patches = ["//bazel:grpc_build_system.patch"],
+    patches = [
+        "//bazel:grpc_build_system.patch",
+        "//bazel:grpc_extra_deps.patch",
+    ],
     patch_args = ["-p1"],
 )
 
@@ -107,20 +117,25 @@ grpc_deps()
 load("@com_github_grpc_grpc//bazel:grpc_extra_deps.bzl", "grpc_extra_deps")
 grpc_extra_deps()
 
+http_archive(
+    name = "rules_proto_grpc",
+    sha256 = "9ba7299c5eb6ec45b6b9a0ceb9916d0ab96789ac8218269322f0124c0c0d24e2",
+    strip_prefix = "rules_proto_grpc-4.5.0",
+    urls = ["https://github.com/rules-proto-grpc/rules_proto_grpc/releases/download/4.5.0/rules_proto_grpc-4.5.0.tar.gz"],
+)
+
+load("@rules_proto_grpc//:repositories.bzl", "rules_proto_grpc_toolchains", "rules_proto_grpc_repos")
+rules_proto_grpc_toolchains()
+rules_proto_grpc_repos()
+
+load("@rules_proto_grpc//python:repositories.bzl", rules_proto_grpc_python_repos = "python_repos")
+rules_proto_grpc_python_repos()
+
 """
 Language rules.
 Includes libraries required for compilation/linking compiled protos.
 Includes language specfic platoform support (JMV, python interpreter). 
 """
-
-# Python
-
-# http_archive(
-#     name = "upb",
-#     sha256 = "538dd574dfe65875b76de9922f1c3117157d318a515fdf0644ccd6cf2be49940",
-#     strip_prefix = "upb-1.0.0",
-#     urls = ["https://github.com/protocolbuffers/upb/archive/refs/tags/v1.0.0.tar.gz"],
-# )
 
 # Python rules and dependencies
 http_archive(
