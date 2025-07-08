@@ -6,7 +6,7 @@ load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 """
 Protoc compiler - 3.25.5 and associated C dependencies.
 Includes some native support for language specific rules.
-Explicitely bind this dependency packages may try to load alternate versions.
+Explicitely bind this dependency as packages may try to load alternate versions.
 """
 
 http_archive(
