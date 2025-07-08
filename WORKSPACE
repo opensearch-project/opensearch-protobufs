@@ -28,8 +28,10 @@ load("@com_google_protobuf//:protobuf_deps.bzl", "protobuf_deps")
 protobuf_deps()
 
 """
-Pin compatible version of go rules.
-Referenced by both rules_proto_grpc and com_github_grpc_grpc.
+Pin compatible version of go language rules.
+Overrides the version set in com_github_grpc_grpc.
+We additionally patch out references to go language rules in com_github_grpc_grpc
+as this package throws an error if the toolchain is registerd twice.
 """
 
 http_archive(
@@ -46,8 +48,7 @@ go_rules_dependencies()
 go_register_toolchains(version = "1.22.5")
 
 """
-Alternate third party resource with up to date rules for python.
-Includes python protobuf and gRPC rules. 
+Third party repo with actively maintained python language rules.
 """
 
 http_archive(
@@ -62,9 +63,8 @@ rules_proto_grpc_repos()
 rules_proto_grpc_toolchains()
 
 """
-Official gRPC bazel dependencies.
+Official gRPC repo bazel dependencies.
 We must match the version used in OS core exactly - 1.68.2.
-Explicitely bind protobuf/protoc version before this step to ensure we pick up correct versions.
 """
 
 http_archive(
@@ -85,6 +85,6 @@ grpc_deps()
 load("@com_github_grpc_grpc//bazel:grpc_extra_deps.bzl", "grpc_extra_deps")
 grpc_extra_deps()
 
-# python repos last to ensure we pick up the correct gRPC and protobuf versions
+# Call this last to ensure correct gRPC version is used
 load("@rules_proto_grpc//python:repositories.bzl", rules_proto_grpc_python_repos = "python_repos")
 rules_proto_grpc_python_repos()
