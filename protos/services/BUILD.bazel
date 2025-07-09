@@ -1,5 +1,6 @@
 # protos/services/BUILD.bazel
 load("@rules_proto//proto:defs.bzl", "proto_library")
+load("@rules_proto_grpc//java:defs.bzl", "java_grpc_library")
 load("@rules_proto_grpc//python:defs.bzl", "python_grpc_library")
 
 package(default_visibility = ["//visibility:public"])

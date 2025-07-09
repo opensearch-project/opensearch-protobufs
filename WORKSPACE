@@ -31,7 +31,7 @@ protobuf_deps()
 Pin compatible version of go language rules.
 Overrides the version set in com_github_grpc_grpc.
 We additionally patch out references to go language rules in com_github_grpc_grpc
-as this package throws an error if the toolchain is registerd twice.
+as this package throws an error if the toolchain is registered twice.
 """
 
 http_archive(
@@ -87,7 +87,10 @@ grpc_deps()
 load("@com_github_grpc_grpc//bazel:grpc_extra_deps.bzl", "grpc_extra_deps")
 grpc_extra_deps()
 
-# Call these last to ensure correct gRPC and proto versions are used
+"""
+Load language/gRPC rules last to ensure we pick up the correct protobuf and gRPC versions.
+"""
+
 load("@rules_proto//proto:repositories.bzl", "rules_proto_dependencies", "rules_proto_toolchains")
 rules_proto_dependencies()
 rules_proto_toolchains()
@@ -97,3 +100,23 @@ rules_proto_grpc_python_repos()
 
 load("@rules_proto_grpc//java:repositories.bzl", rules_proto_grpc_java_repos = "java_repos")
 rules_proto_grpc_java_repos()
+
+"""
+Dependencies for java gRPC rules are sourced from maven. 
+"""
+
+load("@rules_jvm_external//:defs.bzl", "maven_install")
+load("@io_grpc_grpc_java//:repositories.bzl", "IO_GRPC_GRPC_JAVA_ARTIFACTS", "IO_GRPC_GRPC_JAVA_OVERRIDE_TARGETS", "grpc_java_repositories")
+
+maven_install(
+    artifacts = IO_GRPC_GRPC_JAVA_ARTIFACTS,
+    generate_compat_repositories = True,
+    override_targets = IO_GRPC_GRPC_JAVA_OVERRIDE_TARGETS,
+    repositories = [
+        "https://repo.maven.apache.org/maven2/",
+    ],
+)
+
+load("@maven//:compat.bzl", "compat_repositories")
+compat_repositories()
+grpc_java_repositories()
