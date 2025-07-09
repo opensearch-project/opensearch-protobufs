@@ -1,19 +1,6 @@
 # docker build --platform=linux/amd64 -t bazel-5.4.1 .
 # docker run --user bazeluser --platform=linux/amd64 -it bazel-5.4.1 bash
-
-# BUILD LIBRARIES
-# bazel clean --expunge
-
-# NO BAZEL MOD - AUTOMATICALLY INCLUDES PROTOBUF 3.19.6
 # bazel build //... --noenable_bzlmod
-
-# JAVA
-# bazel build //protos/schemas:common_java_proto //protos/schemas:document_java_proto //protos/schemas:search_java_proto
-# bazel build //protos/services:document_service_grpc_java //protos/services:search_service_grpc_java
-
-# PYTHON
-# bazel build //protos/schemas:common_proto_py //protos/schemas:document_proto_py //protos/schemas:search_proto_py
-# bazel build //protos/services:document_service_grpc_python //protos/services:search_service_grpc_python
 
 FROM ubuntu:22.04 AS base-bazel
 
@@ -50,20 +37,20 @@ RUN bazel --version
 
 FROM base-bazel AS user-bazel
 
-WORKDIR /build
-
 # Run as non-root - Required for rules_python
 # See: https://github.com/bazelbuild/rules_python/pull/713
 # Create group and user
 RUN groupadd -r bazeluser && useradd -r -m -g bazeluser bazeluser
-RUN chown -R bazeluser:bazeluser /build
-RUN chown -R bazeluser:bazeluser /home/bazeluser && \
-    chmod 755 /home/bazeluser
+RUN mkdir -p /build && \
+    chown -R bazeluser:bazeluser /build && \
+    chmod -R 777 /build
+
 USER bazeluser
+WORKDIR /build
 
 FROM user-bazel AS dev-bazel
 
 # Copy entire repository for convenience
-# Ensure copy of local repo is not cached 
+# Invalidate cache for this step
 ARG CACHEBUST=1
-COPY . .
+COPY --chown=bazeluser:bazeluser . .
