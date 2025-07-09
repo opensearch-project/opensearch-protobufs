@@ -21,7 +21,7 @@ mkdir -p "$OUTPUT_DIR"
 
 # Build the Java proto library
 echo "Building Java proto library..."
-cd $ROOT_DIR && bazel build //... && cd - > /dev/null
+cd $ROOT_DIR && bazel build //... --noenable_bzlmod && cd - > /dev/null
 
 # Find all source JAR files
 echo "Finding source JAR files..."
