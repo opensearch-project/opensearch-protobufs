@@ -48,7 +48,9 @@ go_rules_dependencies()
 go_register_toolchains(version = "1.22.5")
 
 """
-Third party repo with actively maintained python language rules.
+Language and gRPC rules from the actively maintained rules-proto-grpc project.
+Java language/gRPC rules.
+Python language/gRPC rules.
 """
 
 http_archive(
@@ -85,6 +87,13 @@ grpc_deps()
 load("@com_github_grpc_grpc//bazel:grpc_extra_deps.bzl", "grpc_extra_deps")
 grpc_extra_deps()
 
-# Call this last to ensure correct gRPC version is used
+# Call these last to ensure correct gRPC and proto versions are used
+load("@rules_proto//proto:repositories.bzl", "rules_proto_dependencies", "rules_proto_toolchains")
+rules_proto_dependencies()
+rules_proto_toolchains()
+
 load("@rules_proto_grpc//python:repositories.bzl", rules_proto_grpc_python_repos = "python_repos")
 rules_proto_grpc_python_repos()
+
+load("@rules_proto_grpc//java:repositories.bzl", rules_proto_grpc_java_repos = "java_repos")
+rules_proto_grpc_java_repos()
