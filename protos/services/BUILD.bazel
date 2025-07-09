@@ -13,7 +13,24 @@ proto_library(
     ],
 )
 
+proto_library(
+    name = "search_service_proto",
+    srcs = ["search_service.proto"],
+    deps = ["//protos/schemas:search_proto"],
+)
+
+java_grpc_library(
+    name = "document_service_java_proto",
+    protos = [":document_service_proto"],
+    deps = ["//protos/schemas:document_java_proto"],
+)
+
 python_grpc_library(
     name = "document_service_python_proto",
     protos = [":document_service_proto"],
+)
+
+python_grpc_library(
+    name = "search_service_python_proto",
+    protos = [":search_service_proto"],
 )
