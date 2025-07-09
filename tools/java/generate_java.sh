@@ -25,10 +25,9 @@ cd $ROOT_DIR && bazel build //... --noenable_bzlmod && cd - > /dev/null
 
 # Find all source JAR files
 echo "Finding source JAR files..."
-SRC_JARS=$(find "$BAZEL_BIN_DIR"/ -name "*-speed-src.jar")
-SRC_JARS+=" "
-SRC_JARS+=$(find "$BAZEL_BIN_DIR"/ -name "*grpc_java-src.jar")
+SRC_JARS=$(find "$BAZEL_BIN_DIR"/ -name "lib*_java_proto.jar")
 echo $SRC_JARS
+
 # Extract Java files from source JAR files
 echo "Extracting Java files from source JAR files..."
 for jar in $SRC_JARS; do
