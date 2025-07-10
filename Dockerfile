@@ -1,5 +1,5 @@
-# docker build --platform=linux/amd64 -t bazel-5.4.1 .
-# docker run --user bazeluser --platform=linux/amd64 -it bazel-5.4.1 bash
+# docker build --platform=linux/amd64 -t bazel-build-protos .
+# docker run --user bazeluser --platform=linux/amd64 -it bazel-build-protos bash
 # bazel build //... --noenable_bzlmod
 
 FROM ubuntu:22.04 AS base-bazel
