@@ -1,6 +1,8 @@
 # docker build --platform=linux/amd64 -t bazel-build-protos .
 # docker run --user bazeluser --platform=linux/amd64 -it bazel-build-protos bash
+
 # bazel build //... --noenable_bzlmod
+# ./tools/java/package_proto_jar.sh
 
 FROM ubuntu:22.04 AS base-bazel
 
@@ -8,15 +10,11 @@ ENV BAZEL_VERSION=7.0.0
 ENV DEBIAN_FRONTEND=noninteractive
 
 RUN apt-get update && apt-get install -y \
-    tmux \
-    tree \
-    vim \
     curl \
     git \
     zip \
     unzip \
     openjdk-21-jdk \
-    python3 \
     g++ \
     gcc \
     && apt-get clean
@@ -24,9 +22,6 @@ RUN apt-get update && apt-get install -y \
 RUN apt-get install software-properties-common -y
 RUN add-apt-repository ppa:deadsnakes/ppa -y
 RUN apt-get install python3.10 python3.10-dev -y
-RUN apt-get install python3-pip -y
-RUN apt-get install protobuf-compiler -y
-RUN apt-get install python3-protobuf -y
 
 RUN curl -fsSL https://github.com/bazelbuild/bazel/releases/download/$BAZEL_VERSION/bazel-$BAZEL_VERSION-installer-linux-x86_64.sh -o bazel-installer.sh \
     && chmod +x bazel-installer.sh \
