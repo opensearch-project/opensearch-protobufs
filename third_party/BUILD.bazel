@@ -1,3 +1,0 @@
-package(default_visibility = ["//visibility:public"])
-
-# Empty BUILD file to create the third_party package
