@@ -1,6 +1,7 @@
 #!/bin/bash
 # Script to package generated Java proto files into a Maven-compatible JAR
 set -e
+
 # Configuration
 ROOT_DIR="`dirname "$(realpath $0)"`/../.."
 OUTPUT_DIR_ROOT="$ROOT_DIR/generated"
