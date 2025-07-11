@@ -1,7 +1,7 @@
 # docker build --platform=linux/amd64 -t bazel-build-protos .
 # docker run --user bazeluser --platform=linux/amd64 -it bazel-build-protos bash
 
-# bazel build //... --noenable_bzlmod
+# bazel build //...
 # ./tools/java/package_proto_jar.sh
 
 FROM ubuntu:22.04 AS base-bazel

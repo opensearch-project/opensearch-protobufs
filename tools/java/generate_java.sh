@@ -13,7 +13,7 @@ trap exit_script TERM INT
 # Build the Java proto library
 ROOT_DIR="`dirname "$(realpath $0)"`/../.."
 echo "Building Java proto library..."
-cd $ROOT_DIR && bazel build //... --noenable_bzlmod && cd - > /dev/null
+cd $ROOT_DIR && bazel build //... && cd - > /dev/null
 
 # Clean up existing output directory
 OUTPUT_DIR="$ROOT_DIR/generated/java"
