@@ -65,5 +65,5 @@ RUN mvn install:install-file \
 RUN git clone --branch ${OPENSEARCH_BRANCH} https://github.com/opensearch-project/OpenSearch.git /build/opensearch
 
 WORKDIR /build/opensearch
-RUN ./gradlew :plugins:transport-grpc:test
-RUN ./gradlew :plugins:transport-grpc:internalClusterTest
+RUN ./gradlew :plugins:transport-grpc:test -Drepos.mavenLocal
+RUN ./gradlew :plugins:transport-grpc:internalClusterTest -Drepos.mavenLocal
