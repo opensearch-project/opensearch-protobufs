@@ -9,6 +9,7 @@ RUN apt-get update && apt-get install -y \
     zip \
     unzip \
     openjdk-21-jdk \
+    maven \
     g++ \
     gcc \
     && apt-get clean
@@ -24,7 +25,7 @@ RUN curl -fsSL https://github.com/bazelbuild/bazel/releases/download/$BAZEL_VERS
 
 RUN bazel --version
 
-FROM base-bazel AS user-bazel
+FROM base-bazel AS build-bazel
 
 # Run as non-root - Required for rules_python
 # See: https://github.com/bazelbuild/rules_python/pull/713
@@ -37,9 +38,32 @@ RUN mkdir -p /build && \
 USER bazeluser
 WORKDIR /build
 
-FROM user-bazel AS build-bazel
-
 # Copy entire repository for convenience
 # Invalidate cache to ensure updates are captured
 ARG CACHEBUST=1
 COPY --chown=bazeluser:bazeluser . .
+
+FROM build-bazel AS build-bazel-java
+
+RUN /build/tools/java/package_proto_jar.sh
+
+FROM build-bazel-java AS test-bazel-java
+
+ARG OPENSEARCH_BRANCH=main
+ARG PROTO_SNAPSHOT_VERSION=0.4.0
+
+ENV JAVA_HOME=/usr/lib/jvm/java-21-openjdk-amd64
+ENV PATH=$PATH:$JAVA_HOME/bin
+ENV PUB_ARTIFACTS=/build/generated/maven/publish/
+
+RUN mvn install:install-file \
+  -Dfile=${PUB_ARTIFACTS}protobufs-${PROTO_SNAPSHOT_VERSION}-SNAPSHOT.jar \
+  -DpomFile=${PUB_ARTIFACTS}protobufs-${PROTO_SNAPSHOT_VERSION}-SNAPSHOT.pom \
+  -Dsources=${PUB_ARTIFACTS}protobufs-${PROTO_SNAPSHOT_VERSION}-SNAPSHOT-sources.jar \
+  -Djavadoc=${PUB_ARTIFACTS}protobufs-${PROTO_SNAPSHOT_VERSION}-SNAPSHOT-javadoc.jar
+
+RUN git clone --branch ${OPENSEARCH_BRANCH} https://github.com/opensearch-project/OpenSearch.git /opensearch
+
+WORKDIR /opensearch
+RUN ./gradlew :plugins:transport-grpc:test
+RUN ./gradlew :plugins:transport-grpc:internalClusterTest
