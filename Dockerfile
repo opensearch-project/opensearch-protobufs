@@ -62,8 +62,8 @@ RUN mvn install:install-file \
   -Dsources=${PUB_ARTIFACTS}protobufs-${PROTO_SNAPSHOT_VERSION}-SNAPSHOT-sources.jar \
   -Djavadoc=${PUB_ARTIFACTS}protobufs-${PROTO_SNAPSHOT_VERSION}-SNAPSHOT-javadoc.jar
 
-RUN git clone --branch ${OPENSEARCH_BRANCH} https://github.com/opensearch-project/OpenSearch.git /opensearch
+RUN git clone --branch ${OPENSEARCH_BRANCH} https://github.com/opensearch-project/OpenSearch.git /build/opensearch
 
-WORKDIR /opensearch
+WORKDIR /build/opensearch
 RUN ./gradlew :plugins:transport-grpc:test
 RUN ./gradlew :plugins:transport-grpc:internalClusterTest
