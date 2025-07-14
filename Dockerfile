@@ -1,9 +1,3 @@
-# docker build --platform=linux/amd64 -t bazel-build-protos .
-# docker run --user bazeluser --platform=linux/amd64 -it bazel-build-protos bash
-
-# bazel build //...
-# ./tools/java/package_proto_jar.sh
-
 FROM ubuntu:22.04 AS base-bazel
 
 ENV BAZEL_VERSION=7.0.0
@@ -43,9 +37,9 @@ RUN mkdir -p /build && \
 USER bazeluser
 WORKDIR /build
 
-FROM user-bazel AS dev-bazel
+FROM user-bazel AS build-bazel
 
 # Copy entire repository for convenience
-# Invalidate cache for this step
+# Invalidate cache to ensure updates are captured
 ARG CACHEBUST=1
 COPY --chown=bazeluser:bazeluser . .
