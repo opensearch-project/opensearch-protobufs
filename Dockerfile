@@ -65,5 +65,9 @@ RUN mvn install:install-file \
 RUN git clone --branch ${OPENSEARCH_BRANCH} https://github.com/opensearch-project/OpenSearch.git /build/opensearch
 
 WORKDIR /build/opensearch
+
+# Update transport-grpc/build.gradle to use PROTO_SNAPSHOT_VERSION
+RUN sed -i 's/org\.opensearch:protobufs:[0-9]\+\.[0-9]\+\.[0-9]\+/org.opensearch:protobufs:'"${PROTO_SNAPSHOT_VERSION}"'/' /build/opensearch/plugins/transport-grpc/build.gradle
+
 RUN ./gradlew :plugins:transport-grpc:test -Drepos.mavenLocal
 RUN ./gradlew :plugins:transport-grpc:internalClusterTest -Drepos.mavenLocal
