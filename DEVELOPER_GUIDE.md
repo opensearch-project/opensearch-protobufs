@@ -10,12 +10,12 @@ bazel build //...
 
 ## Java
 ```
-bazel build $(bazel query 'kind("java_(proto|grpc)_library", //...)')
+bazel build //:java_protos_all
 ```
 
 ## Python
 ```
-bazel build $(bazel query 'kind("python_(proto|grpc)_library", //...)')
+bazel build //:python_protos_all
 ```
 
 # Proto generated code
