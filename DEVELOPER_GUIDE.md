@@ -2,9 +2,22 @@
 Install bazel, using the version in .bazelversion.
 
 # Compile protos and grpc
+
+## All artifacts
 ```
 bazel build //...
 ```
+
+## Java
+```
+bazel build //:java_protos_all
+```
+
+## Python
+```
+bazel build //:python_protos_all
+```
+
 # Proto generated code
 ## Java
 ### Generate Java Code and packaging as a Maven/Gradle dependency

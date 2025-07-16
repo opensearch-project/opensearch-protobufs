@@ -10,25 +10,22 @@ function exit_script() {
 # Trap abnormal exit due to bazel not return non-zero status
 trap exit_script TERM INT
 
-# Set up variables
+# Build the Java proto library
 ROOT_DIR="`dirname "$(realpath $0)"`/../.."
-OUTPUT_DIR="$ROOT_DIR/generated/java"
-BAZEL_BIN_DIR=$(readlink -f bazel-bin)
+echo "Building Java proto library..."
+cd $ROOT_DIR && bazel build //:java_protos_all && cd - > /dev/null
 
 # Clean up existing output directory
+OUTPUT_DIR="$ROOT_DIR/generated/java"
 rm -rf "$OUTPUT_DIR"
 mkdir -p "$OUTPUT_DIR"
 
-# Build the Java proto library
-echo "Building Java proto library..."
-cd $ROOT_DIR && bazel build //... && cd - > /dev/null
-
 # Find all source JAR files
 echo "Finding source JAR files..."
-SRC_JARS=$(find "$BAZEL_BIN_DIR"/ -name "*-speed-src.jar")
-SRC_JARS+=" "
-SRC_JARS+=$(find "$BAZEL_BIN_DIR"/ -name "*grpc_java-src.jar")
+cd $ROOT_DIR && BAZEL_BIN_DIR=$(readlink -f bazel-bin)
+SRC_JARS=$(find "$BAZEL_BIN_DIR"/ -name "*_java_proto*.srcjar")
 echo $SRC_JARS
+
 # Extract Java files from source JAR files
 echo "Extracting Java files from source JAR files..."
 for jar in $SRC_JARS; do
