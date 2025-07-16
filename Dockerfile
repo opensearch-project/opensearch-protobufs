@@ -43,11 +43,19 @@ WORKDIR /build
 ARG CACHEBUST=1
 COPY --chown=bazeluser:bazeluser . .
 
+#################################################
+##### JAVA STAGES ###############################
+#################################################
+
 FROM build-bazel AS build-bazel-java
+
+RUN bazel build //:java_protos_all
+
+FROM build-bazel-java AS package-bazel-java
 
 RUN /build/tools/java/package_proto_jar.sh
 
-FROM build-bazel-java AS test-bazel-java
+FROM package-bazel-java AS test-bazel-java
 
 ARG OPENSEARCH_BRANCH=main
 ARG PROTO_SNAPSHOT_VERSION=0.4.0
@@ -71,3 +79,11 @@ RUN sed -i 's/org\.opensearch:protobufs:[0-9]\+\.[0-9]\+\.[0-9]\+/org.opensearch
 
 RUN ./gradlew :plugins:transport-grpc:test -Drepos.mavenLocal
 RUN ./gradlew :plugins:transport-grpc:internalClusterTest -Drepos.mavenLocal
+
+#################################################
+##### PYTHON STAGES #############################
+#################################################
+
+FROM build-bazel AS build-bazel-python
+
+RUN bazel build //:python_protos_all
