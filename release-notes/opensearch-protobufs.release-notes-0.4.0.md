@@ -1,4 +1,4 @@
-## Version 0.1.0 (2025-04-08) Release Notes
+## Version 0.4.0 (2025-07-13) Release Notes
 
 ### Added
 - Add search API to generated proto ([#82](https://github.com/opensearch-project/opensearch-protobufs/pull/82))

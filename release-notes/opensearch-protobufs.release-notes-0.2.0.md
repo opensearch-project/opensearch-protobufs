@@ -1,4 +1,4 @@
-## Version 0.1.0 (2025-04-08) Release Notes
+## Version 0.2.0 (2025-04-07) Release Notes
 
 ### Added
 - Bump version.properties and update changelog after 0.1.0 release  ([#51](https://github.com/opensearch-project/opensearch-protobufs/pull/51))
