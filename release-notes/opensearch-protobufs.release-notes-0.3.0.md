@@ -1,4 +1,4 @@
-## Version 0.1.0 (2025-04-08) Release Notes
+## Version 0.3.0 (2025-04-10) Release Notes
 
 ### Added
 - Preprocessing specification for additionalProperties ([#70](https://github.com/opensearch-project/opensearch-protobufs/pull/70)))
