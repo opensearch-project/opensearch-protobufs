@@ -2215,28 +2215,29 @@ message MatchPhraseQuery {
 }
 
 message MultiMatchQuery {
+  // [required] The query string to use for search.
+  string query = 1;
 
-  // Floating point number used to decrease or increase the relevance scores of the query. Boost values are relative to the default value of 1.0. A boost value between 0 and 1.0 decreases the relevance score. A value greater than 1.0 increases the relevance score.
-  float boost = 1;
+  // [optional] Boosts the clause by the given multiplier. Useful for weighing clauses in compound queries. Values in the [0, 1) range decrease relevance, and values greater than 1 increase relevance. Default is 1.
+  optional float boost = 2;
 
-  string name = 2 [json_name = "_name"];
+  // [optional] The name of the query for query tagging.
+  optional string name = 3 [json_name = "_name"];
 
-  // Analyzer used to convert the text in the query value into tokens.
-  string analyzer = 3;
+  // [optional] The analyzer used to tokenize the query string text. Default is the index-time analyzer specified for the default_field. If no analyzer is specified for the default_field, the analyzer is the default analyzer for the index. For more information about index.query.default_field, see Dynamic index-level index settings.
+  optional string analyzer = 4;
 
-  // If `true`, match phrase queries are automatically created for multi-term synonyms.
-  bool auto_generate_synonyms_phrase_query = 4;
+  // [optional] Specifies whether to create a match phrase query automatically for multi-term synonyms. For example, if you specify ba,batting average as synonyms and search for ba, OpenSearch searches for ba OR "batting average" (if this option is true) or ba OR (batting AND average) (if this option is false). Default is true.
+  optional bool auto_generate_synonyms_phrase_query = 5;
 
-  float cutoff_frequency = 5;
-
+  // [optional] The list of fields in which to search. If you don’t provide the fields parameter, multi_match query searches the fields specified in the index.query.default_field setting, which defaults to *.
   repeated string fields = 6;
 
-  Fuzziness fuzziness = 7;
+  // [optional] Determines how OpenSearch rewrites the query. Valid values are constant_score, scoring_boolean, constant_score_boolean, top_terms_N, top_terms_boost_N, and top_terms_blended_freqs_N. If the fuzziness parameter is not 0, the query uses a fuzzy_rewrite method of top_terms_blended_freqs_${max_expansions} by default. Default is constant_score.
+  optional string fuzzy_rewrite = 7;
 
-  string fuzzy_rewrite = 8;
-
-  // If `true`, edits for fuzzy matching include transpositions of two adjacent characters (for example, `ab` to `ba`). Can be applied to the term subqueries constructed for all terms but the final term.
-  MultiTermQueryRewrite fuzzy_transpositions = 9;
+  // [optional] Setting fuzzy_transpositions to true (default) adds swaps of adjacent characters to the insert, delete, and substitute operations of the fuzziness option. For example, the distance between wind and wnid is 1 if fuzzy_transpositions is true (swap “n” and “i”) and 2 if it is false (delete “n”, insert “n”). If fuzzy_transpositions is false, rewind and wnid have the same distance (2) from wind, despite the more human-centric opinion that wnid is an obvious typo. The default is a good choice for most use cases.
+  optional MultiTermQueryRewrite fuzzy_transpositions = 8;
   enum MultiTermQueryRewrite {
     MULTI_TERM_QUERY_REWRITE_UNSPECIFIED = 0;
     MULTI_TERM_QUERY_REWRITE_CONSTANT_SCORE = 1;
@@ -2247,29 +2248,30 @@ message MultiMatchQuery {
     MULTI_TERM_QUERY_REWRITE_TOP_TERMS_BOOST_N = 6;
   }
 
-  // If `true`, format-based errors, such as providing a text query value for a numeric field, are ignored.
-  bool lenient = 10;
+  // [optional] Setting lenient to true ignores data type mismatches between the query and the document field. For example, a query string of "8.2" could match a field of type float. Default is false.
+  optional bool lenient = 9;
 
-  // Maximum number of terms to which the query will expand.
-  int32 max_expansions = 11;
+  // [optional] The maximum number of terms to which the query can expand. Fuzzy queries “expand to” a number of matching terms that are within the distance specified in fuzziness. Then OpenSearch tries to match those terms. Default is 50.
+  optional int32 max_expansions = 10;
 
-  MinimumShouldMatch minimum_should_match = 12;
+  // [optional] If the query string contains multiple search terms and you use the or operator, the number of terms that need to match for the document to be considered a match. For example, if minimum_should_match is 2, wind often rising does not match The Wind Rises. If minimum_should_match is 1, it matches. For details, see Minimum should match.
 
-  Operator operator = 13;
+  optional MinimumShouldMatch minimum_should_match = 11;
+
+  // [optional] If the query string contains multiple search terms, whether all terms need to match (AND) or only one term needs to match (OR) for a document to be considered a match. Valid values are: 1) OR: The string to be is interpreted as to OR be. 2) AND: The string to be is interpreted as to AND be. Default is OR.
+  optional Operator operator = 12;
   
-  // Number of beginning characters left unchanged for fuzzy matching.
-  int32 prefix_length = 14;
+  // [optional] The number of leading characters that are not considered in fuzziness. Default is 0.
+  optional int32 prefix_length = 13;
 
-  // Text, number, boolean value or date you wish to find in the provided field.
-  string query = 15;
+  // [optional] Controls the degree to which words in a query can be misordered and still be considered a match. From the Lucene documentation: “The number of other words permitted between words in query phrase. For example, to switch the order of two words requires two moves (the first move places the words atop one another), so to permit reorderings of phrases, the slop must be at least two. A value of zero requires an exact match.” Supported for phrase and phrase_prefix query types.
+  optional int32 slop = 14;
 
-  // Maximum number of positions allowed between matching tokens.
-  int32 slop = 16;
+  // [optional] A factor between 0 and 1.0 that is used to give more weight to documents that match multiple query clauses. For more information, see The tie_breaker parameter`.
+  optional float tie_breaker = 15;
 
-  // Determines how scores for each per-term blended query and scores across groups are combined.
-  float tie_breaker = 17;
-
-  TextQueryType type = 18;
+  // [optional] The multi-match query type. Valid values are best_fields, most_fields, cross_fields, phrase, phrase_prefix, bool_prefix. Default is best_fields.
+  optional TextQueryType type = 16;
   enum TextQueryType {
     TEXT_QUERY_TYPE_UNSPECIFIED = 0;
     TEXT_QUERY_TYPE_BEST_FIELDS = 1;
@@ -2280,13 +2282,13 @@ message MultiMatchQuery {
     TEXT_QUERY_TYPE_PHRASE_PREFIX = 6;
   }
 
-  ZeroTermsQuery zero_terms_query = 19;
+  // [optional] In some cases, the analyzer removes all terms from a query string. For example, the stop analyzer removes all terms from the string an but this. In those cases, zero_terms_query specifies whether to match no documents (none) or all documents (all). Valid values are none and all. Default is none.
+  optional ZeroTermsQuery zero_terms_query = 17;
   enum ZeroTermsQuery {
     ZERO_TERMS_QUERY_UNSPECIFIED = 0;
     ZERO_TERMS_QUERY_ALL = 1;
     ZERO_TERMS_QUERY_NONE = 2;
   }
-
 }
 
 message FieldValueFactorScoreFunction {
