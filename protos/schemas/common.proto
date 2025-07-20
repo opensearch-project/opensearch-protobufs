@@ -2234,16 +2234,7 @@ message MultiMatchQuery {
   optional string fuzzy_rewrite = 7;
 
   // [optional] Setting fuzzy_transpositions to true (default) adds swaps of adjacent characters to the insert, delete, and substitute operations of the fuzziness option. For example, the distance between wind and wnid is 1 if fuzzy_transpositions is true (swap “n” and “i”) and 2 if it is false (delete “n”, insert “n”). If fuzzy_transpositions is false, rewind and wnid have the same distance (2) from wind, despite the more human-centric opinion that wnid is an obvious typo. The default is a good choice for most use cases.
-  optional MultiTermQueryRewrite fuzzy_transpositions = 8;
-  enum MultiTermQueryRewrite {
-    MULTI_TERM_QUERY_REWRITE_UNSPECIFIED = 0;
-    MULTI_TERM_QUERY_REWRITE_CONSTANT_SCORE = 1;
-    MULTI_TERM_QUERY_REWRITE_CONSTANT_SCORE_BOOLEAN = 2;
-    MULTI_TERM_QUERY_REWRITE_SCORING_BOOLEAN = 3;
-    MULTI_TERM_QUERY_REWRITE_TOP_TERMS_N = 4;
-    MULTI_TERM_QUERY_REWRITE_TOP_TERMS_BLENDED_FREQS_N = 5;
-    MULTI_TERM_QUERY_REWRITE_TOP_TERMS_BOOST_N = 6;
-  }
+  optional bool fuzzy_transpositions = 8;
 
   // [optional] Setting lenient to true ignores data type mismatches between the query and the document field. For example, a query string of "8.2" could match a field of type float. Default is false.
   optional bool lenient = 9;
