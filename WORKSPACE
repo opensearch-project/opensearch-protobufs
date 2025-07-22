@@ -3,6 +3,18 @@ workspace(name = "proto_workspace")
 load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 
 """
+The version of rules_apple pulled in by com_github_grpc_grpc is missing a bugfix required
+for bazel 7.x support. "'apple_common' value has no field or method 'multi_arch_split'".
+See release notes: https://github.com/bazelbuild/rules_apple/releases/tag/3.0.0-rc1.
+"""
+
+http_archive(
+    name = "build_bazel_rules_apple",
+    sha256 = "20da675977cb8249919df14d0ce6165d7b00325fb067f0b06696b893b90a55e8",
+    url = "https://github.com/bazelbuild/rules_apple/releases/download/3.0.0/rules_apple.3.0.0.tar.gz",
+)
+
+"""
 Protoc compiler - 3.25.5 and associated C dependencies.
 Includes some native support for language specific rules.
 """
@@ -75,7 +87,6 @@ http_archive(
     urls = ["https://github.com/grpc/grpc/archive/v1.68.2.tar.gz"],
     sha256 = "afbc5d78d6ba6d509cc6e264de0d49dcd7304db435cbf2d630385bacf49e066c",
     patches = [
-        "//bazel:grpc_build_system.patch",
         "//bazel:grpc_extra_deps.patch",
     ],
     patch_args = ["-p1"],
