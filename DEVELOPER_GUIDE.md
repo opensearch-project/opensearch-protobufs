@@ -27,7 +27,7 @@ To package the generated Java files into a Maven-compatible JAR that can be used
 #optional
 rm -rf bazel*
 
-rm -rf generated && bazel build //... && ./tools/java/package_proto_jar.sh
+rm -rf generated && bazel build //:java_protos_all && ./tools/java/package_proto_jar.sh
 ```
 
 This script will:
