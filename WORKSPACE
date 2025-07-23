@@ -42,8 +42,6 @@ protobuf_deps()
 """
 Pin compatible version of go language rules.
 Overrides the version set in com_github_grpc_grpc.
-We additionally patch out references to go language rules in com_github_grpc_grpc
-as this package throws an error if the toolchain is registered twice.
 """
 
 http_archive(
@@ -54,10 +52,6 @@ http_archive(
         "https://github.com/bazelbuild/rules_go/releases/download/v0.45.1/rules_go-v0.45.1.zip",
     ],
 )
-
-load("@io_bazel_rules_go//go:deps.bzl", "go_register_toolchains", "go_rules_dependencies")
-go_rules_dependencies()
-go_register_toolchains(version = "1.22.5")
 
 """
 Language and gRPC rules from the actively maintained rules-proto-grpc project.
@@ -86,10 +80,6 @@ http_archive(
     strip_prefix = "grpc-1.68.2",
     urls = ["https://github.com/grpc/grpc/archive/v1.68.2.tar.gz"],
     sha256 = "afbc5d78d6ba6d509cc6e264de0d49dcd7304db435cbf2d630385bacf49e066c",
-    patches = [
-        "//bazel:grpc_extra_deps.patch",
-    ],
-    patch_args = ["-p1"],
 )
 
 load("@com_github_grpc_grpc//bazel:grpc_deps.bzl", "grpc_deps")
