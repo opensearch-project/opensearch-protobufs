@@ -89,6 +89,10 @@ FROM build-bazel AS build-bazel-python
 
 RUN bazel build //:python_protos_all
 
+FROM build-bazel-python AS package-bazel-python
+
+RUN bazel build //:opensearch_protos_wheel
+
 #################################################
 ##### GO STAGES ##################################
 #################################################

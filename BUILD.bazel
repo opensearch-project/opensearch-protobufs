@@ -2,6 +2,9 @@ load("@io_bazel_rules_go//go:def.bzl", "go_library")
 
 package(default_visibility = ["//visibility:public"])
 
+load("@rules_python//python:defs.bzl", "py_library")
+load("@rules_python//python:packaging.bzl", "py_wheel")
+
 java_library(
     name = "java_protos_all",
     visibility = ["//visibility:public"],
@@ -24,6 +27,14 @@ py_library(
         "//protos/services:document_service_python_proto",
         "//protos/services:search_service_python_proto",
     ],
+)
+
+py_wheel(
+    name = "opensearch_protos_wheel",
+    distribution = "opensearch-protos",
+    python_tag = "py3",
+    version = "1.0.0",
+    deps = [":python_protos_all"],
 )
 
 go_library(
