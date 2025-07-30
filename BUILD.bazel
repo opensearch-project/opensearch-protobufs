@@ -29,18 +29,46 @@ py_library(
     ],
 )
 
+"""
+Package python libraries into a wheel.
+Redunant py_library calls place schemas/services under seperate modules. 
+"""
+
+py_library(
+    name = "opensearch_protos_schemas",
+    srcs = [
+        "//protos/schemas:common_python_proto",
+        "//protos/schemas:document_python_proto", 
+        "//protos/schemas:search_python_proto",
+    ],
+    imports = [
+        "protos/schemas/common_python_proto_pb",
+        "protos/schemas/document_python_proto_pb",
+        "protos/schemas/search_python_proto_pb",
+    ],
+)
+
+py_library(
+    name = "opensearch_protos_services", 
+    srcs = [
+        "//protos/services:document_service_python_proto",
+        "//protos/services:search_service_python_proto",
+    ],
+    imports = [
+        "protos/services/document_service_python_proto_pb",
+        "protos/services/search_service_python_proto_pb", 
+    ],
+    deps = [":opensearch_protos_schemas"],
+)
+
 py_wheel(
     name = "opensearch_protos_wheel",
     distribution = "opensearch-protos",
     python_tag = "py3",
     version = "0.4.0",
-    deps = [":python_protos_all"],
-    strip_path_prefixes = [
-        "protos/schemas/common_python_proto_pb/",
-        "protos/schemas/document_python_proto_pb/",
-        "protos/schemas/search_python_proto_pb/",
-        "protos/services/document_service_python_proto_pb/",
-        "protos/services/search_service_python_proto_pb/",
+    deps = [
+        ":opensearch_protos_schemas",
+        ":opensearch_protos_services",
     ],
 )
 
