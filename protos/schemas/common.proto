@@ -1983,9 +1983,13 @@ message FieldValue {
 
 message IdsQuery {
 
-  float boost = 1;
+  // [optional]
+  // Boosts the clause by the given multiplier. Useful for weighing clauses in compound queries. Values in the [0, 1) range decrease relevance, and values greater than 1 increase relevance. Default is 1.
+  optional float boost = 1;
 
-  string name = 2 [json_name = "_name"];
+  // [optional]
+  // Query name for query tagging
+  optional string name = 2 [json_name = "_name"];
 
   repeated string values = 3;
 
