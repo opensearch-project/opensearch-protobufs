@@ -41,11 +41,6 @@ py_library(
         "//protos/schemas:document_python_proto", 
         "//protos/schemas:search_python_proto",
     ],
-    imports = [
-        "protos/schemas/common_python_proto_pb",
-        "protos/schemas/document_python_proto_pb",
-        "protos/schemas/search_python_proto_pb",
-    ],
 )
 
 py_library(
@@ -53,10 +48,6 @@ py_library(
     srcs = [
         "//protos/services:document_service_python_proto",
         "//protos/services:search_service_python_proto",
-    ],
-    imports = [
-        "protos/services/document_service_python_proto_pb",
-        "protos/services/search_service_python_proto_pb", 
     ],
     deps = [":opensearch_protos_schemas"],
 )
