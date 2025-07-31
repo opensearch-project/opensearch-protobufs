@@ -1,3 +1,5 @@
+load("@io_bazel_rules_go//go:def.bzl", "go_library")
+
 package(default_visibility = ["//visibility:public"])
 
 java_library(
@@ -21,5 +23,17 @@ py_library(
         "//protos/schemas:search_python_proto",
         "//protos/services:document_service_python_proto",
         "//protos/services:search_service_python_proto",
+    ],
+)
+
+go_library(
+    name = "go_protos_all",
+    visibility = ["//visibility:public"],
+    deps = [
+        "//protos/schemas:common_go_proto",
+        "//protos/schemas:document_go_proto",
+        "//protos/schemas:search_go_proto",
+        "//protos/services:document_service_go_proto",
+        "//protos/services:search_service_go_proto",
     ],
 )

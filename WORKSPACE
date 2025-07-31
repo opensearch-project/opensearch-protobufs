@@ -102,8 +102,15 @@ rules_proto_grpc_python_repos()
 load("@rules_proto_grpc//java:repositories.bzl", rules_proto_grpc_java_repos = "java_repos")
 rules_proto_grpc_java_repos()
 
+load("@rules_proto_grpc//go:repositories.bzl", rules_proto_grpc_go_repos = "go_repos")
+rules_proto_grpc_go_repos()
+
+load("@io_bazel_rules_go//go:deps.bzl", "go_register_toolchains", "go_rules_dependencies")
+go_rules_dependencies()
+go_register_toolchains()
+
 """
-Dependencies for java gRPC rules are sourced from maven. 
+Dependencies for java gRPC rules are sourced from maven.
 """
 
 load("@rules_jvm_external//:defs.bzl", "maven_install")

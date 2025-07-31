@@ -6,7 +6,7 @@ syntax = "proto3";
 option java_multiple_files = true;
 option java_package = "org.opensearch.protobufs";
 option java_outer_classname = "CommonProto";
-option go_package = "opensearchpb";
+option go_package = "github.com/opensearch-project/opensearch-protobufs/go/opensearchpb";
 
 import "google/protobuf/struct.proto";
 
@@ -89,7 +89,7 @@ message ObjectMap {
       ListValue list_value = 9;
     }
   }
-  
+
   // `ListValue` is a wrapper around a repeated field of values.
   // The JSON representation for `ListValue` is JSON array.
   message ListValue {
@@ -259,10 +259,10 @@ message ErrorCause {
 
   optional string index_uuid = 9;
 
-  // [optional] The spec actually does not have a field named 'metadata'. This should have adaptor_unnest. 
+  // [optional] The spec actually does not have a field named 'metadata'. This should have adaptor_unnest.
   map<string, ObjectMap.Value> metadata = 10;
 
-  // [optional] 
+  // [optional]
   map<string, StringOrStringArray> header = 11;
 }
 message ShardStatistics {
@@ -430,7 +430,7 @@ message NestedQuery {
 
   // [optional] Floating point number used to decrease or increase the relevance scores of the query. Boost values are relative to the default value of 1.0. A boost value between 0 and 1.0 decreases the relevance score. A value greater than 1.0 increases the relevance score.
   optional float boost = 1;
-  
+
   // [optional] Query name for query tagging.
   optional string underscore_name = 2 [json_name = "_name"];
 
@@ -923,7 +923,7 @@ message ScriptScoreQuery {
 
   // [optional] Floating point number used to decrease or increase the relevance scores of the query. Boost values are relative to the default value of 1.0. A boost value between 0 and 1.0 decreases the relevance score. A value greater than 1.0 increases the relevance score.
   optional float boost = 1;
-  
+
   // [optional] Query name for query tagging.
   optional string underscore_name = 2 [json_name = "_name"];
 
@@ -942,7 +942,7 @@ message ExistsQuery {
 
   // [optional] Floating point number used to decrease or increase the relevance scores of the query. Boost values are relative to the default value of 1.0. A boost value between 0 and 1.0 decreases the relevance score. A value greater than 1.0 increases the relevance score.
   optional float boost = 2;
-  
+
   // [optional] Query name for query tagging.
   optional string underscore_name = 3 [json_name = "_name"];
 }
@@ -957,7 +957,7 @@ message SimpleQueryStringQuery {
 
   // [optional] Floating point number used to decrease or increase the relevance scores of the query. Boost values are relative to the default value of 1.0. A boost value between 0 and 1.0 decreases the relevance score. A value greater than 1.0 increases the relevance score.
   optional float boost = 1;
-  
+
   // [optional] Query name for query tagging.
   optional string underscore_name = 2 [json_name = "_name"];
 
@@ -1057,8 +1057,8 @@ message PipeSeparatedFlagsSimpleQueryStringFlag {
 
 message KnnQuery {
   // [required] Specifies the vector field against which to run a search query
-  string field = 1; 
-  
+  string field = 1;
+
   // [optional]
   // Query vector. Must have the same number of dimensions as the vector field you are searching against.
   repeated float vector = 2;
@@ -1094,7 +1094,7 @@ message KnnQuery {
   // Available in version later than 2.17
   // To explicitly apply rescoring, provide the rescore parameter in a query on a quantized index and specify the oversample_factor "https://opensearch.org/docs/latest/search-plugins/knn/approximate-knn/#rescoring-quantized-results-using-full-precision"
   optional KnnQueryRescore rescore = 10;
-  
+
   // [optional] When true, retrieves scores for all nested field documents within each parent document. Used with nested queries. For more information, see Vector search with nested fields.
   optional bool expand_nested_docs = 11;
 
@@ -1126,7 +1126,7 @@ message MatchQuery {
 
   // [optional] Floating point number used to decrease or increase the relevance scores of the query. Boost values are relative to the default value of 1.0. A boost value between 0 and 1.0 decreases the relevance score. A value greater than 1.0 increases the relevance score.
   optional float boost = 1;
-  
+
   // [optional] Query name for query tagging.
   optional string underscore_name = 2 [json_name = "_name"];
 
@@ -1260,7 +1260,7 @@ message BoolQuery {
 
   // [optional] The clause (query) should appear in the matching document.
   repeated QueryContainer should = 7;
-  
+
   // [optional] Ensures correct behavior when a query contains only `must_not` clauses. By default set to true, OpenSearch adds a match-all clause to ensure results are returned from Lucene, with the `must_not` conditions applied as filters. If set to false, the query may return no results, as Lucene typically requires at least one positive condition.
   optional bool adjust_pure_negative = 8;
 }
@@ -1278,7 +1278,7 @@ message BoostingQuery {
 
   // [optional] Floating point number used to decrease or increase the relevance scores of the query. Boost values are relative to the default value of 1.0. A boost value between 0 and 1.0 decreases the relevance score. A value greater than 1.0 increases the relevance score.
   optional float boost = 1;
-  
+
   // [optional] Query name for query tagging.
   optional string underscore_name = 2 [json_name = "_name"];
 
@@ -1295,7 +1295,7 @@ message ConstantScoreQuery {
 
   // [optional] Floating point number used to decrease or increase the relevance scores of the query. Boost values are relative to the default value of 1.0. A boost value between 0 and 1.0 decreases the relevance score. A value greater than 1.0 increases the relevance score.
   optional float boost = 1;
-  
+
   // [optional] Query name for query tagging.
   optional string underscore_name = 2 [json_name = "_name"];
 
@@ -1307,7 +1307,7 @@ message DisMaxQuery {
 
   // [optional] Floating point number used to decrease or increase the relevance scores of the query. Boost values are relative to the default value of 1.0. A boost value between 0 and 1.0 decreases the relevance score. A value greater than 1.0 increases the relevance score.
   optional float boost = 1;
-  
+
   // [optional] Query name for query tagging.
   optional string underscore_name = 2 [json_name = "_name"];
 
@@ -1323,7 +1323,7 @@ message FunctionScoreQuery {
 
   // [optional] Floating point number used to decrease or increase the relevance scores of the query. Boost values are relative to the default value of 1.0. A boost value between 0 and 1.0 decreases the relevance score. A value greater than 1.0 increases the relevance score.
   optional float boost = 1;
-  
+
   // [optional] Query name for query tagging.
   optional string underscore_name = 2 [json_name = "_name"];
 
@@ -1415,7 +1415,7 @@ message IntervalsQuery {
 
   // [optional] Floating point number used to decrease or increase the relevance scores of the query. Boost values are relative to the default value of 1.0. A boost value between 0 and 1.0 decreases the relevance score. A value greater than 1.0 increases the relevance score.
   optional float boost = 2;
-  
+
   // [optional] Query name for query tagging.
   optional string underscore_name = 3 [json_name = "_name"];
 
@@ -1512,7 +1512,7 @@ message PrefixQuery {
 
   // [optional] Floating point number used to decrease or increase the relevance scores of the query. Boost values are relative to the default value of 1.0. A boost value between 0 and 1.0 decreases the relevance score. A value greater than 1.0 increases the relevance score.
   optional float boost = 2;
-  
+
   // [optional] Query name for query tagging.
   optional string underscore_name = 3 [json_name = "_name"];
 
@@ -1569,13 +1569,13 @@ enum ValueType {
 message TermsQueryField {
   // [optional] Floating point number used to decrease or increase the relevance scores of the query. Boost values are relative to the default value of 1.0. A boost value between 0 and 1.0 decreases the relevance score. A value greater than 1.0 increases the relevance score.
   optional float boost = 1;
-  
+
   // [optional] Query name for query tagging.
   optional string underscore_name = 2 [json_name = "_name"];
-  
+
   // [optional] Specifies the types of values used for filtering. Valid values are default and bitmap. If omitted, the value defaults to default.
-  optional ValueType value_type = 3; 
-  
+  optional ValueType value_type = 3;
+
   // [required]
   map<string, TermsLookupFieldStringArrayMap> terms_lookup_field_string_array_map = 4;
 }
@@ -1597,19 +1597,19 @@ message TermsLookupField {
   // [optional]
   // Custom routing value of the document from which to fetch term values. If a custom routing value was provided when the document was indexed, this parameter is required.
   optional string routing = 4;
-  
-  // [optional] 
+
+  // [optional]
   optional bool store = 5;
-  
+
 }
 
 message TermsSetQuery {
   // [required] Specifies the field against which to run a search query
   string field = 1;
-  
+
   // [optional] Floating point number used to decrease or increase the relevance scores of the query. Boost values are relative to the default value of 1.0. A boost value between 0 and 1.0 decreases the relevance score. A value greater than 1.0 increases the relevance score.
   optional float boost = 2;
-  
+
   // [optional] Query name for query tagging.
   optional string underscore_name = 3 [json_name = "_name"];
 
@@ -1633,7 +1633,7 @@ message TermQuery {
 
   // [optional] Floating point number used to decrease or increase the relevance scores of the query. Boost values are relative to the default value of 1.0. A boost value between 0 and 1.0 decreases the relevance score. A value greater than 1.0 increases the relevance score.
   optional float boost = 2;
-  
+
   // [optional] Query name for query tagging.
   optional string underscore_name = 3 [json_name = "_name"];
 
@@ -1651,7 +1651,7 @@ message TermQuery {
 message QueryStringQuery {
   // [optional] Floating point number used to decrease or increase the relevance scores of the query. Boost values are relative to the default value of 1.0. A boost value between 0 and 1.0 decreases the relevance score. A value greater than 1.0 increases the relevance score.
   optional float boost = 1;
-  
+
   // [optional] Query name for query tagging.
   optional string underscore_name = 2 [json_name = "_name"];
 
@@ -1758,7 +1758,7 @@ message RandomScoreFunction {
 message RangeQuery {
   // [required] Specifies the field against which to run a search query
   string field = 1;
-  
+
   oneof range_query{
     DateRangeQuery date_range_query = 2;
     NumberRangeQuery number_range_query = 3;
@@ -1768,7 +1768,7 @@ message RangeQuery {
 message RegexpQuery {
   // [required] Specifies the field against which to run a search query
   string field = 1;
-  
+
   // [required] Regular expression for terms you wish to find in the provided field.
   string value = 2;
 
@@ -1804,7 +1804,7 @@ message DateRangeQuery {
 
   // [optional] Floating point number used to decrease or increase the relevance scores of the query. Boost values are relative to the default value of 1.0. A boost value between 0 and 1.0 decreases the relevance score. A value greater than 1.0 increases the relevance score.
   optional float boost = 1;
-  
+
   // [optional] Query name for query tagging.
   optional string underscore_name = 2 [json_name = "_name"];
 
@@ -1851,7 +1851,7 @@ message NumberRangeQuery {
 
   // [optional] Floating point number used to decrease or increase the relevance scores of the query. Boost values are relative to the default value of 1.0. A boost value between 0 and 1.0 decreases the relevance score. A value greater than 1.0 increases the relevance score.
   optional float boost = 1;
-  
+
   // [optional] Query name for query tagging.
   optional string underscore_name = 2 [json_name = "_name"];
 
@@ -1901,7 +1901,7 @@ message FuzzyQuery {
 
   // [optional] Floating point number used to decrease or increase the relevance scores of the query. Boost values are relative to the default value of 1.0. A boost value between 0 and 1.0 decreases the relevance score. A value greater than 1.0 increases the relevance score.
   optional float boost = 2;
-  
+
   // [optional] Query name for query tagging.
   optional string underscore_name = 3 [json_name = "_name"];
 
@@ -1981,7 +1981,7 @@ message IdsQuery {
 
   // [optional] Floating point number used to decrease or increase the relevance scores of the query. Boost values are relative to the default value of 1.0. A boost value between 0 and 1.0 decreases the relevance score. A value greater than 1.0 increases the relevance score.
   optional float boost = 1;
-  
+
   // [optional] Query name for query tagging.
   optional string underscore_name = 2 [json_name = "_name"];
 
@@ -2039,7 +2039,7 @@ message IntervalsWildcard {
 message MatchAllQuery {
   // [optional] Floating point number used to decrease or increase the relevance scores of the query. Boost values are relative to the default value of 1.0. A boost value between 0 and 1.0 decreases the relevance score. A value greater than 1.0 increases the relevance score.
   optional float boost = 1;
-  
+
   // [optional] Query name for query tagging.
   optional string underscore_name = 2 [json_name = "_name"];
 }
@@ -2047,7 +2047,7 @@ message MatchAllQuery {
 message MatchBoolPrefixQuery {
   // [required] Specifies the field against which to run a search query
   string field = 1;
-  
+
   // [optional] Floating point number used to decrease or increase the relevance scores of the query. Boost values are relative to the default value of 1.0. A boost value between 0 and 1.0 decreases the relevance score. A value greater than 1.0 increases the relevance score.
   optional float boost = 2;
 
@@ -2110,7 +2110,7 @@ message MatchBoolPrefixQuery {
   // If the query string contains multiple search terms, whether all terms need to match (and) or only one term needs to match (or) for a document to be considered a match.
   // Default is or.
   Operator operator = 10;
-  
+
   // [optional]
   // The number of leading characters that are not considered in fuzziness.
   // Default is 0.
@@ -2126,7 +2126,7 @@ message MatchNoneQuery {
 
   // [optional] Floating point number used to decrease or increase the relevance scores of the query. Boost values are relative to the default value of 1.0. A boost value between 0 and 1.0 decreases the relevance score. A value greater than 1.0 increases the relevance score.
   optional float boost = 1;
-  
+
   // [optional] Query name for query tagging.
   optional string underscore_name = 2 [json_name = "_name"];
 }
@@ -2143,7 +2143,7 @@ enum ZeroTermsQuery {
 message MatchPhrasePrefixQuery {
   // [optional] Floating point number used to decrease or increase the relevance scores of the query. Boost values are relative to the default value of 1.0. A boost value between 0 and 1.0 decreases the relevance score. A value greater than 1.0 increases the relevance score.
   optional float boost = 1;
-  
+
   // [optional] Query name for query tagging.
   optional string underscore_name = 2 [json_name = "_name"];
 
@@ -2240,7 +2240,7 @@ message MultiMatchQuery {
 
   // [optional] If the query string contains multiple search terms, whether all terms need to match (AND) or only one term needs to match (OR) for a document to be considered a match. Valid values are: 1) OR: The string to be is interpreted as to OR be. 2) AND: The string to be is interpreted as to AND be. Default is OR.
   optional Operator operator = 12;
-  
+
   // [optional] The number of leading characters that are not considered in fuzziness. Default is 0.
   optional int32 prefix_length = 13;
 

@@ -2,12 +2,125 @@
 
 This repository stores the Protobufs and generated code used for client <> server GRPC APIs.
 
-The [opensearch-api-specification repo](https://github.com/opensearch-project/opensearch-api-specification)  will continue to be the source of truth, and these protobufs will mostly be a downstream consumer of the spec.
+The [opensearch-api-specification repo](https://github.com/opensearch-project/opensearch-api-specification) will continue to be the source of truth, and these protobufs will mostly be a downstream consumer of the spec.
 
 This repository will also include a variety of tooling and CI, linters and validators, and generated code, which is described in more detail below.
 
+## Quick Start
+
+### Build Protobuf Libraries
+
+Generate protobuf libraries for your preferred language:
+
+```bash
+# Java
+bazel build //:java_protos_all
+
+# Python
+bazel build //:python_protos_all
+
+# Go
+bazel build //:go_protos_all
+
+# All languages
+bazel build //:java_protos_all //:python_protos_all //:go_protos_all
+```
+
+### Docker Build Options
+
+Use Docker to build and test protobuf libraries:
+
+```bash
+# Java
+docker build --target build-bazel-java .
+docker build --target package-bazel-java .
+docker build --target test-bazel-java .
+
+# Python
+docker build --target build-bazel-python .
+
+# Go
+docker build --target build-bazel-go .
+docker build --target package-bazel-go .
+docker build --target test-bazel-go .
+```
+
+## Generated Code Usage
+
+### Go
+
+```go
+import (
+    "github.com/opensearch-project/opensearch-protobufs/go/opensearchpb"
+    "github.com/opensearch-project/opensearch-protobufs/go/services"
+)
+
+// Use generated message types
+request := &opensearchpb.SearchRequest{
+    Query: "elasticsearch",
+    Size:  10,
+}
+
+// Use generated gRPC clients
+client := services.NewSearchServiceClient(conn)
+response, err := client.Search(ctx, request)
+```
+
+### Java
+
+```java
+import org.opensearch.protobufs.SearchRequest;
+import org.opensearch.protobufs.services.SearchServiceGrpc;
+
+// Use generated message types
+SearchRequest request = SearchRequest.newBuilder()
+    .setQuery("elasticsearch")
+    .setSize(10)
+    .build();
+
+// Use generated gRPC clients
+SearchServiceGrpc.SearchServiceBlockingStub client =
+    SearchServiceGrpc.newBlockingStub(channel);
+SearchResponse response = client.search(request);
+```
+
+### Python
+
+```python
+from opensearch_pb2 import SearchRequest
+from search_service_pb2_grpc import SearchServiceStub
+
+# Use generated message types
+request = SearchRequest()
+request.query = "elasticsearch"
+request.size = 10
+
+# Use generated gRPC clients
+client = SearchServiceStub(channel)
+response = client.Search(request)
+```
+
+## Generated Code Locations
+
+After building, find generated code in:
+
+```bash
+# Go
+bazel-bin/protos/schemas/*_go_proto_pb/protos/schemas/*.pb.go
+bazel-bin/protos/services/*_go_proto_pb/protos/services/*.pb.go
+
+# Java
+bazel-bin/libjava_protos_all.jar
+
+# Python
+bazel-bin/protos/schemas/*_python_proto_pb/protos/schemas/*_pb2.py
+bazel-bin/protos/services/*_python_proto_pb/protos/services/*_pb2.py
+```
+
 ## Intended usage of the repo
+
 The repo will consist of:
+
 1. **Protobufs**
     - Raw `*.proto` files based on the API spec
     - Build files/tooling to compile the protobufs
@@ -21,3 +134,18 @@ The repo will consist of:
 
 4. **Linters/Validators (TBD)**
     - Tooling to validate and lint the generated `*.proto` files, to ensure they conform to Google's protobuf best practices, as well as conventions established within the OpenSearch org (more important for any portions that are hand-rolled)
+
+## Development
+
+For development documentation, see [DEVELOPER_GUIDE.md](./DEVELOPER_GUIDE.md).
+
+## CI/CD
+
+GitHub Actions workflows automatically validate protobuf builds:
+- `build-protobufs-java.yml` - Validates Java protobuf generation
+- `build-protobufs-python.yml` - Validates Python protobuf generation
+- `build-protobufs-go.yml` - Validates Go protobuf generation
+
+## Contributing
+
+See [CONTRIBUTING.md](./CONTRIBUTING.md) for contribution guidelines.

@@ -15,6 +15,7 @@ package org.opensearch.protobufs.services;
 option java_multiple_files = true;
 option java_package = "org.opensearch.protobufs.services";
 option java_outer_classname = "SearchServiceProto";
+option go_package = "github.com/opensearch-project/opensearch-protobufs/go/services";
 
 import "protos/schemas/search.proto";
 
