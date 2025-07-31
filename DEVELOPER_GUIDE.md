@@ -18,6 +18,11 @@ bazel build //:java_protos_all
 bazel build //:python_protos_all
 ```
 
+## Go
+```
+bazel build //:go_protos_all
+```
+
 # Proto generated code
 ## Java
 ### Generate Java Code and packaging as a Maven/Gradle dependency

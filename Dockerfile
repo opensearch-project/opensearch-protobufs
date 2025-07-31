@@ -12,6 +12,7 @@ RUN apt-get update && apt-get install -y \
     maven \
     g++ \
     gcc \
+    golang-go \
     && apt-get clean
 
 RUN apt-get install software-properties-common -y
@@ -87,3 +88,41 @@ RUN ./gradlew :plugins:transport-grpc:internalClusterTest -Drepos.mavenLocal
 FROM build-bazel AS build-bazel-python
 
 RUN bazel build //:python_protos_all
+
+#################################################
+##### GO STAGES ##################################
+#################################################
+
+FROM build-bazel AS build-bazel-go
+
+RUN bazel build //:go_protos_all
+
+FROM build-bazel-go AS package-bazel-go
+
+# Create a clean directory structure for Go protobuf files
+RUN mkdir -p /build/generated/go/opensearchpb && \
+    mkdir -p /build/generated/go/services
+
+# Copy generated Go protobuf files
+RUN find bazel-bin/protos/schemas -name "*.pb.go" -path "*_go_proto_pb*" -exec cp {} /build/generated/go/opensearchpb/ \; && \
+    find bazel-bin/protos/services -name "*.pb.go" -path "*_go_proto_pb*" -exec cp {} /build/generated/go/services/ \; && \
+    find bazel-bin/protos/services -name "*_grpc.pb.go" -path "*_go_proto_pb*" -exec cp {} /build/generated/go/services/ \;
+
+FROM package-bazel-go AS test-bazel-go
+
+# Set up Go module and validate generated code
+WORKDIR /build/generated/go
+
+# Create go.mod with proper module path
+RUN echo 'module github.com/opensearch-project/opensearch-protobufs/go' > go.mod && \
+    echo '' >> go.mod && \
+    echo 'go 1.19' >> go.mod && \
+    echo '' >> go.mod && \
+    echo 'require (' >> go.mod && \
+    echo '    google.golang.org/protobuf v1.31.0' >> go.mod && \
+    echo '    google.golang.org/grpc v1.58.0' >> go.mod && \
+    echo ')' >> go.mod
+
+# Test that Go code compiles successfully
+RUN go mod tidy && \
+    go build ./...

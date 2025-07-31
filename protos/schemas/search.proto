@@ -7,7 +7,7 @@ syntax = "proto3";
 option java_multiple_files = true;
 option java_package = "org.opensearch.protobufs";
 option java_outer_classname = "SearchProto";
-option go_package = "opensearchpb";
+option go_package = "github.com/opensearch-project/opensearch-protobufs/go/opensearchpb";
 
 import "google/protobuf/struct.proto";
 import "protos/schemas/common.proto";
@@ -213,15 +213,15 @@ message SearchRequestBody {
 
   // [optional] Profile provides timing information about the execution of individual components of a search request. Using the Profile API, you can debug slow requests and understand how to improve their performance.
   optional bool profile = 13;
-  
+
   // [optional] Customizable sequence of processing stages applied to search queries.
   // TODO add to spec
   optional string search_pipeline = 14;
-  
+
   // [optional] Enables or disables verbose mode for the search pipeline.
   // TODO add to spec
   optional bool verbose_pipeline = 15;
-  
+
   // [optional] The DSL query to use in the request.
   optional QueryContainer query = 16;
 
@@ -264,7 +264,7 @@ message SearchRequestBody {
   // [optional] Whether to return scores with named queries. Default is false.
   // TODO add to spec
   optional bool include_named_queries_score = 29;
-  
+
   // [optional] Whether to include the document version in the response.
   optional bool version = 30;
 
@@ -283,8 +283,8 @@ message SearchRequestBody {
   // [optional] Defines the aggregations that are run as part of the search request.
   // TODO not supported yet
   // map<string, AggregationContainer> aggs = 32;
-    
-  // [optional] 
+
+  // [optional]
   // TODO add to spec (since 2.14)
   map<string, DerivedField> derived = 35;
 }
@@ -523,7 +523,7 @@ message Hit {
 
   // [optional] Sorted values
   repeated FieldValue sort = 20;
-  
+
   // [optional] Contains metadata values for the documents.
   // TODO: No field named "meta_fields" in the spec. Needs adaptor_unnest.
   optional ObjectMap meta_fields = 21;
@@ -743,7 +743,7 @@ message SearchProfile {
   int64 rewrite_time = 3;
 
 }
- 
+
 message NumberMap {
   map<string, float> number_map = 1;
 }
