@@ -13,6 +13,7 @@ RUN apt-get update && apt-get install -y \
     g++ \
     gcc \
     golang-go \
+    python3-pip \
     && apt-get clean
 
 RUN apt-get install software-properties-common -y
@@ -95,6 +96,9 @@ RUN bazel build //:opensearch_protos_wheel
 
 FROM package-bazel-python AS test-bazel-python
 
+RUN pip3 install protobuf
+RUN pip3 install /build/bazel-bin/opensearch_protos-0.4.0-py3-none-any.whl
+RUN python3 /build/tools/python/print_modules.py
 
 #################################################
 ##### GO STAGES ##################################
