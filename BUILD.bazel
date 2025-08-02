@@ -136,7 +136,7 @@ py_wheel(
     name = "opensearch_protos_wheel",
     distribution = "opensearch-protos",
     python_tag = "py3",
-    version = "0.4.0",
+    version = "0.6.0",
     deps = [
         ":fixed_schemas",
         ":fixed_services",
