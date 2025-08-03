@@ -98,7 +98,9 @@ genrule(
     srcs = [":opensearch_protos_services"],
     outs = [
         "opensearch/protos/services/document_service_pb2.py",
+        "opensearch/protos/services/document_service_pb2_grpc.py",
         "opensearch/protos/services/search_service_pb2.py",
+        "opensearch/protos/services/search_service_pb2_grpc.py",
         "opensearch/protos/services/__init__.py",
     ],
     cmd = """
