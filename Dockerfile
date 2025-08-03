@@ -96,9 +96,20 @@ RUN bazel build //:opensearch_protos_wheel
 
 FROM package-bazel-python AS test-bazel-python
 
-RUN pip3 install protobuf
+ARG OPENSEARCH_BRANCH=main
+
+RUN pip3 install protobuf grpcio
 RUN pip3 install /build/bazel-bin/opensearch_protos-*-py3-none-any.whl
+
+RUN git clone --branch ${OPENSEARCH_BRANCH} https://github.com/opensearch-project/OpenSearch.git /build/opensearch
+WORKDIR /build/opensearch
+RUN ./gradlew assemble -PinstalledPlugins="['transport-grpc']"
+
 RUN python3 /build/tools/python/print_modules.py
+
+# RUN bash -c '\
+#     ./gradlew run -PinstalledPlugins="[\"transport-grpc\"]" -Dtests.opensearch.aux.transport.types="[\"experimental-transport-grpc\"]" & \
+#     python3 /build/tools/python/test_grpc_client.py'
 
 #################################################
 ##### GO STAGES ##################################
