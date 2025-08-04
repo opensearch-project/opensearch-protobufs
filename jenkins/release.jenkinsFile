@@ -8,6 +8,7 @@ standardReleasePipelineWithGenericTrigger(
     tokenIdCredential: 'jenkins-opensearch-protobufs-generic-webhook-token',
     causeString: 'A tag was cut on opensearch-project/opensearch-protobufs repository causing this workflow to run',
     downloadReleaseAsset: true,
+    downloadReleaseAssetName: 'opensearch-protobufs-java-*.tar.gz',
     publishRelease: true) {
         publishToMaven(
             signingArtifactsPath: "$WORKSPACE/repository/",
