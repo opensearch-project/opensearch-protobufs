@@ -45,6 +45,26 @@ docker build --target package-bazel-go .
 docker build --target test-bazel-go .
 ```
 
+## Releases
+
+Each OpenSearch Protobufs release includes:
+
+- **Java Archive**: `opensearch-protobufs-java.tar.gz` - Maven-compatible JAR files for Java/Gradle projects
+- **Protobuf ZIP**: `opensearch-protobufs-{version}.zip` - Raw `.proto` files for generating client libraries in any language
+
+Download the latest release from the [GitHub Releases page](https://github.com/opensearch-project/opensearch-protobufs/releases).
+
+### Using Raw Proto Files
+
+1. Download `opensearch-protobufs-{version}.zip` from releases to get just the `.proto` files:
+
+2. Extract the zip:
+```bash
+unzip opensearch-protobufs-{version}.zip
+cd opensearch-protobufs-{version}
+```
+3. Follow latest documentation on https://protobuf.dev/reference/ to generate client libraries for different languages.
+
 ## Generated Code Usage
 
 ### Go
