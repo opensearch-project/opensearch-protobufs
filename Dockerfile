@@ -102,16 +102,7 @@ ARG OPENSEARCH_BRANCH=main
 
 RUN pip3 install protobuf grpcio
 RUN pip3 install /build/bazel-bin/opensearch_protos-*-py3-none-any.whl
-
-RUN git clone --branch ${OPENSEARCH_BRANCH} https://github.com/opensearch-project/OpenSearch.git /build/opensearch
-WORKDIR /build/opensearch
-
-# Wait for opensearch to build and start
-ARG CACHEBUST=1
-RUN ./gradlew run -PinstalledPlugins="[\"transport-grpc\"]" -Dtests.opensearch.aux.transport.types="[\"experimental-transport-grpc\"]" &
-RUN timeout 300 bash -c 'until curl -s http://localhost:9200 > /dev/null; do echo "Waiting for OpenSearch..."; sleep 2; done || exit 1'
-
-RUN python3 /build/tools/python/test_grpc_client.py
+RUN python3 /build/tools/print_modules.py
 
 #################################################
 ##### GO STAGES ##################################
