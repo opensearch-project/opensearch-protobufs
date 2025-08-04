@@ -98,11 +98,8 @@ RUN bazel build //:opensearch_protos_wheel
 
 FROM package-bazel-python AS test-bazel-python
 
-ARG OPENSEARCH_BRANCH=main
-
-RUN pip3 install protobuf grpcio
 RUN pip3 install /build/bazel-bin/opensearch_protos-*-py3-none-any.whl
-RUN python3 /build/tools/print_modules.py
+RUN python3 /build/tools/python/print_modules.py
 
 #################################################
 ##### GO STAGES ##################################
