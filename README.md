@@ -56,16 +56,14 @@ Download the latest release from the [GitHub Releases page](https://github.com/o
 
 ### Using Raw Proto Files
 
-Download `opensearch-protobufs-{version}.zip` from releases to get just the `.proto` files:
+1. Download `opensearch-protobufs-{version}.zip` from releases to get just the `.proto` files:
 
+2. Extract the zip:
 ```bash
-# Extract the zip
 unzip opensearch-protobufs-{version}.zip
-
-# Use with protoc to generate client libraries
-protoc --python_out=. opensearch-protobufs-{version}/schemas/*.proto
-protoc --go_out=. opensearch-protobufs-{version}/services/*.proto
+cd opensearch-protobufs-{version}
 ```
+3. Follow latest documentation on https://protobuf.dev/reference/ to generate client libraries for different languages.
 
 ## Generated Code Usage
 
