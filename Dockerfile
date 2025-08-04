@@ -44,7 +44,7 @@ WORKDIR /build
 
 # Copy entire repository for convenience
 # Invalidate cache to ensure updates are captured
-ARG CACHEBUST=1
+# ARG CACHEBUST=1
 COPY --chown=bazeluser:bazeluser . .
 
 #################################################
@@ -107,8 +107,9 @@ RUN git clone --branch ${OPENSEARCH_BRANCH} https://github.com/opensearch-projec
 WORKDIR /build/opensearch
 
 # Wait for opensearch to build and start
+ARG CACHEBUST=1
 RUN ./gradlew run -PinstalledPlugins="[\"transport-grpc\"]" -Dtests.opensearch.aux.transport.types="[\"experimental-transport-grpc\"]" &
-RUN until curl -s http://localhost:9200 > /dev/null; do sleep 2; done
+RUN timeout 300 bash -c 'until curl -s http://localhost:9200 > /dev/null; do echo "Waiting for OpenSearch..."; sleep 2; done || exit 1'
 
 RUN python3 /build/tools/python/test_grpc_client.py
 
