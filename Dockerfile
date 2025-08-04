@@ -14,6 +14,8 @@ RUN apt-get update && apt-get install -y \
     gcc \
     golang-go \
     python3-pip \
+    tree \
+    vim \
     && apt-get clean
 
 RUN apt-get install software-properties-common -y
@@ -103,9 +105,10 @@ RUN pip3 install /build/bazel-bin/opensearch_protos-*-py3-none-any.whl
 
 RUN git clone --branch ${OPENSEARCH_BRANCH} https://github.com/opensearch-project/OpenSearch.git /build/opensearch
 WORKDIR /build/opensearch
-RUN ./gradlew assemble -PinstalledPlugins="['transport-grpc']"
 
-RUN python3 /build/tools/python/print_modules.py
+# RUN ./gradlew assemble -PinstalledPlugins="['transport-grpc']"
+
+# RUN python3 /build/tools/python/print_modules.py
 
 # RUN bash -c '\
 #     ./gradlew run -PinstalledPlugins="[\"transport-grpc\"]" -Dtests.opensearch.aux.transport.types="[\"experimental-transport-grpc\"]" & \

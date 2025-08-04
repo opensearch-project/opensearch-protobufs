@@ -11,6 +11,7 @@ def test_grpc_operations():
     search_stub = search_service_pb2_grpc.SearchServiceStub(channel)    
     bulk_request = document_pb2.BulkRequest()
     
+
     test_docs = [
         {
             "id": "1",
