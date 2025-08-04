@@ -44,7 +44,7 @@ WORKDIR /build
 
 # Copy entire repository for convenience
 # Invalidate cache to ensure updates are captured
-# ARG CACHEBUST=1
+ARG CACHEBUST=1
 COPY --chown=bazeluser:bazeluser . .
 
 #################################################
