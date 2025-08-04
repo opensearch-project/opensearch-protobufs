@@ -109,9 +109,12 @@ genrule(
         # Copy and modify the service files
         for pb in document_service search_service; do
             cp $(BINDIR)/protos/services/$${pb}_python_proto_pb/protos/services/$${pb}_pb2.py $(RULEDIR)/opensearch/protos/services/
+            cp $(BINDIR)/protos/services/$${pb}_python_proto_pb/protos/services/$${pb}_pb2_grpc.py $(RULEDIR)/opensearch/protos/services/
+            
+            # Fix imports in both pb2 and pb2_grpc files
             sed -i \
-                -e 's/from protos\\.schemas import \\([^_ ]\\+\\)_pb2 as protos_dot_schemas_dot_\\1__pb2/from opensearch.protos.schemas import \\1_pb2/g' \
-                $(RULEDIR)/opensearch/protos/services/$${pb}_pb2.py
+                -e 's/from protos\\.schemas import/from opensearch.protos.schemas import/g' \
+                $(RULEDIR)/opensearch/protos/services/$${pb}_pb2*.py
         done
 
         # Create services __init__.py
