@@ -32,7 +32,7 @@ message BulkRequest {
   // If `true`, the request's actions must target an index alias.
   optional bool require_alias = 8;
 
-  // Custom value used to route operations to a specific shard.
+  // A custom value used to route operations to a specific shard.
   optional string routing = 9;
 
   // Period each action waits for the following operations: automatic index creation, dynamic mapping updates, waiting for active shards.
@@ -44,10 +44,10 @@ message BulkRequest {
   // The number of shard copies that must be active before proceeding with the operation. Set to all or any positive integer up to the total number of shards in the index (`number_of_replicas+1`).
   optional WaitForActiveShards wait_for_active_shards = 12;
 
-  // Whether to pretty format the returned JSON response.
+  // Whether to pretty-format the returned JSON response.
   optional bool pretty = 13;
 
-  // Whether to return human readable values for statistics.
+  // Whether to return human-readable values for statistics.
   optional bool human = 14;
 
   // Whether to include the stack trace of returned errors.
@@ -56,17 +56,17 @@ message BulkRequest {
   // The URL-encoded request definition. Useful for libraries that do not accept a request body for non-POST requests.
   optional string source = 16;
 
-  // Used to reduce the response. This parameter takes a comma-separated list of filters. It supports using wildcards to match any field or part of a field’s name. You can also exclude fields with \"-\".
+  // A comma-separated list of filters used to filter the response. Use wildcards to match any field or part of a field's name. To exclude fields, use `-`.
   repeated string filter_path = 17;
 }
 
 message BulkResponse {
   oneof response {
-    InlineObject inline_object = 1;
+    BulkResponseBase bulk_response_base_200 = 1;
   }
 }
 message SearchRequest {
-  // Comma-separated list of data streams, indexes, and aliases to search. Supports wildcards (`*`). To search all data streams and indexes, omit this parameter or use `*` or `_all`.
+  // A comma-separated list of data streams, indexes, and aliases to search. Supports wildcards (`*`). To search all data streams and indexes, omit this parameter or use `*` or `_all`.
   repeated string index = 1;
 
   // Indicates which source fields are returned for matching documents. These fields are returned in the `hits._source` property of the search response. Valid values are: `true` to return the entire document source; `false` to not return the document source; `<string>` to return the source fields that are specified as a comma-separated list (supports wildcard (`*`) patterns).
@@ -150,7 +150,7 @@ message SearchRequest {
   // Indicates whether `hits.total` should be rendered as an integer or an object in the rest search response.
   optional bool rest_total_hits_as_int = 28;
 
-  // Custom value used to route operations to a specific shard.
+  // A custom value used to route operations to a specific shard.
   repeated string routing = 29;
 
   // Period to retain the search context for scrolling. See Scroll search results. By default, this value cannot exceed `1d` (24 hours). You can change this limit using the `search.max_keep_alive` cluster-level setting.
@@ -210,10 +210,10 @@ message SearchRequest {
   // If `true`, returns document version as part of a hit.
   optional bool version = 48;
 
-  // Whether to pretty format the returned JSON response.
+  // Whether to pretty-format the returned JSON response.
   optional bool pretty = 49;
 
-  // Whether to return human readable values for statistics.
+  // Whether to return human-readable values for statistics.
   optional bool human = 50;
 
   // Whether to include the stack trace of returned errors.
@@ -222,7 +222,7 @@ message SearchRequest {
   // The URL-encoded request definition. Useful for libraries that do not accept a request body for non-POST requests.
   optional string source = 52;
 
-  // Used to reduce the response. This parameter takes a comma-separated list of filters. It supports using wildcards to match any field or part of a field’s name. You can also exclude fields with \"-\".
+  // A comma-separated list of filters used to filter the response. Use wildcards to match any field or part of a field's name. To exclude fields, use `-`.
   repeated string filter_path = 53;
 
   optional SearchRequest search_request = 54;
@@ -230,8 +230,8 @@ message SearchRequest {
 
 message SearchResponse {
   oneof response {
-    ResponseBody response_body = 1;
-    ErrorResponse error_response = 2;
-    ErrorResponse error_response = 3;
+    SearchResponse search_response_200 = 1;
+    ErrorResponseBase error_response_base_400 = 2;
+    ErrorResponseBase error_response_base_404 = 3;
   }
 }
