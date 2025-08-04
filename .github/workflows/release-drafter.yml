@@ -40,6 +40,10 @@ jobs:
         run: |
           ./tools/java/package_proto_jar.sh -c true -s false
           ./gradlew --no-daemon -Dbuild.snapshot=false publishCreatePublicationToLocalRepoRepository && tar -C build -cvf artifacts.tar.gz repository
+
+      - name: Create protobuf zip
+        run: ./tools/package_proto_zip.sh
+
       - name: Draft a release
         uses: softprops/action-gh-release@v1
         with:
@@ -47,3 +51,4 @@ jobs:
           generate_release_notes: true
           files: |
             artifacts.tar.gz
+            opensearch-protobufs-*.zip
