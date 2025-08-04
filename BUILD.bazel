@@ -142,6 +142,10 @@ py_wheel(
     distribution = "opensearch-protos",
     python_tag = "py3",
     version = "0.6.0",
+    requires = [
+        "protobuf>=3.20.3",
+        "grpcio>=1.68.1",
+    ],
     deps = [
         ":fixed_schemas",
         ":fixed_services",
