@@ -72,14 +72,14 @@ rules_proto_grpc_toolchains()
 
 """
 Official gRPC repo bazel dependencies.
-We must match the version used in OS core exactly - 1.68.2.
+Updated to gRPC 1.70.0 to address security vulnerabilities in Netty dependencies.
 """
 
 http_archive(
     name = "com_github_grpc_grpc",
-    strip_prefix = "grpc-1.68.2",
-    urls = ["https://github.com/grpc/grpc/archive/v1.68.2.tar.gz"],
-    sha256 = "afbc5d78d6ba6d509cc6e264de0d49dcd7304db435cbf2d630385bacf49e066c",
+    strip_prefix = "grpc-1.70.0",
+    urls = ["https://github.com/grpc/grpc/archive/v1.70.0.tar.gz"],
+    sha256 = "ba0ad0b76d41d7eed5cd9a23bf8dae9bd45b0ee35bb9b3d66caac4a37c94a8a9",
 )
 
 load("@com_github_grpc_grpc//bazel:grpc_deps.bzl", "grpc_deps")
