@@ -432,7 +432,7 @@ message NestedQuery {
   optional float boost = 1;
 
   // [optional] Query name for query tagging.
-  optional string underscore_name = 2 [json_name = "_name"];
+  optional string underscore_name = 2;
 
   // Set to `true` to ignore an unmapped field and not match any documents for this query. Set to `false` to throw an exception if the field is not mapped.
   bool ignore_unmapped = 3;
@@ -495,7 +495,7 @@ message InnerHits {
   repeated SortCombinations sort = 12;
 
   // [optional] Select what fields of the source are returned
-  optional SourceConfig source = 13 [json_name = "_source"];
+  optional SourceConfig underscore_source = 13;
 
   // [optional] A list of stored fields to return as part of a hit. If no fields are specified, no stored fields are included in the response. If this option is specified, the _source parameter defaults to false. You can pass _source: true to return both source fields and stored fields in the search response.
   repeated string stored_fields = 14;
@@ -761,13 +761,13 @@ message FieldWithOrderMap {
 message SortOptions {
   oneof sort_options{
     // [optional] Sort by score.
-    ScoreSort score = 1 [json_name = "_score"];
+    ScoreSort underscore_score = 1;
     // [optional] Sort by index order.
-    ScoreSort doc = 2 [json_name = "_doc"];
+    ScoreSort underscore_doc = 2;
     // [optional] Sort by _geo_distance
-    GeoDistanceSort geo_distance = 3 [json_name = "_geo_distance"];
+    GeoDistanceSort underscore_geo_distance = 3;
     // [optional] Sort based on custom scripts
-    ScriptSort script = 4 [json_name = "_script"];
+    ScriptSort underscore_script = 4;
   }
 }
 
@@ -925,7 +925,7 @@ message ScriptScoreQuery {
   optional float boost = 1;
 
   // [optional] Query name for query tagging.
-  optional string underscore_name = 2 [json_name = "_name"];
+  optional string underscore_name = 2;
 
   // Documents with a score lower than this floating point number are excluded from the search results.
   float min_score = 3;
@@ -944,7 +944,7 @@ message ExistsQuery {
   optional float boost = 2;
 
   // [optional] Query name for query tagging.
-  optional string underscore_name = 3 [json_name = "_name"];
+  optional string underscore_name = 3;
 }
 
 enum Operator {
@@ -959,7 +959,7 @@ message SimpleQueryStringQuery {
   optional float boost = 1;
 
   // [optional] Query name for query tagging.
-  optional string underscore_name = 2 [json_name = "_name"];
+  optional string underscore_name = 2;
 
   // Analyzer used to convert text in the query string into tokens.
   string analyzer = 3;
@@ -1005,7 +1005,7 @@ message WildcardQuery {
   optional float boost = 2;
 
   // [optional] The name of the query for query tagging.
-  optional string underscore_name = 3 [json_name = "_name"];
+  optional string underscore_name = 3;
 
   // [optional] Allows case insensitive matching of the pattern with the indexed field values when set to `true`. Default is `false` which means the case sensitivity of matching depends on the underlying field's mapping.
   optional bool case_insensitive = 4;
@@ -1083,7 +1083,7 @@ message KnnQuery {
   optional float boost = 7;
 
   // [optional] Query name for query tagging.
-  optional string underscore_name = 8 [json_name = "_name"];
+  optional string underscore_name = 8;
 
   // [optional]
   // Method parameters are dependent on the combination of engine and method used to create the index.
@@ -1128,7 +1128,7 @@ message MatchQuery {
   optional float boost = 1;
 
   // [optional] Query name for query tagging.
-  optional string underscore_name = 2 [json_name = "_name"];
+  optional string underscore_name = 2;
 
   // [optional]
   // The analyzer used to tokenize the query string text.
@@ -1244,7 +1244,7 @@ message BoolQuery {
   optional float boost = 1;
 
   // [optional] The name of the query for query tagging.
-  optional string underscore_name = 2 [json_name = "_name"];
+  optional string underscore_name = 2;
 
   // [optional] The clause (query) must appear in matching documents. However, unlike `must`, the score of the query will be ignored.
   repeated QueryContainer filter = 3;
@@ -1280,7 +1280,7 @@ message BoostingQuery {
   optional float boost = 1;
 
   // [optional] Query name for query tagging.
-  optional string underscore_name = 2 [json_name = "_name"];
+  optional string underscore_name = 2;
 
   // Floating point number between 0 and 1.0 used to decrease the relevance scores of documents matching the `negative` query.
   float negative_boost = 3;
@@ -1297,7 +1297,7 @@ message ConstantScoreQuery {
   optional float boost = 1;
 
   // [optional] Query name for query tagging.
-  optional string underscore_name = 2 [json_name = "_name"];
+  optional string underscore_name = 2;
 
   QueryContainer filter = 3;
 
@@ -1309,7 +1309,7 @@ message DisMaxQuery {
   optional float boost = 1;
 
   // [optional] Query name for query tagging.
-  optional string underscore_name = 2 [json_name = "_name"];
+  optional string underscore_name = 2;
 
   // One or more query clauses. Returned documents must match one or more of these queries. If a document matches multiple queries, OpenSearch uses the highest relevance score.
   repeated QueryContainer queries = 3;
@@ -1325,7 +1325,7 @@ message FunctionScoreQuery {
   optional float boost = 1;
 
   // [optional] Query name for query tagging.
-  optional string underscore_name = 2 [json_name = "_name"];
+  optional string underscore_name = 2;
 
   FunctionBoostMode boost_mode = 3;
 
@@ -1417,7 +1417,7 @@ message IntervalsQuery {
   optional float boost = 2;
 
   // [optional] Query name for query tagging.
-  optional string underscore_name = 3 [json_name = "_name"];
+  optional string underscore_name = 3;
 
   oneof intervals_query {
     IntervalsAllOf all_of = 4;
@@ -1514,7 +1514,7 @@ message PrefixQuery {
   optional float boost = 2;
 
   // [optional] Query name for query tagging.
-  optional string underscore_name = 3 [json_name = "_name"];
+  optional string underscore_name = 3;
 
   // [optional]
   // Determines how OpenSearch rewrites the query.
@@ -1571,7 +1571,7 @@ message TermsQueryField {
   optional float boost = 1;
 
   // [optional] Query name for query tagging.
-  optional string underscore_name = 2 [json_name = "_name"];
+  optional string underscore_name = 2;
 
   // [optional] Specifies the types of values used for filtering. Valid values are default and bitmap. If omitted, the value defaults to default.
   optional ValueType value_type = 3;
@@ -1611,7 +1611,7 @@ message TermsSetQuery {
   optional float boost = 2;
 
   // [optional] Query name for query tagging.
-  optional string underscore_name = 3 [json_name = "_name"];
+  optional string underscore_name = 3;
 
   // [optional]
   // The name of the numeric field that specifies the number of matching terms required in order to return a document in the results.
@@ -1635,7 +1635,7 @@ message TermQuery {
   optional float boost = 2;
 
   // [optional] Query name for query tagging.
-  optional string underscore_name = 3 [json_name = "_name"];
+  optional string underscore_name = 3;
 
   // [required]
   // Term you wish to find in the provided <field>. To return a document, the term must exactly match the field value, including whitespace and capitalization.
@@ -1653,7 +1653,7 @@ message QueryStringQuery {
   optional float boost = 1;
 
   // [optional] Query name for query tagging.
-  optional string underscore_name = 2 [json_name = "_name"];
+  optional string underscore_name = 2;
 
   bool allow_leading_wildcard = 3;
 
@@ -1776,7 +1776,7 @@ message RegexpQuery {
   optional float boost = 3;
 
   // [optional] Query name for query tagging
-  optional string underscore_name = 4 [json_name = "_name"];
+  optional string underscore_name = 4;
 
   // [optional] If true, allows case-insensitive matching of the regular expression value with the indexed field values. Default is false (case sensitivity is determined by the field’s mapping).
   optional bool case_insensitive = 5;
@@ -1806,7 +1806,7 @@ message DateRangeQuery {
   optional float boost = 1;
 
   // [optional] Query name for query tagging.
-  optional string underscore_name = 2 [json_name = "_name"];
+  optional string underscore_name = 2;
 
   RangeRelation relation = 3;
   enum RangeRelation {
@@ -1853,7 +1853,7 @@ message NumberRangeQuery {
   optional float boost = 1;
 
   // [optional] Query name for query tagging.
-  optional string underscore_name = 2 [json_name = "_name"];
+  optional string underscore_name = 2;
 
   RangeRelation relation = 3;
   enum RangeRelation {
@@ -1903,7 +1903,7 @@ message FuzzyQuery {
   optional float boost = 2;
 
   // [optional] Query name for query tagging.
-  optional string underscore_name = 3 [json_name = "_name"];
+  optional string underscore_name = 3;
 
   // [optional]
   // The maximum number of terms to which the query can expand. Fuzzy queries "expand to" a number of matching terms that are within the distance specified in fuzziness. Then OpenSearch tries to match those terms. Default is 50.
@@ -1983,7 +1983,7 @@ message IdsQuery {
   optional float boost = 1;
 
   // [optional] Query name for query tagging.
-  optional string underscore_name = 2 [json_name = "_name"];
+  optional string underscore_name = 2;
 
   repeated string values = 3;
 
@@ -2041,7 +2041,7 @@ message MatchAllQuery {
   optional float boost = 1;
 
   // [optional] Query name for query tagging.
-  optional string underscore_name = 2 [json_name = "_name"];
+  optional string underscore_name = 2;
 }
 
 message MatchBoolPrefixQuery {
@@ -2052,7 +2052,7 @@ message MatchBoolPrefixQuery {
   optional float boost = 2;
 
   // [optional] Query name for query tagging.
-  optional string underscore_name = 3 [json_name = "_name"];
+  optional string underscore_name = 3;
 
   // [optional]
   // The analyzer used to tokenize the query string text.
@@ -2128,7 +2128,7 @@ message MatchNoneQuery {
   optional float boost = 1;
 
   // [optional] Query name for query tagging.
-  optional string underscore_name = 2 [json_name = "_name"];
+  optional string underscore_name = 2;
 }
 
 
@@ -2145,7 +2145,7 @@ message MatchPhrasePrefixQuery {
   optional float boost = 1;
 
   // [optional] Query name for query tagging.
-  optional string underscore_name = 2 [json_name = "_name"];
+  optional string underscore_name = 2;
 
   // [optional]
   // The analyzer used to tokenize the query string text.
@@ -2181,7 +2181,7 @@ message MatchPhraseQuery {
   optional float boost = 2;
 
   // [optional] The name of the query for query tagging.
-  optional string underscore_name = 3 [json_name = "_name"];
+  optional string underscore_name = 3;
 
   // [optional]
   // The analyzer used to tokenize the query string text.
@@ -2211,7 +2211,7 @@ message MultiMatchQuery {
   optional float boost = 2;
 
   // [optional] The name of the query for query tagging.
-  optional string underscore_name = 3 [json_name = "_name"];
+  optional string underscore_name = 3;
 
   // [optional] The analyzer used to tokenize the query string text. Default is the index-time analyzer specified for the default_field. If no analyzer is specified for the default_field, the analyzer is the default analyzer for the index. For more information about index.query.default_field, see Dynamic index-level index settings.
   optional string analyzer = 4;
@@ -2636,11 +2636,11 @@ message InlineGet {
 
   bool found = 2;
 
-  int64 seq_no = 3 [json_name = "_seq_no"];
+  int64 underscore_seq_no = 3;
 
-  int64 primary_term = 4 [json_name = "_primary_term"];
+  int64 underscore_primary_term = 4;
 
-  repeated string routing = 5 [json_name = "_routing"];
+  repeated string underscore_routing = 5;
 
   oneof inline_get_source {
 
@@ -2648,7 +2648,7 @@ message InlineGet {
     .google.protobuf.Struct struct_source = 6;
 
     // Use bytes for better latency/performance, as it reduces payload size over the wire
-    bytes source = 7 [json_name = "_source"];
+    bytes underscore_source = 7;
 
   }
 }

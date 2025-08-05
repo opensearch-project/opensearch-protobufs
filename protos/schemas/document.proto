@@ -391,22 +391,22 @@ enum Result {
 
 message IndexDocumentResponseBody {
   // [optional] The document type.
-  optional string type = 1 [json_name = "_type"];
+  optional string underscore_type = 1;
   // [optional] The document's ID.
-  optional string id = 2 [json_name = "_id"];
+  optional string underscore_id = 2;
   // [optional] The name of the index.
-  optional string index = 3 [json_name = "_index"];
+  optional string underscore_index = 3;
   // [optional] The primary term assigned when the document was indexed.
-  optional int64 primary_term = 4 [json_name = "_primary_term"];
+  optional int64 underscore_primary_term = 4;
 
   // [optional] The result of the index operation.
   optional Result result = 5;
   // [optional] The sequence number assigned when the document was indexed.
-  optional int64 seq_no = 6 [json_name = "_seq_no"];
+  optional int64 underscore_seq_no = 6;
   // [optional] Detailed information about the cluster's shards.
-  ShardStatistics shards = 7 [json_name = "_shards"];
+  ShardStatistics underscore_shards = 7;
   // [optional] The document's version.
-  optional int64 version = 8 [json_name = "_version"];
+  optional int64 underscore_version = 8;
   // [optional] if `true`, it requires immediate visibility of the document
   optional bool forced_refresh = 9;
 }
@@ -440,21 +440,21 @@ message DeleteDocumentRequest {
 
 message DeleteDocumentResponseBody {
   // [optional] The document type.
-  optional string type = 1 [json_name = "_type"];
+  optional string underscore_type = 1;
   // [optional] The document's ID.
-  optional string id = 2 [json_name = "_id"];
+  optional string underscore_id = 2;
   // [optional] The name of the index.
-  optional string index = 3 [json_name = "_index"];
+  optional string underscore_index = 3;
   // [optional] The primary term assigned when the document was indexed.
-  optional int64 primary_term = 4 [json_name = "_primary_term"];
+  optional int64 underscore_primary_term = 4;
   // [optional] The result of the index operation.
   optional Result result = 5;
   // [optional] The sequence number assigned when the document was indexed.
-  optional int64 seq_no = 6 [json_name = "_seq_no"];
+  optional int64 underscore_seq_no = 6;
   // [optional] Detailed information about the cluster's shards.
-  ShardStatistics shards = 7 [json_name = "_shards"];
+  ShardStatistics underscore_shards = 7;
   // [optional] The document's version.
-  optional int64 version = 8 [json_name = "_version"];
+  optional int64 underscore_version = 8;
   // [optional] if `true`, it requires immediate visibility of the document
   optional bool forced_refresh = 9;
 
@@ -482,11 +482,11 @@ message UpdateDocumentRequest {
   // [optional] Name of the data stream or index to target. If the target doesn't exist and matches the name or wildcard (`*`) pattern of an index template with a `data_stream` definition, this request creates the data stream. If the target doesn't exist and doesn't match a data stream template, this request creates the index.
   optional string index = 2;
   // [optional] Set to false to disable source retrieval. You can also specify a comma-separated list of the fields you want to retrieve.
-  optional SourceConfigParam source = 3 [json_name = "_source"];
+  optional SourceConfigParam underscore_source = 3;
   // [optional] A comma-separated list of source fields to exclude from the response.
-  repeated string source_excludes = 4 [json_name = "_source_excludes"];
+  repeated string underscore_source_excludes = 4;
   // [optional] A comma-separated list of source fields to include in the response.
-  repeated string source_includes = 5 [json_name = "_source_includes"];
+  repeated string underscore_source_includes = 5;
   // [optional] Only perform the operation if the document has this primary term.
   optional int64 if_primary_term = 6;
   // [optional] Only perform the operation if the document has this sequence number.
@@ -538,7 +538,7 @@ message UpdateDocumentRequestBody {
   //[optional] Set to true to execute the script whether or not the document exists.
   optional bool scripted_upsert = 5;
   // [optional] Defines how to fetch a source. Fetching can be disabled entirely, or the source can be filtered.
-  optional SourceConfig source = 6 [json_name = "_source"];
+  optional SourceConfig underscore_source = 6;
 
   // [optional] If the document does not already exist, the contents of 'upsert' are inserted as a new document. If the document exists, the 'script' is executed.
   // Provide document either as ObjectMap or bytes
@@ -567,21 +567,21 @@ message UpdateDocumentErrorResponse {
 
 message UpdateDocumentResponseBody {
   // [optional] The document type.
-  optional string type = 1 [json_name = "_type"];
+  optional string underscore_type = 1;
   // [optional] The document's ID.
-  optional string id = 2 [json_name = "_id"];
+  optional string underscore_id = 2;
   // [optional] The name of the index.
-  optional string index = 3 [json_name = "_index"];
+  optional string underscore_index = 3;
   // [optional] The primary term assigned when the document was indexed.
-  optional int64 primary_term = 4 [json_name = "_primary_term"];
+  optional int64 underscore_primary_term = 4;
   // [optional] The result of the index operation.
   optional Result result = 5;
   // [optional] The sequence number assigned when the document was indexed.
-  optional int64 seq_no = 6 [json_name = "_seq_no"];
+  optional int64 underscore_seq_no = 6;
   // [optional] Detailed information about the cluster's shards.
-  optional ShardStatistics shards = 7 [json_name = "_shards"];
+  ShardStatistics underscore_shards = 7;
   // [optional] The document's version.
-  optional int64 version = 8 [json_name = "_version"];
+  optional int64 underscore_version = 8;
   // [optional] if `true`, it requires immediate visibility of the document
   optional bool forced_refresh = 9;
   // [optional]
@@ -595,11 +595,11 @@ message GetDocumentRequest {
   // [required] Name of the data stream or index to target. If the target doesn't exist and matches the name or wildcard (`*`) pattern of an index template with a `data_stream` definition, this request creates the data stream. If the target doesn't exist and doesn't match a data stream template, this request creates the index.
   string index = 2;
   // [optional] Set to false to disable source retrieval. You can also specify a comma-separated list of the fields you want to retrieve. Default is true.
-  optional SourceConfigParam source = 3 [json_name = "_source"];
+  optional SourceConfigParam underscore_source = 3;
   // [optional] A comma-separated list of source fields to exclude from the response.
-  repeated string source_excludes = 4 [json_name = "_source_excludes"];
+  repeated string underscore_source_excludes = 4;
   // [optional] A comma-separated list of source fields to include in the response.
-  repeated string source_includes = 5 [json_name = "_source_includes"];
+  repeated string underscore_source_includes = 5;
   // [optional] Specifies a preference of which shard to retrieve results from. Available options are _local, which tells the operation to retrieve results from a locally allocated shard replica, and a custom string value assigned to a specific shard replica. By default, OpenSearch executes get document operations on random shards.
   optional string preference = 6;
   // [optional] Specifies whether the operation should run in realtime. If false, the operation waits for the index to refresh to analyze the source to retrieve data, which makes the operation near-realtime. Default is true.
@@ -624,21 +624,21 @@ message GetDocumentRequest {
 
 message GetDocumentResponseBody {
   // [optional] The document type.
-  optional string type = 1 [json_name = "_type"];
+  optional string underscore_type = 1;
   // [optional] The name of the index.
-  optional string index = 2 [json_name = "_index"];
+  optional string underscore_index = 2;
   // [optional] Contains the document's data that's stored in the index. Only returned if both stored_fields and found are true.
   ObjectMap fields = 3;
   // [optional] Whether the document exists.
   optional bool found = 4;
   // [optional] The document's ID.
-  optional string id = 5 [json_name = "_id"];
+  optional string underscore_id = 5;
   // [optional] The primary term assigned when the document is indexed.
-  optional int64 primary_term = 6 [json_name = "_primary_term"];
+  optional int64 underscore_primary_term = 6;
   // [optional] The shard that the document is routed to. If the document is not routed to a particular shard, this field is omitted.
-  optional string routing = 7 [json_name = "_routing"];
+  optional string underscore_routing = 7;
   // [optional] The sequence number assigned when the document was indexed.
-  optional int64 seq_no = 8 [json_name = "_seq_no"];
+  optional int64 underscore_seq_no = 8;
   // [optional] Contains the document's data if found is true. If _source is set to false or stored_fields is set to true in the URL parameters, this field is omitted.
   // Source to be returned as either an Struct or bytes
   oneof get_document_response_body_source {
@@ -646,11 +646,11 @@ message GetDocumentResponseBody {
     // struct_source field to be returned upon explicit request by user
     .google.protobuf.Struct struct_source = 9;
     // Use bytes for better latency/performance, as it reduces payload size over the wire
-    bytes source = 11 [json_name = "_source"];
+    bytes underscore_source = 11;
 
   }
   // [optional] The document's version number. Updated whenever the document changes.
-  optional int64 version = 10 [json_name = "_version"];
+  optional int64 underscore_version = 10;
 }
 
 // The response from get document request with document ID specified request
