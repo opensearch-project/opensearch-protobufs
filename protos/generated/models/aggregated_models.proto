@@ -485,6 +485,8 @@ message Analyzer {
     CjkAnalyzer cjk_analyzer = 16;
 
     PhoneAnalyzer phone_analyzer = 17;
+
+    PhoneSearchAnalyzer phone_search_analyzer = 18;
   }
 }
 message ArrayPercentilesItem {
@@ -766,6 +768,15 @@ message BulkRequestInner {
 
   optional ObjectMap object_map = 3;
 }
+message BulkResponseBase {
+  bool errors = 1;
+
+  repeated ResponseItemMap items = 2;
+
+  int64 took = 3;
+
+  optional int64 ingest_took = 4;
+}
 message CalendarInterval {
   oneof calendar_interval {
     Second second = 1;
@@ -857,42 +868,12 @@ enum CjkAnalyzerType {
   CJK_ANALYZER_TYPE_UNSPECIFIED = 0;
   CJK_ANALYZER_TYPE_CJK = 1;
 }
-message ClusterDetails {
-  ClusterSearchStatus status = 1;
-
-  string indices = 2;
-
-  // The time unit for milliseconds.
-  optional int64 took = 3;
-
-  bool timed_out = 4;
-
-  repeated ShardFailure failures = 5;
-
-  optional ShardStatistics underscore_shards = 6;
-}
-enum ClusterSearchStatus {
-  CLUSTER_SEARCH_STATUS_UNSPECIFIED = 0;
-  CLUSTER_SEARCH_STATUS_FAILED = 1;
-  CLUSTER_SEARCH_STATUS_PARTIAL = 2;
-  CLUSTER_SEARCH_STATUS_RUNNING = 3;
-  CLUSTER_SEARCH_STATUS_SKIPPED = 4;
-  CLUSTER_SEARCH_STATUS_SUCCESSFUL = 5;
-}
 message ClusterStatistics {
   int32 skipped = 1;
 
   int32 successful = 2;
 
   int32 total = 3;
-
-  int32 running = 4;
-
-  int32 partial = 5;
-
-  int32 failed = 6;
-
-  map<string, ClusterDetails> details = 7;
 }
 message Collector {
   string name = 1;
@@ -955,6 +936,68 @@ message CommonTermsQuery {
 
   optional string field = 9;
 }
+message Completion {
+  int32 length = 1;
+
+  int32 offset = 2;
+
+  string text = 3;
+
+  repeated CompletionAllOfOptionsInner options = 4;
+}
+message Completion1 {
+  int32 length = 1;
+
+  int32 offset = 2;
+
+  string text = 3;
+
+  repeated Completion1AllOfOptionsInner options = 4;
+}
+message Completion1AllOfOptionsInner {
+  optional bool collate_match = 1;
+
+  map<string, ContextArray> contexts = 2;
+
+  optional ObjectMap fields = 3;
+
+  string text = 4;
+
+  optional float score = 5;
+
+  optional string underscore_id = 6;
+
+  optional string underscore_index = 7;
+
+  // The routing value for the document.
+  optional string underscore_routing = 8;
+
+  optional float underscore_score = 9;
+
+  optional ObjectMap underscore_source = 10;
+}
+message CompletionAllOfOptionsInner {
+  optional bool collate_match = 1;
+
+  map<string, ContextArray> contexts = 2;
+
+  optional ObjectMap fields = 3;
+
+  string text = 4;
+
+  optional float score = 5;
+
+  optional string underscore_id = 6;
+
+  optional string underscore_index = 7;
+
+  // The routing value for the document.
+  optional string underscore_routing = 8;
+
+  optional float underscore_score = 9;
+
+  optional ObjectMap underscore_source = 10;
+}
 message CompletionContext {
   optional double boost = 1;
 
@@ -976,7 +1019,29 @@ message CompletionSuggest {
 
   string text = 3;
 
-  repeated CompletionSuggestOption options = 4;
+  repeated CompletionSuggestAllOfOptions options = 4;
+}
+message CompletionSuggestAllOfOptions {
+  optional bool collate_match = 1;
+
+  map<string, ContextArray> contexts = 2;
+
+  optional ObjectMap fields = 3;
+
+  string text = 4;
+
+  optional float score = 5;
+
+  optional string underscore_id = 6;
+
+  optional string underscore_index = 7;
+
+  // The routing value for the document.
+  optional string underscore_routing = 8;
+
+  optional float underscore_score = 9;
+
+  optional ObjectMap underscore_source = 10;
 }
 message CompletionSuggestOption {
   optional bool collate_match = 1;
@@ -1563,15 +1628,6 @@ enum DutchAnalyzerType {
   DUTCH_ANALYZER_TYPE_UNSPECIFIED = 0;
   DUTCH_ANALYZER_TYPE_DUTCH = 1;
 }
-message Error {
-  repeated RootCause root_cause = 1;
-
-  // The error type classification.
-  string type = 2;
-
-  // The human-readable error message.
-  string reason = 3;
-}
 message ErrorCause {
   // The type of error.
   string type = 1;
@@ -1588,11 +1644,11 @@ message ErrorCause {
 
   repeated ErrorCause suppressed = 6;
 }
-message ErrorResponse {
-  optional Error error = 1;
+message ErrorResponseBase {
+  ErrorCause error = 1;
 
-  // The HTTP status code for the error.
-  optional float status = 2;
+  // The HTTP status code.
+  float status = 2;
 }
 message EwmaModelSettings {
   optional float alpha = 1;
@@ -1641,7 +1697,7 @@ message ExpandWildcard {
     // Match closed, non-hidden indexes.
     bool expand_wildcard_closed = 2;
 
-    // Match hidden indexes. Must be combined with open, closed, or both.
+    // Match hidden indexes. Must be combined with `open`, `closed`, or both.
     bool expand_wildcard_hidden = 3;
 
     // Wildcard expressions are not accepted.
@@ -2796,6 +2852,7 @@ message HighlightField {
 
   optional HighlighterTagsSchema tags_schema = 22;
 
+  // A comma-separated list or a wildcard expression specifying the fields to include in the statistics. Used as the default list unless a specific field list is provided in the `completion_fields` or `fielddata_fields` parameters.
   repeated string matched_fields = 23;
 
   optional Analyzer analyzer = 24;
@@ -2971,6 +3028,16 @@ message HitsMetadataHitsInner {
   optional int64 underscore_primary_term = 19;
 
   optional int64 underscore_version = 20;
+}
+message HitsMetadataJsonValue {
+  optional HitsMetadataTotal total = 1;
+
+  repeated HitsMetadataJsonValueAllOfHits hits = 2;
+
+  optional float max_score = 3;
+}
+message HitsMetadataJsonValueAllOfHits {
+  optional ObjectMap source = 1 [json_name = "_source"];
 }
 message HitsMetadataTotal {
   oneof hits_metadata_total {
@@ -3148,15 +3215,6 @@ message InlineGetDictUserDefined {
   // The source of the document.
   optional ObjectMap underscore_source = 6;
 }
-message InlineObject {
-  bool errors = 1;
-
-  repeated ResponseItemMap items = 2;
-
-  int64 took = 3;
-
-  optional int64 ingest_took = 4;
-}
 message InlineScript {
   // Specifies any named parameters that are passed into the script as variables.  Use parameters instead of hard-coded values to decrease compilation time.
   optional ObjectMap params = 1;
@@ -3192,11 +3250,13 @@ message InnerHits {
 
   optional bool seq_no_primary_term = 10;
 
+  // A comma-separated list or a wildcard expression specifying the fields to include in the statistics. Used as the default list unless a specific field list is provided in the `completion_fields` or `fielddata_fields` parameters.
   repeated string fields = 11;
 
   // The list of sort options.
   repeated SortOptions sort = 12;
 
+  // A comma-separated list or a wildcard expression specifying the fields to include in the statistics. Used as the default list unless a specific field list is provided in the `completion_fields` or `fielddata_fields` parameters.
   repeated string stored_fields = 13;
 
   optional bool track_scores = 14;
@@ -3740,6 +3800,7 @@ message MatrixAggregation {
 
   optional string name = 2;
 
+  // A comma-separated list or a wildcard expression specifying the fields to include in the statistics. Used as the default list unless a specific field list is provided in the `completion_fields` or `fielddata_fields` parameters.
   repeated string fields = 3;
 
   // The value to apply to documents that do not have a value. By default, documents without a value are ignored.
@@ -3759,6 +3820,7 @@ message MatrixStatsAggregation {
 
   optional string name = 2;
 
+  // A comma-separated list or a wildcard expression specifying the fields to include in the statistics. Used as the default list unless a specific field list is provided in the `completion_fields` or `fielddata_fields` parameters.
   repeated string fields = 3;
 
   // The value to apply to documents that do not have a value. By default, documents without a value are ignored.
@@ -4259,6 +4321,7 @@ message MultiMatchQuery {
 
   optional float cutoff_frequency = 5;
 
+  // A comma-separated list or a wildcard expression specifying the fields to include in the statistics. Used as the default list unless a specific field list is provided in the `completion_fields` or `fielddata_fields` parameters.
   repeated string fields = 6;
 
   optional Fuzziness fuzziness = 7;
@@ -4745,15 +4808,28 @@ message PhaseTook {
   int32 can_match = 6;
 }
 message PhoneAnalyzer {
-  optional PhoneAnalyzerType type = 1;
-
   // Optional ISO 3166 country code, defaults to \"ZZ\" (unknown region).
-  optional string phone_region = 2 [json_name = "phone-region"];
+  optional string phone_region = 1 [json_name = "phone-region"];
+
+  PhoneAnalyzerAllOfType type = 2;
 }
-enum PhoneAnalyzerType {
-  PHONE_ANALYZER_TYPE_UNSPECIFIED = 0;
-  PHONE_ANALYZER_TYPE_PHONE = 1;
-  PHONE_ANALYZER_TYPE_PHONE_SEARCH = 2;
+enum PhoneAnalyzerAllOfType {
+  PHONE_ANALYZER_ALL_OF_TYPE_UNSPECIFIED = 0;
+  PHONE_ANALYZER_ALL_OF_TYPE_PHONE = 1;
+}
+message PhoneAnalyzerBase {
+  // Optional ISO 3166 country code, defaults to \"ZZ\" (unknown region).
+  optional string phone_region = 1 [json_name = "phone-region"];
+}
+message PhoneSearchAnalyzer {
+  // Optional ISO 3166 country code, defaults to \"ZZ\" (unknown region).
+  optional string phone_region = 1 [json_name = "phone-region"];
+
+  PhoneSearchAnalyzerAllOfType type = 2;
+}
+enum PhoneSearchAnalyzerAllOfType {
+  PHONE_SEARCH_ANALYZER_ALL_OF_TYPE_UNSPECIFIED = 0;
+  PHONE_SEARCH_ANALYZER_ALL_OF_TYPE_PHONE_SEARCH = 1;
 }
 message PhraseSuggest {
   int32 length = 1;
@@ -4884,9 +4960,9 @@ message ProcessorExecutionDetail {
 
   optional int64 duration_millis = 2;
 
-  repeated ObjectMap input_data = 3;
+  optional ObjectMap input_data = 3;
 
-  repeated ObjectMap output_data = 4;
+  optional ObjectMap output_data = 4;
 
   optional string status = 5;
 
@@ -5056,23 +5132,26 @@ message QueryContainer {
 
   optional SpanWithinQuery span_within = 50;
 
+  // Return documents using a template query contains placeholders that are resolved by search request processors during query execution.
+  optional ObjectMap template = 51;
+
   // Returns documents that contain an exact term in a provided field. To return a document, the query term must exactly match the queried field's value, including white space and capitalization.
-  optional TermQuery term = 51;
+  optional TermQuery term = 52;
 
   // Returns documents that contain one or more exact terms in a provided field.
-  optional TermsQuery terms = 52;
+  optional TermsQuery terms = 53;
 
   // Returns documents that contain a minimum number of exact terms in a provided field. To return a document, a required number of terms must exactly match the field values, including white space and capitalization.
-  optional TermsSetQuery terms_set = 53;
+  optional TermsSetQuery terms_set = 54;
 
-  optional TypeQuery type = 54;
+  optional TypeQuery type = 55;
 
   // Returns documents that contain terms matching a wildcard pattern.
-  optional WildcardQuery wildcard = 55;
+  optional WildcardQuery wildcard = 56;
 
-  optional WrapperQuery wrapper = 56;
+  optional WrapperQuery wrapper = 57;
 
-  optional XyShapeQuery xy_shape = 57;
+  optional XyShapeQuery xy_shape = 58;
 }
 message QueryProfile {
   QueryBreakdown breakdown = 1;
@@ -5296,10 +5375,6 @@ enum RangeRelation {
   RANGE_RELATION_INTERSECTS = 2;
   RANGE_RELATION_WITHIN = 3;
 }
-message RankContainer {
-  // The reciprocal rank fusion configuration.
-  optional RrfRank rrf = 1;
-}
 message RankFeatureFunctionLinear {}
 message RankFeatureFunctionLogarithm {
   // Configurable scaling factor.
@@ -5439,38 +5514,6 @@ message RescoreQuery {
 
   optional ScoreMode score_mode = 4;
 }
-message ResponseBody {
-  int64 took = 1;
-
-  bool timed_out = 2;
-
-  optional PhaseTook phase_took = 3;
-
-  HitsMetadata hits = 4;
-
-  repeated ProcessorExecutionDetail processor_results = 5;
-
-  map<string, Aggregate> aggregations = 6;
-
-  optional ObjectMap fields = 7;
-
-  optional int32 num_reduce_phases = 8;
-
-  optional Profile profile = 9;
-
-  // The unique identifier for a resource.
-  optional string pit_id = 10;
-
-  map<string, SuggestArray> suggest = 11;
-
-  optional bool terminated_early = 12;
-
-  ShardStatistics underscore_shards = 13;
-
-  optional ClusterStatistics underscore_clusters = 14;
-
-  optional string underscore_scroll_id = 15;
-}
 message ResponseItem {
   // HTTP status code returned for the operation.
   int32 status = 1;
@@ -5522,20 +5565,6 @@ message ReverseNestedAggregation {
 
   // The path to a field or an array of paths. Some APIs support wildcards in the path, which allows you to select multiple fields.
   optional string path = 3;
-}
-message RootCause {
-  // The error type classification.
-  string type = 1;
-
-  // The human-readable error message.
-  string reason = 2;
-}
-message RrfRank {
-  // To what degree documents found in individual result sets per query influence the final ranked result set.
-  optional float rank_constant = 1;
-
-  // The size of the individual result sets per query.
-  optional float window_size = 2;
 }
 message SamplerAggregate {
   // The custom metadata attached to a resource.
@@ -5710,62 +5739,188 @@ message SearchRequest {
   // Array of wildcard (`*`) patterns. The request returns doc values for field names matching these patterns in the `hits.fields` property of the response.
   repeated FieldAndFormat docvalue_fields = 10;
 
-  optional RankContainer rank = 11;
-
   // Minimum `_score` for matching documents. Documents with a lower `_score` are not included in the search results.
-  optional float min_score = 12;
+  optional float min_score = 11;
 
-  optional QueryContainer post_filter = 13;
+  optional QueryContainer post_filter = 12;
 
   // Set to `true` to return detailed timing information about the execution of individual components in a search request. NOTE: This is a debugging tool and adds significant overhead to search execution.
-  optional bool profile = 14;
+  optional bool profile = 13;
 
-  optional QueryContainer query = 15;
+  optional QueryContainer query = 14;
 
   // Can be used to improve precision by reordering just the top (for example 100 - 500) documents returned by the `query` and `post_filter` phases.
-  repeated Rescore rescore = 16;
+  repeated Rescore rescore = 15;
 
   // Retrieve a script evaluation (based on different fields) for each hit.
-  map<string, ScriptField> script_fields = 17;
+  map<string, ScriptField> script_fields = 16;
 
-  repeated FieldValue search_after = 18;
+  repeated FieldValue search_after = 17;
 
   // The number of hits to return. By default, you cannot page through more than 10,000 hits using the `from` and `size` parameters. To page through more hits, use the `search_after` parameter.
-  optional int32 size = 19;
+  optional int32 size = 18;
 
-  optional SlicedScroll slice = 20;
+  optional SlicedScroll slice = 19;
 
   // The list of sort options.
-  repeated SortOptions sort = 21;
+  repeated SortOptions sort = 20;
 
   // Array of wildcard (`*`) patterns. The request returns values for field names matching these patterns in the `hits.fields` property of the response.
-  repeated FieldAndFormat fields = 22;
+  repeated FieldAndFormat fields = 21;
 
-  optional Suggester suggest = 23;
+  optional Suggester suggest = 22;
 
   // Maximum number of documents to collect for each shard. If a query reaches this limit, OpenSearch terminates the query early. OpenSearch collects documents before sorting. Use with caution. OpenSearch applies this parameter to each shard handling the request. When possible, let OpenSearch perform early termination automatically. Avoid specifying this parameter for requests that target data streams with backing indexes across multiple data tiers. If set to `0` (default), the query does not terminate early.
-  optional int32 terminate_after = 24;
+  optional int32 terminate_after = 23;
 
   // Specifies the period of time to wait for a response from each shard. If no response is received before the timeout expires, the request fails and returns an error. Defaults to no timeout.
-  optional string timeout = 25;
+  optional string timeout = 24;
 
   // If `true`, calculate and return document scores, even if the scores are not used for sorting.
-  optional bool track_scores = 26;
+  optional bool track_scores = 25;
 
   // If `true`, returns document version as part of a hit.
-  optional bool version = 27;
+  optional bool version = 26;
 
   // If `true`, returns sequence number and primary term of the last modification of each hit.
-  optional bool seq_no_primary_term = 28;
+  optional bool seq_no_primary_term = 27;
 
-  repeated string stored_fields = 29;
+  // A comma-separated list or a wildcard expression specifying the fields to include in the statistics. Used as the default list unless a specific field list is provided in the `completion_fields` or `fielddata_fields` parameters.
+  repeated string stored_fields = 28;
 
-  optional PointInTimeReference pit = 30;
+  optional PointInTimeReference pit = 29;
 
   // Stats groups to associate with the search. Each group maintains a statistics aggregation for its associated searches. You can retrieve these stats using the indexes stats API.
-  repeated string stats = 31;
+  repeated string stats = 30;
 
-  optional SourceConfig underscore_source = 32;
+  optional SourceConfig underscore_source = 31;
+}
+message SearchResponse {
+  int64 took = 1;
+
+  bool timed_out = 2;
+
+  optional PhaseTook phase_took = 3;
+
+  SearchResultHits hits = 4;
+
+  repeated ProcessorExecutionDetail processor_results = 5;
+
+  map<string, Aggregate> aggregations = 6;
+
+  optional ObjectMap fields = 7;
+
+  optional int32 num_reduce_phases = 8;
+
+  optional Profile profile = 9;
+
+  // The unique identifier for a resource.
+  optional string pit_id = 10;
+
+  map<string, SearchResultSuggestValueInnerArray> suggest = 11;
+
+  optional bool terminated_early = 12;
+
+  ShardStatistics underscore_shards = 13;
+
+  optional ClusterStatistics underscore_clusters = 14;
+
+  optional string underscore_scroll_id = 15;
+}
+message SearchResult {
+  int64 took = 1;
+
+  bool timed_out = 2;
+
+  optional PhaseTook phase_took = 3;
+
+  SearchResultHits hits = 4;
+
+  repeated ProcessorExecutionDetail processor_results = 5;
+
+  map<string, Aggregate> aggregations = 6;
+
+  optional ObjectMap fields = 7;
+
+  optional int32 num_reduce_phases = 8;
+
+  optional Profile profile = 9;
+
+  // The unique identifier for a resource.
+  optional string pit_id = 10;
+
+  map<string, SearchResultSuggestValueInnerArray> suggest = 11;
+
+  optional bool terminated_early = 12;
+
+  ShardStatistics underscore_shards = 13;
+
+  optional ClusterStatistics underscore_clusters = 14;
+
+  optional string underscore_scroll_id = 15;
+}
+message SearchResultHits {
+  optional HitsMetadataTotal total = 1;
+
+  repeated SearchResultHitsAllOfHitsInner hits = 2;
+
+  optional float max_score = 3;
+}
+message SearchResultHitsAllOfHitsInner {
+  optional ObjectMap fields = 1;
+
+  map<string, StringArray> highlight = 2;
+
+  map<string, InnerHitsResult> inner_hits = 3;
+
+  repeated string matched_queries = 4;
+
+  map<string, StringArray> ignored_field_values = 5;
+
+  repeated FieldValue sort = 6;
+
+  // The type of document or resource.
+  optional string underscore_type = 7;
+
+  optional string underscore_index = 8;
+
+  // The unique identifier for a resource.
+  optional string underscore_id = 9;
+
+  optional double underscore_score = 10;
+
+  optional Explanation underscore_explanation = 11;
+
+  optional NestedIdentity underscore_nested = 12;
+
+  repeated string underscore_ignored = 13;
+
+  optional string underscore_shard = 14;
+
+  optional string underscore_node = 15;
+
+  optional string underscore_routing = 16;
+
+  optional ObjectMap underscore_source = 17;
+
+  // The sequence number of the document.
+  optional int64 underscore_seq_no = 18;
+
+  optional int64 underscore_primary_term = 19;
+
+  optional int64 underscore_version = 20;
+}
+message SearchResultSuggestValueInner {
+  int32 length = 1;
+
+  int32 offset = 2;
+
+  string text = 3;
+
+  repeated TermSuggestOption options = 4;
+}
+message SearchResultSuggestValueInnerArray {
+  repeated SearchResultSuggestValueInner search_result_suggest_value_inner_array = 1;
 }
 message SearchType {
   oneof search_type {
@@ -6032,6 +6187,7 @@ message SignificantTextAggregation {
   // The number of buckets returned out of the overall terms list.
   optional int32 size = 18;
 
+  // A comma-separated list or a wildcard expression specifying the fields to include in the statistics. Used as the default list unless a specific field list is provided in the `completion_fields` or `fielddata_fields` parameters.
   repeated string source_fields = 19;
 }
 message SimpleAnalyzer {
@@ -6291,8 +6447,10 @@ message SourceConfigParam {
   }
 }
 message SourceFilter {
+  // A comma-separated list or a wildcard expression specifying the fields to include in the statistics. Used as the default list unless a specific field list is provided in the `completion_fields` or `fielddata_fields` parameters.
   repeated string excludes = 1;
 
+  // A comma-separated list or a wildcard expression specifying the fields to include in the statistics. Used as the default list unless a specific field list is provided in the `completion_fields` or `fielddata_fields` parameters.
   repeated string includes = 2;
 }
 message SpanContainingQuery {
@@ -6613,20 +6771,24 @@ message StringTermsBucket {
 
   string key = 3;
 }
+message StringifiedInteger {
+  oneof stringified_integer {
+    int32 int32 = 1;
+
+    string string = 2;
+  }
+}
 message StupidBackoffSmoothingModel {
   double discount = 1;
 }
 message Suggest {
   oneof suggest {
-    CompletionSuggest completion = 1;
+    Completion1 completion1 = 1;
 
     PhraseSuggest phrase = 2;
 
     TermSuggest term = 3;
   }
-}
-message SuggestArray {
-  repeated Suggest suggest_array = 1;
 }
 message SuggestBase {
   int32 length = 1;
@@ -6994,7 +7156,8 @@ message TermsQuery {
 
   optional ObjectMap underscore_name = 2;
 
-  optional ValueTypeValueType value_type = 3;
+  // Specifies the types of values used for filtering. Valid values are `default` and `bitmap`. Default is `default`.
+  optional TermsQueryValueType value_type = 3;
 
   map<string, TermsQueryField> terms = 4;
 }
@@ -7004,6 +7167,11 @@ message TermsQueryField {
 
     TermsLookup lookup = 2;
   }
+}
+enum TermsQueryValueType {
+  TERMS_QUERY_VALUE_TYPE_UNSPECIFIED = 0;
+  TERMS_QUERY_VALUE_TYPE_BITMAP = 1;
+  TERMS_QUERY_VALUE_TYPE_DEFAULT = 2;
 }
 message TermsSetQuery {
   // Floating point number used to decrease or increase the relevance scores of the query. Boost values are relative to the default value of 1.0. A boost value between 0 and 1.0 decreases the relevance score. A value greater than 1.0 increases the relevance score.
@@ -7041,7 +7209,7 @@ message TopHitsAggregate {
   // The custom metadata attached to a resource.
   optional ObjectMap meta = 1;
 
-  HitsMetadata hits = 2;
+  HitsMetadataJsonValue hits = 2;
 }
 message TopHitsAggregation {
   // The path to a field or an array of paths. Some APIs support wildcards in the path, which allows you to select multiple fields.
@@ -7051,6 +7219,7 @@ message TopHitsAggregation {
 
   optional Script script = 3;
 
+  // A comma-separated list or a wildcard expression specifying the fields to include in the statistics. Used as the default list unless a specific field list is provided in the `completion_fields` or `fielddata_fields` parameters.
   repeated string docvalue_fields = 4;
 
   // If `true`, returns detailed information about score computation as part of a hit.
@@ -7070,6 +7239,7 @@ message TopHitsAggregation {
   // The list of sort options.
   repeated SortOptions sort = 10;
 
+  // A comma-separated list or a wildcard expression specifying the fields to include in the statistics. Used as the default list unless a specific field list is provided in the `completion_fields` or `fielddata_fields` parameters.
   repeated string stored_fields = 11;
 
   // If `true`, calculates and returns document scores, even if the scores are not used for sorting.
@@ -7209,13 +7379,18 @@ message ValueCountAggregation {
 
   optional string format = 4;
 }
-message ValueType {
-  optional ValueTypeValueType value_type = 1;
-}
-enum ValueTypeValueType {
-  VALUE_TYPE_VALUE_TYPE_UNSPECIFIED = 0;
-  VALUE_TYPE_VALUE_TYPE_BITMAP = 1;
-  VALUE_TYPE_VALUE_TYPE_DEFAULT = 2;
+enum ValueType {
+  VALUE_TYPE_UNSPECIFIED = 0;
+  VALUE_TYPE_BOOLEAN = 1;
+  VALUE_TYPE_DATE = 2;
+  VALUE_TYPE_DATE_NANOS = 3;
+  VALUE_TYPE_DOUBLE = 4;
+  VALUE_TYPE_GEO_POINT = 5;
+  VALUE_TYPE_IP = 6;
+  VALUE_TYPE_LONG = 7;
+  VALUE_TYPE_NUMBER = 8;
+  VALUE_TYPE_NUMERIC = 9;
+  VALUE_TYPE_STRING = 10;
 }
 message VariableWidthHistogramAggregate {
   // The custom metadata attached to a resource.
@@ -7253,10 +7428,10 @@ message VariableWidthHistogramBucket {
 }
 message VersionType {
   oneof version_type {
-    // The version number must be higher than the current version.
+    // The version number must be greater than the current version.
     bool version_type_external = 1;
 
-    // The version number must be higher than or equal to the current version.
+    // The version number must be greater than or equal to the current version.
     bool version_type_external_gte = 2;
 
     // The version number is forced to be the given value.
@@ -7266,22 +7441,13 @@ message VersionType {
     bool version_type_internal = 4;
   }
 }
-message WaitForActiveShardOptions {
-  oneof wait_for_active_shard_options {
-    // Wait for all shards to be active.
-    bool wait_for_active_shard_options_all = 1;
-
-    // A numeric value greater than or equal to 0
-    string string = 2;
-  }
-}
 message WaitForActiveShards {
   oneof wait_for_active_shards {
     // The number of active shards to wait for.
-    int32 count = 1;
+    StringifiedInteger count = 1;
 
     // Determines how many shards to wait for.
-    WaitForActiveShardOptions option = 2;
+    optionalbool option = 2;
   }
 }
 enum Week {

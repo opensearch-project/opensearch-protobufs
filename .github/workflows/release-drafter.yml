@@ -2,8 +2,9 @@ name: Release drafter
 
 # Push events to every tag not containing "/"
 #
-# Publish the commons JAR to Maven Local, and create 'artifacts.tar.gz'
-# using build dir and adding the contents of repository
+# Publish the Java JAR to Maven Local, and create release artifacts:
+# - opensearch-protobufs-java.tar.gz (Java/Maven artifacts)
+# - opensearch-protobufs-{version}.zip (Raw proto files)
 #
 on:
   push:
@@ -39,11 +40,17 @@ jobs:
       - name: Build with Gradle
         run: |
           ./tools/java/package_proto_jar.sh -c true -s false
-          ./gradlew --no-daemon -Dbuild.snapshot=false publishCreatePublicationToLocalRepoRepository && tar -C build -cvf artifacts.tar.gz repository
+          ./gradlew --no-daemon -Dbuild.snapshot=false publishCreatePublicationToLocalRepoRepository
+          tar -C build -cvf "opensearch-protobufs-java.tar.gz" repository
+
+      - name: Create protobuf zip
+        run: ./tools/package_proto_zip.sh
+
       - name: Draft a release
         uses: softprops/action-gh-release@v1
         with:
           draft: true
           generate_release_notes: true
           files: |
-            artifacts.tar.gz
+            opensearch-protobufs-java.tar.gz
+            opensearch-protobufs-*.zip
