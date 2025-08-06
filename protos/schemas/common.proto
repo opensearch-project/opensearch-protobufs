@@ -12,24 +12,34 @@ import "google/protobuf/struct.proto";
 
 message WaitForActiveShards {
 
-  enum WaitForActiveShardOptions {
-    WAIT_FOR_ACTIVE_SHARD_OPTIONS_UNSPECIFIED = 0;
-    WAIT_FOR_ACTIVE_SHARD_OPTIONS_ALL = 1;
-  }
-
   oneof wait_for_active_shards {
-    int32 int32_value = 1;
+    StringifiedInteger stringified_integer = 1;
     WaitForActiveShardOptions wait_for_active_shard_options = 2;
   }
+}
+message WaitForActiveShardOptions {
 
+  oneof wait_for_active_shard_options {
+    // Wait for all shards to be active.
+    bool wait_for_active_shard_options_all = 1;
+    // null represents the default value (which defaults to one shard copy).
+    NullValue null_value = 2;
+  }
+}
+
+message StringifiedInteger {
+  oneof stringified_integer {
+    int32 int32 = 1;
+    string string = 2;
+  }
 }
 
 message Script {
   oneof script {
     // Defines an inline script to execute as part of a query.
-    InlineScript inline_script = 1;
+    InlineScript inline = 1;
     // References a stored script by its ID for use in a query.
-    StoredScriptId stored_script_id = 2;
+    StoredScriptId stored = 2;
   }
 }
 
@@ -50,18 +60,57 @@ message InlineScript {
 }
 
 message ScriptLanguage {
-  enum BuiltinScriptLanguage {
-    BUILTIN_SCRIPT_LANGUAGE_UNSPECIFIED = 0;
-    BUILTIN_SCRIPT_LANGUAGE_EXPRESSION = 1;
-    BUILTIN_SCRIPT_LANGUAGE_JAVA = 2;
-    BUILTIN_SCRIPT_LANGUAGE_MUSTACHE = 3;
-    BUILTIN_SCRIPT_LANGUAGE_PAINLESS = 4;
-  }
-  // [optional] Default is painless.
   oneof script_language {
-    BuiltinScriptLanguage builtin_script_language = 1;
-    string string_value = 2;
+    BuiltinScriptLanguage builtin = 1;
+
+    string custom = 2;
   }
+}
+
+enum BuiltinScriptLanguage {
+  BUILTIN_SCRIPT_LANGUAGE_UNSPECIFIED = 0;
+  BUILTIN_SCRIPT_LANGUAGE_EXPRESSION = 1;
+  BUILTIN_SCRIPT_LANGUAGE_JAVA = 2;
+  BUILTIN_SCRIPT_LANGUAGE_MUSTACHE = 3;
+  BUILTIN_SCRIPT_LANGUAGE_PAINLESS = 4;
+}
+
+message ExpandWildcard {
+  oneof expand_wildcard {
+    // Match any index, including hidden ones.
+    bool expand_wildcard_all = 1;
+
+    // Match closed, non-hidden indexes.
+    bool expand_wildcard_closed = 2;
+
+    // Match hidden indexes. Must be combined with `open`, `closed`, or both.
+    bool expand_wildcard_hidden = 3;
+
+    // Wildcard expressions are not accepted.
+    bool expand_wildcard_none = 4;
+
+    // Match open, non-hidden indexes.
+    bool expand_wildcard_open = 5;
+  }
+}
+
+message SearchType {
+  oneof search_type {
+    // Documents are scored using global term and document frequencies across all shards. This is usually slower but more accurate.
+    bool search_type_dfs_query_then_fetch = 1;
+    // Documents are scored using local term and document frequencies for the shard. This is usually faster but less accurate.
+    bool search_type_query_then_fetch = 2;
+  }
+}
+
+enum SuggestMode {
+  SUGGEST_MODE_UNSPECIFIED = 0;
+  // Use suggestions based on the provided terms
+  SUGGEST_MODE_ALWAYS = 1;
+  // Use suggestions for terms not in the index
+  SUGGEST_MODE_MISSING = 2;
+  // Use suggestions that have more occurrences
+  SUGGEST_MODE_POPULAR = 3;
 }
 
 message StoredScriptId {
@@ -173,15 +222,22 @@ message StringOrStringArray {
   }
 }
 
+
+message Id {
+  oneof id {
+    NullValue null_value = 1;
+    string string = 2;
+  }
+}
+
+
 message SourceConfig {
 
   oneof source_config{
     // [optional] if the source_config is bool value. true: The entire document source is returned. false: The document source is not returned.
     bool fetch = 1;
-    // [optional] Array of patterns containing source fields to return.
-    StringArray includes = 2;
     // [optional] source_filter type containing a list of source fields to include or exclude.
-    SourceFilter filter = 3;
+    SourceFilter filter = 2;
   }
 
 }
@@ -238,8 +294,8 @@ message SourceFilter {
 
 message ErrorCause {
 
-  // The type of error
-  optional string type = 1;
+  // [required] The type of error
+  string type = 1;
 
   // A human-readable explanation of the error, in english
   optional string reason = 2;
