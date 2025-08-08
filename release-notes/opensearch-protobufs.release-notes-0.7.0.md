@@ -1,14 +1,13 @@
-## Version 0.5.0 (2025-07-23) Release Notes
+## Version 0.7.0 (2025-08-07) Release Notes
 
 ### Added
-- Fix WildcardQuery protos ([#117](https://github.com/opensearch-project/opensearch-protobufs/pull/117)
-- Fix MultiMatchQuery protos ([#119](https://github.com/opensearch-project/opensearch-protobufs/pull/119)
-- Fix RegexpQuery and ExistsQuery protos ([#121](https://github.com/opensearch-project/opensearch-protobufs/pull/121)
+- Add Go protobuf generation support ([#131](https://github.com/opensearch-project/opensearch-protobufs/pull/131))
+- Add protobuf zip generation for releases ([#139](https://github.com/opensearch-project/opensearch-protobufs/pull/139))
 
 ### Removed
 
 ### Fixed
-- Fix `fuzzy_transpositions` in MultiMatchQuery ([#120](https://github.com/opensearch-project/opensearch-protobufs/pull/120)
-- Bump form-data to 4.0.4 for CVE-2025-7783 ([#123](https://github.com/opensearch-project/opensearch-protobufs/pull/123)
+- Remove json_name annotations and prefix fields with `underscore_`  ([#149](https://github.com/opensearch-project/opensearch-protobufs/pull/149))
+- Align manual proto with generated proto - bulk  ([#151](https://github.com/opensearch-project/opensearch-protobufs/pull/151))
 
 ### Security
