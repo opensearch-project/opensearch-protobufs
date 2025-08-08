@@ -9,6 +9,7 @@ Inspired from [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 
 ### Changed
 - Remove json_name annotations and prefix fields with `underscore_`  ([#149](https://github.com/opensearch-project/opensearch-protobufs/pull/149))
+- Align manual proto with generated proto - bulk  ([#151](https://github.com/opensearch-project/opensearch-protobufs/pull/151))
 
 ### Removed
 
