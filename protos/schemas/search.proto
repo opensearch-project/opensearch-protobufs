@@ -411,7 +411,7 @@ message HitsMetadataTotal {
 }
 
 message HitsMetadataMaxScore{
-  oneof max_score{
+  oneof hits_metadata_max_score{
     float float_value = 1;
     NullValue null_value = 2;
   }

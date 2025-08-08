@@ -553,7 +553,7 @@ message InnerHits {
   repeated string fields = 11;
 
   // [optional] How the inner hits should be sorted per inner_hits. By default the hits are sorted by the score.
-  repeated SortCombinations sort = 12;
+  repeated SortOptions sort = 12;
 
   // [optional] Select what fields of the source are returned
   optional SourceConfig underscore_source = 13;
@@ -762,18 +762,6 @@ message HighlightField {
 
   optional Analyzer analyzer = 24;
 
-}
-
-// todo: not map with spec
-message SortCombinations {
-  oneof sort_combinations{
-    // [optional] Sort based on field name.
-    string string_value = 1;
-    // [optional] Sort based on a map of fields with specified order directions.
-    FieldWithOrderMap field_with_order_map = 2;
-    // [optional] Sort using a combination of advanced sort options, such as score, document ID, geo-distance, or a custom script.
-    SortOptions sort_options = 3;
-  }
 }
 
 message FieldWithOrderMap {
