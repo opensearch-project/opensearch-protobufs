@@ -343,27 +343,47 @@ message ResponseBody {
   // [required] Contains returned documents and metadata.
   HitsMetadata hits = 5;
 
+  repeated ProcessorExecutionDetail processor_results = 6;
+
   // [optional] When you search one or more remote clusters, a `_clusters` section is included to provide information about the search on each cluster.
-  optional ClusterStatistics underscore_clusters = 6;
+  optional ClusterStatistics underscore_clusters = 7;
 
   // [optional] Retrieved specific fields in the search response
-  optional ObjectMap fields = 7;
+  optional ObjectMap fields = 8;
 
   // [optional] The number of times that the coordinating node aggregates results from batches of shard responses
-  optional int32 num_reduce_phases = 8;
+  optional int32 num_reduce_phases = 9;
 
   // [optional] Contains profiling information.
-  optional Profile profile = 9;
+  optional Profile profile = 10;
 
   // [optional] The PIT ID.
-  optional string pit_id = 10;
+  optional string pit_id = 11;
 
   // [optional] Identifier for the search and its search context.
-  optional string underscore_scroll_id = 11;
+  optional string underscore_scroll_id = 12;
 
   // [optional] If the query was terminated early, the terminated_early flag will be set to true in the response
-  optional bool terminated_early = 12;
+  optional bool terminated_early = 13;
+  // [optional]
+  // todo: not supported yet
+  // map<string, SearchResultSuggestValueInnerArray> suggest = 14;
+}
 
+message ProcessorExecutionDetail {
+  optional string processor_name = 1;
+
+  optional int64 duration_millis = 2;
+
+  optional ObjectMap input_data = 3;
+
+  optional ObjectMap output_data = 4;
+
+  optional string status = 5;
+
+  optional string tag = 6;
+
+  optional string error = 7;
 }
 
 message PhaseTook {
@@ -563,7 +583,7 @@ message ClusterDetails {
 message Profile {
 
   // [required] A search request can be executed against one or more shards in the index, and a search may involve one or more indexes. Thus, the profile.shards array contains profiling information for each shard that was involved in the search.
-  repeated  shards = 1;
+  repeated ShardProfile shards = 1;
 
 }
 
