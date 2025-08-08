@@ -229,6 +229,7 @@ message SourceConfig {
   oneof source_config{
     // [optional] if the source_config is bool value. true: The entire document source is returned. false: The document source is not returned.
     bool fetch = 1;
+
     // [optional] source_filter type containing a list of source fields to include or exclude.
     SourceFilter filter = 2;
   }
@@ -426,7 +427,7 @@ message QueryContainer {
     TermQuery term = 12;
 
     // Terms query field is to search for documents containing one or more terms in a specific field. Use the terms query to search for multiple terms in the same field.
-    TermsQueryField terms = 13;
+    TermsQuery terms = 13;
 
     // terms set query is to search for documents that match a minimum number of exact terms in a specified field. A terms_set query is similar to a terms query, except that you can specify the minimum number of matching terms that are required in order to return a document. You can specify this number either in a field in the index or with a script.
     TermsSetQuery terms_set = 14;
@@ -473,6 +474,20 @@ message QueryContainer {
     // The nested query acts as a wrapper for other queries to search nested fields. The nested field objects are searched as though they were indexed as separate documents. If an object matches the search, the nested query returns the parent document at the root level.
     NestedQuery nested = 28;
   }
+}
+
+message TermsQuery {
+  // [optional] Floating point number used to decrease or increase the relevance scores of the query. Boost values are relative to the default value of 1.0. A boost value between 0 and 1.0 decreases the relevance score. A value greater than 1.0 increases the relevance score.
+  optional float boost = 1;
+
+  // [optional] Query name for query tagging.
+  optional string underscore_name = 2;
+
+  // [optional] Specifies the types of values used for filtering. Valid values are `default` and `bitmap`. Default is `default`.
+  optional TermsQueryValueType value_type = 3;
+
+  // [optional]
+  map<string, TermsQueryField> terms = 4;
 }
 
 message NestedQuery {
@@ -538,10 +553,10 @@ message InnerHits {
   optional bool seq_no_primary_term = 10;
 
   // [optional] Retrieve selected fields from a search
-  repeated FieldAndFormat fields = 11;
+  repeated string fields = 11;
 
   // [optional] How the inner hits should be sorted per inner_hits. By default the hits are sorted by the score.
-  repeated SortCombinations sort = 12;
+  repeated SortOptions sort = 12;
 
   // [optional] Select what fields of the source are returned
   optional SourceConfig underscore_source = 13;
@@ -562,18 +577,56 @@ message ScriptField {
   optional bool ignore_failure = 2;
 }
 
-message Highlight {
+message HighlighterType {
+  oneof highlighter_type {
+    BuiltinHighlighterType builtin = 1;
 
-  enum HighlighterType {
-    HIGHLIGHTER_TYPE_UNSPECIFIED = 0;
-    // The fvh highlighter uses the Lucene Fast Vector highlighter. This highlighter can be used on fields with term_vector set to with_positions_offsets in the mapping.
-    HIGHLIGHTER_TYPE_FVH = 1;
-    // The plain highlighter uses the standard Lucene highlighter. It attempts to reflect the query matching logic in terms of understanding word importance and any word positioning criteria in phrase queries.
-    HIGHLIGHTER_TYPE_PLAIN = 2;
-    // The unified highlighter uses the Lucene Unified Highlighter. This highlighter breaks the text into sentences and uses the BM25 algorithm to score individual sentences as if they were documents in the corpus. It also supports accurate phrase and multi-term (fuzzy, prefix, regex) highlighting. The unified highlighter can combine matches from multiple fields into one result (see matched_fields). This is the default highlighter.
-    HIGHLIGHTER_TYPE_UNIFIED = 3;
+    string custom = 2;
   }
+}
 
+message BuiltinHighlighterType {
+  oneof builtin_highlighter_type {
+    bool builtin_highlighter_type_plain = 1;
+
+    bool builtin_highlighter_type_fvh = 2;
+
+    bool builtin_highlighter_type_unified = 3;
+  }
+}
+
+enum BoundaryScanner {
+  BOUNDARY_SCANNER_UNSPECIFIED = 0;
+  BOUNDARY_SCANNER_CHARS = 1;
+  BOUNDARY_SCANNER_SENTENCE = 2;
+  BOUNDARY_SCANNER_WORD = 3;
+}
+
+enum HighlighterFragmenter {
+  HIGHLIGHTER_FRAGMENTER_UNSPECIFIED = 0;
+  HIGHLIGHTER_FRAGMENTER_SIMPLE = 1;
+  HIGHLIGHTER_FRAGMENTER_SPAN = 2;
+}
+
+enum HighlighterOrder {
+  HIGHLIGHTER_ORDER_UNSPECIFIED = 0;
+  HIGHLIGHTER_ORDER_SCORE = 1;
+}
+
+enum HighlighterTagsSchema {
+  HIGHLIGHTER_TAGS_SCHEMA_UNSPECIFIED = 0;
+  HIGHLIGHTER_TAGS_SCHEMA_STYLED = 1;
+}
+
+enum HighlighterEncoder {
+  HIGHLIGHTER_ENCODER_UNSPECIFIED = 0;
+  // No encoding
+  HIGHLIGHTER_ENCODER_DEFAULT = 1;
+  // First escape the HTML text and then insert the highlighting tags
+  HIGHLIGHTER_ENCODER_HTML = 2;
+}
+
+message Highlight {
   // [optional] Specifies the highlighter to use. Default is unified.
   optional HighlighterType type = 1;
 
@@ -582,16 +635,6 @@ message Highlight {
 
   // [optional] Controls how far to scan for boundary characters when the boundary_scanner parameter for the fvh highlighter is set to chars. Default is 20.
   optional int32 boundary_max_scan = 3;
-
-  enum BoundaryScanner {
-    BOUNDARY_SCANNER_UNSPECIFIED = 0;
-    // Split highlighted fragments at any character listed in boundary_chars. Valid only for the fvh highlighter.
-    BOUNDARY_SCANNER_CHARS = 1;
-    // Split highlighted fragments at sentence boundaries, as defined by the BreakIterator. You can specify the BreakIterator's locale in the boundary_scanner_locale option.
-    BOUNDARY_SCANNER_SENTENCE = 2;
-    // Split highlighted fragments at word boundaries, as defined by the BreakIterator. You can specify the BreakIterator's locale in the boundary_scanner_locale option.
-    BOUNDARY_SCANNER_WORD = 3;
-  }
 
   // [optional] Specifies whether to split the highlighted fragments into sentences, words, or characters.
   optional BoundaryScanner boundary_scanner = 4;
@@ -602,96 +645,61 @@ message Highlight {
   // [x-deprecated]
   optional bool force_source = 6;
 
-  enum HighlighterFragmenter {
-    HIGHLIGHTER_FRAGMENTER_UNSPECIFIED = 0;
-    // Splits text into fragments of the same size.
-    HIGHLIGHTER_FRAGMENTER_SIMPLE = 1;
-    // Splits text into fragments of the same size but tries not to split text between highlighted terms.
-    HIGHLIGHTER_FRAGMENTER_SPAN = 2;
-  }
-
   // [optional] Specifies how to split text into highlighted fragments. Valid only for the plain highlighter. Default HIGHLIGHTER_FRAGMENTER_SPAN.
   optional HighlighterFragmenter fragmenter = 7;
+  // [optional]
+  optional int32 fragment_offset = 8;
 
   // [optional] The size of a highlighted fragment, specified as the number of characters. If number_of_fragments is set to 0, fragment_size is ignored. Default is 100.
-  optional int32 fragment_size = 8;
+  optional int32 fragment_size = 9;
 
-  bool highlight_filter = 9;
+  // [optional]
+  optional bool highlight_filter = 10;
 
   // [optional] Specifies that matches for a query other than the search query should be highlighted. The highlight_query option is useful when you use a faster query to get document matches and a slower query (for example, rescore_query) to refine the results. We recommend to include the search query as part of the highlight_query.
-  optional QueryContainer highlight_query = 10;
+  optional QueryContainer highlight_query = 11;
 
-  int32 max_fragment_length = 11;
+  // [optional]
+  optional int32 max_fragment_length = 12;
 
   // [optional] If set to a non-negative value, highlighting stops at this defined maximum limit. The rest of the text is not processed, thus not highlighted and no error is returned The `max_analyzed_offset` query setting does not override the `index.highlight.max_analyzed_offset` setting, which prevails when it's set to lower value than the query setting.
-  optional int32 max_analyzed_offset = 12;
+  optional int32 max_analyzed_offset = 13;
 
   // [optional] Specifies the number of characters, starting from the beginning of the field, to return if there are no matching fragments to highlight. Default is 0.
-  optional int32 no_match_size = 13;
+  optional int32 no_match_size = 14;
 
   // [optional] The maximum number of returned fragments. If number_of_fragments is set to 0, OpenSearch returns the highlighted contents of the entire field. Default is 5.
-  optional int32 number_of_fragments = 14;
+  optional int32 number_of_fragments = 15;
 
-  optional ObjectMap options = 15;
-
-  enum HighlighterOrder {
-    HIGHLIGHTER_ORDER_UNSPECIFIED = 0;
-    // Sort fragments by relevance.
-    HIGHLIGHTER_ORDER_SCORE = 1;
-  }
+  optional ObjectMap options = 16;
 
   // [optional] The sort order for the highlighted fragments. Each highlighter has a different algorithm for calculating relevance scores. Default is none.
-  optional HighlighterOrder order = 16;
+  optional HighlighterOrder order = 17;
 
   // [optional] The number of matching phrases in a document that are considered. Limits the number of phrases to analyze by the fvh highlighter to avoid consuming a lot of memory. If matched_fields are used, phrase_limit specifies the number of phrases for each matched field. A higher phrase_limit leads to increased query time and more memory consumption. Valid only for the fvh highlighter. Default is 256.
-  optional int32 phrase_limit = 17;
+  optional int32 phrase_limit = 18;
 
   // [optional] Specifies the HTML end tags for the highlighted text as an array of strings.
-  repeated string post_tags = 18;
+  repeated string post_tags = 19;
 
   // [optional] Specifies the HTML start tags for the highlighted text as an array of strings.
-  repeated string pre_tags = 19;
+  repeated string pre_tags = 20;
 
   // [optional] Specifies whether to highlight only fields that contain a search query match. Default is true. To highlight all fields, set this option to false.
-  optional bool require_field_match = 20;
-
-  enum HighlighterTagsSchema {
-    HIGHLIGHTER_TAGS_SCHEMA_UNSPECIFIED = 0;
-    // Defines the following pre_tags and defines post_tags as </em>.
-    HIGHLIGHTER_TAGS_SCHEMA_STYLED = 1;
-  }
+  optional bool require_field_match = 21;
 
   // [optional] If you set this option to styled, OpenSearch uses the built-in tag schema. In this schema, the pre_tags are <em class="hlt1">, <em class="hlt2">, <em class="hlt3">, <em class="hlt4">, <em class="hlt5">, <em class="hlt6">, <em class="hlt7">, <em class="hlt8">, <em class="hlt9">, and <em class="hlt10">, and the post_tags is </em>.
-  optional HighlighterTagsSchema tags_schema = 21;
-
-  enum HighlighterEncoder {
-    HIGHLIGHTER_ENCODER_UNSPECIFIED = 0;
-    // No encoding
-    HIGHLIGHTER_ENCODER_DEFAULT = 1;
-    // First escape the HTML text and then insert the highlighting tags
-    HIGHLIGHTER_ENCODER_HTML = 2;
-  }
+  optional HighlighterTagsSchema tags_schema = 22;
 
   // [optional] Specifies whether the highlighted fragment should be HTML encoded before it is returned.
-  optional HighlighterEncoder encoder = 22;
+  optional HighlighterEncoder encoder = 23;
 
   // [required] Specifies the fields to search for text to be highlighted. Supports wildcard expressions. If you use wildcards, only text and keyword fields are highlighted. For example, you can set fields to my_field* to include all text and keyword fields that start with the prefix my_field.
-  map<string, HighlightField> fields = 23;
+  map<string, HighlightField> fields = 24;
 
 }
 
 message HighlightField {
-
-  enum HighlighterType {
-    HIGHLIGHTER_TYPE_UNSPECIFIED = 0;
-    // The fvh highlighter uses the Lucene Fast Vector highlighter. This highlighter can be used on fields with term_vector set to with_positions_offsets in the mapping.
-    HIGHLIGHTER_TYPE_FVH = 1;
-    // The plain highlighter uses the standard Lucene highlighter. It attempts to reflect the query matching logic in terms of understanding word importance and any word positioning criteria in phrase queries.
-    HIGHLIGHTER_TYPE_PLAIN = 2;
-    // The unified highlighter uses the Lucene Unified Highlighter. This highlighter breaks the text into sentences and uses the BM25 algorithm to score individual sentences as if they were documents in the corpus. It also supports accurate phrase and multi-term (fuzzy, prefix, regex) highlighting. The unified highlighter can combine matches from multiple fields into one result (see matched_fields). This is the default highlighter.
-    HIGHLIGHTER_TYPE_UNIFIED = 3;
-  }
-
   // [optional] Specifies the highlighter to use. Default is unified.
   optional HighlighterType type = 1;
 
@@ -700,16 +708,6 @@ message HighlightField {
 
   // [optional] Controls how far to scan for boundary characters when the boundary_scanner parameter for the fvh highlighter is set to chars. Default is 20.
   optional int32 boundary_max_scan = 3;
-
-  enum BoundaryScanner {
-    BOUNDARY_SCANNER_UNSPECIFIED = 0;
-    // Split highlighted fragments at any character listed in boundary_chars. Valid only for the fvh highlighter.
-    BOUNDARY_SCANNER_CHARS = 1;
-    // Split highlighted fragments at sentence boundaries, as defined by the BreakIterator. You can specify the BreakIterator's locale in the boundary_scanner_locale option.
-    BOUNDARY_SCANNER_SENTENCE = 2;
-    // Split highlighted fragments at word boundaries, as defined by the BreakIterator. You can specify the BreakIterator's locale in the boundary_scanner_locale option.
-    BOUNDARY_SCANNER_WORD = 3;
-  }
 
   // [optional] Specifies whether to split the highlighted fragments into sentences, words, or characters.
   optional BoundaryScanner boundary_scanner = 4;
@@ -720,26 +718,18 @@ message HighlightField {
   // [x-deprecated]
   bool force_source = 6;
 
-  enum HighlighterFragmenter {
-    HIGHLIGHTER_FRAGMENTER_UNSPECIFIED = 0;
-    // Splits text into fragments of the same size.
-    HIGHLIGHTER_FRAGMENTER_SIMPLE = 1;
-    // Splits text into fragments of the same size but tries not to split text between highlighted terms.
-    HIGHLIGHTER_FRAGMENTER_SPAN = 2;
-  }
-
   // [optional] Specifies how to split text into highlighted fragments. Valid only for the plain highlighter. Default HIGHLIGHTER_FRAGMENTER_SPAN.
   optional HighlighterFragmenter fragmenter = 7;
 
   // [optional] The size of a highlighted fragment, specified as the number of characters. If number_of_fragments is set to 0, fragment_size is ignored. Default is 100.
   optional int32 fragment_size = 8;
 
-  bool highlight_filter = 9;
+  optional bool highlight_filter = 9;
 
   // [optional] Specifies that matches for a query other than the search query should be highlighted. The highlight_query option is useful when you use a faster query to get document matches and a slower query (for example, rescore_query) to refine the results. We recommend to include the search query as part of the highlight_query.
   optional QueryContainer highlight_query = 10;
 
-  int32 max_fragment_length = 11;
+  optional int32 max_fragment_length = 11;
 
   // [optional] If set to a non-negative value, highlighting stops at this defined maximum limit. The rest of the text is not processed, thus not highlighted and no error is returned The `max_analyzed_offset` query setting does not override the `index.highlight.max_analyzed_offset` setting, which prevails when it's set to lower value than the query setting.
   optional int32 max_analyzed_offset = 12;
@@ -749,14 +739,8 @@ message HighlightField {
 
   // [optional] The maximum number of returned fragments. If number_of_fragments is set to 0, OpenSearch returns the highlighted contents of the entire field. Default is 5.
   optional int32 number_of_fragments = 14;
-
-  ObjectMap options = 15;
-
-  enum HighlighterOrder {
-    HIGHLIGHTER_ORDER_UNSPECIFIED = 0;
-    // Sort fragments by relevance.
-    HIGHLIGHTER_ORDER_SCORE = 1;
-  }
+  // [optional]
+  optional ObjectMap options = 15;
 
   // [optional] The sort order for the highlighted fragments. Each highlighter has a different algorithm for calculating relevance scores. Default is none.
   optional HighlighterOrder order = 16;
@@ -772,34 +756,17 @@ message HighlightField {
 
   // [optional] Specifies whether to highlight only fields that contain a search query match. Default is true. To highlight all fields, set this option to false.
   optional bool require_field_match = 20;
-
-  enum HighlighterTagsSchema {
-    HIGHLIGHTER_TAGS_SCHEMA_UNSPECIFIED = 0;
-    // Defines the following pre_tags and defines post_tags as </em>.
-    HIGHLIGHTER_TAGS_SCHEMA_STYLED = 1;
-  }
-
-  HighlighterTagsSchema tags_schema = 21;
+  // [optional]
+  optional HighlighterTagsSchema tags_schema = 21;
 
   // [optional] If you set this option to styled, OpenSearch uses the built-in tag schema. In this schema, the pre_tags are <em class="hlt1">, <em class="hlt2">, <em class="hlt3">, <em class="hlt4">, <em class="hlt5">, <em class="hlt6">, <em class="hlt7">, <em class="hlt8">, <em class="hlt9">, and <em class="hlt10">, and the post_tags is </em>.
   optional int32 fragment_offset = 22;
 
   // [optional] Combines matches from different fields to highlight one field. The most common use case for this functionality is highlighting text that is analyzed in different ways and kept in multi-fields. All fields in the matched_fields list must have the term_vector field set to with_positions_offsets. The field in which the matches are combined is the only loaded field, so it is beneficial to set its store option to yes. Valid only for the fvh highlighter.
   repeated string matched_fields = 23;
-
+  // [optional]
   optional Analyzer analyzer = 24;
 
-}
-
-message SortCombinations {
-  oneof sort_combinations{
-    // [optional] Sort based on field name.
-    string string_value = 1;
-    // [optional] Sort based on a map of fields with specified order directions.
-    FieldWithOrderMap field_with_order_map = 2;
-    // [optional] Sort using a combination of advanced sort options, such as score, document ID, geo-distance, or a custom script.
-    SortOptions sort_options = 3;
-  }
 }
 
 message FieldWithOrderMap {
@@ -808,16 +775,123 @@ message FieldWithOrderMap {
 }
 
 message SortOptions {
-  oneof sort_options{
-    // [optional] Sort by score.
-    ScoreSort underscore_score = 1;
-    // [optional] Sort by index order.
-    ScoreSort underscore_doc = 2;
-    // [optional] Sort by _geo_distance
-    GeoDistanceSort underscore_geo_distance = 3;
-    // [optional] Sort based on custom scripts
-    ScriptSort underscore_script = 4;
+  oneof sort_options {
+    // Sort by document score.
+    bool sort_options_score = 1;
+
+    // Sort by document index order.
+    bool sort_options_doc = 2;
+
+    // Sort by field name.
+    string string = 3;
+
+    SortOptionsOneOf sort_options_one_of = 4;
+
+    // Sort by field options.
+    FieldSort field_sort = 5;
   }
+}
+
+message FieldSort {
+  // The value to use when the field is missing.
+  optional FieldValue missing = 1;
+
+  // The mode for sorting on array fields.
+  optional SortMode mode = 2;
+
+  // The nested path sort options.
+  optional NestedSortValue nested = 3;
+
+  // The sort order direction.
+  optional SortOrder order = 4;
+
+  // The type to use for unmapped fields.
+  optional FieldType unmapped_type = 5;
+
+  // The numeric type to use for sorting.
+  optional FieldSortNumericType numeric_type = 6;
+
+  // The format to use for the sort values.
+  optional string format = 7;
+
+  optional string field = 8;
+}
+
+message FieldSortNumericType {
+  oneof field_sort_numeric_type {
+    // The field contains date values.
+    bool field_sort_numeric_type_date = 1;
+
+    // The field contains date values with nanosecond precision.
+    bool field_sort_numeric_type_date_nanos = 2;
+
+    // The field contains double-precision floating-point values.
+    bool field_sort_numeric_type_double = 3;
+
+    // The field contains long integer values.
+    bool field_sort_numeric_type_long = 4;
+  }
+}
+
+enum FieldType {
+  FIELD_TYPE_UNSPECIFIED = 0;
+  FIELD_TYPE_AGGREGATE_METRIC_DOUBLE = 1;
+  FIELD_TYPE_ALIAS = 2;
+  FIELD_TYPE_BINARY = 3;
+  FIELD_TYPE_BOOLEAN = 4;
+  FIELD_TYPE_BYTE = 5;
+  FIELD_TYPE_COMPLETION = 6;
+  FIELD_TYPE_CONSTANT_KEYWORD = 7;
+  FIELD_TYPE_DATE = 8;
+  FIELD_TYPE_DATE_NANOS = 9;
+  FIELD_TYPE_DATE_RANGE = 10;
+  FIELD_TYPE_DOUBLE = 11;
+  FIELD_TYPE_DOUBLE_RANGE = 12;
+  FIELD_TYPE_FLAT_OBJECT = 13;
+  FIELD_TYPE_FLOAT = 14;
+  FIELD_TYPE_FLOAT_RANGE = 15;
+  FIELD_TYPE_GEO_POINT = 16;
+  FIELD_TYPE_GEO_SHAPE = 17;
+  FIELD_TYPE_HALF_FLOAT = 18;
+  FIELD_TYPE_HISTOGRAM = 19;
+  FIELD_TYPE_ICU_COLLATION_KEYWORD = 20;
+  FIELD_TYPE_INTEGER = 21;
+  FIELD_TYPE_INTEGER_RANGE = 22;
+  FIELD_TYPE_IP = 23;
+  FIELD_TYPE_IP_RANGE = 24;
+  FIELD_TYPE_JOIN = 25;
+  FIELD_TYPE_KEYWORD = 26;
+  FIELD_TYPE_KNN_VECTOR = 27;
+  FIELD_TYPE_LONG = 28;
+  FIELD_TYPE_LONG_RANGE = 29;
+  FIELD_TYPE_MATCH_ONLY_TEXT = 30;
+  FIELD_TYPE_MURMUR3 = 31;
+  FIELD_TYPE_NESTED = 32;
+  FIELD_TYPE_OBJECT = 33;
+  FIELD_TYPE_PERCOLATOR = 34;
+  FIELD_TYPE_RANK_FEATURE = 35;
+  FIELD_TYPE_RANK_FEATURES = 36;
+  FIELD_TYPE_SCALED_FLOAT = 37;
+  FIELD_TYPE_SEARCH_AS_YOU_TYPE = 38;
+  FIELD_TYPE_SHORT = 39;
+  FIELD_TYPE_TEXT = 40;
+  FIELD_TYPE_TOKEN_COUNT = 41;
+  FIELD_TYPE_UNSIGNED_LONG = 42;
+  FIELD_TYPE_VERSION = 43;
+  FIELD_TYPE_WILDCARD = 44;
+  FIELD_TYPE_XY_POINT = 45;
+  FIELD_TYPE_XY_SHAPE = 46;
+}
+
+message SortOptionsOneOf {
+  // [optional]
+  optional ScoreSort underscore_score = 1;
+  // [optional]
+  optional ScoreSort underscore_doc = 2;
+  // [optional]
+  optional GeoDistanceSort underscore_geo_distance = 3;
+  // [optional]
+  optional ScriptSort underscore_script = 4;
 }
 
 message ScoreSort {
@@ -833,55 +907,82 @@ enum SortOrder {
   SORT_ORDER_DESC = 2;
 }
 
+message SortMode {
+  oneof sort_mode {
+    // Use the average of all values.
+    bool sort_mode_avg = 1;
+
+    // Use the maximum value.
+    bool sort_mode_max = 2;
+
+    // Use the median value.
+    bool sort_mode_median = 3;
+
+    // Use the minimum value.
+    bool sort_mode_min = 4;
+
+    // Use the sum of all values.
+    bool sort_mode_sum = 5;
+  }
+}
+
+message GeoDistanceType {
+  oneof geo_distance_type {
+    // The arc calculation method uses great circle distance.
+    bool geo_distance_type_arc = 1;
+
+    // The plane calculation method uses faster but less accurate flat-earth distance.
+    bool geo_distance_type_plane = 2;
+  }
+}
+
 message GeoDistanceSort {
 
-  // Specifies how to handle a field with several geopoints.
-  SortMode mode = 1;
-  enum SortMode {
-    SORT_MODE_UNSPECIFIED = 0;
-    // Use the average of all values as sort value. Only applicable for number based array fields.
-    SORT_MODE_AVG = 1;
-    // Pick the highest value.
-    SORT_MODE_MAX = 2;
-    // Use the median of all values as sort value. Only applicable for number based array fields.
-    SORT_MODE_MEDIAN = 3;
-    // Pick the lowest value.
-    SORT_MODE_MIN = 4;
-    // Use the sum of all values as sort value. Only applicable for number based array fields.
-    SORT_MODE_SUM = 5;
-  }
+  // [optional] Specifies how to handle a field with several geopoints.
+  optional SortMode mode = 1;
 
   // [optional] Specifies the method of computing the distance.
-  GeoDistanceType distance_type = 2;
-
-  enum GeoDistanceType {
-    GEO_DISTANCE_TYPE_UNSPECIFIED = 0;
-    // Default
-    GEO_DISTANCE_TYPE_ARC = 1;
-    // Faster but less accurate for long distances or close to the poles.
-    GEO_DISTANCE_TYPE_PLANE = 2;
-  }
+  optional GeoDistanceType distance_type = 2;
 
   // [optional] Specifies how to treat an unmapped field. Set ignore_unmapped to true to ignore unmapped fields. Default is false
-  bool ignore_unmapped = 3;
-
+  optional bool ignore_unmapped = 3;
+  // [optional]
+  optional NestedSortValue nested = 4;
   // [optional] Specifies the sort order (asc or dsc) for the score.
-  SortOrder order = 4;
+  optional SortOrder order = 5;
 
   // [optional] Specifies the units used to compute sort values. Default is meters (m).
-  DistanceUnit unit = 5;
+  optional DistanceUnit unit = 6;
+  // [optional]
+  optional GeoValidationMethod validation_method = 7;
+}
 
-  enum DistanceUnit {
-    DISTANCE_UNIT_UNSPECIFIED = 0;
-    DISTANCE_UNIT_CM = 1;
-    DISTANCE_UNIT_FT = 2;
-    DISTANCE_UNIT_IN = 3;
-    DISTANCE_UNIT_KM = 4;
-    DISTANCE_UNIT_M = 5;
-    DISTANCE_UNIT_MI = 6;
-    DISTANCE_UNIT_MM = 7;
-    DISTANCE_UNIT_NMI = 8;
-    DISTANCE_UNIT_YD = 9;
+enum GeoValidationMethod {
+  GEO_VALIDATION_METHOD_UNSPECIFIED = 0;
+  GEO_VALIDATION_METHOD_COERCE = 1;
+  GEO_VALIDATION_METHOD_IGNORE_MALFORMED = 2;
+  GEO_VALIDATION_METHOD_STRICT = 3;
+}
+
+message DistanceUnit {
+  oneof distance_unit {
+    bool distance_unit_cm = 1;
+
+    bool distance_unit_ft = 2;
+
+    bool distance_unit_in = 3;
+
+    bool distance_unit_km = 4;
+
+    bool distance_unit_m = 5;
+
+    bool distance_unit_mi = 6;
+
+    bool distance_unit_mm = 7;
+
+    bool distance_unit_nmi = 8;
+
+    bool distance_unit_yd = 9;
   }
 }
 
@@ -945,10 +1046,10 @@ message FieldAndFormat {
   string field = 1;
 
   // [optional] Format in which the values are returned.
-  string format = 2;
+  optional string format = 2;
 
   // [optional] Retrieve unmapped fields in an object from _source
-  bool include_unmapped = 3;
+  optional bool include_unmapped = 3;
 
 }
 
@@ -962,9 +1063,6 @@ message FieldCollapse {
 
   // [optional] Use to control the maximum number of concurrent searches allowed in this phase.
   optional int32 max_concurrent_group_searches = 3;
-
-  // [optional] Nested collapse within this collapse.
-  FieldCollapse collapse = 4;
 
 }
 
@@ -1615,18 +1713,37 @@ enum ValueType {
     VALUE_TYPE_DEFAULT = 2;
 }
 
+enum TermsQueryValueType {
+  TERMS_QUERY_VALUE_TYPE_UNSPECIFIED = 0;
+  TERMS_QUERY_VALUE_TYPE_BITMAP = 1;
+  TERMS_QUERY_VALUE_TYPE_DEFAULT = 2;
+}
+
 message TermsQueryField {
-  // [optional] Floating point number used to decrease or increase the relevance scores of the query. Boost values are relative to the default value of 1.0. A boost value between 0 and 1.0 decreases the relevance score. A value greater than 1.0 increases the relevance score.
-  optional float boost = 1;
+  oneof terms_query_field {
+    FieldValueArray field_value_array = 1;
 
-  // [optional] Query name for query tagging.
-  optional string underscore_name = 2;
+    TermsLookup lookup = 2;
+  }
+}
 
-  // [optional] Specifies the types of values used for filtering. Valid values are default and bitmap. If omitted, the value defaults to default.
-  optional ValueType value_type = 3;
+message TermsLookup {
+  string index = 1;
 
-  // [required]
-  map<string, TermsLookupFieldStringArrayMap> terms_lookup_field_string_array_map = 4;
+  // The unique identifier for a resource.
+  string id = 2;
+
+  // The path to a field or an array of paths. Some APIs support wildcards in the path, which allows you to select multiple fields.
+  string path = 3;
+
+  // The routing value for the document.
+  optional string routing = 4;
+
+  optional bool store = 5;
+}
+
+message FieldValueArray {
+  repeated FieldValue field_value_array = 1;
 }
 
 message TermsLookupField {
@@ -2018,12 +2135,13 @@ message Fuzziness{
 }
 
 message FieldValue {
-  oneof type{
-    GeneralNumber general_number = 1;
-    string string_value = 2;
-    ObjectMap object_map = 3;
-    bool bool_value = 4;
-  }
+  optional bool bool = 1;
+
+  optional float float = 2;
+
+  optional string string = 3;
+
+  optional NullValue null_value = 4;
 }
 
 message IdsQuery {

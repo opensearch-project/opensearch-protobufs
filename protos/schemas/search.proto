@@ -19,11 +19,11 @@ message SearchRequest {
   // [optional] A list of indices to search for documents. If not provided, the default value will be to search through all indexes.
   repeated string index = 1;
   // [optional] Whether to include the _source field in the response.
-  SourceConfigParam source = 2;
+  optional SourceConfigParam underscore_source = 2;
   // [optional] A list of source fields to exclude from the response. You can also use this parameter to exclude fields from the subset specified in `source_includes` query parameter. If the `source` parameter is `false`, this parameter is ignored.
-  repeated string source_excludes = 3;
+  repeated string underscore_source_excludes = 3;
   // [optional] A list of source fields to include in the response. If this parameter is specified, only these source fields are returned. You can exclude fields from this subset using the `source_excludes` query parameter. If the `source` parameter is `false`, this parameter is ignored.
-  repeated string source_includes = 4;
+  repeated string underscore_source_includes = 4;
   // [optional] Whether to ignore wildcards that don't match any indexes. Default is true.
   optional bool allow_no_indices = 5;
   // [optional] Whether to return partial results if the request runs into an error or times out. Default is true.
@@ -40,32 +40,12 @@ message SearchRequest {
   optional bool ccs_minimize_roundtrips = 11;
   // [optional] Indicates whether the default operator for a string query should be AND or OR. Default is OR.
   optional Operator default_operator = 12;
-  enum Operator {
-    OPERATOR_UNSPECIFIED = 0;
-    // All terms need to match. The string `to be` is interpreted as `to AND be`
-    OPERATOR_AND = 1;
-    // Only one term needs to match. The string `to be` is interpreted as `to OR be`
-    OPERATOR_OR = 2;
-  }
   // [optional] The default field in case a field prefix is not provided in the query string.
   optional string df = 13;
   // [optional] The fields that OpenSearch should return using their docvalue forms.
   repeated string docvalue_fields = 14;
   // [optional] Specifies the type of index that wildcard expressions can match. Supports list of values. Default is open.
   repeated ExpandWildcard expand_wildcards = 15;
-  enum ExpandWildcard {
-    EXPAND_WILDCARD_UNSPECIFIED = 0;
-    // Match any index
-    EXPAND_WILDCARD_ALL = 1;
-    // Match closed, non-hidden indexes
-    EXPAND_WILDCARD_CLOSED = 2;
-    // Match hidden indexes
-    EXPAND_WILDCARD_HIDDEN = 3;
-    // Deny wildcard expressions
-    EXPAND_WILDCARD_NONE = 4;
-    // Match open, non-hidden indexes
-    EXPAND_WILDCARD_OPEN = 5;
-  }
   // [optional] Whether to return details about how OpenSearch computed the document's score. Default is false.
   optional bool explain = 16;
   // [optional] The starting index to search from. Default is 0.
@@ -106,13 +86,6 @@ message SearchRequest {
   // not be specified explicitly by the user.
 
   optional SearchType search_type = 32;
-  enum SearchType {
-    SEARCH_TYPE_UNSPECIFIED = 0;
-    // Scores documents using global term and document frequencies across all shards. It's usually slower but more accurate.
-    SEARCH_TYPE_DFS_QUERY_THEN_FETCH = 1;
-    // Scores documents using local term and document frequencies for the shard. It's usually faster but less accurate.
-    SEARCH_TYPE_QUERY_THEN_FETCH = 2;
-  }
   // [optional] Whether to return sequence number and primary term of the last operation of each document hit.
   optional bool seq_no_primary_term = 33;
   // [optional] Number of results to include in the response.
@@ -142,15 +115,6 @@ message SearchRequest {
   optional string suggest_field = 38;
   // [optional] The mode to use when searching. This parameter can only be used when the `suggest_field` and `suggest_text` query string parameters are specified.
   optional SuggestMode suggest_mode = 39;
-  enum SuggestMode {
-    SUGGEST_MODE_UNSPECIFIED = 0;
-    // Use suggestions based on the provided terms
-    SUGGEST_MODE_ALWAYS = 1;
-    // Use suggestions for terms not in the index
-    SUGGEST_MODE_MISSING = 2;
-    // Use suggestions that have more occurrences
-    SUGGEST_MODE_POPULAR = 3;
-  }
   // [optional] Number of suggestions to return.
   optional int32 suggest_size = 40;
   // [optional] The source that suggestions should be based off of.
@@ -171,6 +135,19 @@ message SearchRequest {
   optional bool version = 48;
   // [optional] Search Request body
   SearchRequestBody request_body = 49;
+  // [optional] Whether to return human-readable values for statistics.
+  optional bool human = 50;
+  // [optional] Whether to include the stack trace of returned errors.
+  // todo: not supported yet.
+  optional bool error_trace = 52;
+  // [optional] The URL-encoded request definition. Useful for libraries that do not accept a request body for non-POST requests.
+  optional string source = 53;
+  // [optional] A comma-separated list of filters used to filter the response. Use wildcards to match any field or part of a field's name. To exclude fields, use `-`.
+  repeated string filter_path = 54;
+}
+
+message FloatMap {
+  map<string, float> float_map = 1;
 }
 
 message SearchRequestBody {
@@ -185,7 +162,7 @@ message SearchRequestBody {
   optional bool explain = 3;
 
   // [optional] ext object is to contain plugin-specific response fields. For example, in conversational search, the result of Retrieval Augmented Generation (RAG) is a single “hit” (answer). Plugin authors can include this answer in the search response as part of the ext object so that it is separate from the search hits.
-  ObjectMap ext = 4;
+  optional ObjectMap ext = 4;
 
   // [optional] The starting index to search from. Default is 0.
   optional int32 from = 5;
@@ -197,7 +174,7 @@ message SearchRequestBody {
   optional TrackHits track_total_hits = 7;
 
   // [optional] Values used to boost the score of specified indexes. Specify in the format of <index> : <boost-multiplier>
-  repeated NumberMap indices_boost = 8;
+  repeated FloatMap indices_boost = 8;
 
   // [optional] The fields that OpenSearch should return using their docvalue forms. Specify a format to return results in a certain format, such as date and time.
   repeated FieldAndFormat docvalue_fields = 9;
@@ -241,10 +218,10 @@ message SearchRequestBody {
   optional SlicedScroll slice = 21;
 
   // [optional] Sorting allows your users to sort results in a way that's most meaningful to them. By default, full-text queries sort results by the relevance score. You can choose to sort the results by any field value in either ascending or descending order by setting the order parameter to asc or desc.
-  repeated SortCombinations sort = 22;
+  repeated SortOptions sort = 22;
 
   // [optional] Whether to include the _source field in the response.
-  optional SourceConfig source = 23;
+  optional SourceConfig underscore_source = 23;
 
   // [optional] The fields to search for in the request. Specify a format to return results in a certain format, such as date and time.
   repeated FieldAndFormat fields = 24;
@@ -307,9 +284,10 @@ message DerivedField {
 }
 
 message TrackHits {
-  oneof track_hits{
-    bool bool_value = 1;
-    int32 int32_value = 2;
+  oneof track_hits {
+    bool enabled = 1;
+
+    int32 count = 2;
   }
 }
 
@@ -351,13 +329,13 @@ message Error5xxResponse {
 message ResponseBody {
 
   // [required] Milliseconds it took Elasticsearch to execute the request.
-  optional int64 took = 1;
+  int64 took = 1;
 
   // [required]  If true, the request timed out before completion; returned results may be partial or empty.
-  optional bool timed_out = 2;
+  bool timed_out = 2;
 
   // [required] Contains a count of shards used for the request.
-  ShardStatistics shards = 3;
+  ShardStatistics underscore_shards = 3;
 
   // [optional] Phase-level took time values in the response.
   optional PhaseTook phase_took = 4;
@@ -365,30 +343,49 @@ message ResponseBody {
   // [required] Contains returned documents and metadata.
   HitsMetadata hits = 5;
 
+  // [optional]
+  repeated ProcessorExecutionDetail processor_results = 6;
+
   // [optional] When you search one or more remote clusters, a `_clusters` section is included to provide information about the search on each cluster.
-  optional ClusterStatistics clusters = 6;
+  optional ClusterStatistics underscore_clusters = 7;
 
   // [optional] Retrieved specific fields in the search response
-  optional ObjectMap fields = 7;
-
-  // [optional] Highest returned document _score.
-  optional float max_score = 8; // TODO where is this used? remove?
+  optional ObjectMap fields = 8;
 
   // [optional] The number of times that the coordinating node aggregates results from batches of shard responses
   optional int32 num_reduce_phases = 9;
 
   // [optional] Contains profiling information.
-  Profile profile = 10;
+  optional Profile profile = 10;
 
   // [optional] The PIT ID.
   optional string pit_id = 11;
 
   // [optional] Identifier for the search and its search context.
-  optional string scroll_id = 12;
+  optional string underscore_scroll_id = 12;
 
   // [optional] If the query was terminated early, the terminated_early flag will be set to true in the response
   optional bool terminated_early = 13;
+  // [optional]
+  // todo: not supported yet
+  // map<string, SearchResultSuggestValueInnerArray> suggest = 14;
+}
 
+message ProcessorExecutionDetail {
+  // [optional]
+  optional string processor_name = 1;
+  // [optional]
+  optional int64 duration_millis = 2;
+  // [optional]
+  optional ObjectMap input_data = 3;
+  // [optional]
+  optional ObjectMap output_data = 4;
+  // [optional]
+  optional string status = 5;
+  // [optional]
+  optional string tag = 6;
+  // [optional]
+  optional string error = 7;
 }
 
 message PhaseTook {
@@ -408,43 +405,45 @@ message PhaseTook {
 
 }
 
-message HitsMetadata {
-  message Total {
-    oneof total{
-      TotalHits total_hits = 1;
-      double double_value = 2;
-    }
+message HitsMetadataTotal {
+  oneof hits_metadata_total{
+    TotalHits total_hits = 1;
+    int64 int64 = 2;
   }
+}
+
+message HitsMetadataMaxScore{
+  oneof hits_metadata_max_score{
+    float float_value = 1;
+    NullValue null_value = 2;
+  }
+}
+
+message HitsMetadata {
   // [optional] Metadata about the number of matching documents.
-  Total total = 1;
+  optional HitsMetadataTotal total = 1;
 
   // [required] Array of returned document objects.
-  repeated Hit hits = 2;
-
-  message MaxScore{
-    oneof max_score{
-      float float_value = 1;
-      string string_value = 2;
-      NullValue null_value = 3;
-    }
-  }
+  repeated HitsMetadataHitsInner hits = 2;
 
   // [optional] Highest returned document _score.
-  MaxScore max_score = 3;
+  optional HitsMetadataMaxScore max_score = 3;
+}
 
+message TotalHitsRelation {
+  oneof total_hits_relation {
+    // Accurate.
+    bool total_hits_relation_eq = 1;
+
+    // Lower bound, including returned events or sequences.
+    bool total_hits_relation_gte = 2;
+  }
 }
 
 message TotalHits {
 
   // [required] Indicates whether the number of matching documents in the value parameter is accurate or a lower bound.
   TotalHitsRelation relation = 1;
-  enum TotalHitsRelation {
-    TOTAL_HITS_RELATION_UNSPECIFIED = 0;
-    // Accurate
-    TOTAL_HITS_RELATION_EQ = 1;
-    // Lower bound
-    TOTAL_HITS_RELATION_GTE = 2;
-  }
   // [required] Total number of matching documents.
   int64 value = 2;
 
@@ -457,25 +456,17 @@ message InnerHitsResult {
 
 }
 
-message Hit {
+message HitsMetadataHitsInner {
 
-  optional string type = 1;
+  optional string underscore_type = 1;
 
   // [required] Name of the index containing the returned document.
-  string index = 2;
+  string underscore_index = 2;
   // [required] Unique identifier for the returned document. This ID is only unique within the returned index.
-  string id = 3;
-
-  message Score {
-    oneof score{
-      float float_value = 1;
-      string string_value = 2;
-      NullValue null_value = 3;
-    }
-  }
+  string underscore_id = 3;
 
   // [optional] Relevance of the returned document.
-  optional Score score = 4;
+  repeated FieldValue score = 4;
 
   // [optional] Explanation of how the relevance score (_score) is calculated for every result.
   optional Explanation explanation = 5;
@@ -493,33 +484,33 @@ message Hit {
   repeated string matched_queries = 9;
 
   // [optional] Defines from what inner nested object this inner hit came from
-  optional NestedIdentity nested = 10;
+  optional NestedIdentity underscore_nested = 10;
 
   // [optional] List of fields ignored.
-  repeated string ignored = 11;
+  repeated string underscore_ignored = 11;
 
   // [optional] These values are retrieved from the document’s original JSON source and are raw so will not be formatted or treated in any way, unlike the successfully indexed fields which are returned in the fields section.
   map<string, StringArray> ignored_field_values = 12;
 
   // [optional] Shard from which this document was retrieved.
-  optional string shard = 13;
+  optional string underscore_shard = 13;
 
   // [optional] Node from which this document was retrieved.
-  optional string node = 14;
+  optional string underscore_node = 14;
 
-  optional string routing = 15;
+  optional string underscore_routing = 15;
 
   // [optional] Source document.
-  optional bytes source = 16;
+  optional bytes underscore_source = 16;
 
   // [optional] Counts the number of operations that happened on the index
-  optional int64 seq_no = 17;
+  optional int64 underscore_seq_no = 17;
 
   // [optional] Counts the number of shard has changed.
-  optional int64 primary_term = 18;
+  optional int64 underscore_primary_term = 18;
 
   // [optional] Version number of the document.
-  optional int64 version = 19;
+  optional int64 underscore_version = 19;
 
   // [optional] Sorted values
   repeated FieldValue sort = 20;
@@ -609,23 +600,18 @@ message RescoreQuery {
   // [optional] The relative importance of the rescore query as compared to the original query.
   optional float rescore_query_weight = 3;
 
-  enum ScoreMode {
-    SCORE_MODE_UNSPECIFIED = 0;
-    // Average the original score and the rescore query score.
-    SCORE_MODE_AVG = 1;
-    // Take the max of original score and the rescore query score.
-    SCORE_MODE_MAX = 2;
-    // Take the min of the original score and the rescore query score.
-    SCORE_MODE_MIN = 3;
-    // Multiply the original score by the rescore query score. Useful for function query rescores.
-    SCORE_MODE_MULTIPLY = 4;
-    // Add the original score and the rescore query score. The default.
-    SCORE_MODE_TOTAL = 5;
-  }
-
   // [optional] Control the way the scores are combined.
-  ScoreMode score_mode = 4;
+  optional ScoreMode score_mode = 4;
 
+}
+
+enum ScoreMode {
+  SCORE_MODE_UNSPECIFIED = 0;
+  SCORE_MODE_AVG = 1;
+  SCORE_MODE_MAX = 2;
+  SCORE_MODE_MIN = 3;
+  SCORE_MODE_MULTIPLY = 4;
+  SCORE_MODE_TOTAL = 5;
 }
 
 message Rescore {
@@ -676,17 +662,19 @@ message ShardProfile {
 
 message AggregationProfile {
 
-  optional AggregationBreakdown breakdown = 1;
+  // [required]
+  AggregationBreakdown breakdown = 1;
+  // [required]
+  string description = 2;
 
-  optional string description = 2;
+  // [required] Time unit for nanoseconds
+  int64 time_in_nanos = 3;
+  // [required]
+  string type = 4;
 
-  // Time unit for nanoseconds
-  optional int64 time_in_nanos = 3;
-
-  optional string type = 4;
-
+  // [optional]
   optional AggregationProfileDebug debug = 5;
-
+  // [optional]
   repeated AggregationProfile children = 6;
 
 }
@@ -894,7 +882,7 @@ message AggregationProfileDebug {
 
   optional string delegate = 8;
 
-  optional AggregationProfileDebug delegate_debug = 9;
+  optional AggregationProfileDelegateDebug delegate_debug = 9;
 
   optional int32 chars_fetched = 10;
 
@@ -922,18 +910,20 @@ message AggregationProfileDebug {
 
   repeated string deferred_aggregators = 22;
 
-  optional int32 segments_with_doc_count_field = 23;
-
-  optional int32 segments_with_deleted_docs = 24;
-
-  repeated AggregationProfileDelegateDebugFilter filters = 25;
-
-  optional int32 segments_counted = 26;
-
-  optional int32 segments_collected = 27;
-
   optional string map_reducer = 28;
 
+}
+
+message AggregationProfileDelegateDebug {
+  optional int32 segments_with_doc_count_field = 1;
+
+  optional int32 segments_with_deleted_docs = 2;
+
+  repeated AggregationProfileDelegateDebugFilter filters = 3;
+
+  optional int32 segments_counted = 4;
+
+  optional int32 segments_collected = 5;
 }
 
 message AggregationProfileDelegateDebugFilter {
@@ -968,6 +958,6 @@ message NestedIdentity {
   int32 offset = 2;
 
   // [optional] Inner nested object.
-  optional NestedIdentity nested = 3;
+  optional NestedIdentity underscore_nested = 3;
 
 }
