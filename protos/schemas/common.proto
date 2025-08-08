@@ -13,7 +13,7 @@ import "google/protobuf/struct.proto";
 message WaitForActiveShards {
 
   oneof wait_for_active_shards {
-    StringifiedInteger stringified_integer = 1;
+    int32 int32_value = 1;
     WaitForActiveShardOptions wait_for_active_shard_options = 2;
   }
 }
@@ -24,13 +24,6 @@ message WaitForActiveShardOptions {
     bool wait_for_active_shard_options_all = 1;
     // null represents the default value (which defaults to one shard copy).
     NullValue null_value = 2;
-  }
-}
-
-message StringifiedInteger {
-  oneof stringified_integer {
-    int32 int32 = 1;
-    string string = 2;
   }
 }
 
