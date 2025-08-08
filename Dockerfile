@@ -13,6 +13,9 @@ RUN apt-get update && apt-get install -y \
     g++ \
     gcc \
     golang-go \
+    python3-pip \
+    tree \
+    vim \
     && apt-get clean
 
 RUN apt-get install software-properties-common -y
@@ -88,6 +91,15 @@ RUN ./gradlew :plugins:transport-grpc:internalClusterTest -Drepos.mavenLocal
 FROM build-bazel AS build-bazel-python
 
 RUN bazel build //:python_protos_all
+
+FROM build-bazel-python AS package-bazel-python
+
+RUN bazel build //:opensearch_protos_wheel
+
+FROM package-bazel-python AS test-bazel-python
+
+RUN pip3 install /build/bazel-bin/opensearch_protos-*-py3-none-any.whl
+RUN python3 /build/tools/python/print_modules.py
 
 #################################################
 ##### GO STAGES ##################################
