@@ -147,18 +147,18 @@ message IndexOperation {
 }
 
 message WriteOperation {
-  // The routing value for the document.
+  // [optional] The routing value for the document.
   optional string routing = 1;
 
-  // The unique identifier for a resource.
+  // [optional] The unique identifier for a resource.
   optional string underscore_id = 2;
-
+  // [optional]
   optional string underscore_index = 3;
 
-  // The pipeline ID for preprocessing documents. When the index has a default ingest pipeline specified, then setting the value to `_none` disables the default ingest pipeline for this request. When a final pipeline is configured, that pipeline will always run, regardless of the value of this parameter.
+  // [optional] The pipeline ID for preprocessing documents. When the index has a default ingest pipeline specified, then setting the value to `_none` disables the default ingest pipeline for this request. When a final pipeline is configured, that pipeline will always run, regardless of the value of this parameter.
   optional string pipeline = 4;
 
-  // When `true`, require that all actions target an index alias rather than an index. Default is `false`.
+  // [optional] When `true`, require that all actions target an index alias rather than an index. Default is `false`.
   optional bool require_alias = 5;
 }
 
