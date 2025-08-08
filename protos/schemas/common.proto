@@ -477,13 +477,16 @@ message QueryContainer {
 }
 
 message TermsQuery {
+  // [optional] Floating point number used to decrease or increase the relevance scores of the query. Boost values are relative to the default value of 1.0. A boost value between 0 and 1.0 decreases the relevance score. A value greater than 1.0 increases the relevance score.
   optional float boost = 1;
 
+  // [optional] Query name for query tagging.
   optional string underscore_name = 2;
 
-  // Specifies the types of values used for filtering. Valid values are `default` and `bitmap`. Default is `default`.
+  // [optional] Specifies the types of values used for filtering. Valid values are `default` and `bitmap`. Default is `default`.
   optional TermsQueryValueType value_type = 3;
 
+  // [optional]
   map<string, TermsQueryField> terms = 4;
 }
 
@@ -650,11 +653,13 @@ message Highlight {
   // [optional] The size of a highlighted fragment, specified as the number of characters. If number_of_fragments is set to 0, fragment_size is ignored. Default is 100.
   optional int32 fragment_size = 9;
 
+  // [optional]
   optional bool highlight_filter = 10;
 
   // [optional] Specifies that matches for a query other than the search query should be highlighted. The highlight_query option is useful when you use a faster query to get document matches and a slower query (for example, rescore_query) to refine the results. We recommend to include the search query as part of the highlight_query.
   optional QueryContainer highlight_query = 11;
 
+  // [optional]
   optional int32 max_fragment_length = 12;
 
   // [optional] If set to a non-negative value, highlighting stops at this defined maximum limit. The rest of the text is not processed, thus not highlighted and no error is returned The `max_analyzed_offset` query setting does not override the `index.highlight.max_analyzed_offset` setting, which prevails when it's set to lower value than the query setting.
@@ -734,7 +739,7 @@ message HighlightField {
 
   // [optional] The maximum number of returned fragments. If number_of_fragments is set to 0, OpenSearch returns the highlighted contents of the entire field. Default is 5.
   optional int32 number_of_fragments = 14;
-
+  // [optional]
   optional ObjectMap options = 15;
 
   // [optional] The sort order for the highlighted fragments. Each highlighter has a different algorithm for calculating relevance scores. Default is none.
@@ -751,7 +756,7 @@ message HighlightField {
 
   // [optional] Specifies whether to highlight only fields that contain a search query match. Default is true. To highlight all fields, set this option to false.
   optional bool require_field_match = 20;
-
+  // [optional]
   optional HighlighterTagsSchema tags_schema = 21;
 
   // [optional] If you set this option to styled, OpenSearch uses the built-in tag schema. In this schema, the pre_tags are <em class="hlt1">, <em class="hlt2">, <em class="hlt3">, <em class="hlt4">, <em class="hlt5">, <em class="hlt6">, <em class="hlt7">, <em class="hlt8">, <em class="hlt9">, and <em class="hlt10">, and the post_tags is </em>.
@@ -759,7 +764,7 @@ message HighlightField {
 
   // [optional] Combines matches from different fields to highlight one field. The most common use case for this functionality is highlighting text that is analyzed in different ways and kept in multi-fields. All fields in the matched_fields list must have the term_vector field set to with_positions_offsets. The field in which the matches are combined is the only loaded field, so it is beneficial to set its store option to yes. Valid only for the fvh highlighter.
   repeated string matched_fields = 23;
-
+  // [optional]
   optional Analyzer analyzer = 24;
 
 }
@@ -879,12 +884,13 @@ enum FieldType {
 }
 
 message SortOptionsOneOf {
+  // [optional]
   optional ScoreSort underscore_score = 1;
-
+  // [optional]
   optional ScoreSort underscore_doc = 2;
-
+  // [optional]
   optional GeoDistanceSort underscore_geo_distance = 3;
-
+  // [optional]
   optional ScriptSort underscore_script = 4;
 }
 
@@ -932,7 +938,7 @@ message GeoDistanceType {
 
 message GeoDistanceSort {
 
-  // Specifies how to handle a field with several geopoints.
+  // [optional] Specifies how to handle a field with several geopoints.
   optional SortMode mode = 1;
 
   // [optional] Specifies the method of computing the distance.
@@ -940,14 +946,14 @@ message GeoDistanceSort {
 
   // [optional] Specifies how to treat an unmapped field. Set ignore_unmapped to true to ignore unmapped fields. Default is false
   optional bool ignore_unmapped = 3;
-
+  // [optional]
   optional NestedSortValue nested = 4;
   // [optional] Specifies the sort order (asc or dsc) for the score.
   optional SortOrder order = 5;
 
   // [optional] Specifies the units used to compute sort values. Default is meters (m).
   optional DistanceUnit unit = 6;
-
+  // [optional]
   optional GeoValidationMethod validation_method = 7;
 }
 

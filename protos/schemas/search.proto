@@ -343,6 +343,7 @@ message ResponseBody {
   // [required] Contains returned documents and metadata.
   HitsMetadata hits = 5;
 
+  // [optional]
   repeated ProcessorExecutionDetail processor_results = 6;
 
   // [optional] When you search one or more remote clusters, a `_clusters` section is included to provide information about the search on each cluster.
@@ -371,18 +372,19 @@ message ResponseBody {
 }
 
 message ProcessorExecutionDetail {
+  // [optional]
   optional string processor_name = 1;
-
+  // [optional]
   optional int64 duration_millis = 2;
-
+  // [optional]
   optional ObjectMap input_data = 3;
-
+  // [optional]
   optional ObjectMap output_data = 4;
-
+  // [optional]
   optional string status = 5;
-
+  // [optional]
   optional string tag = 6;
-
+  // [optional]
   optional string error = 7;
 }
 
@@ -660,17 +662,19 @@ message ShardProfile {
 
 message AggregationProfile {
 
+  // [required]
   AggregationBreakdown breakdown = 1;
-
+  // [required]
   string description = 2;
 
-  // Time unit for nanoseconds
+  // [required] Time unit for nanoseconds
   int64 time_in_nanos = 3;
-
+  // [required]
   string type = 4;
 
+  // [optional]
   optional AggregationProfileDebug debug = 5;
-
+  // [optional]
   repeated AggregationProfile children = 6;
 
 }
