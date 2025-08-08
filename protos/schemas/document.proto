@@ -222,21 +222,12 @@ message BulkResponseBody {
   // [optional] If true, one or more of the operations in the bulk request did not complete successfully.
   optional bool errors = 1;
   // [optional] Contains the result of each operation in the bulk request, in the order they were submitted.
-  repeated Item items = 2;
+  repeated ResponseItem items = 2;
   // [optional] How long, in milliseconds, it took to process the bulk request.
   optional int64 took = 3;
   // [optional] How long, in milliseconds, it took to process documents through an ingest pipeline
   optional int64 ingest_took = 4;
 
-}
-
-message Item {
-  oneof item {
-    ResponseItem create = 1;
-    ResponseItem delete = 2;
-    ResponseItem index = 3;
-    ResponseItem update = 4;
-  }
 }
 
 message ResponseItem {
@@ -271,6 +262,8 @@ message ResponseItem {
   optional bool forced_refresh = 11;
   // [optional]
   optional InlineGetDictUserDefined get = 12;
+  // [required] the value are "create", "update", "index" and "delete"
+  string field = 13;
 }
 
 
