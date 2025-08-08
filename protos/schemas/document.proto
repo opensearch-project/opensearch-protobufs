@@ -230,6 +230,13 @@ message BulkResponseBody {
 
 }
 
+enum ResponseOpType {
+  RESPONSE_OP_TYPE_CREATE = 0;
+  RESPONSE_OP_TYPE_INDEX = 1;
+  RESPONSE_OP_TYPE_UPDATE = 2;
+  RESPONSE_OP_TYPE_DELETE = 3;
+}
+
 message ResponseItem {
 
   // [optional] The document type.
@@ -263,7 +270,7 @@ message ResponseItem {
   // [optional]
   optional InlineGetDictUserDefined get = 12;
   // [required] the value are "create", "update", "index" and "delete"
-  string field = 13;
+  ResponseOpType response_op_type = 13;
 }
 
 
