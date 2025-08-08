@@ -53,16 +53,40 @@ export class SchemaModifier {
         }
     }
 
-    // Converts `oneOf` schemas with `const` values to boolean types.
-    // Example: oneof: [ {type: 'string', const: 'a'} ] to type: 'boolean' with title: 'schemaName_a'
+    // Converts `oneOf` schemas with `const` values to enum types.
+    // Example: oneof: [ {type: 'string', const: 'a'}, {type: 'string', const: 'b'} ] to enum: ['a', 'b']
+    // For non-string types, uses the type as enum value
     handleOneOfConst(schema: OpenAPIV3.SchemaObject, schemaName: string): void {
         if (schema.oneOf) {
+            const enumValues: string[] = [];
+            let hasStringWithConst = false;
+            
+            // check if have string with const
             for (const item of schema.oneOf) {
                 if (item && !('$ref' in item) && item.type === 'string' && 'const' in item) {
-                    item.type = 'boolean';
-                    item.title = compressMultipleUnderscores(`${schemaName}_${item.const}`);
-                    delete item.const;
+                    hasStringWithConst = true;
+                    break;
                 }
+            }
+            
+            // if found string+const, collect all values
+            if (hasStringWithConst) {
+                for (const item of schema.oneOf) {
+                    if (item && !('$ref' in item)) {
+                        if (item.type === 'string' && 'const' in item) {
+                            // use const value as enum value
+                            enumValues.push(item.const as string);
+                        } else if (item.type) {
+                            // use type name as enum value
+                            enumValues.push(item.type);
+                        }
+                    }
+                }
+                
+                // Convert to enum
+                delete schema.oneOf;
+                schema.type = 'string';
+                schema.enum = enumValues;
             }
         }
     }
