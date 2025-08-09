@@ -211,12 +211,21 @@ message BulkResponseBody {
   // [optional] If true, one or more of the operations in the bulk request did not complete successfully.
   optional bool errors = 1;
   // [optional] Contains the result of each operation in the bulk request, in the order they were submitted.
-  repeated ResponseItem items = 2;
+  repeated Item items = 2;
   // [optional] How long, in milliseconds, it took to process the bulk request.
   optional int64 took = 3;
   // [optional] How long, in milliseconds, it took to process documents through an ingest pipeline
   optional int64 ingest_took = 4;
 
+}
+
+message Item {
+  oneof item {
+    ResponseItem create = 1;
+    ResponseItem delete = 2;
+    ResponseItem index = 3;
+    ResponseItem update = 4;
+  }
 }
 
 enum ResponseOpType {
@@ -227,37 +236,35 @@ enum ResponseOpType {
 }
 
 message ResponseItem {
-  // [required] the value are "create", "update", "index" and "delete"
-  ResponseOpType response_op_type = 1;
   // [required] Name of the index associated with the operation. If the operation targeted a data stream, this is the backing index into which the document was written.
-  string underscore_index = 2;
+  string underscore_index = 1;
   // [required] HTTP status code returned for the operation.
   // TODO: use grpc status code instead
-  int32 status = 3;
+  int32 status = 2;
   // [optional] The document type.
-  optional string underscore_type = 4;
+  optional string underscore_type = 3;
 
   // [optional] The document ID associated with the operation.
-  optional Id underscore_id = 5;
+  optional Id underscore_id = 4;
 
   // [optional] Contains additional information about the failed operation.
-  optional ErrorCause error = 6;
+  optional ErrorCause error = 5;
 
   // [optional] The primary term assigned to the document for the operation.
-  optional int64 underscore_primary_term = 7;
+  optional int64 underscore_primary_term = 6;
 
   // [optional] Result of the operation. Successful values are `created`, `deleted`, and `updated`.
-  optional string result = 8;
+  optional string result = 7;
   // [optional] The sequence number assigned to the document for the operation. Sequence numbers are used to ensure an older version of a document doesn't overwrite a newer version
-  optional int64 underscore_seq_no = 9;
+  optional int64 underscore_seq_no = 8;
   // [optional] Contains shard information for the operation. This parameter is only returned for successful operations.
-  optional ShardInfo underscore_shards = 10;
+  optional ShardInfo underscore_shards = 9;
   // [optional] The document version associated with the operation. The document version is incremented each time the document is updated. This parameter is only returned for successful actions.
-  optional int64 underscore_version = 11;
+  optional int64 underscore_version = 10;
   // [optional] if `true`, it requires immediate visibility of the document
-  optional bool forced_refresh = 12;
+  optional bool forced_refresh = 11;
   // [optional]
-  optional InlineGetDictUserDefined get = 13;
+  optional InlineGetDictUserDefined get = 12;
 }
 
 
