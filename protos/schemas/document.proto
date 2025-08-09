@@ -91,31 +91,20 @@ message UpdateAction {
   optional SourceConfig underscore_source = 7;
 }
 
-message OpType {
-  oneof op_type {
-    // Create a new document.
-    bool op_type_create = 1;
-
-    // Create a new document or replace an existing one.
-    bool op_type_index = 2;
-  }
+enum OpType {
+  OP_TYPE_UNSPECIFIED = 0;
+  OP_TYPE_CREATE = 1;
+  OP_TYPE_INDEX = 2;
 }
 
-message VersionType {
-  oneof version_type {
-    // The version number must be greater than the current version.
-    bool version_type_external = 1;
-
-    // The version number must be greater than or equal to the current version.
-    bool version_type_external_gte = 2;
-
-    // The version number is forced to be the given value.
-    bool version_type_force = 3;
-
-    // The version number is managed internally by OpenSearch.
-    bool version_type_internal = 4;
-  }
+enum VersionType {
+  VERSION_TYPE_UNSPECIFIED = 0;
+  VERSION_TYPE_EXTERNAL = 1;
+  VERSION_TYPE_EXTERNAL_GTE = 2;
+  VERSION_TYPE_FORCE = 3;
+  VERSION_TYPE_INTERNAL = 4;
 }
+
 message IndexOperation {
   // [optional] The document ID. If no ID is specified, a document ID is automatically generated.
   optional string underscore_id = 1;
@@ -289,20 +278,12 @@ message InlineGetDictUserDefined {
   optional bytes underscore_source = 7;
 }
 
-message Refresh {
-  oneof refresh {
-    // Whether to refresh the affected shards immediately.
-    bool bool = 1;
-
-    // Do not refresh the affected shards.
-    bool refresh_false = 2;
-
-    // Refresh the affected shards immediately.
-    bool refresh_true = 3;
-
-    // Wait for the changes to become visible before replying.
-    bool refresh_wait_for = 4;
-  }
+enum Refresh {
+  REFRESH_UNSPECIFIED = 0;
+  REFRESH_BOOLEAN = 1;
+  REFRESH_FALSE = 2;
+  REFRESH_TRUE = 3;
+  REFRESH_WAIT_FOR = 4;
 }
 
 // index document.

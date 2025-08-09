@@ -430,14 +430,10 @@ message HitsMetadata {
   optional HitsMetadataMaxScore max_score = 3;
 }
 
-message TotalHitsRelation {
-  oneof total_hits_relation {
-    // Accurate.
-    bool total_hits_relation_eq = 1;
-
-    // Lower bound, including returned events or sequences.
-    bool total_hits_relation_gte = 2;
-  }
+enum TotalHitsRelation {
+  TOTAL_HITS_RELATION_UNSPECIFIED = 0;
+  TOTAL_HITS_RELATION_EQ = 1;
+  TOTAL_HITS_RELATION_GTE = 2;
 }
 
 message TotalHits {
