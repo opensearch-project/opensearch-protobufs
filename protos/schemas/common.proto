@@ -17,14 +17,10 @@ message WaitForActiveShards {
     WaitForActiveShardOptions wait_for_active_shard_options = 2;
   }
 }
-message WaitForActiveShardOptions {
-
-  oneof wait_for_active_shard_options {
-    // Wait for all shards to be active.
-    bool wait_for_active_shard_options_all = 1;
-    // null represents the default value (which defaults to one shard copy).
-    NullValue null_value = 2;
-  }
+enum WaitForActiveShardOptions {
+  WAIT_FOR_ACTIVE_SHARD_OPTIONS_UNSPECIFIED = 0;
+  WAIT_FOR_ACTIVE_SHARD_OPTIONS_ALL = 1;
+  WAIT_FOR_ACTIVE_SHARD_OPTIONS_NULL = 2;
 }
 
 message Script {
@@ -68,32 +64,19 @@ enum BuiltinScriptLanguage {
   BUILTIN_SCRIPT_LANGUAGE_PAINLESS = 4;
 }
 
-message ExpandWildcard {
-  oneof expand_wildcard {
-    // Match any index, including hidden ones.
-    bool expand_wildcard_all = 1;
-
-    // Match closed, non-hidden indexes.
-    bool expand_wildcard_closed = 2;
-
-    // Match hidden indexes. Must be combined with `open`, `closed`, or both.
-    bool expand_wildcard_hidden = 3;
-
-    // Wildcard expressions are not accepted.
-    bool expand_wildcard_none = 4;
-
-    // Match open, non-hidden indexes.
-    bool expand_wildcard_open = 5;
-  }
+enum ExpandWildcard {
+  EXPAND_WILDCARD_UNSPECIFIED = 0;
+  EXPAND_WILDCARD_ALL = 1;
+  EXPAND_WILDCARD_CLOSED = 2;
+  EXPAND_WILDCARD_HIDDEN = 3;
+  EXPAND_WILDCARD_NONE = 4;
+  EXPAND_WILDCARD_OPEN = 5;
 }
 
-message SearchType {
-  oneof search_type {
-    // Documents are scored using global term and document frequencies across all shards. This is usually slower but more accurate.
-    bool search_type_dfs_query_then_fetch = 1;
-    // Documents are scored using local term and document frequencies for the shard. This is usually faster but less accurate.
-    bool search_type_query_then_fetch = 2;
-  }
+enum SearchType {
+  SEARCH_TYPE_UNSPECIFIED = 0;
+  SEARCH_TYPE_DFS_QUERY_THEN_FETCH = 1;
+  SEARCH_TYPE_QUERY_THEN_FETCH = 2;
 }
 
 enum SuggestMode {
@@ -585,14 +568,11 @@ message HighlighterType {
   }
 }
 
-message BuiltinHighlighterType {
-  oneof builtin_highlighter_type {
-    bool builtin_highlighter_type_plain = 1;
-
-    bool builtin_highlighter_type_fvh = 2;
-
-    bool builtin_highlighter_type_unified = 3;
-  }
+enum BuiltinHighlighterType {
+  BUILTIN_HIGHLIGHTER_TYPE_UNSPECIFIED = 0;
+  BUILTIN_HIGHLIGHTER_TYPE_PLAIN = 1;
+  BUILTIN_HIGHLIGHTER_TYPE_FVH = 2;
+  BUILTIN_HIGHLIGHTER_TYPE_UNIFIED = 3;
 }
 
 enum BoundaryScanner {
@@ -817,20 +797,12 @@ message FieldSort {
   optional string field = 8;
 }
 
-message FieldSortNumericType {
-  oneof field_sort_numeric_type {
-    // The field contains date values.
-    bool field_sort_numeric_type_date = 1;
-
-    // The field contains date values with nanosecond precision.
-    bool field_sort_numeric_type_date_nanos = 2;
-
-    // The field contains double-precision floating-point values.
-    bool field_sort_numeric_type_double = 3;
-
-    // The field contains long integer values.
-    bool field_sort_numeric_type_long = 4;
-  }
+enum FieldSortNumericType {
+  FIELD_SORT_NUMERIC_TYPE_UNSPECIFIED = 0;
+  FIELD_SORT_NUMERIC_TYPE_DATE = 1;
+  FIELD_SORT_NUMERIC_TYPE_DATE_NANOS = 2;
+  FIELD_SORT_NUMERIC_TYPE_DOUBLE = 3;
+  FIELD_SORT_NUMERIC_TYPE_LONG = 4;
 }
 
 enum FieldType {
@@ -907,33 +879,19 @@ enum SortOrder {
   SORT_ORDER_DESC = 2;
 }
 
-message SortMode {
-  oneof sort_mode {
-    // Use the average of all values.
-    bool sort_mode_avg = 1;
-
-    // Use the maximum value.
-    bool sort_mode_max = 2;
-
-    // Use the median value.
-    bool sort_mode_median = 3;
-
-    // Use the minimum value.
-    bool sort_mode_min = 4;
-
-    // Use the sum of all values.
-    bool sort_mode_sum = 5;
-  }
+enum SortMode {
+  SORT_MODE_UNSPECIFIED = 0;
+  SORT_MODE_AVG = 1;
+  SORT_MODE_MAX = 2;
+  SORT_MODE_MEDIAN = 3;
+  SORT_MODE_MIN = 4;
+  SORT_MODE_SUM = 5;
 }
 
-message GeoDistanceType {
-  oneof geo_distance_type {
-    // The arc calculation method uses great circle distance.
-    bool geo_distance_type_arc = 1;
-
-    // The plane calculation method uses faster but less accurate flat-earth distance.
-    bool geo_distance_type_plane = 2;
-  }
+enum GeoDistanceType {
+  GEO_DISTANCE_TYPE_UNSPECIFIED = 0;
+  GEO_DISTANCE_TYPE_ARC = 1;
+  GEO_DISTANCE_TYPE_PLANE = 2;
 }
 
 message GeoDistanceSort {
@@ -964,27 +922,26 @@ enum GeoValidationMethod {
   GEO_VALIDATION_METHOD_STRICT = 3;
 }
 
-message DistanceUnit {
-  oneof distance_unit {
-    bool distance_unit_cm = 1;
-
-    bool distance_unit_ft = 2;
-
-    bool distance_unit_in = 3;
-
-    bool distance_unit_km = 4;
-
-    bool distance_unit_m = 5;
-
-    bool distance_unit_mi = 6;
-
-    bool distance_unit_mm = 7;
-
-    bool distance_unit_nmi = 8;
-
-    bool distance_unit_yd = 9;
-  }
+enum DistanceUnit {
+  DISTANCE_UNIT_UNSPECIFIED = 0;
+  DISTANCE_UNIT_CM = 1;
+  DISTANCE_UNIT_FT = 2;
+  DISTANCE_UNIT_IN = 3;
+  DISTANCE_UNIT_KM = 4;
+  DISTANCE_UNIT_M = 5;
+  DISTANCE_UNIT_MI = 6;
+  DISTANCE_UNIT_MM = 7;
+  DISTANCE_UNIT_NMI = 8;
+  DISTANCE_UNIT_YD = 9;
 }
+
+enum ScriptSortType {
+  SCRIPT_SORT_TYPE_UNSPECIFIED = 0;
+  SCRIPT_SORT_TYPE_NUMBER = 1;
+  SCRIPT_SORT_TYPE_STRING = 2;
+  SCRIPT_SORT_TYPE_VERSION = 3;
+}
+
 
 message ScriptSort {
 
@@ -996,29 +953,8 @@ message ScriptSort {
 
   // [optional] Specifies script sort type.
   ScriptSortType type = 3;
-  enum ScriptSortType {
-    SCRIPT_SORT_TYPE_UNSPECIFIED = 0;
-    SCRIPT_SORT_TYPE_NUMBER = 1;
-    SCRIPT_SORT_TYPE_STRING = 2;
-    SCRIPT_SORT_TYPE_VERSION = 3;
-  }
-
   // [optional] Specifies what array value should be chosen for sorting the document.
   SortMode mode = 4;
-  enum SortMode {
-    SORT_MODE_UNSPECIFIED = 0;
-    // Use the average of all values as sort value. Only applicable for number based array fields.
-    SORT_MODE_AVG = 1;
-    // Pick the highest value.
-    SORT_MODE_MAX = 2;
-    // Use the median of all values as sort value. Only applicable for number based array fields.
-    SORT_MODE_MEDIAN = 3;
-    // Pick the lowest value.
-    SORT_MODE_MIN = 4;
-    // Use the sum of all values as sort value. Only applicable for number based array fields.
-    SORT_MODE_SUM = 5;
-  }
-
   // Supports sorting by fields that are inside one or more nested objects.
   NestedSortValue nested = 5;
 
