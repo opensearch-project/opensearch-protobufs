@@ -745,14 +745,11 @@ message BucketsQueryContainer {
 
   map<string, QueryContainer> keyed = 3;
 }
-message BuiltinHighlighterType {
-  oneof builtin_highlighter_type {
-    bool builtin_highlighter_type_plain = 1;
-
-    bool builtin_highlighter_type_fvh = 2;
-
-    bool builtin_highlighter_type_unified = 3;
-  }
+enum BuiltinHighlighterType {
+  BUILTIN_HIGHLIGHTER_TYPE_UNSPECIFIED = 0;
+  BUILTIN_HIGHLIGHTER_TYPE_PLAIN = 1;
+  BUILTIN_HIGHLIGHTER_TYPE_FVH = 2;
+  BUILTIN_HIGHLIGHTER_TYPE_UNIFIED = 3;
 }
 enum BuiltinScriptLanguage {
   BUILTIN_SCRIPT_LANGUAGE_UNSPECIFIED = 0;
@@ -1556,26 +1553,17 @@ message DistanceFeatureQueryOneOf1 {
   // The path to a field or an array of paths. Some APIs support wildcards in the path, which allows you to select multiple fields.
   string field = 5;
 }
-message DistanceUnit {
-  oneof distance_unit {
-    bool distance_unit_cm = 1;
-
-    bool distance_unit_ft = 2;
-
-    bool distance_unit_in = 3;
-
-    bool distance_unit_km = 4;
-
-    bool distance_unit_m = 5;
-
-    bool distance_unit_mi = 6;
-
-    bool distance_unit_mm = 7;
-
-    bool distance_unit_nmi = 8;
-
-    bool distance_unit_yd = 9;
-  }
+enum DistanceUnit {
+  DISTANCE_UNIT_UNSPECIFIED = 0;
+  DISTANCE_UNIT_CM = 1;
+  DISTANCE_UNIT_FT = 2;
+  DISTANCE_UNIT_IN = 3;
+  DISTANCE_UNIT_KM = 4;
+  DISTANCE_UNIT_M = 5;
+  DISTANCE_UNIT_MI = 6;
+  DISTANCE_UNIT_MM = 7;
+  DISTANCE_UNIT_NMI = 8;
+  DISTANCE_UNIT_YD = 9;
 }
 message DiversifiedSamplerAggregation {
   // The custom metadata attached to a resource.
@@ -1689,23 +1677,13 @@ message ExistsQuery {
   // The path to a field or an array of paths. Some APIs support wildcards in the path, which allows you to select multiple fields.
   string field = 3;
 }
-message ExpandWildcard {
-  oneof expand_wildcard {
-    // Match any index, including hidden ones.
-    bool expand_wildcard_all = 1;
-
-    // Match closed, non-hidden indexes.
-    bool expand_wildcard_closed = 2;
-
-    // Match hidden indexes. Must be combined with `open`, `closed`, or both.
-    bool expand_wildcard_hidden = 3;
-
-    // Wildcard expressions are not accepted.
-    bool expand_wildcard_none = 4;
-
-    // Match open, non-hidden indexes.
-    bool expand_wildcard_open = 5;
-  }
+enum ExpandWildcard {
+  EXPAND_WILDCARD_UNSPECIFIED = 0;
+  EXPAND_WILDCARD_ALL = 1;
+  EXPAND_WILDCARD_CLOSED = 2;
+  EXPAND_WILDCARD_HIDDEN = 3;
+  EXPAND_WILDCARD_NONE = 4;
+  EXPAND_WILDCARD_OPEN = 5;
 }
 message Explanation {
   string description = 1;
@@ -2012,23 +1990,13 @@ message FieldSort {
 
   // The format to use for the sort values.
   optional string format = 7;
-
-  optional string field = 8;
 }
-message FieldSortNumericType {
-  oneof field_sort_numeric_type {
-    // The field contains date values.
-    bool field_sort_numeric_type_date = 1;
-
-    // The field contains date values with nanosecond precision.
-    bool field_sort_numeric_type_date_nanos = 2;
-
-    // The field contains double-precision floating-point values.
-    bool field_sort_numeric_type_double = 3;
-
-    // The field contains long integer values.
-    bool field_sort_numeric_type_long = 4;
-  }
+enum FieldSortNumericType {
+  FIELD_SORT_NUMERIC_TYPE_UNSPECIFIED = 0;
+  FIELD_SORT_NUMERIC_TYPE_DATE = 1;
+  FIELD_SORT_NUMERIC_TYPE_DATE_NANOS = 2;
+  FIELD_SORT_NUMERIC_TYPE_DOUBLE = 3;
+  FIELD_SORT_NUMERIC_TYPE_LONG = 4;
 }
 message FieldSuggester {
   optional string prefix = 1;
@@ -2435,14 +2403,10 @@ message GeoDistanceSort {
 
   optional GeoValidationMethod validation_method = 7;
 }
-message GeoDistanceType {
-  oneof geo_distance_type {
-    // The arc calculation method uses great circle distance.
-    bool geo_distance_type_arc = 1;
-
-    // The plane calculation method uses faster but less accurate flat-earth distance.
-    bool geo_distance_type_plane = 2;
-  }
+enum GeoDistanceType {
+  GEO_DISTANCE_TYPE_UNSPECIFIED = 0;
+  GEO_DISTANCE_TYPE_ARC = 1;
+  GEO_DISTANCE_TYPE_PLANE = 2;
 }
 enum GeoExecution {
   GEO_EXECUTION_UNSPECIFIED = 0;
@@ -2550,20 +2514,12 @@ message GeoShapeQueryField {
 
   optional GeoShapeRelation relation = 3;
 }
-message GeoShapeRelation {
-  oneof geo_shape_relation {
-    // The shape contains the query shape.
-    bool geo_shape_relation_contains = 1;
-
-    // The shape has no points in common with the query shape.
-    bool geo_shape_relation_disjoint = 2;
-
-    // The shape shares any points in common with the query shape.
-    bool geo_shape_relation_intersects = 3;
-
-    // The shape is within the query shape.
-    bool geo_shape_relation_within = 4;
-  }
+enum GeoShapeRelation {
+  GEO_SHAPE_RELATION_UNSPECIFIED = 0;
+  GEO_SHAPE_RELATION_CONTAINS = 1;
+  GEO_SHAPE_RELATION_DISJOINT = 2;
+  GEO_SHAPE_RELATION_INTERSECTS = 3;
+  GEO_SHAPE_RELATION_WITHIN = 4;
 }
 message GeoTileGridAggregate {
   // The custom metadata attached to a resource.
@@ -3118,12 +3074,10 @@ enum HoltWintersMovingAverageAggregationAllOfModel {
   HOLT_WINTERS_MOVING_AVERAGE_AGGREGATION_ALL_OF_MODEL_UNSPECIFIED = 0;
   HOLT_WINTERS_MOVING_AVERAGE_AGGREGATION_ALL_OF_MODEL_HOLT_WINTERS = 1;
 }
-message HoltWintersType {
-  oneof holt_winters_type {
-    bool holt_winters_type_add = 1;
-
-    bool holt_winters_type_mult = 2;
-  }
+enum HoltWintersType {
+  HOLT_WINTERS_TYPE_UNSPECIFIED = 0;
+  HOLT_WINTERS_TYPE_ADD = 1;
+  HOLT_WINTERS_TYPE_MULT = 2;
 }
 enum Hour {
   HOUR_UNSPECIFIED = 0;
@@ -4363,20 +4317,12 @@ message MultiTermLookup {
 
   optional FieldValue missing = 2;
 }
-message MultiTermQueryRewrite {
-  oneof multi_term_query_rewrite {
-    // The constant score rewrite method assigns the same score to all matching documents.
-    bool multi_term_query_rewrite_constant_score = 1;
-
-    // The constant score Boolean rewrite method creates a Boolean query with a constant score.
-    bool multi_term_query_rewrite_constant_score_boolean = 2;
-
-    // The scoring Boolean rewrite method creates a Boolean query that scores each term separately.
-    bool multi_term_query_rewrite_scoring_boolean = 3;
-
-    // The top terms query rewrite method with optional parameters.
-    string string = 4;
-  }
+enum MultiTermQueryRewrite {
+  MULTI_TERM_QUERY_REWRITE_UNSPECIFIED = 0;
+  MULTI_TERM_QUERY_REWRITE_CONSTANT_SCORE = 1;
+  MULTI_TERM_QUERY_REWRITE_CONSTANT_SCORE_BOOLEAN = 2;
+  MULTI_TERM_QUERY_REWRITE_SCORING_BOOLEAN = 3;
+  MULTI_TERM_QUERY_REWRITE_STRING = 4;
 }
 message MultiTermsAggregate {
   // The custom metadata attached to a resource.
@@ -4608,14 +4554,10 @@ message NumericDecayPlacement {
 
   optional double scale = 4;
 }
-message OpType {
-  oneof op_type {
-    // Create a new document.
-    bool op_type_create = 1;
-
-    // Create a new document or replace an existing one.
-    bool op_type_index = 2;
-  }
+enum OpType {
+  OP_TYPE_UNSPECIFIED = 0;
+  OP_TYPE_CREATE = 1;
+  OP_TYPE_INDEX = 2;
 }
 message OperationBase {
   // The routing value for the document.
@@ -5458,20 +5400,12 @@ enum RateMode {
   RATE_MODE_SUM = 1;
   RATE_MODE_VALUE_COUNT = 2;
 }
-message Refresh {
-  oneof refresh {
-    // Whether to refresh the affected shards immediately.
-    bool bool = 1;
-
-    // Do not refresh the affected shards.
-    bool refresh_false = 2;
-
-    // Refresh the affected shards immediately.
-    bool refresh_true = 3;
-
-    // Wait for the changes to become visible before replying.
-    bool refresh_wait_for = 4;
-  }
+enum Refresh {
+  REFRESH_UNSPECIFIED = 0;
+  REFRESH_BOOLEAN = 1;
+  REFRESH_FALSE = 2;
+  REFRESH_TRUE = 3;
+  REFRESH_WAIT_FOR = 4;
 }
 message RegexpQuery {
   // Floating point number used to decrease or increase the relevance scores of the query. Boost values are relative to the default value of 1.0. A boost value between 0 and 1.0 decreases the relevance score. A value greater than 1.0 increases the relevance score.
@@ -5664,17 +5598,11 @@ message ScriptSort {
   // The nested path and filter for nested sorting.
   optional NestedSortValue nested = 5;
 }
-message ScriptSortType {
-  oneof script_sort_type {
-    // The script returns a numeric value.
-    bool script_sort_type_number = 1;
-
-    // The script returns a string value.
-    bool script_sort_type_string = 2;
-
-    // The script returns a version value.
-    bool script_sort_type_version = 3;
-  }
+enum ScriptSortType {
+  SCRIPT_SORT_TYPE_UNSPECIFIED = 0;
+  SCRIPT_SORT_TYPE_NUMBER = 1;
+  SCRIPT_SORT_TYPE_STRING = 2;
+  SCRIPT_SORT_TYPE_VERSION = 3;
 }
 message ScriptedHeuristic {
   Script script = 1;
@@ -5922,14 +5850,10 @@ message SearchResultSuggestValueInner {
 message SearchResultSuggestValueInnerArray {
   repeated SearchResultSuggestValueInner search_result_suggest_value_inner_array = 1;
 }
-message SearchType {
-  oneof search_type {
-    // Documents are scored using global term and document frequencies across all shards. This is usually slower but more accurate.
-    bool search_type_dfs_query_then_fetch = 1;
-
-    // Documents are scored using local term and document frequencies for the shard. This is usually faster but less accurate.
-    bool search_type_query_then_fetch = 2;
-  }
+enum SearchType {
+  SEARCH_TYPE_UNSPECIFIED = 0;
+  SEARCH_TYPE_DFS_QUERY_THEN_FETCH = 1;
+  SEARCH_TYPE_QUERY_THEN_FETCH = 2;
 }
 enum Second {
   SECOND_UNSPECIFIED = 0;
@@ -6378,54 +6302,21 @@ enum SnowballLanguage {
   SNOWBALL_LANGUAGE_SWEDISH = 21;
   SNOWBALL_LANGUAGE_TURKISH = 22;
 }
-message SortMode {
-  oneof sort_mode {
-    // Use the average of all values.
-    bool sort_mode_avg = 1;
-
-    // Use the maximum value.
-    bool sort_mode_max = 2;
-
-    // Use the median value.
-    bool sort_mode_median = 3;
-
-    // Use the minimum value.
-    bool sort_mode_min = 4;
-
-    // Use the sum of all values.
-    bool sort_mode_sum = 5;
-  }
+enum SortMode {
+  SORT_MODE_UNSPECIFIED = 0;
+  SORT_MODE_AVG = 1;
+  SORT_MODE_MAX = 2;
+  SORT_MODE_MEDIAN = 3;
+  SORT_MODE_MIN = 4;
+  SORT_MODE_SUM = 5;
 }
-message SortOptions {
-  oneof sort_options {
-    // Sort by document score.
-    bool sort_options_score = 1;
-
-    // Sort by document index order.
-    bool sort_options_doc = 2;
-
-    // Sort by field name.
-    string string = 3;
-
-    SortOptionsOneOf sort_options_one_of = 4;
-
-    // Sort by field options.
-    FieldSort field_sort = 5;
-  }
-}
-message SortOptionsOneOf {
-  optional ScoreSort underscore_score = 1;
-
-  optional ScoreSort underscore_doc = 2;
-
-  optional GeoDistanceSort underscore_geo_distance = 3;
-
-  optional ScriptSort underscore_script = 4;
-}
-enum SortOptionsOneOfNot {
-  SORT_OPTIONS_ONE_OF_NOT_UNSPECIFIED = 0;
-  SORT_OPTIONS_ONE_OF_NOT__DOC = 1;
-  SORT_OPTIONS_ONE_OF_NOT__SCORE = 2;
+enum SortOptions {
+  SORT_OPTIONS_UNSPECIFIED = 0;
+  SORT_OPTIONS__SCORE = 1;
+  SORT_OPTIONS__DOC = 2;
+  SORT_OPTIONS_STRING = 3;
+  SORT_OPTIONS_OBJECT = 4;
+  SORT_OPTIONS_OBJECT2 = 5;
 }
 enum SortOrder {
   SORT_ORDER_UNSPECIFIED = 0;
@@ -7272,14 +7163,10 @@ message TotalHits {
 
   int64 value = 2;
 }
-message TotalHitsRelation {
-  oneof total_hits_relation {
-    // Accurate.
-    bool total_hits_relation_eq = 1;
-
-    // Lower bound, including returned events or sequences.
-    bool total_hits_relation_gte = 2;
-  }
+enum TotalHitsRelation {
+  TOTAL_HITS_RELATION_UNSPECIFIED = 0;
+  TOTAL_HITS_RELATION_EQ = 1;
+  TOTAL_HITS_RELATION_GTE = 2;
 }
 message TrackHits {
   oneof track_hits {
@@ -7426,20 +7313,17 @@ message VariableWidthHistogramBucket {
 
   optional string max_as_string = 7;
 }
-message VersionType {
-  oneof version_type {
-    // The version number must be greater than the current version.
-    bool version_type_external = 1;
-
-    // The version number must be greater than or equal to the current version.
-    bool version_type_external_gte = 2;
-
-    // The version number is forced to be the given value.
-    bool version_type_force = 3;
-
-    // The version number is managed internally by OpenSearch.
-    bool version_type_internal = 4;
-  }
+enum VersionType {
+  VERSION_TYPE_UNSPECIFIED = 0;
+  VERSION_TYPE_EXTERNAL = 1;
+  VERSION_TYPE_EXTERNAL_GTE = 2;
+  VERSION_TYPE_FORCE = 3;
+  VERSION_TYPE_INTERNAL = 4;
+}
+enum WaitForActiveShardOptions {
+  WAIT_FOR_ACTIVE_SHARD_OPTIONS_UNSPECIFIED = 0;
+  WAIT_FOR_ACTIVE_SHARD_OPTIONS_ALL = 1;
+  WAIT_FOR_ACTIVE_SHARD_OPTIONS_NULL = 2;
 }
 message WaitForActiveShards {
   oneof wait_for_active_shards {
@@ -7447,7 +7331,7 @@ message WaitForActiveShards {
     StringifiedInteger count = 1;
 
     // Determines how many shards to wait for.
-    optionalbool option = 2;
+    WaitForActiveShardOptions option = 2;
   }
 }
 enum Week {
