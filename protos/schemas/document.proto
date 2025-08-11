@@ -52,13 +52,14 @@ message BulkRequest {
 }
 
 message BulkRequestBody {
-  // [optional]
-  optional OperationContainer operation_container = 1;
+  // [required]
+  OperationContainer operation_container = 1;
   // [optional]
   optional UpdateAction update_action = 2;
   // [optional]
   optional bytes object = 3;
 }
+
 message OperationContainer {
   // [required] operation to perform (index, create, update, or delete)
   oneof operation_container {
