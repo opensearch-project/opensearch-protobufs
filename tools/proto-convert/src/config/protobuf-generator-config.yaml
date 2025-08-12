@@ -15,5 +15,6 @@ inlineSchemaOptions:
 typeMappings:
   object: "ObjectMap"
   AnyType: "ObjectMap"
+  number: "GeneralNumber"
 openapiGeneratorIgnoreList:
   - "README.md"
