@@ -20,4 +20,4 @@ git push upstream <version>
 ```
 2. Wait for Github Actions to run and open the newly created issue. Two maintainers should comment `approve` in the issue.
 3. Wait for Jenkins to be triggered, pull the artifacts built by Actions, push to sonatype release channel on remote. Wait for an hour or so for Sonatype to copy it into Maven Central.
-4. Bump [version.properties](./version.properties), update [release-notes](./release-notes/), and clean up entries from [CHANGELOG.md](./CHANGELOG.md) via a PR.
+4. Bump [version.properties](./version.properties) as well as the py_wheel `version` property in the top level BUILD.bazel, update [release-notes](./release-notes/), and clean up entries from [CHANGELOG.md](./CHANGELOG.md) via a PR.
