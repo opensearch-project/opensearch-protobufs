@@ -288,10 +288,9 @@ message InlineGetDictUserDefined {
 
 enum Refresh {
   REFRESH_UNSPECIFIED = 0;
-  REFRESH_BOOLEAN = 1;
-  REFRESH_FALSE = 2;
-  REFRESH_TRUE = 3;
-  REFRESH_WAIT_FOR = 4;
+  REFRESH_FALSE = 1;
+  REFRESH_TRUE = 2;
+  REFRESH_WAIT_FOR = 3;
 }
 
 // index document.
