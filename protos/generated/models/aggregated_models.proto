@@ -29,6 +29,15 @@ message ObjectMap {
     repeated Value value = 1;
   }
 }
+
+message GeneralNumber {
+  oneof value {
+    int32 int32_value = 1;
+    int64 int64_value = 2;
+    float float_value = 3;
+    double double_value = 4;
+  }
+}
 message AdjacencyMatrixAggregate {
   // The custom metadata attached to a resource.
   optional ObjectMap meta = 1;
@@ -1636,7 +1645,7 @@ message ErrorResponseBase {
   ErrorCause error = 1;
 
   // The HTTP status code.
-  float status = 2;
+  GeneralNumber status = 2;
 }
 message EwmaModelSettings {
   optional float alpha = 1;
@@ -2063,7 +2072,7 @@ enum FieldType {
 message FieldValue {
   optional bool bool = 1;
 
-  optional float float = 2;
+  optional GeneralNumber general_number = 2;
 
   optional string string = 3;
 }
@@ -2537,7 +2546,7 @@ message GeoTileGridAggregation {
   optional string field = 3;
 
   // The precision level for geo tile calculations.
-  optional float precision = 4;
+  optional GeneralNumber precision = 4;
 
   // Allows for more accurate counting of the top cells returned in the final result the aggregation. Defaults to returning `max(10,(size x number-of-shards))` buckets from each shard.
   optional int32 shard_size = 5;
