@@ -74,6 +74,14 @@ dependencies {
 }
 ```
 
+## Python
+### Generate and install Python Code 
+
+Generate the wheel file with bazel and install the packag with pip:
+```
+bazel build //:opensearch_protos_wheel
+pip install bazel-bin/opensearch_protos-*-py3-none-any.whl
+```
 
 # Protobuf Convert Process
 
