@@ -19,11 +19,11 @@ message SearchRequest {
   // [optional] A list of indices to search for documents. If not provided, the default value will be to search through all indexes.
   repeated string index = 1;
   // [optional] Whether to include the _source field in the response.
-  optional SourceConfigParam underscore_source = 2;
+  optional SourceConfigParam x_source = 2;
   // [optional] A list of source fields to exclude from the response. You can also use this parameter to exclude fields from the subset specified in `source_includes` query parameter. If the `source` parameter is `false`, this parameter is ignored.
-  repeated string underscore_source_excludes = 3;
+  repeated string x_source_excludes = 3;
   // [optional] A list of source fields to include in the response. If this parameter is specified, only these source fields are returned. You can exclude fields from this subset using the `source_excludes` query parameter. If the `source` parameter is `false`, this parameter is ignored.
-  repeated string underscore_source_includes = 4;
+  repeated string x_source_includes = 4;
   // [optional] Whether to ignore wildcards that don't match any indexes. Default is true.
   optional bool allow_no_indices = 5;
   // [optional] Whether to return partial results if the request runs into an error or times out. Default is true.
@@ -221,7 +221,7 @@ message SearchRequestBody {
   repeated SortOptions sort = 22;
 
   // [optional] Whether to include the _source field in the response.
-  optional SourceConfig underscore_source = 23;
+  optional SourceConfig x_source = 23;
 
   // [optional] The fields to search for in the request. Specify a format to return results in a certain format, such as date and time.
   repeated FieldAndFormat fields = 24;
@@ -335,7 +335,7 @@ message ResponseBody {
   bool timed_out = 2;
 
   // [required] Contains a count of shards used for the request.
-  ShardStatistics underscore_shards = 3;
+  ShardStatistics x_shards = 3;
 
   // [optional] Phase-level took time values in the response.
   optional PhaseTook phase_took = 4;
@@ -347,7 +347,7 @@ message ResponseBody {
   repeated ProcessorExecutionDetail processor_results = 6;
 
   // [optional] When you search one or more remote clusters, a `_clusters` section is included to provide information about the search on each cluster.
-  optional ClusterStatistics underscore_clusters = 7;
+  optional ClusterStatistics x_clusters = 7;
 
   // [optional] Retrieved specific fields in the search response
   optional ObjectMap fields = 8;
@@ -362,7 +362,7 @@ message ResponseBody {
   optional string pit_id = 11;
 
   // [optional] Identifier for the search and its search context.
-  optional string underscore_scroll_id = 12;
+  optional string x_scroll_id = 12;
 
   // [optional] If the query was terminated early, the terminated_early flag will be set to true in the response
   optional bool terminated_early = 13;
@@ -461,12 +461,12 @@ message HitUnderscoreScore {
 
 message HitsMetadataHitsInner {
 
-  optional string underscore_type = 1;
+  optional string x_type = 1;
 
   // [required] Name of the index containing the returned document.
-  string underscore_index = 2;
+  string x_index = 2;
   // [required] Unique identifier for the returned document. This ID is only unique within the returned index.
-  string underscore_id = 3;
+  string x_id = 3;
 
   // [optional] Relevance of the returned document.
   optional HitUnderscoreScore score = 4;
@@ -487,33 +487,33 @@ message HitsMetadataHitsInner {
   repeated string matched_queries = 9;
 
   // [optional] Defines from what inner nested object this inner hit came from
-  optional NestedIdentity underscore_nested = 10;
+  optional NestedIdentity x_nested = 10;
 
   // [optional] List of fields ignored.
-  repeated string underscore_ignored = 11;
+  repeated string x_ignored = 11;
 
   // [optional] These values are retrieved from the document’s original JSON source and are raw so will not be formatted or treated in any way, unlike the successfully indexed fields which are returned in the fields section.
   map<string, StringArray> ignored_field_values = 12;
 
   // [optional] Shard from which this document was retrieved.
-  optional string underscore_shard = 13;
+  optional string x_shard = 13;
 
   // [optional] Node from which this document was retrieved.
-  optional string underscore_node = 14;
+  optional string x_node = 14;
 
-  optional string underscore_routing = 15;
+  optional string x_routing = 15;
 
   // [optional] Source document.
-  optional bytes underscore_source = 16;
+  optional bytes x_source = 16;
 
   // [optional] Counts the number of operations that happened on the index
-  optional int64 underscore_seq_no = 17;
+  optional int64 x_seq_no = 17;
 
   // [optional] Counts the number of shard has changed.
-  optional int64 underscore_primary_term = 18;
+  optional int64 x_primary_term = 18;
 
   // [optional] Version number of the document.
-  optional int64 underscore_version = 19;
+  optional int64 x_version = 19;
 
   // [optional] Sorted values
   repeated FieldValue sort = 20;
@@ -961,6 +961,6 @@ message NestedIdentity {
   int32 offset = 2;
 
   // [optional] Inner nested object.
-  optional NestedIdentity underscore_nested = 3;
+  optional NestedIdentity x_nested = 3;
 
 }
