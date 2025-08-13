@@ -2073,7 +2073,7 @@ message Fuzziness{
 message FieldValue {
   optional bool bool = 1;
 
-  optional float float = 2;
+  optional GeneralNumber general_number = 2;
 
   optional string string = 3;
 
