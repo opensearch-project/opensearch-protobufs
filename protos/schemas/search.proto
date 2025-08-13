@@ -452,6 +452,13 @@ message InnerHitsResult {
 
 }
 
+message HitUnderscoreScore {
+  oneof hit_underscore_score {
+    double double = 1;
+    NullValue null_value = 2;
+  }
+}
+
 message HitsMetadataHitsInner {
 
   optional string underscore_type = 1;
@@ -462,7 +469,7 @@ message HitsMetadataHitsInner {
   string underscore_id = 3;
 
   // [optional] Relevance of the returned document.
-  repeated FieldValue score = 4;
+  optional HitUnderscoreScore score = 4;
 
   // [optional] Explanation of how the relevance score (_score) is calculated for every result.
   optional Explanation explanation = 5;
