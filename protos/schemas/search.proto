@@ -414,7 +414,7 @@ message HitsMetadataTotal {
 
 message HitsMetadataMaxScore{
   oneof hits_metadata_max_score{
-    float float_value = 1;
+    float float = 1;
     NullValue null_value = 2;
   }
 }
@@ -452,10 +452,10 @@ message InnerHitsResult {
 
 }
 
-message HitUnderscoreScore {
-  oneof hit_underscore_score {
-    double double = 1;
-    NullValue null_value = 2;
+message HitXScore {
+  oneof hit_x_score {
+    NullValue null_value = 1;
+    double double = 2;
   }
 }
 
@@ -469,7 +469,7 @@ message HitsMetadataHitsInner {
   string x_id = 3;
 
   // [optional] Relevance of the returned document.
-  optional HitUnderscoreScore score = 4;
+  optional HitXScore x_score = 4;
 
   // [optional] Explanation of how the relevance score (_score) is calculated for every result.
   optional Explanation explanation = 5;
