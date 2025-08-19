@@ -17,11 +17,11 @@ message BulkRequest {
   // [optional] If not provided here, index will be required in the BulkRequestBody instead
   optional string index = 1;
   // [optional] Set `true` or `false` to return the `_source` field or not, or a list of fields to return.
-  optional SourceConfigParam x_source = 2;
+  optional SourceConfigParam source = 2;
   // [optional] A list of source fields to exclude from the response.
-  repeated string x_source_excludes = 3;
+  repeated string source_excludes = 3;
   // [optional] A list of source fields to include in the response.
-  repeated string x_source_includes = 4;
+  repeated string source_includes = 4;
   // [optional] ID of the pipeline to use to preprocess incoming documents. If the index has a default ingest pipeline specified, then setting the value to `_none` disables the default ingest pipeline for this request. If a final pipeline is configured it will always run, regardless of the value of this parameter.
   optional string pipeline = 5;
   // [optional] The enum of whether to refresh the affected shards after performing the indexing operations. Default is false
@@ -40,15 +40,8 @@ message BulkRequest {
   optional WaitForActiveShards wait_for_active_shards = 11;
   // [required] The request body contains create, delete, index, and update actions and their associated source data
   repeated BulkRequestBody request_body = 12;
-  // [optional] Whether to return human-readable values for statistics.
-  optional bool human = 13;
-  // [optional] Whether to include the stack trace of returned errors.
-  // TODO not supported yet
-  optional bool error_trace = 14;
-  // [optional] The URL-encoded request definition. Useful for libraries that do not accept a request body for non-POST requests.
-  optional string source = 15;
-  // [optional] A comma-separated list of filters used to filter the response. Use wildcards to match any field or part of a field's name. To exclude fields, use `-`.
-  repeated string filter_path = 16;
+  // [optional] Global parameters
+  optional GlobalParams global_params = 13;
 }
 
 message BulkRequestBody {
@@ -89,7 +82,7 @@ message UpdateAction {
   // [optional] If the document does not already exist, the contents of `upsert` are inserted as a new document. If the document exists, the `script` is executed.
   optional bytes upsert = 6;
   // [optional]
-  optional SourceConfig x_source = 7;
+  optional SourceConfig source = 7;
 }
 
 enum OpType {
@@ -107,9 +100,9 @@ enum VersionType {
 
 message IndexOperation {
   // [optional] The document ID. If no ID is specified, a document ID is automatically generated.
-  optional string x_id = 1;
+  optional string id = 1;
   // [optional] Name of the the data stream, index, or index alias to perform the action on. This parameter is required if index not specified in bulk request.
-  optional string x_index = 2;
+  optional string index = 2;
 
   // [optional] Custom value used to route operations to a specific shard.
   optional string routing = 3;
@@ -140,9 +133,9 @@ message WriteOperation {
   optional string routing = 1;
 
   // [optional] The unique identifier for a resource.
-  optional string x_id = 2;
+  optional string id = 2;
   // [optional]
-  optional string x_index = 3;
+  optional string index = 3;
 
   // [optional] The pipeline ID for preprocessing documents. When the index has a default ingest pipeline specified, then setting the value to `_none` disables the default ingest pipeline for this request. When a final pipeline is configured, that pipeline will always run, regardless of the value of this parameter.
   optional string pipeline = 4;
@@ -153,9 +146,9 @@ message WriteOperation {
 
 message UpdateOperation {
   // [required] The document ID.
-  optional string x_id = 1;
+  optional string id = 1;
   // [optional] Name of the the data stream, index, or index alias to perform the action on. This parameter is required if index not specified in bulk request.
-  optional string x_index = 2;
+  optional string index = 2;
   // [optional] Custom value used to route operations to a specific shard.
   optional string routing = 3;
 
@@ -172,9 +165,9 @@ message UpdateOperation {
 
 message DeleteOperation {
   // [required] The document ID.
-  optional string x_id = 1;
+  optional string id = 1;
   // [optional] Name of the the data stream, index, or index alias to perform the action on. This parameter is required if index not specified in bulk request.
-  optional string x_index = 2;
+  optional string index = 2;
   // [optional] Custom value used to route operations to a specific shard.
   optional string routing = 3;
 
@@ -237,30 +230,30 @@ enum ResponseOpType {
 
 message ResponseItem {
   // [required] Name of the index associated with the operation. If the operation targeted a data stream, this is the backing index into which the document was written.
-  string x_index = 1;
+  string index = 1;
   // [required] HTTP status code returned for the operation.
   // TODO: use grpc status code instead
   int32 status = 2;
   // [optional] The document type.
-  optional string x_type = 3;
+  optional string type = 3;
 
   // [optional] The document ID associated with the operation.
-  optional Id x_id = 4;
+  optional Id id = 4;
 
   // [optional] Contains additional information about the failed operation.
   optional ErrorCause error = 5;
 
   // [optional] The primary term assigned to the document for the operation.
-  optional int64 x_primary_term = 6;
+  optional int64 primary_term = 6;
 
   // [optional] Result of the operation. Successful values are `created`, `deleted`, and `updated`.
   optional string result = 7;
   // [optional] The sequence number assigned to the document for the operation. Sequence numbers are used to ensure an older version of a document doesn't overwrite a newer version
-  optional int64 x_seq_no = 8;
+  optional int64 seq_no = 8;
   // [optional] Contains shard information for the operation. This parameter is only returned for successful operations.
-  optional ShardInfo x_shards = 9;
+  optional ShardInfo shards = 9;
   // [optional] The document version associated with the operation. The document version is incremented each time the document is updated. This parameter is only returned for successful actions.
-  optional int64 x_version = 10;
+  optional int64 version = 10;
   // [optional] if `true`, it requires immediate visibility of the document
   optional bool forced_refresh = 11;
   // [optional]
@@ -278,11 +271,11 @@ message InlineGetDictUserDefined {
   // [optional] The sequence number assigned to the document for the operation. Sequence numbers are used to ensure an older version of a document doesn't overwrite a newer version
   optional int64 seq_no = 4;
   // [optional] The primary term assigned to the document for the operation.
-  optional int64 x_primary_term = 5;
+  optional int64 primary_term = 5;
   // [optional] Custom value used to route operations to a specific shard.
-  string x_routing = 6;
+  string routing = 6;
   // [optional] Contains the document's data
-  optional bytes x_source = 7;
+  optional bytes source = 7;
 }
 
 enum Refresh {
@@ -369,22 +362,22 @@ enum Result {
 
 message IndexDocumentResponseBody {
   // [optional] The document type.
-  optional string x_type = 1;
+  optional string type = 1;
   // [optional] The document's ID.
-  optional string x_id = 2;
+  optional string id = 2;
   // [optional] The name of the index.
-  optional string x_index = 3;
+  optional string index = 3;
   // [optional] The primary term assigned when the document was indexed.
-  optional int64 x_primary_term = 4;
+  optional int64 primary_term = 4;
 
   // [optional] The result of the index operation.
   optional Result result = 5;
   // [optional] The sequence number assigned when the document was indexed.
-  optional int64 x_seq_no = 6;
+  optional int64 seq_no = 6;
   // [optional] Detailed information about the cluster's shards.
-  ShardStatistics x_shards = 7;
+  ShardStatistics shards = 7;
   // [optional] The document's version.
-  optional int64 x_version = 8;
+  optional int64 version = 8;
   // [optional] if `true`, it requires immediate visibility of the document
   optional bool forced_refresh = 9;
 }
@@ -418,21 +411,21 @@ message DeleteDocumentRequest {
 
 message DeleteDocumentResponseBody {
   // [optional] The document type.
-  optional string x_type = 1;
+  optional string type = 1;
   // [optional] The document's ID.
-  optional string x_id = 2;
+  optional string id = 2;
   // [optional] The name of the index.
-  optional string x_index = 3;
+  optional string index = 3;
   // [optional] The primary term assigned when the document was indexed.
-  optional int64 x_primary_term = 4;
+  optional int64 primary_term = 4;
   // [optional] The result of the index operation.
   optional Result result = 5;
   // [optional] The sequence number assigned when the document was indexed.
-  optional int64 x_seq_no = 6;
+  optional int64 seq_no = 6;
   // [optional] Detailed information about the cluster's shards.
-  ShardStatistics x_shards = 7;
+  ShardStatistics shards = 7;
   // [optional] The document's version.
-  optional int64 x_version = 8;
+  optional int64 version = 8;
   // [optional] if `true`, it requires immediate visibility of the document
   optional bool forced_refresh = 9;
 
@@ -460,11 +453,11 @@ message UpdateDocumentRequest {
   // [optional] Name of the data stream or index to target. If the target doesn't exist and matches the name or wildcard (`*`) pattern of an index template with a `data_stream` definition, this request creates the data stream. If the target doesn't exist and doesn't match a data stream template, this request creates the index.
   optional string index = 2;
   // [optional] Set to false to disable source retrieval. You can also specify a comma-separated list of the fields you want to retrieve.
-  optional SourceConfigParam x_source = 3;
+  optional SourceConfigParam source = 3;
   // [optional] A comma-separated list of source fields to exclude from the response.
-  repeated string x_source_excludes = 4;
+  repeated string source_excludes = 4;
   // [optional] A comma-separated list of source fields to include in the response.
-  repeated string x_source_includes = 5;
+  repeated string source_includes = 5;
   // [optional] Only perform the operation if the document has this primary term.
   optional int64 if_primary_term = 6;
   // [optional] Only perform the operation if the document has this sequence number.
@@ -516,7 +509,7 @@ message UpdateDocumentRequestBody {
   //[optional] Set to true to execute the script whether or not the document exists.
   optional bool scripted_upsert = 5;
   // [optional] Defines how to fetch a source. Fetching can be disabled entirely, or the source can be filtered.
-  optional SourceConfig x_source = 6;
+  optional SourceConfig source = 6;
 
   // [optional] If the document does not already exist, the contents of 'upsert' are inserted as a new document. If the document exists, the 'script' is executed.
   // Provide document either as ObjectMap or bytes
@@ -545,21 +538,21 @@ message UpdateDocumentErrorResponse {
 
 message UpdateDocumentResponseBody {
   // [optional] The document type.
-  optional string x_type = 1;
+  optional string type = 1;
   // [optional] The document's ID.
-  optional string x_id = 2;
+  optional string id = 2;
   // [optional] The name of the index.
-  optional string x_index = 3;
+  optional string index = 3;
   // [optional] The primary term assigned when the document was indexed.
-  optional int64 x_primary_term = 4;
+  optional int64 primary_term = 4;
   // [optional] The result of the index operation.
   optional Result result = 5;
   // [optional] The sequence number assigned when the document was indexed.
-  optional int64 x_seq_no = 6;
+  optional int64 seq_no = 6;
   // [optional] Detailed information about the cluster's shards.
-  ShardStatistics x_shards = 7;
+  ShardStatistics shards = 7;
   // [optional] The document's version.
-  optional int64 x_version = 8;
+  optional int64 version = 8;
   // [optional] if `true`, it requires immediate visibility of the document
   optional bool forced_refresh = 9;
   // [optional]
@@ -573,11 +566,11 @@ message GetDocumentRequest {
   // [required] Name of the data stream or index to target. If the target doesn't exist and matches the name or wildcard (`*`) pattern of an index template with a `data_stream` definition, this request creates the data stream. If the target doesn't exist and doesn't match a data stream template, this request creates the index.
   string index = 2;
   // [optional] Set to false to disable source retrieval. You can also specify a comma-separated list of the fields you want to retrieve. Default is true.
-  optional SourceConfigParam x_source = 3;
+  optional SourceConfigParam source = 3;
   // [optional] A comma-separated list of source fields to exclude from the response.
-  repeated string x_source_excludes = 4;
+  repeated string source_excludes = 4;
   // [optional] A comma-separated list of source fields to include in the response.
-  repeated string x_source_includes = 5;
+  repeated string source_includes = 5;
   // [optional] Specifies a preference of which shard to retrieve results from. Available options are _local, which tells the operation to retrieve results from a locally allocated shard replica, and a custom string value assigned to a specific shard replica. By default, OpenSearch executes get document operations on random shards.
   optional string preference = 6;
   // [optional] Specifies whether the operation should run in realtime. If false, the operation waits for the index to refresh to analyze the source to retrieve data, which makes the operation near-realtime. Default is true.
@@ -602,21 +595,21 @@ message GetDocumentRequest {
 
 message GetDocumentResponseBody {
   // [optional] The document type.
-  optional string x_type = 1;
+  optional string type = 1;
   // [optional] The name of the index.
-  optional string x_index = 2;
+  optional string index = 2;
   // [optional] Contains the document's data that's stored in the index. Only returned if both stored_fields and found are true.
   ObjectMap fields = 3;
   // [optional] Whether the document exists.
   optional bool found = 4;
   // [optional] The document's ID.
-  optional string x_id = 5;
+  optional string id = 5;
   // [optional] The primary term assigned when the document is indexed.
-  optional int64 x_primary_term = 6;
+  optional int64 primary_term = 6;
   // [optional] The shard that the document is routed to. If the document is not routed to a particular shard, this field is omitted.
-  optional string x_routing = 7;
+  optional string routing = 7;
   // [optional] The sequence number assigned when the document was indexed.
-  optional int64 x_seq_no = 8;
+  optional int64 seq_no = 8;
   // [optional] Contains the document's data if found is true. If _source is set to false or stored_fields is set to true in the URL parameters, this field is omitted.
   // Source to be returned as either an Struct or bytes
   oneof get_document_response_body_source {
@@ -624,11 +617,11 @@ message GetDocumentResponseBody {
     // struct_source field to be returned upon explicit request by user
     .google.protobuf.Struct struct_source = 9;
     // Use bytes for better latency/performance, as it reduces payload size over the wire
-    bytes x_source = 11;
+    bytes source = 11;
 
   }
   // [optional] The document's version number. Updated whenever the document changes.
-  optional int64 x_version = 10;
+  optional int64 version = 10;
 }
 
 // The response from get document request with document ID specified request

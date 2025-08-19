@@ -135,15 +135,8 @@ message SearchRequest {
   optional bool version = 48;
   // [optional] Search Request body
   SearchRequestBody request_body = 49;
-  // [optional] Whether to return human-readable values for statistics.
-  optional bool human = 50;
-  // [optional] Whether to include the stack trace of returned errors.
-  // todo: not supported yet.
-  optional bool error_trace = 52;
-  // [optional] The URL-encoded request definition. Useful for libraries that do not accept a request body for non-POST requests.
-  optional string source = 53;
-  // [optional] A comma-separated list of filters used to filter the response. Use wildcards to match any field or part of a field's name. To exclude fields, use `-`.
-  repeated string filter_path = 54;
+  // [optional] Global parameters
+  optional GlobalParams global_params = 50;
 }
 
 message FloatMap {
