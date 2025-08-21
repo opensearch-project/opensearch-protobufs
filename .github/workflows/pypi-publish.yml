@@ -1,0 +1,30 @@
+name: Publish Release to GitHub
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - 'main'
+jobs:
+  build-and-publish-snapshots:
+    runs-on: ubuntu-latest
+    if: github.repository == 'opensearch-project/opensearch-protobufs'
+    permissions:
+      id-token: write
+      contents: write
+
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Python 3
+        uses: actions/setup-python@v3
+        with:
+          python-version: '3.x'
+
+      - name: Build python libraries for distribution
+        run: |
+          mkdir -p dist
+          bazel build //:opensearch_protos_wheel
+          mv bazel-bin/opensearch_protos-*-py3-none-any.whl dist/
+
+      - name: Publish package distributions to PyPI
+        uses: pypa/gh-action-pypi-publish@release/v1
