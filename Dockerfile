@@ -95,10 +95,10 @@ RUN bazel build //:python_protos_all
 FROM build-bazel-python AS package-bazel-python
 
 RUN bazel build //:opensearch_protos_wheel
+RUN pip3 install /build/bazel-bin/opensearch_protos-*-py3-none-any.whl
 
 FROM package-bazel-python AS test-bazel-python
 
-RUN pip3 install /build/bazel-bin/opensearch_protos-*-py3-none-any.whl
 RUN python3 /build/tools/python/print_modules.py
 
 #################################################

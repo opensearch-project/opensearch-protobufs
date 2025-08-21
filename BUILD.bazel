@@ -146,9 +146,7 @@ py_wheel(
         "protobuf>=3.20.3",
         "grpcio>=1.68.1",
     ],
-    description = "OpenSearch Protocol Buffer and gRPC definitions",
     author = "OpenSearch",
-    url = "https://github.com/opensearch-project/opensearch-protobufs",
     license = "Apache-2.0",
     classifiers = [
         "Intended Audience :: Developers",
@@ -163,7 +161,6 @@ py_wheel(
     },
     platform = "any",
     python_requires = ">=3.8",
-    keywords = ["opensearch", "protobuf", "grpc", "search"],
     deps = [
         ":fixed_schemas",
         ":fixed_services",
