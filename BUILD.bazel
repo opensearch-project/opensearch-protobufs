@@ -139,7 +139,7 @@ py_library(
 
 py_wheel(
     name = "opensearch_protos_wheel",
-    distribution = "opensearch-protos",
+    distribution = "opensearch-protobufs",
     python_tag = "py3",
     version = "0.10.0",
     requires = [
