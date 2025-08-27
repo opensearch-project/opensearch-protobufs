@@ -1,19 +1,32 @@
-name: Publish Release to GitHub
+name: Publish python release
 
 on:
-  workflow_dispatch:
   push:
-    branches:
-      - 'main'
+    tags:
+      - "*"
+
 jobs:
-  build-and-publish-snapshots:
+  publish-release:
     runs-on: ubuntu-latest
-    if: github.repository == 'opensearch-project/opensearch-protobufs'
     permissions:
       id-token: write
       contents: write
-
+      issues: write
     steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+      - id: get_approvers
+        run: |
+          echo "approvers=$(cat .github/CODEOWNERS | grep @ | tr -d '* ' | sed 's/@/,/g' | sed 's/,//1')" >> $GITHUB_OUTPUT
+      - uses: trstringer/manual-approval@v1
+        with:
+          secret: ${{ github.TOKEN }}
+          approvers: ${{ steps.get_approvers.outputs.approvers }}
+          minimum-approvals: 1
+          issue-title: 'Release opensearch-protobufs python'
+          issue-body: "Please approve or deny the release of opensearch-protobufs. **Tag**: ${{ github.ref_name }}  **Commit**: ${{ github.sha }}"
+          exclude-workflow-initiator-as-approver: true
+
       - uses: actions/checkout@v4
       - name: Set up Python 3
         uses: actions/setup-python@v3
@@ -24,7 +37,7 @@ jobs:
         run: |
           mkdir -p dist
           bazel build //:opensearch_protos_wheel
-          mv bazel-bin/opensearch_protos-*-py3-none-any.whl dist/
+          mv bazel-bin/opensearch_protobufs-*-py3-none-any.whl dist/
 
       - name: Publish package distributions to PyPI
         uses: pypa/gh-action-pypi-publish@release/v1
