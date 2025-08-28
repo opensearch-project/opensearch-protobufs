@@ -5,7 +5,8 @@ name: Release drafter
 # Publish the Java JAR to Maven Local, and create release artifacts:
 # - opensearch-protobufs-java.tar.gz (Java/Maven artifacts)
 # - opensearch-protobufs-{version}.zip (Raw proto files)
-#
+# - opensearch_protobufs-{version}-py3-none-any.whl (Python artifacts)
+
 on:
   push:
     tags:
