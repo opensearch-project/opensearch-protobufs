@@ -72,24 +72,22 @@ genrule(
     name = "fix_schemas_imports",
     srcs = [":opensearch_protos_schemas"],
     outs = [
-        "opensearch/protos/schemas/common_pb2.py",
-        "opensearch/protos/schemas/document_pb2.py",
-        "opensearch/protos/schemas/search_pb2.py",
-        "opensearch/protos/schemas/__init__.py",
+        "opensearch/protobufs/schemas/common_pb2.py",
+        "opensearch/protobufs/schemas/document_pb2.py",
+        "opensearch/protobufs/schemas/search_pb2.py",
+        "opensearch/protobufs/schemas/__init__.py",
     ],
     cmd = """
-        mkdir -p $(RULEDIR)/opensearch/protos/schemas
+        mkdir -p $(RULEDIR)/opensearch/protobufs/schemas
 
-        # Copy and modify the schema files
         for pb in common document search; do
-            cp $(BINDIR)/protos/schemas/$${pb}_python_proto_pb/protos/schemas/$${pb}_pb2.py $(RULEDIR)/opensearch/protos/schemas/
+            cp $(BINDIR)/protos/schemas/$${pb}_python_proto_pb/protos/schemas/$${pb}_pb2.py $(RULEDIR)/opensearch/protobufs/schemas/
             sed -i \
-                -e 's/from protos\\.schemas import \\([^_ ]\\+\\)_pb2 as protos_dot_schemas_dot_\\1__pb2/from opensearch.protos.schemas import \\1_pb2/g' \
-                $(RULEDIR)/opensearch/protos/schemas/$${pb}_pb2.py
+                -e 's/from protos\\.schemas import \\([^_ ]\\+\\)_pb2 as protos_dot_schemas_dot_\\1__pb2/from opensearch.protobufs.schemas import \\1_pb2/g' \
+                $(RULEDIR)/opensearch/protobufs/schemas/$${pb}_pb2.py
         done
 
-        # Create schemas __init__.py
-        touch $(RULEDIR)/opensearch/protos/schemas/__init__.py
+        touch $(RULEDIR)/opensearch/protobufs/schemas/__init__.py
     """,
 )
 
@@ -97,28 +95,26 @@ genrule(
     name = "fix_services_imports",
     srcs = [":opensearch_protos_services"],
     outs = [
-        "opensearch/protos/services/document_service_pb2.py",
-        "opensearch/protos/services/document_service_pb2_grpc.py",
-        "opensearch/protos/services/search_service_pb2.py",
-        "opensearch/protos/services/search_service_pb2_grpc.py",
-        "opensearch/protos/services/__init__.py",
+        "opensearch/protobufs/services/document_service_pb2.py",
+        "opensearch/protobufs/services/document_service_pb2_grpc.py",
+        "opensearch/protobufs/services/search_service_pb2.py",
+        "opensearch/protobufs/services/search_service_pb2_grpc.py",
+        "opensearch/protobufs/services/__init__.py",
     ],
     cmd = """
-        mkdir -p $(RULEDIR)/opensearch/protos/services
+        mkdir -p $(RULEDIR)/opensearch/protobufs/services
 
-        # Copy and modify the service files
         for pb in document_service search_service; do
-            cp $(BINDIR)/protos/services/$${pb}_python_proto_pb/protos/services/$${pb}_pb2.py $(RULEDIR)/opensearch/protos/services/
-            cp $(BINDIR)/protos/services/$${pb}_python_proto_pb/protos/services/$${pb}_pb2_grpc.py $(RULEDIR)/opensearch/protos/services/
+            cp $(BINDIR)/protos/services/$${pb}_python_proto_pb/protos/services/$${pb}_pb2.py $(RULEDIR)/opensearch/protobufs/services/
+            cp $(BINDIR)/protos/services/$${pb}_python_proto_pb/protos/services/$${pb}_pb2_grpc.py $(RULEDIR)/opensearch/protobufs/services/
             
             # Fix imports in both pb2 and pb2_grpc files
             sed -i \
-                -e 's/from protos\\.schemas import/from opensearch.protos.schemas import/g' \
-                $(RULEDIR)/opensearch/protos/services/$${pb}_pb2*.py
+                -e 's/from protos\\.schemas import/from opensearch.protobufs.schemas import/g' \
+                $(RULEDIR)/opensearch/protobufs/services/$${pb}_pb2*.py
         done
 
-        # Create services __init__.py
-        touch $(RULEDIR)/opensearch/protos/services/__init__.py
+        touch $(RULEDIR)/opensearch/protobufs/services/__init__.py
     """,
 )
 
@@ -139,13 +135,28 @@ py_library(
 
 py_wheel(
     name = "opensearch_protos_wheel",
-    distribution = "opensearch-protos",
+    distribution = "opensearch-protobufs",
     python_tag = "py3",
     version = "0.10.0",
     requires = [
         "protobuf>=3.20.3",
         "grpcio>=1.68.1",
     ],
+    author = "OpenSearch Team",
+    license = "Apache-2.0",
+    classifiers = [
+        "Intended Audience :: Developers",
+        "License :: Apache-2.0 Software License",
+        "Programming Language :: Python :: 3",
+    ],
+    homepage = "https://opensearch.org/",
+    project_urls = {
+        "Bug Tracker": "https://github.com/opensearch-project/opensearch-protobufs/issues",
+        "Documentation": "https://github.com/opensearch-project/opensearch-protobufs/blob/main/README.md",
+        "Source Code": "https://github.com/opensearch-project/opensearch-protobufs",
+    },
+    platform = "any",
+    python_requires = ">=3.10",
     deps = [
         ":fixed_schemas",
         ":fixed_services",

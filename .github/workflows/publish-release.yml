@@ -2,10 +2,11 @@ name: Release drafter
 
 # Push events to every tag not containing "/"
 #
-# Publish the Java JAR to Maven Local, and create release artifacts:
+# Create artifacts for Github release and publish to public repositories
 # - opensearch-protobufs-java.tar.gz (Java/Maven artifacts)
 # - opensearch-protobufs-{version}.zip (Raw proto files)
-#
+# - opensearch_protobufs-{version}-py3-none-any.whl (Python/PyPI artifacts)
+
 on:
   push:
     tags:
@@ -37,15 +38,24 @@ jobs:
           java-version: 21
           distribution: 'temurin'
           cache: gradle
+      - name: Set up Python 3
+        uses: actions/setup-python@v3
+        with:
+          python-version: '3.10'
       - name: Build with Gradle
         run: |
           ./tools/java/package_proto_jar.sh -c true -s false
           ./gradlew --no-daemon -Dbuild.snapshot=false publishCreatePublicationToLocalRepoRepository
           tar -C build -cvf "opensearch-protobufs-java.tar.gz" repository
-
       - name: Create protobuf zip
         run: ./tools/package_proto_zip.sh
-
+      - name: Build python with bazel
+        run: |
+          mkdir -p dist
+          bazel build //:opensearch_protos_wheel
+          mv bazel-bin/opensearch_protobufs-*-py3-none-any.whl dist/
+      - name: Publish python artifacts to PyPI
+        uses: pypa/gh-action-pypi-publish@release/v1
       - name: Draft a release
         uses: softprops/action-gh-release@v1
         with:
@@ -53,4 +63,5 @@ jobs:
           generate_release_notes: true
           files: |
             opensearch-protobufs-java.tar.gz
+            opensearch_protobufs-*-py3-none-any.whl
             opensearch-protobufs-*.zip
