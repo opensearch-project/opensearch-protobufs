@@ -146,7 +146,7 @@ py_wheel(
     license = "Apache-2.0",
     classifiers = [
         "Intended Audience :: Developers",
-        "License :: Apache-2.0 Software License",
+        "License :: OSI Approved :: Apache Software License",
         "Programming Language :: Python :: 3",
     ],
     homepage = "https://opensearch.org/",
