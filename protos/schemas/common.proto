@@ -469,7 +469,7 @@ message QueryContainer {
 
     GeoDistanceQuery geo_distance = 29;
 
-    GeoBoundingBoxQuery geo_bounding_box = 11;
+    GeoBoundingBoxQuery geo_bounding_box = 30;
   }
 }
 
