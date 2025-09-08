@@ -62,7 +62,7 @@ export class SchemaModifier {
         if (schema.oneOf) {
             const enumValues: string[] = [];
             let hasStringWithConst = false;
-            
+
             // check if have string with const
             for (const item of schema.oneOf) {
                 if (item && !('$ref' in item) && item.type === 'string' && 'const' in item) {

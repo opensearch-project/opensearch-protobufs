@@ -72,7 +72,7 @@ export class Sanitizer {
       onRequestSchema: (schema) => this.sanitize_schema(schema),
       onResponseSchema: (schema) => this.sanitize_schema(schema),
       onParameter: (param, _paramName) => {
-        if (param.name.startsWith('_')) {
+        if (!('$ref' in param) && param.name && param.name.startsWith('_')) {
           param.name = `underscore${param.name}`;
         }
       }
