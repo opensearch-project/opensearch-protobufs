@@ -137,13 +137,23 @@ enum SourceType {
 }
 
 message GeoLocation {
-
   oneof geo_location {
-    LatLonGeoLocation lat_lon_geo_location = 1;
-    GeoHashLocation geo_hash_location = 2;
-    NumberArray number_array = 3;
-  }
+    // The location specified using latitude and longitude coordinates.
+    LatLonGeoLocation latlon = 1;
 
+    // The location specified using a geohash value.
+    GeoHashLocation geohash = 2;
+
+    DoubleArray double_array = 3;
+
+    // The location specified as a string in `lat,lon` or WKT format.
+    string text = 4;
+  }
+}
+
+message DoubleArray {
+  // The location specified as an array of `[longitude, latitude]`.
+  repeated double double_array = 1;
 }
 
 message NumberArray {
@@ -456,7 +466,102 @@ message QueryContainer {
 
     // The nested query acts as a wrapper for other queries to search nested fields. The nested field objects are searched as though they were indexed as separate documents. If an object matches the search, the nested query returns the parent document at the root level.
     NestedQuery nested = 28;
+
+    GeoDistanceQuery geo_distance = 29;
+
+    GeoBoundingBoxQuery geo_bounding_box = 11;
   }
+}
+
+message GeoBoundingBoxQuery {
+  // Floating point number used to decrease or increase the relevance scores of the query. Boost values are relative to the default value of 1.0. A boost value between 0 and 1.0 decreases the relevance score. A value greater than 1.0 increases the relevance score.
+  optional float boost = 1;
+
+  optional string x_name = 2;
+
+  optional GeoExecution type = 3;
+
+  optional GeoValidationMethod validation_method = 4;
+
+  // Set to `true` to ignore an unmapped field and not match any documents for this query. Set to `false` to throw an exception if the field is not mapped.
+  optional bool ignore_unmapped = 5;
+
+  map<string, GeoBounds> bounding_box = 6;
+}
+
+message GeoBounds {
+  oneof geo_bounds {
+    // The bounds specified using coordinate values.
+    CoordsGeoBounds coords = 1;
+
+    // The bounds specified using upper-left and lower-right points.
+    TopLeftBottomRightGeoBounds tlbr = 2;
+
+    // The bounds specified using upper-right and lower-left points.
+    TopRightBottomLeftGeoBounds trbl = 3;
+
+    // The bounds specified using WKT format.
+    WktGeoBounds wkt = 4;
+  }
+}
+
+message WktGeoBounds {
+  // The WKT string representation of the geographical bounds.
+  string wkt = 1;
+}
+
+message CoordsGeoBounds {
+  // The top boundary latitude.
+  double top = 1;
+
+  // The bottom boundary latitude.
+  double bottom = 2;
+
+  // The left boundary longitude.
+  double left = 3;
+
+  // The right boundary longitude.
+  double right = 4;
+}
+
+message TopLeftBottomRightGeoBounds {
+  // The upper-left corner coordinates.
+  GeoLocation top_left = 1;
+
+  // The lower-right corner coordinates.
+  GeoLocation bottom_right = 2;
+}
+
+message TopRightBottomLeftGeoBounds {
+  // The upper-right corner coordinates.
+  GeoLocation top_right = 1;
+
+  // The lower-left corner coordinates.
+  GeoLocation bottom_left = 2;
+}
+
+enum GeoExecution {
+  GEO_EXECUTION_UNSPECIFIED = 0;
+  GEO_EXECUTION_INDEXED = 1;
+  GEO_EXECUTION_MEMORY = 2;
+}
+
+message GeoDistanceQuery {
+  // Floating point number used to decrease or increase the relevance scores of the query. Boost values are relative to the default value of 1.0. A boost value between 0 and 1.0 decreases the relevance score. A value greater than 1.0 increases the relevance score.
+  optional float boost = 1;
+
+  optional string x_name = 2;
+
+  string distance = 3;
+
+  optional GeoDistanceType distance_type = 4;
+
+  optional GeoValidationMethod validation_method = 5;
+
+  // Set to `true` to ignore an unmapped field and not match any documents for this query. Set to `false` to throw an exception if the field is not mapped.
+  optional bool ignore_unmapped = 6;
+
+  map<string, GeoLocation> location = 7;
 }
 
 message TermsQuery {
