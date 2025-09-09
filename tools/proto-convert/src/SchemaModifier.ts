@@ -20,12 +20,14 @@ export class SchemaModifier {
             onSchemaProperty: (schema) => {
                 this.deduplicateEnumValue(schema)
                 this.handleAdditionalPropertiesUndefined(schema)
+                this.convertNullTypeToNullValue(schema)
                 this.collapseOrMergeOneOfArray(schema)
             },
             onSchema: (schema, schemaName) => {
                 if (!schema || isReferenceObject(schema)) return;
                 this.deduplicateEnumValue(schema)
                 this.handleAdditionalPropertiesUndefined(schema)
+                this.convertNullTypeToNullValue(schema)
                 this.handleOneOfConst(schema, schemaName)
                 this.collapseOrMergeOneOfArray(schema)
                 this.collapseOneOfObjectPropContainsTitleSchema(schema)
@@ -332,5 +334,12 @@ export class SchemaModifier {
         }
 
         schema.enum = Array.from(enumSet)
+    }
+
+    // Converts type: "null" to type: NullValue for protobuf compatibility
+    convertNullTypeToNullValue(schema: OpenAPIV3.SchemaObject): void {
+        if ((schema.type as any) === 'null') {
+            (schema as any).type = 'NullValue';
+        }
     }
 }
