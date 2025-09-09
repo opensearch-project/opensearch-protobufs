@@ -476,18 +476,17 @@ message QueryContainer {
 }
 
 message GeoBoundingBoxQuery {
-  // Floating point number used to decrease or increase the relevance scores of the query. Boost values are relative to the default value of 1.0. A boost value between 0 and 1.0 decreases the relevance score. A value greater than 1.0 increases the relevance score.
+  // [optional] Floating point number used to decrease or increase the relevance scores of the query. Boost values are relative to the default value of 1.0. A boost value between 0 and 1.0 decreases the relevance score. A value greater than 1.0 increases the relevance score.
   optional float boost = 1;
-
+  // [optional] The name of the filter.
   optional string x_name = 2;
-
+  // [optional]
   optional GeoExecution type = 3;
-
+  // [optional] The validation method. Valid values are IGNORE_MALFORMED (accept geopoints with invalid coordinates), COERCE (try to coerce coordinates to valid values), and STRICT (return an error when coordinates are invalid). Default is STRICT.
   optional GeoValidationMethod validation_method = 4;
-
-  // Set to `true` to ignore an unmapped field and not match any documents for this query. Set to `false` to throw an exception if the field is not mapped.
+  // [optional] Specifies whether to ignore an unmapped field. If set to true, the query does not return any documents that have an unmapped field. If set to false, an exception is thrown when the field is unmapped. Default is false.
   optional bool ignore_unmapped = 5;
-
+  // [optional]
   map<string, GeoBounds> bounding_box = 6;
 }
 
