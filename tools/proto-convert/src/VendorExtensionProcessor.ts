@@ -7,6 +7,8 @@ import Logger from './utils/logger';
  * Handles processing of vendor extensions in OpenAPI specifications.
  */
 export class VendorExtensionProcessor {
+    private static readonly GRPC_REMOVED_EXTENSION = 'x-protobuf-excluded';
+    
     private root: OpenAPIV3.Document;
     private logger: Logger;
 
@@ -16,11 +18,11 @@ export class VendorExtensionProcessor {
     }
 
     /**
-     * Process the spec by pruning anything marked with x-grpc-removed
+     * Process the spec by pruning anything marked with x-protobuf-excluded
      * Direct path-level handling + traverse for schemas only
      */
     public process(): OpenAPIV3.Document {
-        this.logger.info('Processing vendor extensions (x-grpc-removed)...');
+        this.logger.info(`Processing vendor extensions (${VendorExtensionProcessor.GRPC_REMOVED_EXTENSION})...`);
         
         this.removeGrpcRemovedFromPaths();
         traverse(this.root, {
@@ -40,11 +42,11 @@ export class VendorExtensionProcessor {
     }
 
     private hasGrpcRemoved(item: any): boolean {
-        return item && typeof item === 'object' && 'x-grpc-removed' in item && item['x-grpc-removed'] === true;
+        return item && typeof item === 'object' && VendorExtensionProcessor.GRPC_REMOVED_EXTENSION in item && item[VendorExtensionProcessor.GRPC_REMOVED_EXTENSION] === true;
     }
 
     /**
-     * Remove x-grpc-removed items from path-level elements directly
+     * Remove x-protobuf-excluded items from path-level elements directly
      */
     private removeGrpcRemovedFromPaths(): void {
         if (!this.root.paths) return;
@@ -61,22 +63,22 @@ export class VendorExtensionProcessor {
                 const operation = (pathItem as any)[method];
                 if (!operation || typeof operation !== 'object') continue;
                 
-                // Remove parameters with x-grpc-removed
+                // Remove parameters with x-protobuf-excluded
                 if (Array.isArray(operation.parameters)) {
                     const originalLength = operation.parameters.length;
                     operation.parameters = operation.parameters.filter((p: any) => !this.hasGrpcRemoved(p));
                     const removedCount = originalLength - operation.parameters.length;
                     if (removedCount > 0) {
-                        this.logger.info(`Removed ${removedCount} parameter(s) from ${method.toUpperCase()} ${pathKey} (x-grpc-removed)`);
+                        this.logger.info(`Removed ${removedCount} parameter(s) from ${method.toUpperCase()} ${pathKey} (${VendorExtensionProcessor.GRPC_REMOVED_EXTENSION})`);
                     }
                 }
                 
-                // Remove responses with x-grpc-removed
+                // Remove responses with x-protobuf-excluded
                 if (operation.responses) {
                     for (const status in operation.responses) {
                         if (this.hasGrpcRemoved(operation.responses[status])) {
                             delete operation.responses[status];
-                            this.logger.info(`Removed response ${status} from ${method.toUpperCase()} ${pathKey} (x-grpc-removed)`);
+                            this.logger.info(`Removed response ${status} from ${method.toUpperCase()} ${pathKey} (${VendorExtensionProcessor.GRPC_REMOVED_EXTENSION})`);
                         }
                     }
                 }
@@ -92,7 +94,7 @@ export class VendorExtensionProcessor {
             if (propSchema && typeof propSchema === 'object' && !('$ref' in propSchema)) {
                 if (this.hasGrpcRemoved(propSchema)) {
                     delete schema.properties[prop];
-                    this.logger.info(`Removed schema property ${prop} (x-grpc-removed)`);
+                    this.logger.info(`Removed schema property ${prop} (${VendorExtensionProcessor.GRPC_REMOVED_EXTENSION})`);
                 }
             }
         }
