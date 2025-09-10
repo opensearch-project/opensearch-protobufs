@@ -63,5 +63,5 @@ jobs:
           generate_release_notes: true
           files: |
             opensearch-protobufs-java.tar.gz
-            opensearch_protobufs-*-py3-none-any.whl
+            dist/opensearch_protobufs-*-py3-none-any.whl
             opensearch-protobufs-*.zip
