@@ -10,7 +10,7 @@ Inspired from [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 
 ### Changed
 - Update `RangeQuery` and `NestedQuery` protobuf type ([#196](https://github.com/opensearch-project/opensearch-protobufs/pull/196))
-- Modify `searchResponse` according to the updated spec and remove the error response. ([#194](https://github.com/opensearch-project/opensearch-protobufs/pull/194))
+- Modify `searchResponse` and `bulkResponse` according to the updated spec and remove the error response. ([#194](https://github.com/opensearch-project/opensearch-protobufs/pull/194))
 
 ### Removed
 
