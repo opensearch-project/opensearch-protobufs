@@ -579,33 +579,29 @@ message TermsQuery {
 }
 
 message NestedQuery {
-
+  // [required] The path to a field or an array of paths. Some APIs support wildcards in the path, which allows you to select multiple fields.
+  string path = 1;
+  // [required] The query to run on the nested objects within the specified path.
+  QueryContainer query = 2;
   // [optional] Floating point number used to decrease or increase the relevance scores of the query. Boost values are relative to the default value of 1.0. A boost value between 0 and 1.0 decreases the relevance score. A value greater than 1.0 increases the relevance score.
-  optional float boost = 1;
-
+  optional float boost = 3;
   // [optional] Query name for query tagging.
-  optional string x_name = 2;
+  optional string x_name = 4;
+  // [optional] Set to `true` to ignore an unmapped field and not match any documents for this query. Set to `false` to throw an exception if the field is not mapped.
+  optional bool ignore_unmapped = 5;
+  // [optional] If provided, returns the underlying hits that matched the query.
+  optional InnerHits inner_hits = 6;
+  // [required] Defines how scores of matching inner documents influence the parent document’s score
+  optional ChildScoreMode score_mode = 7;
+}
 
-  // Set to `true` to ignore an unmapped field and not match any documents for this query. Set to `false` to throw an exception if the field is not mapped.
-  bool ignore_unmapped = 3;
-
-  InnerHits inner_hits = 4;
-
-  // The path to a field or an array of paths. Some APIs support wildcards in the path, which allows you to select multiple fields.
-  string path = 5;
-
-  QueryContainer query = 6;
-
-  enum ChildScoreMode {
-    CHILD_SCORE_MODE_UNSPECIFIED = 0;
-    CHILD_SCORE_MODE_AVG = 1;
-    CHILD_SCORE_MODE_MAX = 2;
-    CHILD_SCORE_MODE_MIN = 3;
-    CHILD_SCORE_MODE_NONE = 4;
-    CHILD_SCORE_MODE_SUM = 5;
-  }
-  ChildScoreMode score_mode = 7;
-
+enum ChildScoreMode {
+  CHILD_SCORE_MODE_UNSPECIFIED = 0;
+  CHILD_SCORE_MODE_AVG = 1;
+  CHILD_SCORE_MODE_MAX = 2;
+  CHILD_SCORE_MODE_MIN = 3;
+  CHILD_SCORE_MODE_NONE = 4;
+  CHILD_SCORE_MODE_SUM = 5;
 }
 
 message InnerHits {
