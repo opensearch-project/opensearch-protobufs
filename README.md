@@ -38,6 +38,8 @@ docker build --target test-bazel-java .
 
 # Python
 docker build --target build-bazel-python .
+docker build --target package-bazel-python .
+docker build --target test-bazel-python .
 
 # Go
 docker build --target build-bazel-go .
