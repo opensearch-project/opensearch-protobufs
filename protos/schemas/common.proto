@@ -1961,14 +1961,101 @@ message RandomScoreFunction {
   Seed seed = 2;
 }
 
-// TODO: need to revisit RangeQuery def
 message RangeQuery {
-  // [required] Specifies the field against which to run a search query
-  string field = 1;
+  // [optional] Floating point number used to decrease or increase the relevance scores of the query. Boost values are relative to the default value of 1.0. A boost value between 0 and 1.0 decreases the relevance score. A value greater than 1.0 increases the relevance score.
+  optional float boost = 1;
 
-  oneof range_query{
-    DateRangeQuery date_range_query = 2;
-    NumberRangeQuery number_range_query = 3;
+  optional string underscore_name = 2;
+  // [optional] Indicates how the range query matches values for range fields.
+  optional RangeRelation relation = 3;
+  // [optional] Greater than.
+  optional RangeQueryAllOfGt gt = 4;
+  // [optional] Greater than or equal to.
+  optional RangeQueryAllOfGte gte = 5;
+  // [optional] Less than.
+  optional RangeQueryAllOfLt lt = 6;
+  // [optional] Less than or equal to.
+  optional RangeQueryAllOfLte lte = 7;
+  // [optional]
+  optional RangeQueryAllOfFrom from = 8;
+  // [optional]
+  optional RangeQueryAllOfTo to = 9;
+  // [optional]
+  optional bool include_lower = 10;
+  // [optional]
+  optional bool include_upper = 11;
+  // [optional] The date format pattern.
+  optional string format = 12;
+
+  // [optional] The time zone identifier.
+  optional string time_zone = 13;
+
+  // [optional] Field you wish to search.
+  optional string field = 14;
+}
+
+enum RangeRelation {
+  RANGE_RELATION_CONTAINS = 0;
+  RANGE_RELATION_INTERSECTS = 1;
+  RANGE_RELATION_WITHIN = 2;
+}
+
+message RangeQueryAllOfFrom {
+  oneof range_query_all_of_from {
+
+    string string = 1;
+
+    NullValue null_value = 2;
+
+    double double = 3;
+
+  }
+}
+message RangeQueryAllOfGt {
+  oneof range_query_all_of_gt {
+
+    string string = 1;
+
+    double double = 2;
+
+  }
+}
+message RangeQueryAllOfGte {
+  oneof range_query_all_of_gte {
+
+    double double = 1;
+
+    string string = 2;
+
+  }
+}
+message RangeQueryAllOfLt {
+  oneof range_query_all_of_lt {
+
+    string string = 1;
+
+    double double = 2;
+
+  }
+}
+message RangeQueryAllOfLte {
+  oneof range_query_all_of_lte {
+
+    string string = 1;
+
+    double double = 2;
+
+  }
+}
+message RangeQueryAllOfTo {
+  oneof range_query_all_of_to {
+
+    string string = 1;
+
+    NullValue null_value = 2;
+
+    double double = 3;
+
   }
 }
 
