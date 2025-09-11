@@ -189,7 +189,8 @@ message DeleteOperation {
 
 }
 
-message BulkResponseBase {
+// todo: Proposal Spec this name
+message BulkResponse {
   // [required] If true, one or more of the operations in the bulk request did not complete successfully.
   bool errors = 1;
   // [required] Contains the result of each operation in the bulk request, in the order they were submitted.
