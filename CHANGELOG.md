@@ -10,7 +10,7 @@ Inspired from [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 
 ### Changed
 - update `score` protobuf type ([#179](https://github.com/opensearch-project/opensearch-protobufs/pull/179))
-- Update `RangeQuery` protobuf type ([#196](https://github.com/opensearch-project/opensearch-protobufs/pull/196))
+- Update `RangeQuery` and `NestedQuery` protobuf type ([#196](https://github.com/opensearch-project/opensearch-protobufs/pull/196))
 ### Removed
 
 ### Fixed
