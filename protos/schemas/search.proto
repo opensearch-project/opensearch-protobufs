@@ -293,40 +293,6 @@ message TrackHits {
 
 // The response from search request.
 message SearchResponse {
-  oneof response {
-    // The search success response
-    ResponseBody response_body = 1;
-    // The search 4xx error response
-    Error4xxResponseBody error_4xx_response = 2;
-    // The search 5xx error response
-    Error5xxResponse error_5xx_response = 3;
-  }
-}
-
-
-
-// The 4xx error response from search/index-search request.
-message Error4xxResponseBody {
-  // [optional] The search 4xx error response body.
-  Error error = 1;
-  // [optional] The search 4xx error response status code.
-  optional int32 status = 2;
-}
-
-// The 5xx error response from search/index-search request.
-message Error5xxResponse {
-  // [optional] The search 5xx error response status code.
-  optional int32 status_code = 1;
-  // [optional] The search 5xx error content.
-  optional string error = 2;
-  // [optional] The search 5xx error message.
-  optional string message = 3;
-  // [optional] The search 5xx error additional_details.
-  .google.protobuf.Struct additional_details = 4;
-}
-//
-//// The response body from a search/index-search request.
-message ResponseBody {
 
   // [required] Milliseconds it took Elasticsearch to execute the request.
   int64 took = 1;
@@ -368,7 +334,7 @@ message ResponseBody {
   optional bool terminated_early = 13;
   // [optional]
   // todo: not supported yet
-  // map<string, SearchResultSuggestValueInnerArray> suggest = 14;
+  // map<string, SuggestArray> suggest = 14;
 }
 
 message ProcessorExecutionDetail {
