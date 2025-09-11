@@ -1965,7 +1965,7 @@ message RangeQuery {
   // [optional] Floating point number used to decrease or increase the relevance scores of the query. Boost values are relative to the default value of 1.0. A boost value between 0 and 1.0 decreases the relevance score. A value greater than 1.0 increases the relevance score.
   optional float boost = 1;
 
-  optional string underscore_name = 2;
+  optional string x_name = 2;
   // [optional] Indicates how the range query matches values for range fields.
   optional RangeRelation relation = 3;
   // [optional] Greater than.
@@ -2092,101 +2092,6 @@ message RegexpQuery {
     MULTI_TERM_QUERY_REWRITE_TOP_TERMS_BLENDED_FREQS_N = 5;
     MULTI_TERM_QUERY_REWRITE_TOP_TERMS_BOOST_N = 6;
   }
-}
-
-message DateRangeQuery {
-
-  // [optional] Floating point number used to decrease or increase the relevance scores of the query. Boost values are relative to the default value of 1.0. A boost value between 0 and 1.0 decreases the relevance score. A value greater than 1.0 increases the relevance score.
-  optional float boost = 1;
-
-  // [optional] Query name for query tagging.
-  optional string x_name = 2;
-
-  RangeRelation relation = 3;
-  enum RangeRelation {
-    RANGE_RELATION_UNSPECIFIED = 0;
-    RANGE_RELATION_CONTAINS = 1;
-    RANGE_RELATION_INTERSECTS = 2;
-    RANGE_RELATION_WITHIN = 3;
-  }
-
-  string gt = 4;
-
-  string gte = 5;
-
-  string lt = 6;
-
-  string lte = 7;
-
-  message From {
-    oneof from {
-      string string_value = 1;
-      NullValue null_value = 2;
-    }
-  }
-
-  From from = 8;
-
-  message To {
-    oneof to {
-      string string_value = 1;
-      NullValue null_value = 2;
-    }
-  }
-  To to = 9;
-
-  string format = 10;
-
-  string time_zone = 11;
-
-}
-
-message NumberRangeQuery {
-
-  // [optional] Floating point number used to decrease or increase the relevance scores of the query. Boost values are relative to the default value of 1.0. A boost value between 0 and 1.0 decreases the relevance score. A value greater than 1.0 increases the relevance score.
-  optional float boost = 1;
-
-  // [optional] Query name for query tagging.
-  optional string x_name = 2;
-
-  RangeRelation relation = 3;
-  enum RangeRelation {
-    RANGE_RELATION_UNSPECIFIED = 0;
-    RANGE_RELATION_CONTAINS = 1;
-    RANGE_RELATION_INTERSECTS = 2;
-    RANGE_RELATION_WITHIN = 3;
-  }
-
-
-  // Greater than.
-  GeneralNumber gt = 4;
-
-  // Greater than or equal to.
-  GeneralNumber gte = 5;
-
-  // Less than.
-  GeneralNumber lt = 6;
-
-  // Less than or equal to.
-  GeneralNumber lte = 7;
-
-  message From {
-    oneof from {
-      string string_value = 1;
-      GeneralNumber general_number = 2;
-      NullValue null_value = 3;
-    }
-  }
-  From from = 8;
-
-  message To {
-    oneof to {
-      string string_value = 1;
-      GeneralNumber general_number = 2;
-      NullValue null_value = 3;
-    }
-  }
-  To to = 9;
 }
 
 message FuzzyQuery {
