@@ -136,7 +136,7 @@ message SearchRequest {
   // [optional] Search Request body
   SearchRequestBody request_body = 49;
   // [optional] Global parameters
-  optional GlobalParams global_params = 13;
+  optional GlobalParams global_params = 50;
 }
 
 message FloatMap {
