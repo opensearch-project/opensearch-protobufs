@@ -10,6 +10,16 @@ option go_package = "github.com/opensearch-project/opensearch-protobufs/go/opens
 
 import "google/protobuf/struct.proto";
 
+// TODO: not supported yet in server
+message GlobalParams {
+  // [optional] Whether to return human-readable values for statistics.
+  optional bool human = 1;
+  // [optional] Whether to include the stack trace of returned errors.
+  optional bool error_trace = 2;
+  // [optional] A comma-separated list of filters used to filter the response. Use wildcards to match any field or part of a field's name. To exclude fields, use `-`.
+  repeated string filter_path = 3;
+}
+
 message WaitForActiveShards {
 
   oneof wait_for_active_shards {
