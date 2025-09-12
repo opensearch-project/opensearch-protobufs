@@ -1,4 +1,4 @@
-## Version 0.11.0 (2025-09-13) Release Notes
+## Version 0.11.0 (2025-09-09) Release Notes
 
 ### Added
 - Publish opensearch-protos python package to PyPi. ([#183](https://github.com/opensearch-project/opensearch-protobufs/pull/183))
