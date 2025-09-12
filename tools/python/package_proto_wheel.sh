@@ -28,13 +28,3 @@ echo "Updated version.bzl with version ${VERSION}"
 echo "Building wheel with Bazel..."
 cd "${ROOT_DIR}"
 bazel build //:opensearch_protos_wheel
-
-# Find the generated wheel file
-WHEEL_FILE=$(find bazel-bin -name "*.whl" -type f | head -n 1)
-if [ -n "$WHEEL_FILE" ]; then
-    echo "Successfully built wheel: ${WHEEL_FILE}"
-    echo "Wheel filename: $(basename "$WHEEL_FILE")"
-else
-    echo "Error: Could not find generated wheel file"
-    exit 1
-fi
