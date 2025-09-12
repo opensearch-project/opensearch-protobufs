@@ -40,15 +40,8 @@ message BulkRequest {
   optional WaitForActiveShards wait_for_active_shards = 11;
   // [required] The request body contains create, delete, index, and update actions and their associated source data
   repeated BulkRequestBody request_body = 12;
-  // [optional] Whether to return human-readable values for statistics.
-  optional bool human = 13;
-  // [optional] Whether to include the stack trace of returned errors.
-  // TODO not supported yet
-  optional bool error_trace = 14;
-  // [optional] The URL-encoded request definition. Useful for libraries that do not accept a request body for non-POST requests.
-  optional string source = 15;
-  // [optional] A comma-separated list of filters used to filter the response. Use wildcards to match any field or part of a field's name. To exclude fields, use `-`.
-  repeated string filter_path = 16;
+  // [optional] Global parameters
+  optional GlobalParams global_params = 13;
 }
 
 message BulkRequestBody {
