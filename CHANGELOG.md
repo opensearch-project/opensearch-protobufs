@@ -8,7 +8,7 @@ Inspired from [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 
 ### Changed
 - Modify `searchResponse` and `bulkResponse` according to the updated spec and remove the error response. ([#194](https://github.com/opensearch-project/opensearch-protobufs/pull/194))
-- Remove `x_` prefix, remove global `source` param, use separate `GlobalParams` message ([#181](https://github.com/opensearch-project/opensearch-protobufs/pull/181))
+- Use separate `GlobalParams` message ([#181](https://github.com/opensearch-project/opensearch-protobufs/pull/181))
 
 ### Removed
 
