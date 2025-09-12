@@ -94,7 +94,7 @@ RUN bazel build //:python_protos_all
 
 FROM build-bazel-python AS package-bazel-python
 
-RUN bazel build //:opensearch_protos_wheel
+RUN /build/tools/python/package_proto_wheel.sh
 
 FROM package-bazel-python AS test-bazel-python
 
