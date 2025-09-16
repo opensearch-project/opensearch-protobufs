@@ -52,7 +52,7 @@ jobs:
       - name: Build python with bazel
         run: |
           mkdir -p dist
-          ./tools/python/package_proto_wheel.sh
+          bazel build //:opensearch_protos_wheel
           mv bazel-bin/opensearch_protobufs-*-py3-none-any.whl dist/
       - name: Publish python artifacts to PyPI
         uses: pypa/gh-action-pypi-publish@release/v1
