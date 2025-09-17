@@ -2,6 +2,11 @@ workspace(name = "proto_workspace")
 
 load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 
+load("//:version_helper.bzl", "version_helper")
+version_helper(
+    name = "versioning",
+)
+
 """
 The version of rules_apple pulled in by com_github_grpc_grpc is missing a bugfix required
 for bazel 7.x support. "'apple_common' value has no field or method 'multi_arch_split'".
