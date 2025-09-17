@@ -38,6 +38,11 @@ message GeneralNumber {
     double double_value = 4;
   }
 }
+
+enum NullValue {
+  NULL_VALUE_UNSPECIFIED = 0;
+  NULL_VALUE_NULL = 1;
+}
 message AdjacencyMatrixAggregate {
   // The custom metadata attached to a resource.
   optional ObjectMap meta = 1;
@@ -450,6 +455,8 @@ message AggregationRangeFrom {
     double double = 1;
 
     string string = 2;
+
+    NullValue null_value = 3;
   }
 }
 message AggregationRangeTo {
@@ -457,6 +464,8 @@ message AggregationRangeTo {
     double double = 1;
 
     string string = 2;
+
+    NullValue null_value = 3;
   }
 }
 message Analyzer {
@@ -501,12 +510,19 @@ message Analyzer {
 message ArrayPercentilesItem {
   string key = 1;
 
-  optional double value = 2;
+  ArrayPercentilesItemValue value = 2;
 
   optional string value_as_string = 3;
 }
 message ArrayPercentilesItemArray {
   repeated ArrayPercentilesItem array_percentiles_item_array = 1;
+}
+message ArrayPercentilesItemValue {
+  oneof array_percentiles_item_value {
+    double double = 1;
+
+    NullValue null_value = 2;
+  }
 }
 message AutoDateHistogramAggregate {
   // The custom metadata attached to a resource.
@@ -573,7 +589,7 @@ message AvgAggregate {
   // The custom metadata attached to a resource.
   optional ObjectMap meta = 1;
 
-  double value = 2;
+  SingleMetricAggregateBaseAllOfValue value = 2;
 
   optional string value_as_string = 3;
 }
@@ -672,7 +688,7 @@ message BucketMetricValueAggregate {
   // The custom metadata attached to a resource.
   optional ObjectMap meta = 1;
 
-  double value = 2;
+  SingleMetricAggregateBaseAllOfValue value = 2;
 
   optional string value_as_string = 3;
 
@@ -950,37 +966,6 @@ message Completion {
   string text = 3;
 
   repeated CompletionAllOfOptionsInner options = 4;
-}
-message Completion1 {
-  int32 length = 1;
-
-  int32 offset = 2;
-
-  string text = 3;
-
-  repeated Completion1AllOfOptionsInner options = 4;
-}
-message Completion1AllOfOptionsInner {
-  optional bool collate_match = 1;
-
-  map<string, ContextArray> contexts = 2;
-
-  optional ObjectMap fields = 3;
-
-  string text = 4;
-
-  optional float score = 5;
-
-  optional string underscore_id = 6;
-
-  optional string underscore_index = 7;
-
-  // The routing value for the document.
-  optional string underscore_routing = 8;
-
-  optional float underscore_score = 9;
-
-  optional ObjectMap underscore_source = 10;
 }
 message CompletionAllOfOptionsInner {
   optional bool collate_match = 1;
@@ -1403,24 +1388,47 @@ message DateRangeExpression {
 
   optional FieldDateMath to = 3;
 }
-message DateRangeQueryParameters {
-  optional string gt = 1;
+message DateRangeQuery {
+  // Floating point number used to decrease or increase the relevance scores of the query. Boost values are relative to the default value of 1.0. A boost value between 0 and 1.0 decreases the relevance score. A value greater than 1.0 increases the relevance score.
+  optional float boost = 1;
 
-  optional string gte = 2;
+  optional string underscore_name = 2;
 
-  optional string lt = 3;
+  optional RangeRelation relation = 3;
 
-  optional string lte = 4;
+  optional string gt = 4;
 
-  optional string from = 5;
+  optional string gte = 5;
 
-  optional string to = 6;
+  optional string lt = 6;
+
+  optional string lte = 7;
+
+  optional DateRangeQueryAllOfFrom from = 8;
+
+  optional DateRangeQueryAllOfTo to = 9;
 
   // The date format pattern.
-  optional string format = 7;
+  optional string format = 10;
 
   // The time zone identifier.
-  optional string time_zone = 8;
+  optional string time_zone = 11;
+
+  optional string field = 12;
+}
+message DateRangeQueryAllOfFrom {
+  oneof date_range_query_all_of_from {
+    string string = 1;
+
+    NullValue null_value = 2;
+  }
+}
+message DateRangeQueryAllOfTo {
+  oneof date_range_query_all_of_to {
+    string string = 1;
+
+    NullValue null_value = 2;
+  }
 }
 message DateTime {
   oneof date_time {
@@ -1472,7 +1480,7 @@ message DerivativeAggregate {
   // The custom metadata attached to a resource.
   optional ObjectMap meta = 1;
 
-  double value = 2;
+  SingleMetricAggregateBaseAllOfValue value = 2;
 
   optional string value_as_string = 3;
 
@@ -1731,11 +1739,11 @@ message ExtendedStatsAggregate {
 
   int64 count = 2;
 
-  double min = 3;
+  StatsAggregateBaseAllOfMin min = 3;
 
-  double max = 4;
+  StatsAggregateBaseAllOfMax max = 4;
 
-  double avg = 5;
+  StatsAggregateBaseAllOfAvg avg = 5;
 
   double sum = 6;
 
@@ -1747,19 +1755,19 @@ message ExtendedStatsAggregate {
 
   optional string sum_as_string = 10;
 
-  double sum_of_squares = 11;
+  ExtendedStatsAggregateBaseAllOfSumOfSquares sum_of_squares = 11;
 
-  double variance = 12;
+  ExtendedStatsAggregateBaseAllOfVariance variance = 12;
 
-  double variance_population = 13;
+  ExtendedStatsAggregateBaseAllOfVariancePopulation variance_population = 13;
 
-  double variance_sampling = 14;
+  ExtendedStatsAggregateBaseAllOfVarianceSampling variance_sampling = 14;
 
-  double std_deviation = 15;
+  ExtendedStatsAggregateBaseAllOfStdDeviation std_deviation = 15;
 
-  double std_deviation_population = 16;
+  ExtendedStatsAggregateBaseAllOfStdDeviationPopulation std_deviation_population = 16;
 
-  double std_deviation_sampling = 17;
+  ExtendedStatsAggregateBaseAllOfStdDeviationSampling std_deviation_sampling = 17;
 
   optional StandardDeviationBounds std_deviation_bounds = 18;
 
@@ -1781,11 +1789,11 @@ message ExtendedStatsAggregateBase {
 
   int64 count = 2;
 
-  double min = 3;
+  StatsAggregateBaseAllOfMin min = 3;
 
-  double max = 4;
+  StatsAggregateBaseAllOfMax max = 4;
 
-  double avg = 5;
+  StatsAggregateBaseAllOfAvg avg = 5;
 
   double sum = 6;
 
@@ -1797,19 +1805,19 @@ message ExtendedStatsAggregateBase {
 
   optional string sum_as_string = 10;
 
-  optional double sum_of_squares = 11;
+  ExtendedStatsAggregateBaseAllOfSumOfSquares sum_of_squares = 11;
 
-  optional double variance = 12;
+  ExtendedStatsAggregateBaseAllOfVariance variance = 12;
 
-  optional double variance_population = 13;
+  ExtendedStatsAggregateBaseAllOfVariancePopulation variance_population = 13;
 
-  optional double variance_sampling = 14;
+  ExtendedStatsAggregateBaseAllOfVarianceSampling variance_sampling = 14;
 
-  optional double std_deviation = 15;
+  ExtendedStatsAggregateBaseAllOfStdDeviation std_deviation = 15;
 
-  optional double std_deviation_population = 16;
+  ExtendedStatsAggregateBaseAllOfStdDeviationPopulation std_deviation_population = 16;
 
-  optional double std_deviation_sampling = 17;
+  ExtendedStatsAggregateBaseAllOfStdDeviationSampling std_deviation_sampling = 17;
 
   optional StandardDeviationBounds std_deviation_bounds = 18;
 
@@ -1824,6 +1832,55 @@ message ExtendedStatsAggregateBase {
   optional string std_deviation_as_string = 23;
 
   optional StandardDeviationBoundsAsString std_deviation_bounds_as_string = 24;
+}
+message ExtendedStatsAggregateBaseAllOfStdDeviation {
+  oneof extended_stats_aggregate_base_all_of_std_deviation {
+    double double = 1;
+
+    NullValue null_value = 2;
+  }
+}
+message ExtendedStatsAggregateBaseAllOfStdDeviationPopulation {
+  oneof extended_stats_aggregate_base_all_of_std_deviation_population {
+    double double = 1;
+
+    NullValue null_value = 2;
+  }
+}
+message ExtendedStatsAggregateBaseAllOfStdDeviationSampling {
+  oneof extended_stats_aggregate_base_all_of_std_deviation_sampling {
+    double double = 1;
+
+    NullValue null_value = 2;
+  }
+}
+message ExtendedStatsAggregateBaseAllOfSumOfSquares {
+  oneof extended_stats_aggregate_base_all_of_sum_of_squares {
+    double double = 1;
+
+    NullValue null_value = 2;
+  }
+}
+message ExtendedStatsAggregateBaseAllOfVariance {
+  oneof extended_stats_aggregate_base_all_of_variance {
+    double double = 1;
+
+    NullValue null_value = 2;
+  }
+}
+message ExtendedStatsAggregateBaseAllOfVariancePopulation {
+  oneof extended_stats_aggregate_base_all_of_variance_population {
+    double double = 1;
+
+    NullValue null_value = 2;
+  }
+}
+message ExtendedStatsAggregateBaseAllOfVarianceSampling {
+  oneof extended_stats_aggregate_base_all_of_variance_sampling {
+    double double = 1;
+
+    NullValue null_value = 2;
+  }
 }
 message ExtendedStatsAggregation {
   // The path to a field or an array of paths. Some APIs support wildcards in the path, which allows you to select multiple fields.
@@ -1844,11 +1901,11 @@ message ExtendedStatsBucketAggregate {
 
   int64 count = 2;
 
-  double min = 3;
+  StatsAggregateBaseAllOfMin min = 3;
 
-  double max = 4;
+  StatsAggregateBaseAllOfMax max = 4;
 
-  double avg = 5;
+  StatsAggregateBaseAllOfAvg avg = 5;
 
   double sum = 6;
 
@@ -1860,19 +1917,19 @@ message ExtendedStatsBucketAggregate {
 
   optional string sum_as_string = 10;
 
-  double sum_of_squares = 11;
+  ExtendedStatsAggregateBaseAllOfSumOfSquares sum_of_squares = 11;
 
-  double variance = 12;
+  ExtendedStatsAggregateBaseAllOfVariance variance = 12;
 
-  double variance_population = 13;
+  ExtendedStatsAggregateBaseAllOfVariancePopulation variance_population = 13;
 
-  double variance_sampling = 14;
+  ExtendedStatsAggregateBaseAllOfVarianceSampling variance_sampling = 14;
 
-  double std_deviation = 15;
+  ExtendedStatsAggregateBaseAllOfStdDeviation std_deviation = 15;
 
-  double std_deviation_population = 16;
+  ExtendedStatsAggregateBaseAllOfStdDeviationPopulation std_deviation_population = 16;
 
-  double std_deviation_sampling = 17;
+  ExtendedStatsAggregateBaseAllOfStdDeviationSampling std_deviation_sampling = 17;
 
   optional StandardDeviationBounds std_deviation_bounds = 18;
 
@@ -2920,7 +2977,7 @@ message Hit {
   // The unique identifier for a resource.
   optional string underscore_id = 9;
 
-  optional double underscore_score = 10;
+  optional HitUnderscoreScore underscore_score = 10;
 
   optional Explanation underscore_explanation = 11;
 
@@ -2943,12 +3000,19 @@ message Hit {
 
   optional int64 underscore_version = 20;
 }
+message HitUnderscoreScore {
+  oneof hit_underscore_score {
+    NullValue null_value = 1;
+
+    double double = 2;
+  }
+}
 message HitsMetadata {
   optional HitsMetadataTotal total = 1;
 
   repeated HitsMetadataHitsInner hits = 2;
 
-  optional float max_score = 3;
+  optional HitsMetadataMaxScore max_score = 3;
 }
 message HitsMetadataHitsInner {
   optional ObjectMap fields = 1;
@@ -2971,7 +3035,7 @@ message HitsMetadataHitsInner {
   // The unique identifier for a resource.
   optional string underscore_id = 9;
 
-  optional double underscore_score = 10;
+  optional HitUnderscoreScore underscore_score = 10;
 
   optional Explanation underscore_explanation = 11;
 
@@ -2999,10 +3063,17 @@ message HitsMetadataJsonValue {
 
   repeated HitsMetadataJsonValueAllOfHits hits = 2;
 
-  optional float max_score = 3;
+  optional HitsMetadataMaxScore max_score = 3;
 }
 message HitsMetadataJsonValueAllOfHits {
   optional ObjectMap source = 1 [json_name = "_source"];
+}
+message HitsMetadataMaxScore {
+  oneof hits_metadata_max_score {
+    NullValue null_value = 1;
+
+    float float = 2;
+  }
 }
 message HitsMetadataTotal {
   oneof hits_metadata_total {
@@ -3399,6 +3470,8 @@ message KeyedPercentilesValue {
     double double = 1;
 
     string string = 2;
+
+    NullValue null_value = 3;
   }
 }
 message KeyedPercentilesValueMap {
@@ -3813,7 +3886,7 @@ message MaxAggregate {
   // The custom metadata attached to a resource.
   optional ObjectMap meta = 1;
 
-  double value = 2;
+  SingleMetricAggregateBaseAllOfValue value = 2;
 
   optional string value_as_string = 3;
 }
@@ -3844,7 +3917,7 @@ message MedianAbsoluteDeviationAggregate {
   // The custom metadata attached to a resource.
   optional ObjectMap meta = 1;
 
-  double value = 2;
+  SingleMetricAggregateBaseAllOfValue value = 2;
 
   optional string value_as_string = 3;
 }
@@ -3873,7 +3946,7 @@ message MinAggregate {
   // The custom metadata attached to a resource.
   optional ObjectMap meta = 1;
 
-  double value = 2;
+  SingleMetricAggregateBaseAllOfValue value = 2;
 
   optional string value_as_string = 3;
 }
@@ -4523,35 +4596,48 @@ message NullArray {
 message NullMap {
   map<string, ObjectMap> null_map = 1;
 }
-message NumberRangeQueryParameters {
+message NumberRangeQuery {
+  // Floating point number used to decrease or increase the relevance scores of the query. Boost values are relative to the default value of 1.0. A boost value between 0 and 1.0 decreases the relevance score. A value greater than 1.0 increases the relevance score.
+  optional float boost = 1;
+
+  optional string underscore_name = 2;
+
+  optional RangeRelation relation = 3;
+
   // Greater than.
-  optional double gt = 1;
+  optional double gt = 4;
 
   // Greater than or equal to.
-  optional double gte = 2;
+  optional double gte = 5;
 
   // Less than.
-  optional double lt = 3;
+  optional double lt = 6;
 
   // Less than or equal to.
-  optional double lte = 4;
+  optional double lte = 7;
 
-  optional NumberRangeQueryParametersFrom from = 5;
+  optional NumberRangeQueryAllOfFrom from = 8;
 
-  optional NumberRangeQueryParametersTo to = 6;
+  optional NumberRangeQueryAllOfTo to = 9;
+
+  optional string field = 10;
 }
-message NumberRangeQueryParametersFrom {
-  oneof number_range_query_parameters_from {
+message NumberRangeQueryAllOfFrom {
+  oneof number_range_query_all_of_from {
     double double = 1;
 
     string string = 2;
+
+    NullValue null_value = 3;
   }
 }
-message NumberRangeQueryParametersTo {
-  oneof number_range_query_parameters_to {
+message NumberRangeQueryAllOfTo {
+  oneof number_range_query_all_of_to {
     double double = 1;
 
     string string = 2;
+
+    NullValue null_value = 3;
   }
 }
 message NumericDecayPlacement {
@@ -5253,9 +5339,9 @@ message RangeBucket {
 }
 message RangeQuery {
   oneof range_query {
-    RangeQueryOneOf range_query_one_of = 1;
+    NumberRangeQuery number_range_query = 1;
 
-    RangeQueryOneOf1 range_query_one_of1 = 2;
+    DateRangeQuery date_range_query = 2;
   }
 }
 message RangeQueryBase {
@@ -5265,60 +5351,6 @@ message RangeQueryBase {
   optional string underscore_name = 2;
 
   optional RangeRelation relation = 3;
-}
-message RangeQueryOneOf {
-  // Floating point number used to decrease or increase the relevance scores of the query. Boost values are relative to the default value of 1.0. A boost value between 0 and 1.0 decreases the relevance score. A value greater than 1.0 increases the relevance score.
-  optional float boost = 1;
-
-  optional string underscore_name = 2;
-
-  optional RangeRelation relation = 3;
-
-  // Greater than.
-  optional double gt = 4;
-
-  // Greater than or equal to.
-  optional double gte = 5;
-
-  // Less than.
-  optional double lt = 6;
-
-  // Less than or equal to.
-  optional double lte = 7;
-
-  optional NumberRangeQueryParametersFrom from = 8;
-
-  optional NumberRangeQueryParametersTo to = 9;
-
-  optional string field = 10;
-}
-message RangeQueryOneOf1 {
-  // Floating point number used to decrease or increase the relevance scores of the query. Boost values are relative to the default value of 1.0. A boost value between 0 and 1.0 decreases the relevance score. A value greater than 1.0 increases the relevance score.
-  optional float boost = 1;
-
-  optional string underscore_name = 2;
-
-  optional RangeRelation relation = 3;
-
-  optional string gt = 4;
-
-  optional string gte = 5;
-
-  optional string lt = 6;
-
-  optional string lte = 7;
-
-  optional string from = 8;
-
-  optional string to = 9;
-
-  // The date format pattern.
-  optional string format = 10;
-
-  // The time zone identifier.
-  optional string time_zone = 11;
-
-  optional string field = 12;
 }
 enum RangeRelation {
   RANGE_RELATION_UNSPECIFIED = 0;
@@ -5754,7 +5786,7 @@ message SearchResponse {
   // The unique identifier for a resource.
   optional string pit_id = 10;
 
-  map<string, SearchResultSuggestValueInnerArray> suggest = 11;
+  map<string, SuggestArray> suggest = 11;
 
   optional bool terminated_early = 12;
 
@@ -5786,7 +5818,7 @@ message SearchResult {
   // The unique identifier for a resource.
   optional string pit_id = 10;
 
-  map<string, SearchResultSuggestValueInnerArray> suggest = 11;
+  map<string, SuggestArray> suggest = 11;
 
   optional bool terminated_early = 12;
 
@@ -5801,7 +5833,7 @@ message SearchResultHits {
 
   repeated SearchResultHitsAllOfHitsInner hits = 2;
 
-  optional float max_score = 3;
+  optional HitsMetadataMaxScore max_score = 3;
 }
 message SearchResultHitsAllOfHitsInner {
   optional ObjectMap fields = 1;
@@ -5824,7 +5856,7 @@ message SearchResultHitsAllOfHitsInner {
   // The unique identifier for a resource.
   optional string underscore_id = 9;
 
-  optional double underscore_score = 10;
+  optional HitUnderscoreScore underscore_score = 10;
 
   optional Explanation underscore_explanation = 11;
 
@@ -5846,18 +5878,6 @@ message SearchResultHitsAllOfHitsInner {
   optional int64 underscore_primary_term = 19;
 
   optional int64 underscore_version = 20;
-}
-message SearchResultSuggestValueInner {
-  int32 length = 1;
-
-  int32 offset = 2;
-
-  string text = 3;
-
-  repeated TermSuggestOption options = 4;
-}
-message SearchResultSuggestValueInnerArray {
-  repeated SearchResultSuggestValueInner search_result_suggest_value_inner_array = 1;
 }
 enum SearchType {
   SEARCH_TYPE_UNSPECIFIED = 0;
@@ -6229,7 +6249,7 @@ message SimpleValueAggregate {
   // The custom metadata attached to a resource.
   optional ObjectMap meta = 1;
 
-  double value = 2;
+  SingleMetricAggregateBaseAllOfValue value = 2;
 
   optional string value_as_string = 3;
 }
@@ -6245,9 +6265,16 @@ message SingleMetricAggregateBase {
   // The custom metadata attached to a resource.
   optional ObjectMap meta = 1;
 
-  optional double value = 2;
+  SingleMetricAggregateBaseAllOfValue value = 2;
 
   optional string value_as_string = 3;
+}
+message SingleMetricAggregateBaseAllOfValue {
+  oneof single_metric_aggregate_base_all_of_value {
+    double double = 1;
+
+    NullValue null_value = 2;
+  }
 }
 message SlicedScroll {
   // The path to a field or an array of paths. Some APIs support wildcards in the path, which allows you to select multiple fields.
@@ -6495,17 +6522,17 @@ enum StandardAnalyzerType {
   STANDARD_ANALYZER_TYPE_STANDARD = 1;
 }
 message StandardDeviationBounds {
-  optional double upper = 1;
+  StandardDeviationBoundsUpper upper = 1;
 
-  optional double lower = 2;
+  StandardDeviationBoundsLower lower = 2;
 
-  optional double upper_population = 3;
+  StandardDeviationBoundsUpperPopulation upper_population = 3;
 
-  optional double lower_population = 4;
+  StandardDeviationBoundsLowerPopulation lower_population = 4;
 
-  optional double upper_sampling = 5;
+  StandardDeviationBoundsUpperSampling upper_sampling = 5;
 
-  optional double lower_sampling = 6;
+  StandardDeviationBoundsLowerSampling lower_sampling = 6;
 }
 message StandardDeviationBoundsAsString {
   string upper = 1;
@@ -6520,17 +6547,59 @@ message StandardDeviationBoundsAsString {
 
   string lower_sampling = 6;
 }
+message StandardDeviationBoundsLower {
+  oneof standard_deviation_bounds_lower {
+    double double = 1;
+
+    NullValue null_value = 2;
+  }
+}
+message StandardDeviationBoundsLowerPopulation {
+  oneof standard_deviation_bounds_lower_population {
+    double double = 1;
+
+    NullValue null_value = 2;
+  }
+}
+message StandardDeviationBoundsLowerSampling {
+  oneof standard_deviation_bounds_lower_sampling {
+    double double = 1;
+
+    NullValue null_value = 2;
+  }
+}
+message StandardDeviationBoundsUpper {
+  oneof standard_deviation_bounds_upper {
+    double double = 1;
+
+    NullValue null_value = 2;
+  }
+}
+message StandardDeviationBoundsUpperPopulation {
+  oneof standard_deviation_bounds_upper_population {
+    double double = 1;
+
+    NullValue null_value = 2;
+  }
+}
+message StandardDeviationBoundsUpperSampling {
+  oneof standard_deviation_bounds_upper_sampling {
+    double double = 1;
+
+    NullValue null_value = 2;
+  }
+}
 message StatsAggregate {
   // The custom metadata attached to a resource.
   optional ObjectMap meta = 1;
 
   int64 count = 2;
 
-  double min = 3;
+  StatsAggregateBaseAllOfMin min = 3;
 
-  double max = 4;
+  StatsAggregateBaseAllOfMax max = 4;
 
-  double avg = 5;
+  StatsAggregateBaseAllOfAvg avg = 5;
 
   double sum = 6;
 
@@ -6548,11 +6617,11 @@ message StatsAggregateBase {
 
   int64 count = 2;
 
-  optional double min = 3;
+  StatsAggregateBaseAllOfMin min = 3;
 
-  optional double max = 4;
+  StatsAggregateBaseAllOfMax max = 4;
 
-  optional double avg = 5;
+  StatsAggregateBaseAllOfAvg avg = 5;
 
   double sum = 6;
 
@@ -6563,6 +6632,27 @@ message StatsAggregateBase {
   optional string avg_as_string = 9;
 
   optional string sum_as_string = 10;
+}
+message StatsAggregateBaseAllOfAvg {
+  oneof stats_aggregate_base_all_of_avg {
+    double double = 1;
+
+    NullValue null_value = 2;
+  }
+}
+message StatsAggregateBaseAllOfMax {
+  oneof stats_aggregate_base_all_of_max {
+    double double = 1;
+
+    NullValue null_value = 2;
+  }
+}
+message StatsAggregateBaseAllOfMin {
+  oneof stats_aggregate_base_all_of_min {
+    double double = 1;
+
+    NullValue null_value = 2;
+  }
 }
 message StatsAggregation {
   // The path to a field or an array of paths. Some APIs support wildcards in the path, which allows you to select multiple fields.
@@ -6580,11 +6670,11 @@ message StatsBucketAggregate {
 
   int64 count = 2;
 
-  double min = 3;
+  StatsAggregateBaseAllOfMin min = 3;
 
-  double max = 4;
+  StatsAggregateBaseAllOfMax max = 4;
 
-  double avg = 5;
+  StatsAggregateBaseAllOfAvg avg = 5;
 
   double sum = 6;
 
@@ -6683,12 +6773,15 @@ message StupidBackoffSmoothingModel {
 }
 message Suggest {
   oneof suggest {
-    Completion1 completion1 = 1;
+    Completion completion = 1;
 
     PhraseSuggest phrase = 2;
 
     TermSuggest term = 3;
   }
+}
+message SuggestArray {
+  repeated Suggest suggest_array = 1;
 }
 message SuggestBase {
   int32 length = 1;
@@ -6734,7 +6827,7 @@ message SumAggregate {
   // The custom metadata attached to a resource.
   optional ObjectMap meta = 1;
 
-  double value = 2;
+  SingleMetricAggregateBaseAllOfValue value = 2;
 
   optional string value_as_string = 3;
 }
@@ -6781,9 +6874,16 @@ message TTestAggregate {
   // The custom metadata attached to a resource.
   optional ObjectMap meta = 1;
 
-  optional double value = 2;
+  TTestAggregateAllOfValue value = 2;
 
   optional string value_as_string = 3;
+}
+message TTestAggregateAllOfValue {
+  oneof t_test_aggregate_all_of_value {
+    double double = 1;
+
+    NullValue null_value = 2;
+  }
 }
 message TTestAggregation {
   // The custom metadata attached to a resource.
@@ -7261,7 +7361,7 @@ message ValueCountAggregate {
   // The custom metadata attached to a resource.
   optional ObjectMap meta = 1;
 
-  double value = 2;
+  SingleMetricAggregateBaseAllOfValue value = 2;
 
   optional string value_as_string = 3;
 }
@@ -7376,7 +7476,7 @@ message WeightedAvgAggregate {
   // The custom metadata attached to a resource.
   optional ObjectMap meta = 1;
 
-  double value = 2;
+  SingleMetricAggregateBaseAllOfValue value = 2;
 
   optional string value_as_string = 3;
 }
