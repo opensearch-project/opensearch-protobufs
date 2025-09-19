@@ -493,7 +493,7 @@ message ScriptQuery {
   Script script = 1;
   // [optional] Floating point number used to decrease or increase the relevance scores of the query. Boost values are relative to the default value of 1.0. A boost value between 0 and 1.0 decreases the relevance score. A value greater than 1.0 increases the relevance score.
   optional float boost = 2;
-  // [optional]
+  // [optional] Query name for query tagging.
   optional string x_name = 3;
 
 }
@@ -1547,21 +1547,23 @@ message FunctionScoreQuery {
 }
 
 enum FunctionBoostMode {
-  FUNCTION_BOOST_MODE_AVG = 0;
-  FUNCTION_BOOST_MODE_MAX = 1;
-  FUNCTION_BOOST_MODE_MIN = 2;
-  FUNCTION_BOOST_MODE_MULTIPLY = 3;
-  FUNCTION_BOOST_MODE_REPLACE = 4;
-  FUNCTION_BOOST_MODE_SUM = 5;
+  FUNCTION_BOOST_MODE_UNSPECIFIED = 0;
+  FUNCTION_BOOST_MODE_AVG = 1;
+  FUNCTION_BOOST_MODE_MAX = 2;
+  FUNCTION_BOOST_MODE_MIN = 3;
+  FUNCTION_BOOST_MODE_MULTIPLY = 4;
+  FUNCTION_BOOST_MODE_REPLACE = 5;
+  FUNCTION_BOOST_MODE_SUM = 6;
 }
 
 enum FunctionScoreMode {
-  FUNCTION_SCORE_MODE_AVG = 0;
-  FUNCTION_SCORE_MODE_FIRST = 1;
-  FUNCTION_SCORE_MODE_MAX = 2;
-  FUNCTION_SCORE_MODE_MIN = 3;
-  FUNCTION_SCORE_MODE_MULTIPLY = 4;
-  FUNCTION_SCORE_MODE_SUM = 5;
+  FUNCTION_SCORE_MODE_UNSPECIFIED = 0;
+  FUNCTION_SCORE_MODE_AVG = 1;
+  FUNCTION_SCORE_MODE_FIRST = 2;
+  FUNCTION_SCORE_MODE_MAX = 3;
+  FUNCTION_SCORE_MODE_MIN = 4;
+  FUNCTION_SCORE_MODE_MULTIPLY = 5;
+  FUNCTION_SCORE_MODE_SUM = 6;
 }
 
 message IntervalsAllOf {
@@ -1713,11 +1715,11 @@ message NumericDecayPlacement {
 }
 
 enum MultiValueMode {
-  MULTI_VALUE_MODE_AVG = 0;
-  MULTI_VALUE_MODE_MAX = 1;
-  MULTI_VALUE_MODE_MIN = 2;
-  MULTI_VALUE_MODE_SUM = 3;
-  MULTI_VALUE_MODE_MEDIAN = 4;
+  MULTI_VALUE_MODE_UNSPECIFIED = 0;
+  MULTI_VALUE_MODE_AVG = 1;
+  MULTI_VALUE_MODE_MAX = 2;
+  MULTI_VALUE_MODE_MIN = 3;
+  MULTI_VALUE_MODE_SUM = 4;
 }
 
 message ScriptScoreFunction {
