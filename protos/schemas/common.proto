@@ -482,7 +482,20 @@ message QueryContainer {
 
     // To search for documents that contain geopoint fields, use a geo-bounding box query. The geo-bounding box query returns documents whose geopoints are within the bounding box specified in the query. A document with multiple geopoints matches the query if at least one geopoint is within the bounding box.
     GeoBoundingBoxQuery geo_bounding_box = 30;
+
+    // To filter documents based on a custom condition written in the Painless scripting language.
+    ScriptQuery script = 31;
   }
+}
+
+message ScriptQuery {
+  // [required]
+  Script script = 1;
+  // [optional] Floating point number used to decrease or increase the relevance scores of the query. Boost values are relative to the default value of 1.0. A boost value between 0 and 1.0 decreases the relevance score. A value greater than 1.0 increases the relevance score.
+  optional float boost = 2;
+  // [optional] Query name for query tagging.
+  optional string x_name = 3;
+
 }
 
 message GeoBoundingBoxQuery {
@@ -1514,48 +1527,43 @@ message DisMaxQuery {
 }
 
 message FunctionScoreQuery {
-
-  // [optional] Floating point number used to decrease or increase the relevance scores of the query. Boost values are relative to the default value of 1.0. A boost value between 0 and 1.0 decreases the relevance score. A value greater than 1.0 increases the relevance score.
+  // [required] Floating point number used to decrease or increase the relevance scores of the query. Boost values are relative to the default value of 1.0. A boost value between 0 and 1.0 decreases the relevance score. A value greater than 1.0 increases the relevance score.
   optional float boost = 1;
-
   // [optional] Query name for query tagging.
   optional string x_name = 2;
-
-  FunctionBoostMode boost_mode = 3;
-
-  enum FunctionBoostMode {
-    FUNCTION_BOOST_MODE_UNSPECIFIED = 0;
-    FUNCTION_BOOST_MODE_AVG = 1;
-    FUNCTION_BOOST_MODE_MAX = 2;
-    FUNCTION_BOOST_MODE_MIN = 3;
-    FUNCTION_BOOST_MODE_MULTIPLY = 4;
-    FUNCTION_BOOST_MODE_REPLACE = 5;
-    FUNCTION_BOOST_MODE_SUM = 6;
-  }
-
-  // One or more functions that compute a new score for each document returned by the query.
+  // [optional] how the score computed using all functions is combined with the query score.
+  optional FunctionBoostMode boost_mode = 3;
+  // [optional] One or more functions that compute a new score for each document returned by the query.
   repeated FunctionScoreContainer functions = 4;
+  // [optional] Restricts the new score to not exceed the provided limit.
+  optional float max_boost = 5;
+  // [optional] Excludes documents that do not meet the provided score threshold.
+  optional float min_score = 6;
+  // [optional]
+  optional QueryContainer query = 7;
+  // [optional] Specifies how the computed scores are combined
+  optional FunctionScoreMode score_mode = 8;
 
-  // Restricts the new score to not exceed the provided limit.
-  float max_boost = 5;
+}
 
-  // Excludes documents that do not meet the provided score threshold.
-  float min_score = 6;
+enum FunctionBoostMode {
+  FUNCTION_BOOST_MODE_UNSPECIFIED = 0;
+  FUNCTION_BOOST_MODE_AVG = 1;
+  FUNCTION_BOOST_MODE_MAX = 2;
+  FUNCTION_BOOST_MODE_MIN = 3;
+  FUNCTION_BOOST_MODE_MULTIPLY = 4;
+  FUNCTION_BOOST_MODE_REPLACE = 5;
+  FUNCTION_BOOST_MODE_SUM = 6;
+}
 
-  QueryContainer query = 7;
-
-  FunctionScoreMode score_mode = 8;
-
-  enum FunctionScoreMode {
-    FUNCTION_SCORE_MODE_UNSPECIFIED = 0;
-    FUNCTION_SCORE_MODE_AVG = 1;
-    FUNCTION_SCORE_MODE_FIRST = 2;
-    FUNCTION_SCORE_MODE_MAX = 3;
-    FUNCTION_SCORE_MODE_MIN = 4;
-    FUNCTION_SCORE_MODE_MULTIPLY = 5;
-    FUNCTION_SCORE_MODE_SUM = 6;
-  }
-
+enum FunctionScoreMode {
+  FUNCTION_SCORE_MODE_UNSPECIFIED = 0;
+  FUNCTION_SCORE_MODE_AVG = 1;
+  FUNCTION_SCORE_MODE_FIRST = 2;
+  FUNCTION_SCORE_MODE_MAX = 3;
+  FUNCTION_SCORE_MODE_MIN = 4;
+  FUNCTION_SCORE_MODE_MULTIPLY = 5;
+  FUNCTION_SCORE_MODE_SUM = 6;
 }
 
 message IntervalsAllOf {
@@ -1630,27 +1638,88 @@ message IntervalsQuery {
 }
 
 message FunctionScoreContainer {
-  QueryContainer filter = 1;
+  // [optional]
+  optional QueryContainer filter = 1;
+  // [optional]  allows you to multiply the score by the provided weight
+  optional float weight = 2;
 
-  float weight = 2;
-
-  //TODO: add decay function
   oneof function_score_container {
-
-    //   Decay function not supported
-    //    DecayFunction exp = 3;
-    //
-    //    DecayFunction gauss = 4;
-    //
-    //    DecayFunction linear = 5;
-
+    // Exponential decay
+    DecayFunction exp = 3;
+    // Normal decay
+    DecayFunction gauss = 4;
+    // Linear decay
+    DecayFunction linear = 5;
+    // Allows you to use a field from a document to influence the score
     FieldValueFactorScoreFunction field_value_factor = 6;
-
+    // Generates scores that are uniformly distributed from 0 up to but not including 1
     RandomScoreFunction random_score = 7;
-
+    // Allows you to wrap another query and customize the scoring of it optionally with a computation derived from other numeric field values in the doc using a script expression
     ScriptScoreFunction script_score = 8;
   }
+}
 
+message DecayFunction {
+  // [optional] specify for decay calculation contains multiple values
+  optional MultiValueMode multi_value_mode = 1;
+
+  // [required] Decay functions score a document with a function that decays depending on the distance of a numeric field value of the document from a user given origin
+  map<string, DecayPlacement> placement = 2;
+
+}
+
+message DecayPlacement {
+  oneof decay_placement {
+
+    DateDecayPlacement date_decay_placement = 1;
+
+    GeoDecayPlacement geo_decay_placement = 2;
+
+    NumericDecayPlacement numeric_decay_placement = 3;
+
+  }
+}
+
+message DateDecayPlacement {
+  // [required] Defines the distance from origin + offset at which the computed score will equal decay parameter
+  string scale = 1;
+  // [optional] The decay parameter defines how documents are scored at the distance given at scale
+  optional double decay = 2;
+  // [optional] If an offset is defined, the decay function will only compute the decay function for documents with a distance greater than the defined offset.
+  optional string offset = 3;
+  // [optional] The decay function will only compute the decay function for documents with a distance greater than the defined
+  optional string origin = 4;
+
+}
+
+message GeoDecayPlacement {
+  // [required] Defines the distance from origin + offset at which the computed score will equal decay parameter
+  string scale = 1;
+  // [required] The point of origin used for calculating distance
+  GeoLocation origin = 2;
+  // [optional] The decay parameter defines how documents are scored at the distance given at scale
+  optional double decay = 3;
+  // [optional] The decay function will only compute the decay function for documents with a distance greater than the defined
+  optional string offset = 4;
+}
+
+message NumericDecayPlacement {
+  // [required] Defines the distance from origin + offset at which the computed score will equal decay parameter
+  double scale = 1;
+  // [required] The point of origin used for calculating distance
+  double origin = 2;
+  // [optional] The decay parameter defines how documents are scored at the distance given at scale
+  optional double decay = 3;
+  // [optional] The decay function will only compute the decay function for documents with a distance greater than the defined
+  optional double offset = 4;
+}
+
+enum MultiValueMode {
+  MULTI_VALUE_MODE_UNSPECIFIED = 0;
+  MULTI_VALUE_MODE_AVG = 1;
+  MULTI_VALUE_MODE_MAX = 2;
+  MULTI_VALUE_MODE_MIN = 3;
+  MULTI_VALUE_MODE_SUM = 4;
 }
 
 message ScriptScoreFunction {
@@ -1954,113 +2023,127 @@ message QueryStringQuery {
 }
 
 message RandomScoreFunction {
+  // The path to a field or an array of paths. Some APIs support wildcards in the path, which allows you to select multiple fields.
+  optional string field = 1;
 
-  // Path to field or array of paths. Some API's support wildcards in the path to select multiple fields.
-  string field = 1;
+  optional RandomScoreFunctionSeed seed = 2;
 
-  message Seed {
-    oneof seed {
-      int32 int32_value = 1;
-      string string_value = 2;
-    }
+}
+
+message RandomScoreFunctionSeed {
+  oneof random_score_function_seed {
+
+    int32 int32 = 1;
+
+    string string = 2;
+
   }
-  Seed seed = 2;
 }
 
 message RangeQuery {
+  oneof range_query {
+    NumberRangeQuery number_range_query = 1;
+
+    DateRangeQuery date_range_query = 2;
+  }
+}
+
+message NumberRangeQuery {
   // [required] Specifies the field against which to run a search query
   string field = 1;
   // [optional] Floating point number used to decrease or increase the relevance scores of the query. Boost values are relative to the default value of 1.0. A boost value between 0 and 1.0 decreases the relevance score. A value greater than 1.0 increases the relevance score.
   optional float boost = 2;
   // [optional] Query name for query tagging.
   optional string x_name = 3;
-  // [optional] Indicates how the range query matches values for range fields.
+
+  // [optional] Indicates how the range query matches values for range fields
   optional RangeRelation relation = 4;
+
   // [optional] Greater than.
-  optional RangeQueryAllOfGt gt = 5;
+  optional double gt = 5;
+
   // [optional] Greater than or equal to.
-  optional RangeQueryAllOfGte gte = 6;
+  optional double gte = 6;
+
   // [optional] Less than.
-  optional RangeQueryAllOfLt lt = 7;
+  optional double lt = 7;
+
   // [optional] Less than or equal to.
-  optional RangeQueryAllOfLte lte = 8;
+  optional double lte = 8;
+
   // [optional]
-  optional RangeQueryAllOfFrom from = 9;
+  optional NumberRangeQueryAllOfFrom from = 9;
   // [optional]
-  optional RangeQueryAllOfTo to = 10;
-  // [optional]
-  optional bool include_lower = 11;
-  // [optional]
-  optional bool include_upper = 12;
-  // [optional] The date format pattern.
-  optional string format = 13;
-  // [optional] The time zone identifier.
-  optional string time_zone = 14;
+
+  optional NumberRangeQueryAllOfTo to = 10;
+
 }
-
-enum RangeRelation {
-  RANGE_RELATION_CONTAINS = 0;
-  RANGE_RELATION_INTERSECTS = 1;
-  RANGE_RELATION_WITHIN = 2;
-}
-
-message RangeQueryAllOfFrom {
-  oneof range_query_all_of_from {
-
-    string string = 1;
-
-    NullValue null_value = 2;
-
-    double double = 3;
-
-  }
-}
-message RangeQueryAllOfGt {
-  oneof range_query_all_of_gt {
-
-    string string = 1;
-
-    double double = 2;
-
-  }
-}
-message RangeQueryAllOfGte {
-  oneof range_query_all_of_gte {
-
+message NumberRangeQueryAllOfFrom {
+  oneof number_range_query_all_of_from {
     double double = 1;
 
     string string = 2;
 
+    NullValue null_value = 3;
   }
 }
-message RangeQueryAllOfLt {
-  oneof range_query_all_of_lt {
+message NumberRangeQueryAllOfTo {
+  oneof number_range_query_all_of_to {
+    double double = 1;
 
-    string string = 1;
+    string string = 2;
 
-    double double = 2;
-
+    NullValue null_value = 3;
   }
 }
-message RangeQueryAllOfLte {
-  oneof range_query_all_of_lte {
 
-    string string = 1;
-
-    double double = 2;
-
-  }
+message DateRangeQuery {
+  // [required] Specifies the field against which to run a search query
+  string field = 1;
+  // [optional] Floating point number used to decrease or increase the relevance scores of the query. Boost values are relative to the default value of 1.0. A boost value between 0 and 1.0 decreases the relevance score. A value greater than 1.0 increases the relevance score.
+  optional float boost = 2;
+  // [optional] Query name for query tagging.
+  optional string x_name = 3;
+  // [optional] Indicates how the range query matches values for range fields
+  optional RangeRelation relation = 4;
+  // [optional] Greater than.
+  optional string gt = 5;
+  // [optional] Greater than or equal to.
+  optional string gte = 6;
+  // [optional] Less than.
+  optional string lt = 7;
+  // [optional] Less than or equal to.
+  optional string lte = 8;
+  // [optional]
+  optional DateRangeQueryAllOfFrom from = 9;
+  // [optional]
+  optional DateRangeQueryAllOfTo to = 10;
+  // [optional] The date format pattern.
+  optional string format = 11;
+  // [optional] The time zone identifier.
+  optional string time_zone = 12;
 }
-message RangeQueryAllOfTo {
-  oneof range_query_all_of_to {
 
+message DateRangeQueryAllOfFrom {
+  oneof date_range_query_all_of_from {
     string string = 1;
 
     NullValue null_value = 2;
-
-    double double = 3;
-
   }
+}
+message DateRangeQueryAllOfTo {
+  oneof date_range_query_all_of_to {
+    string string = 1;
+
+    NullValue null_value = 2;
+  }
+}
+
+enum RangeRelation {
+  RANGE_RELATION_UNSPECIFIED = 0;
+  RANGE_RELATION_CONTAINS = 1;
+  RANGE_RELATION_INTERSECTS = 2;
+  RANGE_RELATION_WITHIN = 3;
 }
 
 message RegexpQuery {
