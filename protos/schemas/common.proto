@@ -2073,9 +2073,15 @@ message NumberRangeQuery {
 
   // [optional]
   optional NumberRangeQueryAllOfFrom from = 9;
-  // [optional]
 
+  // [optional]
   optional NumberRangeQueryAllOfTo to = 10;
+
+  // [optional] Include the lower bound
+  optional bool include_lower = 11;
+
+  // [optional] Include the upper bound
+  optional bool include_upper = 12;
 
 }
 message NumberRangeQueryAllOfFrom {
@@ -2122,6 +2128,10 @@ message DateRangeQuery {
   optional string format = 11;
   // [optional] The time zone identifier.
   optional string time_zone = 12;
+  // [optional] Include the lower bound
+  optional bool include_lower = 13;
+  // [optional] Include the upper bound
+  optional bool include_upper = 14;
 }
 
 message DateRangeQueryAllOfFrom {
