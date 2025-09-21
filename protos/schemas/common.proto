@@ -571,20 +571,35 @@ enum GeoExecution {
 }
 
 message GeoDistanceQuery {
-  // [optional] Floating point number used to decrease or increase the relevance scores of the query. Boost values are relative to the default value of 1.0. A boost value between 0 and 1.0 decreases the relevance score. A value greater than 1.0 increases the relevance score.
-  optional float boost = 1;
-  // [optional] The name of the filter.
-  optional string x_name = 2;
   // [required] The distance within which to match the points. This distance is the radius of a circle centered at the specified point. For supported distance units, see Distance units.
-  string distance = 3;
+  string distance = 1;
+  // [optional] Floating point number used to decrease or increase the relevance scores of the query. Boost values are relative to the default value of 1.0. A boost value between 0 and 1.0 decreases the relevance score. A value greater than 1.0 increases the relevance score.
+  optional float boost = 2;
+  // [optional] The name of the filter.
+  optional string x_name = 3;
   // [optional] Specifies how to calculate the distance. Valid values are arc or plane (faster but inaccurate for long distances or points close to the poles).
   optional GeoDistanceType distance_type = 4;
   // [optional] The validation method. Valid values are IGNORE_MALFORMED (accept geopoints with invalid coordinates), COERCE (try to coerce coordinates to valid values), and STRICT (return an error when coordinates are invalid). Default is STRICT.
   optional GeoValidationMethod validation_method = 5;
   // [optional] Set to `true` to ignore an unmapped field and not match any documents for this query. Set to `false` to throw an exception if the field is not mapped.
   optional bool ignore_unmapped = 6;
+  // [optional] The unit of distance measurement.
+  optional DistanceUnit unit = 7;
   // [optional]
-  map<string, GeoLocation> location = 7;
+  map<string, GeoLocation> location = 8;
+}
+
+enum DistanceUnit {
+  DISTANCE_UNIT_UNSPECIFIED = 0;
+  DISTANCE_UNIT_CM = 1;
+  DISTANCE_UNIT_FT = 2;
+  DISTANCE_UNIT_IN = 3;
+  DISTANCE_UNIT_KM = 4;
+  DISTANCE_UNIT_M = 5;
+  DISTANCE_UNIT_MI = 6;
+  DISTANCE_UNIT_MM = 7;
+  DISTANCE_UNIT_NMI = 8;
+  DISTANCE_UNIT_YD = 9;
 }
 
 message TermsQuery {
@@ -1044,19 +1059,6 @@ enum GeoValidationMethod {
   GEO_VALIDATION_METHOD_COERCE = 1;
   GEO_VALIDATION_METHOD_IGNORE_MALFORMED = 2;
   GEO_VALIDATION_METHOD_STRICT = 3;
-}
-
-enum DistanceUnit {
-  DISTANCE_UNIT_UNSPECIFIED = 0;
-  DISTANCE_UNIT_CM = 1;
-  DISTANCE_UNIT_FT = 2;
-  DISTANCE_UNIT_IN = 3;
-  DISTANCE_UNIT_KM = 4;
-  DISTANCE_UNIT_M = 5;
-  DISTANCE_UNIT_MI = 6;
-  DISTANCE_UNIT_MM = 7;
-  DISTANCE_UNIT_NMI = 8;
-  DISTANCE_UNIT_YD = 9;
 }
 
 enum ScriptSortType {
@@ -2473,31 +2475,18 @@ message MatchPhrasePrefixQuery {
 message MatchPhraseQuery {
   // [required] Specifies the field against which to run a search query
   string field = 1;
-
+  // [required] The query string to use for search.
+  string query = 2;
   // [optional] Floating point number used to decrease or increase the relevance scores of the query. Boost values are relative to the default value of 1.0. A boost value between 0 and 1.0 decreases the relevance score. A value greater than 1.0 increases the relevance score.
-  optional float boost = 2;
-
+  optional float boost = 3;
   // [optional] The name of the query for query tagging.
-  optional string x_name = 3;
-
-  // [optional]
-  // The analyzer used to tokenize the query string text.
-  // Default is the index-time analyzer specified for the default_field. If no analyzer is specified for the default_field, the analyzer is the default analyzer for the index.
-  string analyzer = 4;
-
-  // [required]
-  // The query string to use for search.
-  string query = 5;
-
-  // [optional]
-  // Controls the degree to which words in a query can be misordered and still be considered a match. From the Lucene documentation: “The number of other words permitted between words in query phrase. For example, to switch the order of two words requires two moves (the first move places the words atop one another), so to permit reorderings of phrases, the slop must be at least two. A value of zero requires an exact match.”
-  int32 slop = 6;
-
-  // [optional]
-  // In some cases, the analyzer removes all terms from a query string. For example, the stop analyzer removes all terms from the string an but this. In those cases, zero_terms_query specifies whether to match no documents (none) or all documents (all). Valid values are none and all.
-  // Default is none.
-  ZeroTermsQuery zero_terms_query = 7;
-
+  optional string x_name = 4;
+  // [optional] The analyzer used to tokenize the query string text. Default is the index-time analyzer specified for the default_field. If no analyzer is specified for the default_field, the analyzer is the default analyzer for the index.
+  optional string analyzer = 5;
+  // [optional] Controls the degree to which words in a query can be misordered and still be considered a match. From the Lucene documentation: “The number of other words permitted between words in query phrase. For example, to switch the order of two words requires two moves (the first move places the words atop one another), so to permit reorderings of phrases, the slop must be at least two. A value of zero requires an exact match.”
+  optional int32 slop = 6;
+  // [optional] In some cases, the analyzer removes all terms from a query string. For example, the stop analyzer removes all terms from the string an but this. In those cases, zero_terms_query specifies whether to match no documents (none) or all documents (all). Valid values are none and all. Default is none.
+  optional ZeroTermsQuery zero_terms_query = 7;
 }
 
 message MultiMatchQuery {
