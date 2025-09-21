@@ -2475,23 +2475,17 @@ message MatchPhrasePrefixQuery {
 message MatchPhraseQuery {
   // [required] Specifies the field against which to run a search query
   string field = 1;
-  // [required]
-  // The query string to use for search.
+  // [required] The query string to use for search.
   string query = 2;
   // [optional] Floating point number used to decrease or increase the relevance scores of the query. Boost values are relative to the default value of 1.0. A boost value between 0 and 1.0 decreases the relevance score. A value greater than 1.0 increases the relevance score.
   optional float boost = 3;
   // [optional] The name of the query for query tagging.
   optional string x_name = 4;
-  // [optional]
-  // The analyzer used to tokenize the query string text.
-  // Default is the index-time analyzer specified for the default_field. If no analyzer is specified for the default_field, the analyzer is the default analyzer for the index.
+  // [optional] The analyzer used to tokenize the query string text. Default is the index-time analyzer specified for the default_field. If no analyzer is specified for the default_field, the analyzer is the default analyzer for the index.
   optional string analyzer = 5;
-  // [optional]
-  // Controls the degree to which words in a query can be misordered and still be considered a match. From the Lucene documentation: “The number of other words permitted between words in query phrase. For example, to switch the order of two words requires two moves (the first move places the words atop one another), so to permit reorderings of phrases, the slop must be at least two. A value of zero requires an exact match.”
+  // [optional] Controls the degree to which words in a query can be misordered and still be considered a match. From the Lucene documentation: “The number of other words permitted between words in query phrase. For example, to switch the order of two words requires two moves (the first move places the words atop one another), so to permit reorderings of phrases, the slop must be at least two. A value of zero requires an exact match.”
   optional int32 slop = 6;
-  // [optional]
-  // In some cases, the analyzer removes all terms from a query string. For example, the stop analyzer removes all terms from the string an but this. In those cases, zero_terms_query specifies whether to match no documents (none) or all documents (all). Valid values are none and all.
-  // Default is none.
+  // [optional] In some cases, the analyzer removes all terms from a query string. For example, the stop analyzer removes all terms from the string an but this. In those cases, zero_terms_query specifies whether to match no documents (none) or all documents (all). Valid values are none and all. Default is none.
   optional ZeroTermsQuery zero_terms_query = 7;
 }
 
