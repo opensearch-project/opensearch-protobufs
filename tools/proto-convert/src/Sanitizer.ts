@@ -73,7 +73,7 @@ export class Sanitizer {
       onResponseSchema: (schema) => this.sanitize_schema(schema),
       onParameter: (param, _paramName) => {
         if (!('$ref' in param) && param.name && param.name.startsWith('_')) {
-          param.name = `underscore${param.name}`;
+          param.name = `x${param.name}`;
         }
       }
     });
@@ -93,7 +93,7 @@ export class Sanitizer {
   public rename_properties_name(properties: Record<string, OpenAPIV3.SchemaObject>) {
     for (var propName in properties) {
       if(propName.startsWith("_")) {
-        const newPropName = "underscore" + propName;
+        const newPropName = "x" + propName;
         properties[newPropName] = properties[propName];
         delete properties[propName];
       }
@@ -104,7 +104,7 @@ export class Sanitizer {
     for (var index in requireList) {
       var propName = requireList[index];
       if(propName.startsWith("_")) {
-        requireList[index] = "underscore" + propName;
+        requireList[index] = "x" + propName;
       }
     }
   }
