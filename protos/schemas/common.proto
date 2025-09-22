@@ -2037,7 +2037,9 @@ message RandomScoreFunctionSeed {
 
     int32 int32 = 1;
 
-    string string = 2;
+    int64 int64 = 2;
+
+    string string = 3;
 
   }
 }
@@ -2559,31 +2561,32 @@ message MultiMatchQuery {
 
 message FieldValueFactorScoreFunction {
 
-  // Path to field or array of paths. Some API's support wildcards in the path to select multiple fields.
+  // [required] Path to field or array of paths. Some API's support wildcards in the path to select multiple fields.
   string field = 1;
 
-  // Optional factor to multiply the field value with.
-  float factor = 2;
+  // [optional] Optional factor to multiply the field value with.
+  optional float factor = 2;
 
-  // Value used if the document doesn't have that field. The modifier and factor are still applied to it as though it were read from the document.
-  double missing = 3;
+  // [optional] Value used if the document doesn't have that field. The modifier and factor are still applied to it as though it were read from the document.
+  optional double missing = 3;
 
-  FieldValueFactorModifier modifier = 4;
+  // [optional]
+  optional FieldValueFactorModifier modifier = 4;
 
-  enum FieldValueFactorModifier {
-    FIELD_VALUE_FACTOR_MODIFIER_UNSPECIFIED = 0;
-    FIELD_VALUE_FACTOR_MODIFIER_LN = 1;
-    FIELD_VALUE_FACTOR_MODIFIER_LN1P = 2;
-    FIELD_VALUE_FACTOR_MODIFIER_LN2P = 3;
-    FIELD_VALUE_FACTOR_MODIFIER_LOG = 4;
-    FIELD_VALUE_FACTOR_MODIFIER_LOG1P = 5;
-    FIELD_VALUE_FACTOR_MODIFIER_LOG2P = 6;
-    FIELD_VALUE_FACTOR_MODIFIER_NONE = 7;
-    FIELD_VALUE_FACTOR_MODIFIER_RECIPROCAL = 8;
-    FIELD_VALUE_FACTOR_MODIFIER_SQRT = 9;
-    FIELD_VALUE_FACTOR_MODIFIER_SQUARE = 10;
-  }
+}
 
+enum FieldValueFactorModifier {
+  FIELD_VALUE_FACTOR_MODIFIER_UNSPECIFIED = 0;
+  FIELD_VALUE_FACTOR_MODIFIER_LN = 1;
+  FIELD_VALUE_FACTOR_MODIFIER_LN1P = 2;
+  FIELD_VALUE_FACTOR_MODIFIER_LN2P = 3;
+  FIELD_VALUE_FACTOR_MODIFIER_LOG = 4;
+  FIELD_VALUE_FACTOR_MODIFIER_LOG1P = 5;
+  FIELD_VALUE_FACTOR_MODIFIER_LOG2P = 6;
+  FIELD_VALUE_FACTOR_MODIFIER_NONE = 7;
+  FIELD_VALUE_FACTOR_MODIFIER_RECIPROCAL = 8;
+  FIELD_VALUE_FACTOR_MODIFIER_SQRT = 9;
+  FIELD_VALUE_FACTOR_MODIFIER_SQUARE = 10;
 }
 
 message DutchAnalyzer{
