@@ -59,23 +59,6 @@ http_archive(
 )
 
 """
-Language and gRPC rules from the actively maintained rules-proto-grpc project.
-Java language/gRPC rules.
-Python language/gRPC rules.
-"""
-
-http_archive(
-    name = "rules_proto_grpc",
-    sha256 = "9ba7299c5eb6ec45b6b9a0ceb9916d0ab96789ac8218269322f0124c0c0d24e2",
-    strip_prefix = "rules_proto_grpc-4.5.0",
-    urls = ["https://github.com/rules-proto-grpc/rules_proto_grpc/releases/download/4.5.0/rules_proto_grpc-4.5.0.tar.gz"],
-)
-
-load("@rules_proto_grpc//:repositories.bzl", "rules_proto_grpc_repos", "rules_proto_grpc_toolchains")
-rules_proto_grpc_repos()
-rules_proto_grpc_toolchains()
-
-"""
 Official gRPC repo bazel dependencies.
 We must match the version used in OS core exactly - 1.68.2.
 """

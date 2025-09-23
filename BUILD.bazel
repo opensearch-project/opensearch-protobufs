@@ -1,6 +1,6 @@
 load("@io_bazel_rules_go//go:def.bzl", "go_library")
 load("@versioning//:version.bzl", "VERSION")
-load("@rules_proto_grpc//python:defs.bzl", "python_proto_library")
+load("@rules_proto_grpc_python//:defs.bzl", "python_proto_library")
 load("@rules_python//python:packaging.bzl", "py_wheel")
 
 package(default_visibility = ["//visibility:public"])
