@@ -51,7 +51,7 @@ https://github.com/protocolbuffers/protobuf/issues/2283
 
 genrule(
     name = "fix_python_imports",
-    srcs = [":python_protos_all"],
+    srcs = [":python_protos_all", ":python_protos_all_pb"],
     outs = [
         "opensearch/protobufs/schemas/common_pb2.py",
         "opensearch/protobufs/schemas/common_pb2.pyi",
