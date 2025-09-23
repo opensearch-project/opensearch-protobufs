@@ -52,7 +52,7 @@ https://github.com/protocolbuffers/protobuf/issues/2283
 
 python_proto_library(
     name = "opensearch_protos_schemas",
-    srcs = [
+    protos = [
         "//protos/schemas:common_python_proto",
         "//protos/schemas:document_python_proto",
         "//protos/schemas:search_python_proto",
@@ -61,7 +61,7 @@ python_proto_library(
 
 python_proto_library(
     name = "opensearch_protos_services",
-    srcs = [
+    protos = [
         "//protos/services:document_service_python_proto",
         "//protos/services:search_service_python_proto",
     ],
@@ -118,14 +118,14 @@ genrule(
     """,
 )
 
-python_proto_library(
+py_library(
     name = "fixed_schemas",
     srcs = [":fix_schemas_imports"],
     imports = ["."],
     visibility = ["//visibility:public"],
 )
 
-python_proto_library(
+py_library(
     name = "fixed_services",
     srcs = [":fix_services_imports"],
     imports = ["."],
