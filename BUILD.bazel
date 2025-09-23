@@ -79,13 +79,6 @@ genrule(
     """,
 )
 
-py_library(
-    name = "opensearch_protobufs_py",
-    srcs = [":fix_python_imports"],
-    imports = ["."],
-    visibility = ["//visibility:public"],
-)
-
 py_wheel(
     name = "opensearch_protos_wheel",
     distribution = "opensearch-protobufs",
@@ -111,6 +104,6 @@ py_wheel(
     platform = "any",
     python_requires = ">=3.10",
     deps = [
-        ":opensearch_protobufs_py",
+        ":fix_python_imports",
     ],
 )
