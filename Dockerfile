@@ -1,6 +1,6 @@
 FROM ubuntu:22.04 AS base-bazel
 
-ENV BAZEL_VERSION=7.0.0
+ENV BAZEL_VERSION=7.3.0
 ENV DEBIAN_FRONTEND=noninteractive
 
 RUN apt-get update && apt-get install -y \

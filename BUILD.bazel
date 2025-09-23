@@ -20,6 +20,7 @@ java_library(
 python_proto_library(
     name = "python_protos_all",
     visibility = ["//visibility:public"],
+    generate_pyi = True,
     protos = [
         "//protos/schemas:common_proto",
         "//protos/schemas:document_proto",
