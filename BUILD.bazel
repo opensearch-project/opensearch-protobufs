@@ -1,10 +1,9 @@
 load("@io_bazel_rules_go//go:def.bzl", "go_library")
 load("@versioning//:version.bzl", "VERSION")
+load("@rules_proto_grpc//python:defs.bzl", "python_proto_library")
+load("@rules_python//python:packaging.bzl", "py_wheel")
 
 package(default_visibility = ["//visibility:public"])
-
-load("@rules_python//python:defs.bzl", "py_library")
-load("@rules_python//python:packaging.bzl", "py_wheel")
 
 java_library(
     name = "java_protos_all",
@@ -18,7 +17,7 @@ java_library(
     ],
 )
 
-py_library(
+python_proto_library(
     name = "python_protos_all",
     visibility = ["//visibility:public"],
     deps = [
@@ -44,14 +43,14 @@ go_library(
 
 """
 Package python libraries into a wheel.
-Here we seperate schema and service libraries between two py_library definitions and execute
+Here we seperate schema and service libraries between two python_proto_library definitions and execute
 genrules on both to fix the imports. Protoc does not provide a package option for python so we must fix
 the import statements in these proto files manually. See issues:
 https://github.com/protocolbuffers/protobuf/issues/7061
 https://github.com/protocolbuffers/protobuf/issues/2283
 """
 
-py_library(
+python_proto_library(
     name = "opensearch_protos_schemas",
     srcs = [
         "//protos/schemas:common_python_proto",
@@ -60,7 +59,7 @@ py_library(
     ],
 )
 
-py_library(
+python_proto_library(
     name = "opensearch_protos_services",
     srcs = [
         "//protos/services:document_service_python_proto",
@@ -119,14 +118,14 @@ genrule(
     """,
 )
 
-py_library(
+python_proto_library(
     name = "fixed_schemas",
     srcs = [":fix_schemas_imports"],
     imports = ["."],
     visibility = ["//visibility:public"],
 )
 
-py_library(
+python_proto_library(
     name = "fixed_services",
     srcs = [":fix_services_imports"],
     imports = ["."],
