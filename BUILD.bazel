@@ -68,9 +68,17 @@ genrule(
     ],
     cmd = """
         mkdir -p $(RULEDIR)/opensearch/protobufs/schemas
-        cp -r $(BINDIR)/python_protos_all_pb/protos/* $(RULEDIR)/opensearch/protobufs/
+        mkdir -p $(RULEDIR)/opensearch/protobufs/services
         
-        find $(RULEDIR)/opensearch/protobufs/ -type f -exec sed -i 's/from protos/from opensearch.protobufs/g' {} +
+        # Copy all .py and .pyi files explicitly
+        cp $(BINDIR)/python_protos_all_pb/protos/schemas/*.py $(RULEDIR)/opensearch/protobufs/schemas/
+        cp $(BINDIR)/python_protos_all_pb/protos/schemas/*.pyi $(RULEDIR)/opensearch/protobufs/schemas/
+        cp $(BINDIR)/python_protos_all_pb/protos/services/*.py $(RULEDIR)/opensearch/protobufs/services/
+        cp $(BINDIR)/python_protos_all_pb/protos/services/*.pyi $(RULEDIR)/opensearch/protobufs/services/
+        
+        # Fix imports in both .py and .pyi files
+        find $(RULEDIR)/opensearch/protobufs/ -name "*.py" -exec sed -i 's/from protos/from opensearch.protobufs/g' {} +
+        find $(RULEDIR)/opensearch/protobufs/ -name "*.pyi" -exec sed -i 's/from protos/from opensearch.protobufs/g' {} +
         
         touch $(RULEDIR)/opensearch/protobufs/schemas/__init__.py
         touch $(RULEDIR)/opensearch/protobufs/services/__init__.py
