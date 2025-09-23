@@ -44,93 +44,43 @@ go_library(
 
 """
 Package python libraries into a wheel.
-Here we seperate schema and service libraries between two python_proto_library definitions and execute
-genrules on both to fix the imports. Protoc does not provide a package option for python so we must fix
-the import statements in these proto files manually. See issues:
+Protoc does not provide a package option for python so we must fix the import statements in these proto files manually:
 https://github.com/protocolbuffers/protobuf/issues/7061
 https://github.com/protocolbuffers/protobuf/issues/2283
 """
 
-python_proto_library(
-    name = "opensearch_protos_schemas",
-    protos = [
-        "//protos/schemas:common_proto",
-        "//protos/schemas:document_proto",
-        "//protos/schemas:search_proto",
-    ],
-)
-
-python_proto_library(
-    name = "opensearch_protos_services",
-    protos = [
-        "//protos/services:document_service_proto",
-        "//protos/services:search_service_proto",
-    ],
-    deps = [":opensearch_protos_schemas"],
-)
-
 genrule(
-    name = "fix_schemas_imports",
-    srcs = [":opensearch_protos_schemas"],
+    name = "fix_python_imports",
+    srcs = [":python_protos_all"],
     outs = [
         "opensearch/protobufs/schemas/common_pb2.py",
+        "opensearch/protobufs/schemas/common_pb2.pyi",
         "opensearch/protobufs/schemas/document_pb2.py",
+        "opensearch/protobufs/schemas/document_pb2.pyi",
         "opensearch/protobufs/schemas/search_pb2.py",
-        "opensearch/protobufs/schemas/__init__.py",
-    ],
-    cmd = """
-        mkdir -p $(RULEDIR)/opensearch/protobufs/schemas
-
-        for pb in common document search; do
-            cp $(BINDIR)/protos/schemas/$${pb}_python_proto_pb/protos/schemas/$${pb}_pb2.py $(RULEDIR)/opensearch/protobufs/schemas/
-            sed -i \
-                -e 's/from protos\\.schemas import \\([^_ ]\\+\\)_pb2 as protos_dot_schemas_dot_\\1__pb2/from opensearch.protobufs.schemas import \\1_pb2/g' \
-                $(RULEDIR)/opensearch/protobufs/schemas/$${pb}_pb2.py
-        done
-
-        touch $(RULEDIR)/opensearch/protobufs/schemas/__init__.py
-    """,
-)
-
-genrule(
-    name = "fix_services_imports",
-    srcs = [":opensearch_protos_services"],
-    outs = [
+        "opensearch/protobufs/schemas/search_pb2.pyi",
         "opensearch/protobufs/services/document_service_pb2.py",
-        "opensearch/protobufs/services/document_service_pb2_grpc.py",
+        "opensearch/protobufs/services/document_service_pb2.pyi",
         "opensearch/protobufs/services/search_service_pb2.py",
-        "opensearch/protobufs/services/search_service_pb2_grpc.py",
+        "opensearch/protobufs/services/search_service_pb2.pyi",
+        "opensearch/protobufs/schemas/__init__.py",
         "opensearch/protobufs/services/__init__.py",
     ],
     cmd = """
-        mkdir -p $(RULEDIR)/opensearch/protobufs/services
-
-        for pb in document_service search_service; do
-            cp $(BINDIR)/protos/services/$${pb}_python_proto_pb/protos/services/$${pb}_pb2.py $(RULEDIR)/opensearch/protobufs/services/
-            cp $(BINDIR)/protos/services/$${pb}_python_proto_pb/protos/services/$${pb}_pb2_grpc.py $(RULEDIR)/opensearch/protobufs/services/
-
-            # Fix imports in both pb2 and pb2_grpc files
-            sed -i \
-                -e 's/from protos\\.schemas import/from opensearch.protobufs.schemas import/g' \
-                $(RULEDIR)/opensearch/protobufs/services/$${pb}_pb2*.py
-        done
-
+        mkdir -p $(RULEDIR)/opensearch/protobufs/schemas
+        cp -r $(BINDIR)/python_protos_all_pb/protos/* $(RULEDIR)/opensearch/protobufs/
+        
+        find $(RULEDIR)/opensearch/protobufs/ -type f -exec sed -i 's/from protos/from opensearch.protobufs/g' {} +
+        
+        touch $(RULEDIR)/opensearch/protobufs/schemas/__init__.py
         touch $(RULEDIR)/opensearch/protobufs/services/__init__.py
     """,
 )
 
 py_library(
-    name = "fixed_schemas",
-    srcs = [":fix_schemas_imports"],
+    name = "opensearch_protobufs_py",
+    srcs = [":fix_python_imports"],
     imports = ["."],
-    visibility = ["//visibility:public"],
-)
-
-py_library(
-    name = "fixed_services",
-    srcs = [":fix_services_imports"],
-    imports = ["."],
-    deps = [":fixed_schemas"],
     visibility = ["//visibility:public"],
 )
 
@@ -159,7 +109,6 @@ py_wheel(
     platform = "any",
     python_requires = ">=3.10",
     deps = [
-        ":fixed_schemas",
-        ":fixed_services",
+        ":opensearch_protobufs_py",
     ],
 )
