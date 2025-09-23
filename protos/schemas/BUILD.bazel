@@ -47,17 +47,17 @@ java_proto_library(
     deps = [":common_java_proto"],
 )
 
-python_proto_library(
+python_proto_compile(
     name = "common_python_proto",
     protos = [":common_proto"],
 )
 
-python_proto_library(
+python_proto_compile(
     name = "document_python_proto",
     protos = [":document_proto"],
 )
 
-python_proto_library(
+python_proto_compile(
     name = "search_python_proto",
     protos = [":search_proto"],
 )

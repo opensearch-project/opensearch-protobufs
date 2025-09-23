@@ -30,12 +30,12 @@ java_grpc_library(
     deps = ["//protos/schemas:search_java_proto"],
 )
 
-python_grpc_library(
+python_grpc_compile(
     name = "document_service_python_proto",
     protos = [":document_service_proto"],
 )
 
-python_grpc_library(
+python_grpc_compile(
     name = "search_service_python_proto",
     protos = [":search_service_proto"],
 )
