@@ -21,11 +21,11 @@ python_proto_library(
     name = "python_protos_all",
     visibility = ["//visibility:public"],
     protos = [
-        "//protos/schemas:common_python_proto",
-        "//protos/schemas:document_python_proto",
-        "//protos/schemas:search_python_proto",
-        "//protos/services:document_service_python_proto",
-        "//protos/services:search_service_python_proto",
+        "//protos/schemas:common_proto",
+        "//protos/schemas:document_proto",
+        "//protos/schemas:search_proto",
+        "//protos/services:document_service_proto",
+        "//protos/services:search_service_proto",
     ],
 )
 
@@ -53,17 +53,17 @@ https://github.com/protocolbuffers/protobuf/issues/2283
 python_proto_library(
     name = "opensearch_protos_schemas",
     protos = [
-        "//protos/schemas:common_python_proto",
-        "//protos/schemas:document_python_proto",
-        "//protos/schemas:search_python_proto",
+        "//protos/schemas:common_proto",
+        "//protos/schemas:document_proto",
+        "//protos/schemas:search_proto",
     ],
 )
 
 python_proto_library(
     name = "opensearch_protos_services",
     protos = [
-        "//protos/services:document_service_python_proto",
-        "//protos/services:search_service_python_proto",
+        "//protos/services:document_service_proto",
+        "//protos/services:search_service_proto",
     ],
     deps = [":opensearch_protos_schemas"],
 )
