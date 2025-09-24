@@ -37,7 +37,7 @@ python_grpc_library(
         "//protos/services:search_service_proto",
     ],
     deps = [
-        ":python_protos_all"
+        ":python_schemas_all"
     ]
 )
 
