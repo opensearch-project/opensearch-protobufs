@@ -1,7 +1,8 @@
 """
 Language and gRPC rules from the actively maintained rules-proto-grpc project.
-Python language/gRPC rules only - let WORKSPACE handle protobuf/grpc versions.
+Python and Java gRPC rules - let bazel mod handle all versions.
 """
+bazel_dep(name = "rules_proto_grpc_java", version = "5.5.0")
 bazel_dep(name = "rules_proto_grpc_python", version = "5.5.0")
 bazel_dep(name = "rules_python", version = "1.6.3")
 

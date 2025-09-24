@@ -34,15 +34,7 @@ http_archive(
     ],
 )
 
-http_archive(
-    name = "com_google_protobuf",
-    sha256 = "4356e78744dfb2df3890282386c8568c85868116317d9b3ad80eb11c2aecf2ff",
-    strip_prefix = "protobuf-3.25.5",
-    urls = ["https://github.com/protocolbuffers/protobuf/archive/v3.25.5.tar.gz"],
-)
-
-load("@com_google_protobuf//:protobuf_deps.bzl", "protobuf_deps")
-protobuf_deps()
+# Protobuf now managed by MODULE.bazel
 
 """
 Pin compatible version of go language rules.
@@ -63,35 +55,9 @@ Official gRPC repo bazel dependencies.
 We must match the version used in OS core exactly - 1.68.2.
 """
 
-http_archive(
-    name = "com_github_grpc_grpc",
-    strip_prefix = "grpc-1.68.2",
-    urls = ["https://github.com/grpc/grpc/archive/v1.68.2.tar.gz"],
-    sha256 = "afbc5d78d6ba6d509cc6e264de0d49dcd7304db435cbf2d630385bacf49e066c",
-)
+# gRPC now managed by MODULE.bazel
 
-load("@com_github_grpc_grpc//bazel:grpc_deps.bzl", "grpc_deps")
-grpc_deps()
-
-load("@com_github_grpc_grpc//bazel:grpc_extra_deps.bzl", "grpc_extra_deps")
-grpc_extra_deps()
-
-"""
-Load language/gRPC rules last to ensure we pick up the correct protobuf and gRPC versions.
-"""
-
-load("@rules_proto//proto:repositories.bzl", "rules_proto_dependencies", "rules_proto_toolchains")
-rules_proto_dependencies()
-rules_proto_toolchains()
-
-load("@rules_proto_grpc//python:repositories.bzl", rules_proto_grpc_python_repos = "python_repos")
-rules_proto_grpc_python_repos()
-
-load("@rules_proto_grpc//java:repositories.bzl", rules_proto_grpc_java_repos = "java_repos")
-rules_proto_grpc_java_repos()
-
-load("@rules_proto_grpc//go:repositories.bzl", rules_proto_grpc_go_repos = "go_repos")
-rules_proto_grpc_go_repos()
+# Proto and gRPC rules now managed by MODULE.bazel
 
 load("@io_bazel_rules_go//go:deps.bzl", "go_register_toolchains", "go_rules_dependencies")
 go_rules_dependencies()
