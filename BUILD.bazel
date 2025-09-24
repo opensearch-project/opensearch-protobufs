@@ -68,8 +68,8 @@ genrule(
     ],
     cmd = """
         mkdir -p $(RULEDIR)/opensearch/protobufs/
-        cp -r $(BINDIR)/python_protos_all_pb/protos/schemas $(RULEDIR)/opensearch/protobufs
-        cp -r $(BINDIR)/python_protos_all_pb/protos/services $(RULEDIR)/opensearch/protobufs
+        cp -rL $(BINDIR)/python_protos_all_pb/protos/schemas $(RULEDIR)/opensearch/protobufs
+        cp -rL $(BINDIR)/python_protos_all_pb/protos/services $(RULEDIR)/opensearch/protobufs
 
         # Find and replace "from protos" with "from opensearch.protobufs" in all files
         find $(RULEDIR)/opensearch/protobufs/ -type f -exec sed -i 's/from protos/from opensearch.protobufs/g' {} +
