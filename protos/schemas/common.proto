@@ -678,7 +678,7 @@ message InnerHits {
   repeated string fields = 11;
 
   // [optional] How the inner hits should be sorted per inner_hits. By default the hits are sorted by the score.
-  repeated SortOptions sort = 12;
+  repeated SortCombinations sort = 12;
 
   // [optional] Select what fields of the source are returned
   optional SourceConfig x_source = 13;
@@ -735,6 +735,39 @@ enum HighlighterOrder {
 enum HighlighterTagsSchema {
   HIGHLIGHTER_TAGS_SCHEMA_UNSPECIFIED = 0;
   HIGHLIGHTER_TAGS_SCHEMA_STYLED = 1;
+}
+
+message SortCombinations {
+
+  oneof sort_combinations {
+    // The path to a field or an array of paths. Some APIs support wildcards in the path, which allows you to select multiple fields.
+    string field = 1;
+    SortOrderMap field_with_direction = 2;
+    FieldSortMap field_with_order = 3;
+    SortOptions options = 4;
+  }
+}
+
+message SortOrderMap {
+
+  map<string, SortOrder> sort_order_map = 1;
+
+}
+
+message FieldSortMap {
+
+  map<string, FieldSort> field_sort_map = 1;
+
+}
+
+message SortOptions {
+  oneof sort_options{
+    ScoreSort x_score = 1;
+
+    GeoDistanceSort x_geo_distance = 2;
+
+    ScriptSort x_script = 3;
+  }
 }
 
 enum HighlighterEncoder {
@@ -893,24 +926,6 @@ message FieldWithOrderMap {
   map<string, ScoreSort> field_with_order_map = 1;
 }
 
-message SortOptions {
-  oneof sort_options {
-    // Sort by document score.
-    bool sort_options_score = 1;
-
-    // Sort by document index order.
-    bool sort_options_doc = 2;
-
-    // Sort by field name.
-    string string = 3;
-
-    SortOptionsOneOf sort_options_one_of = 4;
-
-    // Sort by field options.
-    FieldSort field_sort = 5;
-  }
-}
-
 message FieldSort {
   // The value to use when the field is missing.
   optional FieldValue missing = 1;
@@ -929,11 +944,6 @@ message FieldSort {
 
   // The numeric type to use for sorting.
   optional FieldSortNumericType numeric_type = 6;
-
-  // The format to use for the sort values.
-  optional string format = 7;
-
-  optional string field = 8;
 }
 
 enum FieldSortNumericType {
@@ -994,17 +1004,6 @@ enum FieldType {
   FIELD_TYPE_XY_SHAPE = 46;
 }
 
-message SortOptionsOneOf {
-  // [optional]
-  optional ScoreSort x_score = 1;
-  // [optional]
-  optional ScoreSort x_doc = 2;
-  // [optional]
-  optional GeoDistanceSort x_geo_distance = 3;
-  // [optional]
-  optional ScriptSort x_script = 4;
-}
-
 message ScoreSort {
   // Specifies the sort order (asc or dsc) for the score.
   SortOrder order = 1;
@@ -1037,21 +1036,27 @@ message GeoDistanceSort {
 
   // [optional] Specifies how to handle a field with several geopoints.
   optional SortMode mode = 1;
-
   // [optional] Specifies the method of computing the distance.
   optional GeoDistanceType distance_type = 2;
-
   // [optional] Specifies how to treat an unmapped field. Set ignore_unmapped to true to ignore unmapped fields. Default is false
   optional bool ignore_unmapped = 3;
   // [optional]
   optional NestedSortValue nested = 4;
   // [optional] Specifies the sort order (asc or dsc) for the score.
   optional SortOrder order = 5;
-
   // [optional] Specifies the units used to compute sort values. Default is meters (m).
   optional DistanceUnit unit = 6;
   // [optional]
   optional GeoValidationMethod validation_method = 7;
+  // [optional]
+  map<string, GeoLocationArray> location = 8;
+}
+
+
+message GeoLocationArray {
+  // The geo points to use for distance calculation.
+  repeated GeoLocation geo_location_array = 1;
+
 }
 
 enum GeoValidationMethod {
@@ -1070,35 +1075,29 @@ enum ScriptSortType {
 
 
 message ScriptSort {
-
+  // [required] The script to execute for custom sorting.
+  Script script = 1;
   // [optional] Specifies the sort order (asc or dsc) for the score.
-  SortOrder order = 1;
-
-  // [optional] The script to execute for custom sorting.
-  Script script = 2;
-
+  optional SortOrder order = 2;
   // [optional] Specifies script sort type.
-  ScriptSortType type = 3;
+  optional ScriptSortType type = 3;
   // [optional] Specifies what array value should be chosen for sorting the document.
-  SortMode mode = 4;
-  // Supports sorting by fields that are inside one or more nested objects.
-  NestedSortValue nested = 5;
+  optional SortMode mode = 4;
+  // [optional] Supports sorting by fields that are inside one or more nested objects.
+  optional NestedSortValue nested = 5;
 
 }
 
 message NestedSortValue {
 
-  // [optional] A filter that the inner objects inside the nested path should match with in order for its field values to be taken into account by sorting. Common case is to repeat the query / filter inside the nested filter or query. By default no filter is active.
-  QueryContainer filter = 1;
-
-  // [optional] The maximum number of children to consider per root document when picking the sort value. Defaults to unlimited.
-  int32 max_children = 2;
-
-  // [optional] Same as top-level nested but applies to another nested path within the current nested object.
-  NestedSortValue nested = 3;
-
   // [required] Specifies the path to the field on which to sort.
-  string path = 4;
+  string path = 1;
+  // [optional] A filter that the inner objects inside the nested path should match with in order for its field values to be taken into account by sorting. Common case is to repeat the query / filter inside the nested filter or query. By default no filter is active.
+  optional QueryContainer filter = 2;
+  // [optional] The maximum number of children to consider per root document when picking the sort value. Defaults to unlimited.
+  optional int32 max_children = 3;
+  // [optional] Same as top-level nested but applies to another nested path within the current nested object.
+  optional NestedSortValue nested = 4;
 
 }
 
@@ -1891,23 +1890,20 @@ message TermsSetQuery {
   // [required] Specifies the field against which to run a search query
   string field = 1;
 
+  // [required] The array of terms to search for in the field specified in <field>. A document is returned in the results only if the required number of terms matches the document's field values exactly, with the correct spacing and capitalization.
+  repeated string terms = 2;
+
   // [optional] Floating point number used to decrease or increase the relevance scores of the query. Boost values are relative to the default value of 1.0. A boost value between 0 and 1.0 decreases the relevance score. A value greater than 1.0 increases the relevance score.
-  optional float boost = 2;
+  optional float boost = 3;
 
   // [optional] Query name for query tagging.
-  optional string x_name = 3;
+  optional string x_name = 4;
 
-  // [optional]
-  // The name of the numeric field that specifies the number of matching terms required in order to return a document in the results.
-  string minimum_should_match_field = 4;
+  // [optional] The name of the numeric field that specifies the number of matching terms required in order to return a document in the results.
+  optional string minimum_should_match_field = 5;
 
-  // [optional]
-  // A script that returns the number of matching terms required in order to return a document in the results.
-  Script minimum_should_match_script = 5;
-
-  // [required]
-  // The array of terms to search for in the field specified in <field>. A document is returned in the results only if the required number of terms matches the document's field values exactly, with the correct spacing and capitalization.
-  repeated string terms = 6;
+  // [optional] A script that returns the number of matching terms required in order to return a document in the results.
+  optional Script minimum_should_match_script = 6;
 
 }
 
