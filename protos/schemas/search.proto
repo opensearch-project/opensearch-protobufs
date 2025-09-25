@@ -211,7 +211,7 @@ message SearchRequestBody {
   optional SlicedScroll slice = 21;
 
   // [optional] Sorting allows your users to sort results in a way that's most meaningful to them. By default, full-text queries sort results by the relevance score. You can choose to sort the results by any field value in either ascending or descending order by setting the order parameter to asc or desc.
-  repeated SortOptions sort = 22;
+  repeated SortCombinations sort = 22;
 
   // [optional] Whether to include the _source field in the response.
   optional SourceConfig x_source = 23;
