@@ -202,12 +202,12 @@ message BulkErrorResponse {
 
 message BulkResponseBody {
 
-  // [optional] If true, one or more of the operations in the bulk request did not complete successfully.
-  optional bool errors = 1;
-  // [optional] Contains the result of each operation in the bulk request, in the order they were submitted.
+  // [required] If true, one or more of the operations in the bulk request did not complete successfully.
+  bool errors = 1;
+  // [required] Contains the result of each operation in the bulk request, in the order they were submitted.
   repeated Item items = 2;
-  // [optional] How long, in milliseconds, it took to process the bulk request.
-  optional int64 took = 3;
+  // [required] How long, in milliseconds, it took to process the bulk request.
+  int64 took = 3;
   // [optional] How long, in milliseconds, it took to process documents through an ingest pipeline
   optional int64 ingest_took = 4;
 
