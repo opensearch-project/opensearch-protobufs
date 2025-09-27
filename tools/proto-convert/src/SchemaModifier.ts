@@ -224,7 +224,8 @@ export class SchemaModifier {
                 [DEFAULT_MAP_KEY]: {
                     type: "string"
                 }
-            }
+            },
+            required: [DEFAULT_MAP_KEY]
         };
     }
 
