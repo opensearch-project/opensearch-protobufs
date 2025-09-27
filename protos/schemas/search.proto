@@ -84,59 +84,41 @@ message SearchRequest {
   // do not allow 'query_and_fetch' or 'dfs_query_and_fetch' search types
   // from the REST layer. these modes are an internal optimization and should
   // not be specified explicitly by the user.
-
   optional SearchType search_type = 32;
   // [optional] Whether to return sequence number and primary term of the last operation of each document hit.
   optional bool seq_no_primary_term = 33;
   // [optional] Number of results to include in the response.
   optional int32 size = 34;
-  // [optional] A list of <field> : <direction> pairs to sort by.
-  // TODO use this improvement instead?
-  message SortOrder {
-    // [required]
-    string field = 1;
-    // [optional]
-    optional Direction direction = 2;
-
-    enum Direction {
-      DIRECTION_UNSPECIFIED = 0;
-      DIRECTION_ASC = 1;
-      DIRECTION_DESC = 2;
-    }
-  }
-  repeated SortOrder sort = 35;
-
-  //  repeated string sort = 35;
   // [optional] Value to associate with the request for additional logging.
-  repeated string stats = 36;
+  repeated string stats = 35;
   // [optional] Whether the get operation should retrieve fields stored in the index. Default is false.
-  repeated string stored_fields = 37;
+  repeated string stored_fields = 36;
   // [optional] Fields OpenSearch can use to look for similar terms.
-  optional string suggest_field = 38;
+  optional string suggest_field = 37;
   // [optional] The mode to use when searching. This parameter can only be used when the `suggest_field` and `suggest_text` query string parameters are specified.
-  optional SuggestMode suggest_mode = 39;
+  optional SuggestMode suggest_mode = 38;
   // [optional] Number of suggestions to return.
-  optional int32 suggest_size = 40;
+  optional int32 suggest_size = 39;
   // [optional] The source that suggestions should be based off of.
-  optional string suggest_text = 41;
+  optional string suggest_text = 40;
   // [optional] The maximum number of documents OpenSearch should process before terminating the request. Default is 0.
-  optional int32 terminate_after = 42;
+  optional int32 terminate_after = 41;
   // [optional] Period of time to wait for a response from active shards. Default is 1m.
-  optional string timeout = 43;
+  optional string timeout = 42;
   // [optional] Whether to return document scores. Default is false.
-  optional bool track_scores = 44;
+  optional bool track_scores = 43;
   // [optional] Whether to return how many documents matched the query.
-  optional TrackHits track_total_hits = 45;
+  optional TrackHits track_total_hits = 44;
   // [optional] Whether returned aggregations and suggested terms should include their types in the response. Default is true.
-  optional bool typed_keys = 46;
+  optional bool typed_keys = 45;
   // [optional] Enables or disables verbose mode for the search pipeline.
-  optional bool verbose_pipeline = 47;
+  optional bool verbose_pipeline = 46;
   // [optional] Whether to include the document version as a match. Default is false
-  optional bool version = 48;
+  optional bool version = 47;
   // [optional] Search Request body
-  SearchRequestBody request_body = 49;
+  SearchRequestBody request_body = 48;
   // [optional] Global parameters
-  optional GlobalParams global_params = 50;
+  optional GlobalParams global_params = 49;
 }
 
 message FloatMap {
@@ -509,21 +491,21 @@ message ClusterStatistics {
 
 }
 
-message ClusterDetails {
+enum ClusterSearchStatus {
+  CLUSTER_SEARCH_STATUS_UNSPECIFIED = 0;
+  // The search failed on a cluster marked with skip_unavailable=false
+  CLUSTER_SEARCH_STATUS_FAILED = 1;
+  // Searches on at least one shard of the cluster was successful and at least one failed
+  CLUSTER_SEARCH_STATUS_PARTIAL = 2;
+  // Searches on all shards were successful
+  CLUSTER_SEARCH_STATUS_RUNNING = 3;
+  // The search failed on a cluster marked with skip_unavailable=true
+  CLUSTER_SEARCH_STATUS_SKIPPED = 4;
+  // Searches on all shards were successful
+  CLUSTER_SEARCH_STATUS_SUCCESSFUL = 5;
+}
 
-  enum ClusterSearchStatus {
-    CLUSTER_SEARCH_STATUS_UNSPECIFIED = 0;
-    // The search failed on a cluster marked with skip_unavailable=false
-    CLUSTER_SEARCH_STATUS_FAILED = 1;
-    // Searches on at least one shard of the cluster was successful and at least one failed
-    CLUSTER_SEARCH_STATUS_PARTIAL = 2;
-    // Searches on all shards were successful
-    CLUSTER_SEARCH_STATUS_RUNNING = 3;
-    // The search failed on a cluster marked with skip_unavailable=true
-    CLUSTER_SEARCH_STATUS_SKIPPED = 4;
-    // Searches on all shards were successful
-    CLUSTER_SEARCH_STATUS_SUCCESSFUL = 5;
-  }
+message ClusterDetails {
   // [required] All possible cluster search states.
   ClusterSearchStatus status = 1;
 

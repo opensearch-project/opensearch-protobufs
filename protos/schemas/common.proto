@@ -23,7 +23,7 @@ message GlobalParams {
 message WaitForActiveShards {
 
   oneof wait_for_active_shards {
-    int32 int32_value = 1;
+    int32 int32 = 1;
     WaitForActiveShardOptions wait_for_active_shard_options = 2;
   }
 }
@@ -200,7 +200,7 @@ message SourceConfigParam {
 
   oneof source_config_param {
     // `true` or `false` to return the `_source` field or not
-    bool bool_value = 1;
+    bool bool = 1;
     // list of fields to be retrieved from `_source`
     StringArray string_array = 2;
   }
@@ -213,7 +213,7 @@ message StringArray{
 
 message StringOrStringArray {
   oneof string_or_string_array{
-    string string_value = 1;
+    string string = 1;
     StringArray string_array = 2;
   }
 }
@@ -257,20 +257,20 @@ message RuntimeField {
 
   Script script = 6;
 
-  enum RuntimeFieldType {
-    RUNTIME_FIELD_TYPE_UNSPECIFIED = 0;
-    RUNTIME_FIELD_TYPE_BOOLEAN = 1;
-    RUNTIME_FIELD_TYPE_DATE = 2;
-    RUNTIME_FIELD_TYPE_DOUBLE = 3;
-    RUNTIME_FIELD_TYPE_GEO_POINT = 4;
-    RUNTIME_FIELD_TYPE_IP = 5;
-    RUNTIME_FIELD_TYPE_KEYWORD = 6;
-    RUNTIME_FIELD_TYPE_LONG = 7;
-    RUNTIME_FIELD_TYPE_LOOKUP = 8;
-  }
-
   RuntimeFieldType type = 7;
 
+}
+
+enum RuntimeFieldType {
+  RUNTIME_FIELD_TYPE_UNSPECIFIED = 0;
+  RUNTIME_FIELD_TYPE_BOOLEAN = 1;
+  RUNTIME_FIELD_TYPE_DATE = 2;
+  RUNTIME_FIELD_TYPE_DOUBLE = 3;
+  RUNTIME_FIELD_TYPE_GEO_POINT = 4;
+  RUNTIME_FIELD_TYPE_IP = 5;
+  RUNTIME_FIELD_TYPE_KEYWORD = 6;
+  RUNTIME_FIELD_TYPE_LONG = 7;
+  RUNTIME_FIELD_TYPE_LOOKUP = 8;
 }
 
 message RuntimeFieldFetchFields {
@@ -1182,7 +1182,7 @@ message SimpleQueryStringQuery {
 
   repeated string fields = 7;
 
-  PipeSeparatedFlagsSimpleQueryStringFlag flags = 8;
+  SimpleQueryStringFlags flags = 8;
 
   // Maximum number of terms to which the query expands for fuzzy matching.
   int32 fuzzy_max_expansions = 9;
@@ -1219,15 +1219,6 @@ message WildcardQuery {
   optional bool case_insensitive = 4;
 
   optional MultiTermQueryRewrite rewrite = 5;
-  enum MultiTermQueryRewrite {
-    MULTI_TERM_QUERY_REWRITE_UNSPECIFIED = 0;
-    MULTI_TERM_QUERY_REWRITE_CONSTANT_SCORE = 1;
-    MULTI_TERM_QUERY_REWRITE_CONSTANT_SCORE_BOOLEAN = 2;
-    MULTI_TERM_QUERY_REWRITE_SCORING_BOOLEAN = 3;
-    MULTI_TERM_QUERY_REWRITE_TOP_TERMS_N = 4;
-    MULTI_TERM_QUERY_REWRITE_TOP_TERMS_BLENDED_FREQS_N = 5;
-    MULTI_TERM_QUERY_REWRITE_TOP_TERMS_BOOST_N = 6;
-  }
 
   // [optional] Wildcard pattern for terms you wish to find in the provided field. Required, when wildcard is not set.
   optional string value = 6;
@@ -1237,30 +1228,39 @@ message WildcardQuery {
 
 }
 
-message PipeSeparatedFlagsSimpleQueryStringFlag {
+enum MultiTermQueryRewrite {
+  MULTI_TERM_QUERY_REWRITE_UNSPECIFIED = 0;
+  MULTI_TERM_QUERY_REWRITE_CONSTANT_SCORE = 1;
+  MULTI_TERM_QUERY_REWRITE_CONSTANT_SCORE_BOOLEAN = 2;
+  MULTI_TERM_QUERY_REWRITE_SCORING_BOOLEAN = 3;
+  MULTI_TERM_QUERY_REWRITE_TOP_TERMS_N = 4;
+  MULTI_TERM_QUERY_REWRITE_TOP_TERMS_BLENDED_FREQS_N = 5;
+  MULTI_TERM_QUERY_REWRITE_TOP_TERMS_BOOST_N = 6;
+}
 
-  enum SimpleQueryStringFlag {
-    SIMPLE_QUERY_STRING_FLAG_UNSPECIFIED = 0;
-    SIMPLE_QUERY_STRING_FLAG_ALL = 1;
-    SIMPLE_QUERY_STRING_FLAG_AND = 2;
-    SIMPLE_QUERY_STRING_FLAG_ESCAPE = 3;
-    SIMPLE_QUERY_STRING_FLAG_FUZZY = 4;
-    SIMPLE_QUERY_STRING_FLAG_NEAR = 5;
-    SIMPLE_QUERY_STRING_FLAG_NONE = 6;
-    SIMPLE_QUERY_STRING_FLAG_NOT = 7;
-    SIMPLE_QUERY_STRING_FLAG_OR = 8;
-    SIMPLE_QUERY_STRING_FLAG_PHRASE = 9;
-    SIMPLE_QUERY_STRING_FLAG_PRECEDENCE = 10;
-    SIMPLE_QUERY_STRING_FLAG_PREFIX = 11;
-    SIMPLE_QUERY_STRING_FLAG_SLOP = 12;
-    SIMPLE_QUERY_STRING_FLAG_WHITESPACE = 13;
+message SimpleQueryStringFlags {
+  oneof simple_query_string_flags {
+    SimpleQueryStringFlag single = 1;
+
+    string multiple = 2;
   }
+}
 
-  oneof pipe_separated_flags_simple_query_string_flag{
-    string string_value = 1;
-    SimpleQueryStringFlag simple_query_string_flag = 2;
-  }
-
+enum SimpleQueryStringFlag {
+  SIMPLE_QUERY_STRING_FLAG_UNSPECIFIED = 0;
+  SIMPLE_QUERY_STRING_FLAG_ALL = 1;
+  SIMPLE_QUERY_STRING_FLAG_AND = 2;
+  SIMPLE_QUERY_STRING_FLAG_ESCAPE = 3;
+  SIMPLE_QUERY_STRING_FLAG_FUZZY = 4;
+  SIMPLE_QUERY_STRING_FLAG_NEAR = 5;
+  SIMPLE_QUERY_STRING_FLAG_NONE = 6;
+  SIMPLE_QUERY_STRING_FLAG_NOT = 7;
+  SIMPLE_QUERY_STRING_FLAG_OR = 8;
+  SIMPLE_QUERY_STRING_FLAG_PHRASE = 9;
+  SIMPLE_QUERY_STRING_FLAG_PRECEDENCE = 10;
+  SIMPLE_QUERY_STRING_FLAG_PREFIX = 11;
+  SIMPLE_QUERY_STRING_FLAG_SLOP = 12;
+  SIMPLE_QUERY_STRING_FLAG_WHITESPACE = 13;
 }
 
 message KnnQuery {
@@ -1362,27 +1362,6 @@ message MatchQuery {
   // Determines how OpenSearch rewrites the query.
   // Default is constant_score.
   MultiTermQueryRewrite fuzzy_rewrite = 7;
-  enum MultiTermQueryRewrite {
-    MULTI_TERM_QUERY_REWRITE_UNSPECIFIED = 0;
-    // Uses the constant_score_boolean method for fewer matching terms. Otherwise, this method finds all matching terms in sequence and returns matching documents using a bit set.
-    MULTI_TERM_QUERY_REWRITE_CONSTANT_SCORE = 1;
-    // Assigns each document a relevance score equal to the boost parameter.
-    // This method changes the original query to a bool query. This bool query contains a should clause and term query for each matching term. This method can cause the final bool query to exceed the clause limit in the indices.query.bool.max_clause_count setting. If the query exceeds this limit, opensearch returns an error.
-    MULTI_TERM_QUERY_REWRITE_CONSTANT_SCORE_BOOLEAN = 2;
-    // Calculates a relevance score for each matching document.
-    // This method changes the original query to a bool query. This bool query contains a should clause and term query for each matching term. This method can cause the final bool query to exceed the clause limit in the indices.query.bool.max_clause_count setting. If the query exceeds this limit, Elasticsearch returns an error.
-    MULTI_TERM_QUERY_REWRITE_SCORING_BOOLEAN = 3;
-    // Calculates a relevance score for each matching document.
-    // This method changes the original query to a bool query. This bool query contains a should clause and term query for each matching term. The final bool query only includes term queries for the top N scoring terms. You can use this method to avoid exceeding the clause limit in the indices.query.bool.max_clause_count setting.
-    MULTI_TERM_QUERY_REWRITE_TOP_TERMS_N = 4;
-    // Calculates a relevance score for each matching document as if all terms had the same frequency. This frequency is the maximum frequency of all matching terms.
-    // This method changes the original query to a bool query. This bool query contains a should clause and term query for each matching term. The final bool query only includes term queries for the top N scoring terms. You can use this method to avoid exceeding the clause limit in the indices.query.bool.max_clause_count setting.
-    MULTI_TERM_QUERY_REWRITE_TOP_TERMS_BLENDED_FREQS_N = 5;
-    // Calculates a relevance score for each matching document.
-    // This method changes the original query to a bool query. This bool query contains a should clause and term query for each matching term. The final bool query only includes term queries for the top N scoring terms. You can use this method to avoid exceeding the clause limit in the indices.query.bool.max_clause_count setting.
-    MULTI_TERM_QUERY_REWRITE_TOP_TERMS_BOOST_N = 6;
-  }
-
   // [optional]
   // Setting fuzzy_transpositions to true (default) adds swaps of adjacent characters to the insert, delete, and substitute operations of the fuzziness option.
   // For example, the distance between wind and wnid is 1 if fuzzy_transpositions is true (swap “n” and “i”) and 2 if it is false (delete “n”, insert “n”). If fuzzy_transpositions is false, rewind and wnid have the same distance (2) from wind, despite the more human-centric opinion that wnid is an obvious typo.
@@ -1414,21 +1393,9 @@ message MatchQuery {
   // The number of leading characters that are not considered in fuzziness.
   // Default is 0.
   int32 prefix_length = 13;
-
-  message Query {
-    oneof query{
-      // if the query value is string type.
-      string string_value = 1;
-      // if the query value is number type.
-      GeneralNumber general_number = 2;
-      // if the query value is boolean type.
-      bool bool_value = 3;
-    }
-  }
-
   // [required]
   // The query string to use for search.
-  Query query = 14;
+  FieldValue query = 14;
 
   // [optional]
   // In some cases, the analyzer removes all terms from a query string.
@@ -1436,14 +1403,17 @@ message MatchQuery {
   // Default is none.
   ZeroTermsQuery zero_terms_query = 15;
 
-  enum ZeroTermsQuery {
-    ZERO_TERMS_QUERY_UNSPECIFIED = 0;
-    // zero_terms_query specifies whether to match all documents (all).
-    ZERO_TERMS_QUERY_ALL = 1;
-    // zero_terms_query specifies whether to match no documents (none)
-    ZERO_TERMS_QUERY_NONE = 2;
-  }
+}
 
+message Query {
+  oneof query{
+    // if the query value is string type.
+    string string = 1;
+    // if the query value is number type.
+    GeneralNumber general_number = 2;
+    // if the query value is boolean type.
+    bool bool = 3;
+  }
 }
 
 message BoolQuery {
@@ -1476,9 +1446,9 @@ message BoolQuery {
 message MinimumShouldMatch{
   oneof minimum_should_match{
     // if minimum_should_match is integer type. see "https://opensearch.org/docs/latest/query-dsl/minimum-should-match/#valid-values"
-    int32 int32_value = 1;
+    int32 int32 = 1;
     // if minimum_should_match is string type like percentage or combinations. see "https://opensearch.org/docs/latest/query-dsl/minimum-should-match/#valid-values"
-    string string_value = 2;
+    string string = 2;
   }
 }
 
@@ -1784,26 +1754,6 @@ message PrefixQuery {
   // Determines how OpenSearch rewrites the query.
   // Default is constant_score.
   MultiTermQueryRewrite rewrite = 4;
-  enum MultiTermQueryRewrite {
-    MULTI_TERM_QUERY_REWRITE_UNSPECIFIED = 0;
-    // Uses the constant_score_boolean method for fewer matching terms. Otherwise, this method finds all matching terms in sequence and returns matching documents using a bit set.
-    MULTI_TERM_QUERY_REWRITE_CONSTANT_SCORE = 1;
-    // Assigns each document a relevance score equal to the boost parameter.
-    // This method changes the original query to a bool query. This bool query contains a should clause and term query for each matching term. This method can cause the final bool query to exceed the clause limit in the indices.query.bool.max_clause_count setting. If the query exceeds this limit, opensearch returns an error.
-    MULTI_TERM_QUERY_REWRITE_CONSTANT_SCORE_BOOLEAN = 2;
-    // Calculates a relevance score for each matching document.
-    // This method changes the original query to a bool query. This bool query contains a should clause and term query for each matching term. This method can cause the final bool query to exceed the clause limit in the indices.query.bool.max_clause_count setting. If the query exceeds this limit, Elasticsearch returns an error.
-    MULTI_TERM_QUERY_REWRITE_SCORING_BOOLEAN = 3;
-    // Calculates a relevance score for each matching document.
-    // This method changes the original query to a bool query. This bool query contains a should clause and term query for each matching term. The final bool query only includes term queries for the top N scoring terms. You can use this method to avoid exceeding the clause limit in the indices.query.bool.max_clause_count setting.
-    MULTI_TERM_QUERY_REWRITE_TOP_TERMS_N = 4;
-    // Calculates a relevance score for each matching document as if all terms had the same frequency. This frequency is the maximum frequency of all matching terms.
-    // This method changes the original query to a bool query. This bool query contains a should clause and term query for each matching term. The final bool query only includes term queries for the top N scoring terms. You can use this method to avoid exceeding the clause limit in the indices.query.bool.max_clause_count setting.
-    MULTI_TERM_QUERY_REWRITE_TOP_TERMS_BLENDED_FREQS_N = 5;
-    // Calculates a relevance score for each matching document.
-    // This method changes the original query to a bool query. This bool query contains a should clause and term query for each matching term. The final bool query only includes term queries for the top N scoring terms. You can use this method to avoid exceeding the clause limit in the indices.query.bool.max_clause_count setting.
-    MULTI_TERM_QUERY_REWRITE_TOP_TERMS_BOOST_N = 6;
-  }
 
   // [required]
   // The term to search for in the field specified in <field>.
@@ -1967,15 +1917,6 @@ message QueryStringQuery {
   int32 fuzzy_prefix_length = 14;
 
   MultiTermQueryRewrite fuzzy_rewrite = 15;
-  enum MultiTermQueryRewrite {
-    MULTI_TERM_QUERY_REWRITE_UNSPECIFIED = 0;
-    MULTI_TERM_QUERY_REWRITE_CONSTANT_SCORE = 1;
-    MULTI_TERM_QUERY_REWRITE_CONSTANT_SCORE_BOOLEAN = 2;
-    MULTI_TERM_QUERY_REWRITE_SCORING_BOOLEAN = 3;
-    MULTI_TERM_QUERY_REWRITE_TOP_TERMS_N = 4;
-    MULTI_TERM_QUERY_REWRITE_TOP_TERMS_BLENDED_FREQS_N = 5;
-    MULTI_TERM_QUERY_REWRITE_TOP_TERMS_BOOST_N = 6;
-  }
 
   // If `true`, edits for fuzzy matching include transpositions of two adjacent characters (for example, `ab` to `ba`).
   bool fuzzy_transpositions = 16;
@@ -2008,16 +1949,16 @@ message QueryStringQuery {
   string time_zone = 26;
 
   TextQueryType type = 27;
-  enum TextQueryType {
-    TEXT_QUERY_TYPE_UNSPECIFIED = 0;
-    TEXT_QUERY_TYPE_BEST_FIELDS = 1;
-    TEXT_QUERY_TYPE_BOOL_PREFIX = 2;
-    TEXT_QUERY_TYPE_CROSS_FIELDS = 3;
-    TEXT_QUERY_TYPE_MOST_FIELDS = 4;
-    TEXT_QUERY_TYPE_PHRASE = 5;
-    TEXT_QUERY_TYPE_PHRASE_PREFIX = 6;
-  }
+}
 
+enum TextQueryType {
+  TEXT_QUERY_TYPE_UNSPECIFIED = 0;
+  TEXT_QUERY_TYPE_BEST_FIELDS = 1;
+  TEXT_QUERY_TYPE_BOOL_PREFIX = 2;
+  TEXT_QUERY_TYPE_CROSS_FIELDS = 3;
+  TEXT_QUERY_TYPE_MOST_FIELDS = 4;
+  TEXT_QUERY_TYPE_PHRASE = 5;
+  TEXT_QUERY_TYPE_PHRASE_PREFIX = 6;
 }
 
 message RandomScoreFunction {
@@ -2180,15 +2121,6 @@ message RegexpQuery {
 
   // [optional] Determines how OpenSearch rewrites and scores multi-term queries. Valid values are constant_score, scoring_boolean, constant_score_boolean, top_terms_N, top_terms_boost_N, and top_terms_blended_freqs_N. Default is constant_score.
   optional MultiTermQueryRewrite rewrite = 8;
-  enum MultiTermQueryRewrite {
-    MULTI_TERM_QUERY_REWRITE_UNSPECIFIED = 0;
-    MULTI_TERM_QUERY_REWRITE_CONSTANT_SCORE = 1;
-    MULTI_TERM_QUERY_REWRITE_CONSTANT_SCORE_BOOLEAN = 2;
-    MULTI_TERM_QUERY_REWRITE_SCORING_BOOLEAN = 3;
-    MULTI_TERM_QUERY_REWRITE_TOP_TERMS_N = 4;
-    MULTI_TERM_QUERY_REWRITE_TOP_TERMS_BLENDED_FREQS_N = 5;
-    MULTI_TERM_QUERY_REWRITE_TOP_TERMS_BOOST_N = 6;
-  }
 }
 
 message FuzzyQuery {
@@ -2213,26 +2145,6 @@ message FuzzyQuery {
   // Determines how OpenSearch rewrites the query.
   // Default is constant_score.
   MultiTermQueryRewrite rewrite = 6;
-  enum MultiTermQueryRewrite {
-    MULTI_TERM_QUERY_REWRITE_UNSPECIFIED = 0;
-    // Uses the constant_score_boolean method for fewer matching terms. Otherwise, this method finds all matching terms in sequence and returns matching documents using a bit set.
-    MULTI_TERM_QUERY_REWRITE_CONSTANT_SCORE = 1;
-    // Assigns each document a relevance score equal to the boost parameter.
-    // This method changes the original query to a bool query. This bool query contains a should clause and term query for each matching term. This method can cause the final bool query to exceed the clause limit in the indices.query.bool.max_clause_count setting. If the query exceeds this limit, opensearch returns an error.
-    MULTI_TERM_QUERY_REWRITE_CONSTANT_SCORE_BOOLEAN = 2;
-    // Calculates a relevance score for each matching document.
-    // This method changes the original query to a bool query. This bool query contains a should clause and term query for each matching term. This method can cause the final bool query to exceed the clause limit in the indices.query.bool.max_clause_count setting. If the query exceeds this limit, Elasticsearch returns an error.
-    MULTI_TERM_QUERY_REWRITE_SCORING_BOOLEAN = 3;
-    // Calculates a relevance score for each matching document.
-    // This method changes the original query to a bool query. This bool query contains a should clause and term query for each matching term. The final bool query only includes term queries for the top N scoring terms. You can use this method to avoid exceeding the clause limit in the indices.query.bool.max_clause_count setting.
-    MULTI_TERM_QUERY_REWRITE_TOP_TERMS_N = 4;
-    // Calculates a relevance score for each matching document as if all terms had the same frequency. This frequency is the maximum frequency of all matching terms.
-    // This method changes the original query to a bool query. This bool query contains a should clause and term query for each matching term. The final bool query only includes term queries for the top N scoring terms. You can use this method to avoid exceeding the clause limit in the indices.query.bool.max_clause_count setting.
-    MULTI_TERM_QUERY_REWRITE_TOP_TERMS_BLENDED_FREQS_N = 5;
-    // Calculates a relevance score for each matching document.
-    // This method changes the original query to a bool query. This bool query contains a should clause and term query for each matching term. The final bool query only includes term queries for the top N scoring terms. You can use this method to avoid exceeding the clause limit in the indices.query.bool.max_clause_count setting.
-    MULTI_TERM_QUERY_REWRITE_TOP_TERMS_BOOST_N = 6;
-  }
   // [optional]
   // Specifies whether to allow transpositions of two adjacent characters (ab to ba) as edits. Default is true.
   bool transpositions = 7;
@@ -2240,26 +2152,18 @@ message FuzzyQuery {
   // The number of character edits (insert, delete, substitute) needed to change one word to another when determining whether a term matched a value.
   Fuzziness fuzziness = 8;
 
-  message Value {
-    oneof value {
-      string string_value = 1;
-      bool bool_value = 2;
-      GeneralNumber general_number = 3;
-    }
-  }
-
   // [required]
   // Term you wish to find in the provided <field>.
-  Value value = 9;
+  FieldValue value = 9;
 }
 
 message Fuzziness{
 
   oneof fuzziness{
     // AUTO: Generates an edit distance based on the length of the term. Low and high distance arguments may be optionally provided AUTO:[low],[high]. AUTO should generally be the preferred value for fuzziness.
-    string string_value = 1;
+    string string = 1;
     // 0,1,2: The maximum allowed Levenshtein Edit Distance (or number of edits)
-    int32 int32_value = 2;
+    int32 int32 = 2;
   }
 
 }
@@ -2366,27 +2270,6 @@ message MatchBoolPrefixQuery {
   // Determines how OpenSearch rewrites the query.
   // Default is constant_score.
   MultiTermQueryRewrite fuzzy_rewrite = 6;
-  enum MultiTermQueryRewrite {
-    MULTI_TERM_QUERY_REWRITE_UNSPECIFIED = 0;
-    // Uses the constant_score_boolean method for fewer matching terms. Otherwise, this method finds all matching terms in sequence and returns matching documents using a bit set.
-    MULTI_TERM_QUERY_REWRITE_CONSTANT_SCORE = 1;
-    // Assigns each document a relevance score equal to the boost parameter.
-    // This method changes the original query to a bool query. This bool query contains a should clause and term query for each matching term. This method can cause the final bool query to exceed the clause limit in the indices.query.bool.max_clause_count setting. If the query exceeds this limit, opensearch returns an error.
-    MULTI_TERM_QUERY_REWRITE_CONSTANT_SCORE_BOOLEAN = 2;
-    // Calculates a relevance score for each matching document.
-    // This method changes the original query to a bool query. This bool query contains a should clause and term query for each matching term. This method can cause the final bool query to exceed the clause limit in the indices.query.bool.max_clause_count setting. If the query exceeds this limit, Elasticsearch returns an error.
-    MULTI_TERM_QUERY_REWRITE_SCORING_BOOLEAN = 3;
-    // Calculates a relevance score for each matching document.
-    // This method changes the original query to a bool query. This bool query contains a should clause and term query for each matching term. The final bool query only includes term queries for the top N scoring terms. You can use this method to avoid exceeding the clause limit in the indices.query.bool.max_clause_count setting.
-    MULTI_TERM_QUERY_REWRITE_TOP_TERMS_N = 4;
-    // Calculates a relevance score for each matching document as if all terms had the same frequency. This frequency is the maximum frequency of all matching terms.
-    // This method changes the original query to a bool query. This bool query contains a should clause and term query for each matching term. The final bool query only includes term queries for the top N scoring terms. You can use this method to avoid exceeding the clause limit in the indices.query.bool.max_clause_count setting.
-    MULTI_TERM_QUERY_REWRITE_TOP_TERMS_BLENDED_FREQS_N = 5;
-    // Calculates a relevance score for each matching document.
-    // This method changes the original query to a bool query. This bool query contains a should clause and term query for each matching term. The final bool query only includes term queries for the top N scoring terms. You can use this method to avoid exceeding the clause limit in the indices.query.bool.max_clause_count setting.
-    MULTI_TERM_QUERY_REWRITE_TOP_TERMS_BOOST_N = 6;
-  }
-
   // [optional]
   // Setting fuzzy_transpositions to true (default) adds swaps of adjacent characters to the insert, delete, and substitute operations of the fuzziness option.
   // For example, the distance between wind and wnid is 1 if fuzzy_transpositions is true (swap “n” and “i”) and 2 if it is false (delete “n”, insert “n”). If fuzzy_transpositions is false, rewind and wnid have the same distance (2) from wind, despite the more human-centric opinion that wnid is an obvious typo.
@@ -2536,23 +2419,9 @@ message MultiMatchQuery {
 
   // [optional] The multi-match query type. Valid values are best_fields, most_fields, cross_fields, phrase, phrase_prefix, bool_prefix. Default is best_fields.
   optional TextQueryType type = 16;
-  enum TextQueryType {
-    TEXT_QUERY_TYPE_UNSPECIFIED = 0;
-    TEXT_QUERY_TYPE_BEST_FIELDS = 1;
-    TEXT_QUERY_TYPE_BOOL_PREFIX = 2;
-    TEXT_QUERY_TYPE_CROSS_FIELDS = 3;
-    TEXT_QUERY_TYPE_MOST_FIELDS = 4;
-    TEXT_QUERY_TYPE_PHRASE = 5;
-    TEXT_QUERY_TYPE_PHRASE_PREFIX = 6;
-  }
 
   // [optional] In some cases, the analyzer removes all terms from a query string. For example, the stop analyzer removes all terms from the string an but this. In those cases, zero_terms_query specifies whether to match no documents (none) or all documents (all). Valid values are none and all. Default is none.
   optional ZeroTermsQuery zero_terms_query = 17;
-  enum ZeroTermsQuery {
-    ZERO_TERMS_QUERY_UNSPECIFIED = 0;
-    ZERO_TERMS_QUERY_ALL = 1;
-    ZERO_TERMS_QUERY_NONE = 2;
-  }
 }
 
 message FieldValueFactorScoreFunction {
@@ -2585,191 +2454,164 @@ enum FieldValueFactorModifier {
   FIELD_VALUE_FACTOR_MODIFIER_SQUARE = 10;
 }
 
-message DutchAnalyzer{
-  enum Type {
-    TYPE_UNSPECIFIED = 0;
-    TYPE_DUTCH = 1;
-  }
-  Type type = 1;
+message DutchAnalyzer {
+  DutchAnalyzerType type = 1;
 
   repeated string stopwords = 2;
 }
+enum DutchAnalyzerType {
+  DUTCH_ANALYZER_TYPE_UNSPECIFIED = 0;
+  DUTCH_ANALYZER_TYPE_DUTCH = 1;
+}
 
 message FingerprintAnalyzer {
-  enum Type {
-    TYPE_UNSPECIFIED = 0;
-    TYPE_FINGERPRINT = 1;
-  }
-  Type type = 1;
+  FingerprintAnalyzerType type = 1;
 
-  string version = 2;
+  optional string version = 2;
 
-  float max_output_size = 3;
+  int32 max_output_size = 3;
 
   bool preserve_original = 4;
 
   string separator = 5;
 
-  // Language value, such as _arabic_ or _thai_. Defaults to _english_. Each language value corresponds to a predefined list of stop words in Lucene. See Stop words by language for supported language values and their stop words. Also accepts an array of stop words.
   repeated string stopwords = 6;
 
-  string stopwords_path = 7;
+  optional string stopwords_path = 7;
+}
+enum FingerprintAnalyzerType {
+  FINGERPRINT_ANALYZER_TYPE_UNSPECIFIED = 0;
+  FINGERPRINT_ANALYZER_TYPE_FINGERPRINT = 1;
 }
 
-message IcuAnalyzer{
-  enum Type {
-    TYPE_UNSPECIFIED = 0;
-    TYPE_ICU_ANALYZER = 1;
-  }
-  Type type = 1;
+message IcuAnalyzer {
+  IcuAnalyzerType type = 1;
 
-  enum IcuNormalizationType {
-    ICU_NORMALIZATION_TYPE_UNSPECIFIED = 0;
-    ICU_NORMALIZATION_TYPE_NFC = 1;
-    ICU_NORMALIZATION_TYPE_NFKC = 2;
-    ICU_NORMALIZATION_TYPE_NFKC_CF = 3;
-  }
   IcuNormalizationType method = 2;
-
-  enum IcuNormalizationMode {
-    ICU_NORMALIZATION_MODE_UNSPECIFIED = 0;
-    ICU_NORMALIZATION_MODE_COMPOSE = 1;
-    ICU_NORMALIZATION_MODE_DECOMPOSE = 2;
-  }
 
   IcuNormalizationMode mode = 3;
 }
-
-//manual generate
-message KeywordAnalyzer{
-  enum Type {
-    TYPE_UNSPECIFIED = 0;
-    TYPE_KEYWORD = 1;
-  }
-  Type type = 1;
-
-  string version = 2;
+enum IcuAnalyzerType {
+  ICU_ANALYZER_TYPE_UNSPECIFIED = 0;
+  ICU_ANALYZER_TYPE_ICU_ANALYZER = 1;
+}
+enum IcuNormalizationMode {
+  ICU_NORMALIZATION_MODE_UNSPECIFIED = 0;
+  ICU_NORMALIZATION_MODE_COMPOSE = 1;
+  ICU_NORMALIZATION_MODE_DECOMPOSE = 2;
+}
+enum IcuNormalizationType {
+  ICU_NORMALIZATION_TYPE_UNSPECIFIED = 0;
+  ICU_NORMALIZATION_TYPE_NFC = 1;
+  ICU_NORMALIZATION_TYPE_NFKC = 2;
+  ICU_NORMALIZATION_TYPE_NFKC_CF = 3;
 }
 
-message KuromojiAnalyzer{
-  enum Type {
-    TYPE_UNSPECIFIED = 0;
-    TYPE_KUROMOJI = 1;
-  }
-  Type type = 1;
+message KeywordAnalyzer {
+  KeywordAnalyzerType type = 1;
 
-
-  enum Mode {
-    MODE_UNSPECIFIED = 0;
-    MODE_EXTENDED = 1;
-    MODE_NORMAL = 2;
-    MODE_SEARCH = 3;
-  }
-
-  Mode mode = 2;
-
-  string user_dictionary = 3;
+  optional string version = 2;
+}
+enum KeywordAnalyzerType {
+  KEYWORD_ANALYZER_TYPE_UNSPECIFIED = 0;
+  KEYWORD_ANALYZER_TYPE_KEYWORD = 1;
 }
 
 
-message LanguageAnalyzer{
-  enum Type {
-    TYPE_UNSPECIFIED = 0;
-    TYPE_LANGUAGE = 1;
-  }
-  Type type = 1;
+message LanguageAnalyzer {
+  LanguageAnalyzerType type = 1;
 
-  string version = 2;
-
-  enum Language {
-    LANGUAGE_UNSPECIFIED = 0;
-    LANGUAGE_ARABIC = 1;
-    LANGUAGE_ARMENIAN = 2;
-    LANGUAGE_BASQUE = 3;
-    LANGUAGE_BRAZILIAN = 4;
-    LANGUAGE_BULGARIAN = 5;
-    LANGUAGE_CATALAN = 6;
-    LANGUAGE_CHINESE = 7;
-    LANGUAGE_CJK = 8;
-    LANGUAGE_CZECH = 9;
-    LANGUAGE_DANISH = 10;
-    LANGUAGE_DUTCH = 11;
-    LANGUAGE_ENGLISH = 12;
-    LANGUAGE_ESTONIAN = 13;
-    LANGUAGE_FINNISH = 14;
-    LANGUAGE_FRENCH = 15;
-    LANGUAGE_GALICIAN = 16;
-    LANGUAGE_GERMAN = 17;
-    LANGUAGE_GREEK = 18;
-    LANGUAGE_HINDI = 19;
-    LANGUAGE_HUNGARIAN = 20;
-    LANGUAGE_INDONESIAN = 21;
-    LANGUAGE_IRISH = 22;
-    LANGUAGE_ITALIAN = 23;
-    LANGUAGE_LATVIAN = 24;
-    LANGUAGE_NORWEGIAN = 25;
-    LANGUAGE_PERSIAN = 26;
-    LANGUAGE_PORTUGUESE = 27;
-    LANGUAGE_ROMANIAN = 28;
-    LANGUAGE_RUSSIAN = 29;
-    LANGUAGE_SORANI = 30;
-    LANGUAGE_SPANISH = 31;
-    LANGUAGE_SWEDISH = 32;
-    LANGUAGE_THAI = 33;
-    LANGUAGE_TURKISH = 34;
-  }
+  optional string version = 2;
 
   Language language = 3;
 
   repeated string stem_exclusion = 4;
 
-  // Language value, such as _arabic_ or _thai_. Defaults to _english_. Each language value corresponds to a predefined list of stop words in Lucene. See Stop words by language for supported language values and their stop words. Also accepts an array of stop words.
   repeated string stopwords = 5;
 
-  string stopwords_path = 6;
-
+  optional string stopwords_path = 6;
+}
+enum LanguageAnalyzerType {
+  LANGUAGE_ANALYZER_TYPE_UNSPECIFIED = 0;
+  LANGUAGE_ANALYZER_TYPE_LANGUAGE = 1;
 }
 
-message NoriAnalyzer{
-  enum Type {
-    TYPE_UNSPECIFIED = 0;
-    TYPE_NORI = 1;
-  }
-  Type type = 1;
+enum Language {
+  LANGUAGE_UNSPECIFIED = 0;
+  LANGUAGE_ARABIC = 1;
+  LANGUAGE_ARMENIAN = 2;
+  LANGUAGE_BASQUE = 3;
+  LANGUAGE_BRAZILIAN = 4;
+  LANGUAGE_BULGARIAN = 5;
+  LANGUAGE_CATALAN = 6;
+  LANGUAGE_CHINESE = 7;
+  LANGUAGE_CJK = 8;
+  LANGUAGE_CZECH = 9;
+  LANGUAGE_DANISH = 10;
+  LANGUAGE_DUTCH = 11;
+  LANGUAGE_ENGLISH = 12;
+  LANGUAGE_ESTONIAN = 13;
+  LANGUAGE_FINNISH = 14;
+  LANGUAGE_FRENCH = 15;
+  LANGUAGE_GALICIAN = 16;
+  LANGUAGE_GERMAN = 17;
+  LANGUAGE_GREEK = 18;
+  LANGUAGE_HINDI = 19;
+  LANGUAGE_HUNGARIAN = 20;
+  LANGUAGE_INDONESIAN = 21;
+  LANGUAGE_IRISH = 22;
+  LANGUAGE_ITALIAN = 23;
+  LANGUAGE_LATVIAN = 24;
+  LANGUAGE_NORWEGIAN = 25;
+  LANGUAGE_PERSIAN = 26;
+  LANGUAGE_PORTUGUESE = 27;
+  LANGUAGE_ROMANIAN = 28;
+  LANGUAGE_RUSSIAN = 29;
+  LANGUAGE_SORANI = 30;
+  LANGUAGE_SPANISH = 31;
+  LANGUAGE_SWEDISH = 32;
+  LANGUAGE_THAI = 33;
+  LANGUAGE_TURKISH = 34;
+}
 
-  string version = 2;
+message NoriAnalyzer {
+  NoriAnalyzerType type = 1;
 
-  enum NoriDecompoundMode {
-    NORI_DECOMPOUND_MODE_UNSPECIFIED = 0;
-    NORI_DECOMPOUND_MODE_NONE = 1;
-    NORI_DECOMPOUND_MODE_DISCARD = 2;
-    NORI_DECOMPOUND_MODE_MIXED = 3;
-  }
+  optional string version = 2;
 
-  NoriDecompoundMode decompound_mode = 3;
+  optional NoriDecompoundMode decompound_mode = 3;
 
   repeated string stoptags = 4;
 
-  string user_dictionary = 5;
+  optional string user_dictionary = 5;
+}
+enum NoriAnalyzerType {
+  NORI_ANALYZER_TYPE_UNSPECIFIED = 0;
+  NORI_ANALYZER_TYPE_NORI = 1;
+}
+enum NoriDecompoundMode {
+  NORI_DECOMPOUND_MODE_UNSPECIFIED = 0;
+  NORI_DECOMPOUND_MODE_DISCARD = 1;
+  NORI_DECOMPOUND_MODE_MIXED = 2;
+  NORI_DECOMPOUND_MODE_NONE = 3;
 }
 
-message PatternAnalyzer{
-  enum Type {
-    TYPE_UNSPECIFIED = 0;
-    TYPE_PATTERN = 1;
-  }
-  Type type = 1;
+message PatternAnalyzer {
+  PatternAnalyzerType type = 1;
 
-  string version = 2;
+  optional string version = 2;
 
-  string flags = 3;
+  optional string flags = 3;
 
-  bool lowercase = 4;
+  optional bool lowercase = 4;
 
   string pattern = 5;
 
   repeated string stopwords = 6;
-
+}
+enum PatternAnalyzerType {
+  PATTERN_ANALYZER_TYPE_UNSPECIFIED = 0;
+  PATTERN_ANALYZER_TYPE_PATTERN = 1;
 }
 
 message SimpleAnalyzer{
@@ -2782,99 +2624,59 @@ message SimpleAnalyzer{
   string version = 2;
 }
 
-message SnowballAnalyzer{
-  enum Type {
-    TYPE_UNSPECIFIED = 0;
-    TYPE_SNOWBALL = 1;
-  }
-  Type type = 1;
+message StandardAnalyzer {
+  StandardAnalyzerType type = 1;
 
-  string version = 2;
+  optional int32 max_token_length = 2;
 
-  enum SnowballLanguage {
-    SNOWBALL_LANGUAGE_UNSPECIFIED = 0;
-    SNOWBALL_LANGUAGE_ARMENIAN = 1;
-    SNOWBALL_LANGUAGE_BASQUE = 2;
-    SNOWBALL_LANGUAGE_CATALAN = 3;
-    SNOWBALL_LANGUAGE_DANISH = 4;
-    SNOWBALL_LANGUAGE_DUTCH = 5;
-    SNOWBALL_LANGUAGE_ENGLISH = 6;
-    SNOWBALL_LANGUAGE_FINNISH = 7;
-    SNOWBALL_LANGUAGE_FRENCH = 8;
-    SNOWBALL_LANGUAGE_GERMAN = 9;
-    SNOWBALL_LANGUAGE_GERMAN2 = 10;
-    SNOWBALL_LANGUAGE_HUNGARIAN = 11;
-    SNOWBALL_LANGUAGE_ITALIAN = 12;
-    SNOWBALL_LANGUAGE_KP = 13;
-    SNOWBALL_LANGUAGE_LOVINS = 14;
-    SNOWBALL_LANGUAGE_NORWEGIAN = 15;
-    SNOWBALL_LANGUAGE_PORTER = 16;
-    SNOWBALL_LANGUAGE_PORTUGUESE = 17;
-    SNOWBALL_LANGUAGE_ROMANIAN = 18;
-    SNOWBALL_LANGUAGE_RUSSIAN = 19;
-    SNOWBALL_LANGUAGE_SPANISH = 20;
-    SNOWBALL_LANGUAGE_SWEDISH = 21;
-    SNOWBALL_LANGUAGE_TURKISH = 22;
-  }
-
-  SnowballLanguage language = 3;
-
-  repeated string stopwords = 4;
-}
-
-message StandardAnalyzer{
-  enum Type {
-    TYPE_UNSPECIFIED = 0;
-    TYPE_STANDARD = 1;
-  }
-  Type type = 1;
-
-  float max_token_length = 2;
   repeated string stopwords = 3;
 }
 
-message StopAnalyzer{
-  enum Type {
-    TYPE_UNSPECIFIED = 0;
-    TYPE_STOP = 1;
-  }
-  Type type = 1;
+enum StandardAnalyzerType {
+  STANDARD_ANALYZER_TYPE_UNSPECIFIED = 0;
+  STANDARD_ANALYZER_TYPE_STANDARD = 1;
+}
 
-  string version = 2;
+message StopAnalyzer {
+  StopAnalyzerType type = 1;
+
+  optional string version = 2;
 
   repeated string stopwords = 3;
 
-  string stopwords_path = 4;
+  optional string stopwords_path = 4;
+}
+enum StopAnalyzerType {
+  STOP_ANALYZER_TYPE_UNSPECIFIED = 0;
+  STOP_ANALYZER_TYPE_STOP = 1;
 }
 
-message WhitespaceAnalyzer{
-  enum Type {
-    TYPE_UNSPECIFIED = 0;
-    TYPE_WHITESPACE = 1;
-  }
-  Type type = 1;
+message WhitespaceAnalyzer {
+  WhitespaceAnalyzerType type = 1;
 
-  string version = 2;
-
+  optional string version = 2;
+}
+enum WhitespaceAnalyzerType {
+  WHITESPACE_ANALYZER_TYPE_UNSPECIFIED = 0;
+  WHITESPACE_ANALYZER_TYPE_WHITESPACE = 1;
 }
 
 message CustomAnalyzer {
-  enum Type {
-    TYPE_UNSPECIFIED = 0;
-    TYPE_CUSTOM = 1;
-  }
-
-  Type type = 1;
+  CustomAnalyzerType type = 1;
 
   repeated string char_filter = 2;
 
   repeated string filter = 3;
 
-  float position_increment_gap = 4;
+  optional int32 position_increment_gap = 4;
 
-  float position_offset_gap = 5;
+  optional int32 position_offset_gap = 5;
 
   string tokenizer = 6;
+}
+enum CustomAnalyzerType {
+  CUSTOM_ANALYZER_TYPE_UNSPECIFIED = 0;
+  CUSTOM_ANALYZER_TYPE_CUSTOM = 1;
 }
 
 message Analyzer {
@@ -2894,6 +2696,64 @@ message Analyzer {
     SnowballAnalyzer snowball_analyzer = 13;
     DutchAnalyzer dutch_analyzer = 14;
   }
+}
+
+message KuromojiAnalyzer {
+  KuromojiAnalyzerType type = 1;
+
+  KuromojiTokenizationMode mode = 2;
+
+  optional string user_dictionary = 3;
+}
+enum KuromojiAnalyzerType {
+  KUROMOJI_ANALYZER_TYPE_UNSPECIFIED = 0;
+  KUROMOJI_ANALYZER_TYPE_KUROMOJI = 1;
+}
+enum KuromojiTokenizationMode {
+  KUROMOJI_TOKENIZATION_MODE_UNSPECIFIED = 0;
+  KUROMOJI_TOKENIZATION_MODE_EXTENDED = 1;
+  KUROMOJI_TOKENIZATION_MODE_NORMAL = 2;
+  KUROMOJI_TOKENIZATION_MODE_SEARCH = 3;
+}
+
+message SnowballAnalyzer {
+  SnowballAnalyzerType type = 1;
+
+  optional string version = 2;
+
+  SnowballLanguage language = 3;
+
+  repeated string stopwords = 4;
+}
+enum SnowballAnalyzerType {
+  SNOWBALL_ANALYZER_TYPE_UNSPECIFIED = 0;
+  SNOWBALL_ANALYZER_TYPE_SNOWBALL = 1;
+}
+
+enum SnowballLanguage {
+  SNOWBALL_LANGUAGE_UNSPECIFIED = 0;
+  SNOWBALL_LANGUAGE_ARMENIAN = 1;
+  SNOWBALL_LANGUAGE_BASQUE = 2;
+  SNOWBALL_LANGUAGE_CATALAN = 3;
+  SNOWBALL_LANGUAGE_DANISH = 4;
+  SNOWBALL_LANGUAGE_DUTCH = 5;
+  SNOWBALL_LANGUAGE_ENGLISH = 6;
+  SNOWBALL_LANGUAGE_FINNISH = 7;
+  SNOWBALL_LANGUAGE_FRENCH = 8;
+  SNOWBALL_LANGUAGE_GERMAN = 9;
+  SNOWBALL_LANGUAGE_GERMAN2 = 10;
+  SNOWBALL_LANGUAGE_HUNGARIAN = 11;
+  SNOWBALL_LANGUAGE_ITALIAN = 12;
+  SNOWBALL_LANGUAGE_KP = 13;
+  SNOWBALL_LANGUAGE_LOVINS = 14;
+  SNOWBALL_LANGUAGE_NORWEGIAN = 15;
+  SNOWBALL_LANGUAGE_PORTER = 16;
+  SNOWBALL_LANGUAGE_PORTUGUESE = 17;
+  SNOWBALL_LANGUAGE_ROMANIAN = 18;
+  SNOWBALL_LANGUAGE_RUSSIAN = 19;
+  SNOWBALL_LANGUAGE_SPANISH = 20;
+  SNOWBALL_LANGUAGE_SWEDISH = 21;
+  SNOWBALL_LANGUAGE_TURKISH = 22;
 }
 
 message Error {
