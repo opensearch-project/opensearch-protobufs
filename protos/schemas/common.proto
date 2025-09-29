@@ -675,7 +675,7 @@ message InnerHits {
   optional bool seq_no_primary_term = 10;
 
   // [optional] Retrieve selected fields from a search
-  repeated string fields = 11;
+  repeated FieldAndFormat fields = 11;
 
   // [optional] How the inner hits should be sorted per inner_hits. By default the hits are sorted by the score.
   repeated SortCombinations sort = 12;
@@ -1108,9 +1108,6 @@ message FieldAndFormat {
 
   // [optional] Format in which the values are returned.
   optional string format = 2;
-
-  // [optional] Retrieve unmapped fields in an object from _source
-  optional bool include_unmapped = 3;
 
 }
 
