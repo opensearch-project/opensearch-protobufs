@@ -109,16 +109,16 @@ SearchResponse response = client.search(request);
 ### Python
 
 ```python
-from opensearch_pb2 import SearchRequest
-from search_service_pb2_grpc import SearchServiceStub
+from opensearch.protobufs.schemas import search_pb2
+from opensearch.protobufs.services import search_service_pb2
 
 # Use generated message types
-request = SearchRequest()
+request = search_pb2.SearchRequest()
 request.query = "elasticsearch"
 request.size = 10
 
 # Use generated gRPC clients
-client = SearchServiceStub(channel)
+client = search_service_pb2.SearchServiceStub(channel)
 response = client.Search(request)
 ```
 
