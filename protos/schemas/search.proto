@@ -112,7 +112,7 @@ message SearchRequest {
   // [optional] Whether to include the document version as a match. Default is false
   optional bool version = 45;
   // [optional] Search Request body
-  SearchRequestBody request_body = 46;
+  optional SearchRequestBody request_body = 46;
   // [optional] Global parameters
   optional GlobalParams global_params = 47;
 }
