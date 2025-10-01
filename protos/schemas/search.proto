@@ -61,8 +61,7 @@ message SearchRequest {
   // [optional] Specifies whether OpenSearch should use the request cache. Default is whether it's enabled in the index's settings.
   optional bool request_cache = 22;
   // [optional] Indicates whether to return hits.total as an integer. Returns an object otherwise. Default is false.
-  // TODO should we rename this field to remove "rest"?
-  optional bool rest_total_hits_as_int = 23;
+  optional bool total_hits_as_int = 23;
   // [optional] Value used to route the update by query operation to a specific shard.
   repeated string routing = 24;
   // [optional] Period to keep the search context open.
