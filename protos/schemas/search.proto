@@ -92,8 +92,7 @@ message SearchRequest {
 
 message SearchRequestBody {
   // [optional] In the optional aggs parameter, you can define any number of aggregations. Each aggregation is defined by its name and one of the types of aggregations that OpenSearch supports.
-  // TODO not supported yet
-  // map<string, AggregationContainer> aggregations = 1;
+  map<string, AggregationContainer> aggregations = 1;
 
   // [optional] The collapse parameter groups search results by a particular field value. This returns only the top document within each group, which helps reduce redundancy by eliminating duplicates.
   optional FieldCollapse collapse = 2;
@@ -197,10 +196,6 @@ message SearchRequestBody {
   // [optional] Value to associate with the request for additional logging.
   repeated string stats = 34;
 
-  // [optional] Defines the aggregations that are run as part of the search request.
-  // TODO not supported yet
-  // map<string, AggregationContainer> aggs = 32;
-
   // [optional]
   // TODO add to spec (since 2.14)
   map<string, DerivedField> derived = 35;
@@ -275,6 +270,9 @@ message SearchResponse {
   // [optional]
   // todo: not supported yet
   // map<string, SuggestArray> suggest = 14;
+
+  // [optional] Aggregation results
+  map<string, Aggregate> aggregations = 15;
 }
 
 message ProcessorExecutionDetail {
@@ -869,4 +867,74 @@ message NestedIdentity {
   // [optional] Inner nested object.
   optional NestedIdentity x_nested = 3;
 
+}
+
+message AggregationContainer {
+  CardinalityAggregation cardinality = 10;
+
+  MissingAggregation missing = 37;
+}
+
+message Aggregate {
+  optional CardinalityAggregate cardinality = 6;
+
+  optional MissingAggregate missing = 33;
+}
+
+message CardinalityAggregation {
+  // The custom metadata attached to a resource.
+  optional ObjectMap meta = 1;
+
+  optional string name = 2;
+
+  // The path to a field or an array of paths. Some APIs support wildcards in the path, which allows you to select multiple fields.
+  optional string field = 3;
+
+  optional FieldValue missing = 4;
+
+  optional Script script = 5;
+
+  // A unique count below which counts are expected to be close to accurate. This allows to trade memory for accuracy.
+  optional int32 precision_threshold = 6;
+
+  optional bool rehash = 7;
+
+  optional CardinalityExecutionMode execution_hint = 8;
+}
+
+message CardinalityAggregate {
+  // The custom metadata attached to a resource.
+  optional ObjectMap meta = 1;
+
+  int64 value = 2;
+}
+
+enum CardinalityExecutionMode {
+  CARDINALITY_EXECUTION_MODE_UNSPECIFIED = 0;
+  CARDINALITY_EXECUTION_MODE_DIRECT = 1;
+  CARDINALITY_EXECUTION_MODE_GLOBAL_ORDINALS = 2;
+}
+
+message MissingAggregation {
+  // The custom metadata attached to a resource.
+  optional ObjectMap meta = 1;
+
+  optional string name = 2;
+
+  // Sub-aggregations for this bucket aggregation
+  map<string, AggregationContainer> aggregations = 3;
+
+  // The path to a field or an array of paths. Some APIs support wildcards in the path, which allows you to select multiple fields.
+  optional string field = 5;
+
+  optional FieldValue missing = 6;
+}
+
+message MissingAggregate {
+  // The custom metadata attached to a resource.
+  optional ObjectMap meta = 1;
+
+  int64 doc_count = 2;
+
+  map<string, Aggregate> aggregations = 3;
 }
