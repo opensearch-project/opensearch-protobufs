@@ -1,4 +1,4 @@
-## Version 0.20.0 (2025-09-30) Release Notes
+## Version 0.20.0 (2025-10-01) Release Notes
 
 
 ### Added
