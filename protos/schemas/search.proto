@@ -83,8 +83,9 @@ message SearchRequest {
   // [optional] Whether returned aggregations and suggested terms should include their types in the response. Default is true.
   optional bool typed_keys = 31;
   // [optional] Search Request body
-  optional SearchRequestBody request_body = 32;
+  optional SearchRequestBody search_request_body = 32;
   // [optional] Global parameters
+  // TODO not supported in server
   optional GlobalParams global_params = 33;
 }
 
