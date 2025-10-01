@@ -916,8 +916,6 @@ message HighlightField {
 
   // [optional] Combines matches from different fields to highlight one field. The most common use case for this functionality is highlighting text that is analyzed in different ways and kept in multi-fields. All fields in the matched_fields list must have the term_vector field set to with_positions_offsets. The field in which the matches are combined is the only loaded field, so it is beneficial to set its store option to yes. Valid only for the fvh highlighter.
   repeated string matched_fields = 23;
-  // [optional]
-  optional Analyzer analyzer = 24;
 
 }
 
