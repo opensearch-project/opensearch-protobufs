@@ -882,59 +882,69 @@ message Aggregate {
 }
 
 message CardinalityAggregation {
-  // The custom metadata attached to a resource.
+  // [optional] The custom metadata attached to a resource.
   optional ObjectMap meta = 1;
 
+  // [optional] Name of the aggregaton.
   optional string name = 2;
 
-  // The path to a field or an array of paths. Some APIs support wildcards in the path, which allows you to select multiple fields.
+  // [optional] Field for which to calculate cardinality.
   optional string field = 3;
 
+  // [optional] If set documents missing the field are counted towards the cardinality total.
+  // Note the FieldValue provided here is arbitrary for the purposes of CardinalityAggregation.
   optional FieldValue missing = 4;
 
+  // [optional] Script to be included in aggregation execution.
   optional Script script = 5;
 
-  // A unique count below which counts are expected to be close to accurate. This allows to trade memory for accuracy.
+  // [optional] A unique count below which counts are expected to be close to accurate. This allows to trade memory for accuracy.
   optional int32 precision_threshold = 6;
 
-  optional bool rehash = 7;
-
+  // [optional] Execution hint to achieve higher performance given specific conditions.
   optional CardinalityExecutionMode execution_hint = 8;
 }
 
 message CardinalityAggregate {
-  // The custom metadata attached to a resource.
+  // [optional] The custom metadata attached to a resource.
   optional ObjectMap meta = 1;
 
+  // [required] Field cardinality.
   int64 value = 2;
 }
 
 enum CardinalityExecutionMode {
+  // OpenSearch will determine execution mode automatically when none specified.
   CARDINALITY_EXECUTION_MODE_UNSPECIFIED = 0;
+  // Cardinality will be calculated by hasing the contents of each field.
+  // Standard approach for high cardinality fields where field contents is not frequently repeated.
   CARDINALITY_EXECUTION_MODE_DIRECT = 1;
+  // Cardinality will be calculated based on the global ordinals for this field.
+  // More memory efficient for low cardinality fields where global ordinals can be efficiently calculated.
   CARDINALITY_EXECUTION_MODE_GLOBAL_ORDINALS = 2;
 }
 
 message MissingAggregation {
-  // The custom metadata attached to a resource.
+  // [optional] The custom metadata attached to a resource.
   optional ObjectMap meta = 1;
 
+  // [optional] Name of the aggregaton.
   optional string name = 2;
 
-  // Sub-aggregations for this bucket aggregation
+  // [optional] Sub-aggregations for this bucket aggregation
   map<string, AggregationContainer> aggregations = 3;
 
-  // The path to a field or an array of paths. Some APIs support wildcards in the path, which allows you to select multiple fields.
+  // [optional] The path to a field or an array of paths. Some APIs support wildcards in the path, which allows you to select multiple fields.
   optional string field = 5;
-
-  optional FieldValue missing = 6;
 }
 
 message MissingAggregate {
   // The custom metadata attached to a resource.
   optional ObjectMap meta = 1;
 
+  // Count of documents missing the field.
   int64 doc_count = 2;
 
+  // Result of sub aggregations on missing field docs.
   map<string, Aggregate> aggregations = 3;
 }
