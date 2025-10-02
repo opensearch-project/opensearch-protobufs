@@ -4,7 +4,6 @@ Java language/gRPC rules.
 Python language/gRPC rules.
 """
 bazel_dep(name = "rules_proto_grpc_java", version = "5.5.0")
-
 bazel_dep(name = "rules_proto_grpc_python", version = "5.5.0")
 bazel_dep(name = "rules_python", version = "1.6.3")
 python = use_extension("@rules_python//python/extensions:python.bzl", "python")
