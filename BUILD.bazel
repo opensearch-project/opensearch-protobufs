@@ -1,6 +1,6 @@
 load("@io_bazel_rules_go//go:def.bzl", "go_library")
 load("@versioning//:version.bzl", "VERSION")
-load("@rules_proto_grpc_python//:defs.bzl", "python_proto_library")
+load("@rules_proto_grpc_python//:defs.bzl", "python_proto_library", "python_grpc_library")
 load("@rules_python//python:packaging.bzl", "py_wheel")
 
 package(default_visibility = ["//visibility:public"])
@@ -18,16 +18,27 @@ java_library(
 )
 
 python_proto_library(
-    name = "python_protos_all",
+    name = "python_schemas_all",
     visibility = ["//visibility:public"],
     generate_pyi = True,
     protos = [
         "//protos/schemas:common_proto",
         "//protos/schemas:document_proto",
         "//protos/schemas:search_proto",
+    ],
+)
+
+python_grpc_library(
+    name = "python_protos_all",
+    visibility = ["//visibility:public"],
+    generate_pyi = True,
+    protos = [
         "//protos/services:document_service_proto",
         "//protos/services:search_service_proto",
     ],
+    deps = [
+        ":python_schemas_all"
+    ]
 )
 
 go_library(
@@ -51,7 +62,7 @@ https://github.com/protocolbuffers/protobuf/issues/2283
 
 genrule(
     name = "fix_python_imports",
-    srcs = [":python_protos_all", ":python_protos_all_pb"],
+    srcs = [":python_protos_all", ":python_protos_all_pb", ":python_grpc_all", ":python_grpc_all_pb"],
     outs = [
         "opensearch/protobufs/schemas/common_pb2.py",
         "opensearch/protobufs/schemas/common_pb2.pyi",
@@ -61,8 +72,12 @@ genrule(
         "opensearch/protobufs/schemas/search_pb2.pyi",
         "opensearch/protobufs/services/document_service_pb2.py",
         "opensearch/protobufs/services/document_service_pb2.pyi",
+        "opensearch/protobufs/services/document_service_pb2_grpc.py",
+        "opensearch/protobufs/services/document_service_pb2_grpc.pyi",
         "opensearch/protobufs/services/search_service_pb2.py",
         "opensearch/protobufs/services/search_service_pb2.pyi",
+        "opensearch/protobufs/services/search_service_pb2_grpc.py",
+        "opensearch/protobufs/services/search_service_pb2_grpc.pyi",
         "opensearch/protobufs/schemas/__init__.py",
         "opensearch/protobufs/services/__init__.py",
     ],
@@ -70,6 +85,11 @@ genrule(
         mkdir -p $(RULEDIR)/opensearch/protobufs/
         cp -rL $(BINDIR)/python_protos_all_pb/protos/schemas $(RULEDIR)/opensearch/protobufs
         cp -rL $(BINDIR)/python_protos_all_pb/protos/services $(RULEDIR)/opensearch/protobufs
+        
+        # Copy gRPC files over the existing service files
+        if [ -d $(BINDIR)/python_grpc_all_pb/protos/services ]; then
+            cp -rL $(BINDIR)/python_grpc_all_pb/protos/services/* $(RULEDIR)/opensearch/protobufs/services/
+        fi
 
         # Find and replace "from protos" with "from opensearch.protobufs" in all files
         find $(RULEDIR)/opensearch/protobufs/ -type f -exec sed -i 's/from protos/from opensearch.protobufs/g' {} +
