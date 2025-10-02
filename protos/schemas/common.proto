@@ -2165,58 +2165,28 @@ message MatchAllQuery {
 message MatchBoolPrefixQuery {
   // [required] Specifies the field against which to run a search query
   string field = 1;
-
+  // [required] Terms you wish to find in the provided field. The last term is used in a prefix query.
+  string query = 2;
   // [optional] Floating point number used to decrease or increase the relevance scores of the query. Boost values are relative to the default value of 1.0. A boost value between 0 and 1.0 decreases the relevance score. A value greater than 1.0 increases the relevance score.
-  optional float boost = 2;
-
+  optional float boost = 3;
   // [optional] Query name for query tagging.
-  optional string x_name = 3;
-
-  // [optional]
-  // The analyzer used to tokenize the query string text.
-  // Default is the index-time analyzer specified for the default_field. If no analyzer is specified for the default_field, the analyzer is the default analyzer for the index.
-  string analyzer = 4;
-
-  // [optional]
-  // The number of character edits (insert, delete, substitute) that it takes to change one word to another when determining whether a term matched a value.
-  // For example, the distance between wined and wind is 1.
-  // The default, AUTO, chooses a value based on the length of each term and is a good choice for most use cases.
-  Fuzziness fuzziness = 5;
-
-  // [optional]
-  // Determines how OpenSearch rewrites the query.
-  // Default is constant_score.
-  MultiTermQueryRewrite fuzzy_rewrite = 6;
-  // [optional]
-  // Setting fuzzy_transpositions to true (default) adds swaps of adjacent characters to the insert, delete, and substitute operations of the fuzziness option.
-  // For example, the distance between wind and wnid is 1 if fuzzy_transpositions is true (swap “n” and “i”) and 2 if it is false (delete “n”, insert “n”). If fuzzy_transpositions is false, rewind and wnid have the same distance (2) from wind, despite the more human-centric opinion that wnid is an obvious typo.
-  // The default(true) is a good choice for most use cases.
-  bool fuzzy_transpositions = 7;
-
-  // [optional]
-  // The maximum number of terms to which the query can expand. Fuzzy queries “expand to” a number of matching terms that are within the distance specified in fuzziness. Then OpenSearch tries to match those terms.
-  // Default is 50.
-  int32 max_expansions = 8;
-
-  // [optional]
-  // If the query string contains multiple search terms and you use the or operator, the number of terms that need to match for the document to be considered a match.
-  // For example, if minimum_should_match is 2, wind often rising does not match The Wind Rises. If minimum_should_match is 1, it matches.
-  MinimumShouldMatch minimum_should_match = 9;
-
-  // [optional]
-  // If the query string contains multiple search terms, whether all terms need to match (and) or only one term needs to match (or) for a document to be considered a match.
-  // Default is or.
-  Operator operator = 10;
-
-  // [optional]
-  // The number of leading characters that are not considered in fuzziness.
-  // Default is 0.
-  int32 prefix_length = 11;
-
-  // [required]
-  // Terms you wish to find in the provided field. The last term is used in a prefix query.
-  string query = 12;
-
+  optional string x_name = 4;
+  // [optional] The analyzer used to tokenize the query string text. Default is the index-time analyzer specified for the default_field. If no analyzer is specified for the default_field, the analyzer is the default analyzer for the index.
+  optional string analyzer = 5;
+  // [optional] The number of character edits (insert, delete, substitute) that it takes to change one word to another when determining whether a term matched a value. For example, the distance between wined and wind is 1. The default, AUTO, chooses a value based on the length of each term and is a good choice for most use cases.
+  optional Fuzziness fuzziness = 6;
+  // [optional] Determines how OpenSearch rewrites the query. Default is constant_score.
+  optional MultiTermQueryRewrite fuzzy_rewrite = 7;
+  // [optional] Setting fuzzy_transpositions to true (default) adds swaps of adjacent characters to the insert, delete, and substitute operations of the fuzziness option. For example, the distance between wind and wnid is 1 if fuzzy_transpositions is true (swap “n” and “i”) and 2 if it is false (delete “n”, insert “n”). If fuzzy_transpositions is false, rewind and wnid have the same distance (2) from wind, despite the more human-centric opinion that wnid is an obvious typo. The default(true) is a good choice for most use cases.
+  optional bool fuzzy_transpositions = 8;
+  // [optional] The maximum number of terms to which the query can expand. Fuzzy queries “expand to” a number of matching terms that are within the distance specified in fuzziness. Then OpenSearch tries to match those terms. Default is 50.
+  optional int32 max_expansions = 9;
+  // [optional] If the query string contains multiple search terms and you use the or operator, the number of terms that need to match for the document to be considered a match. For example, if minimum_should_match is 2, wind often rising does not match The Wind Rises. If minimum_should_match is 1, it matches.
+  optional MinimumShouldMatch minimum_should_match = 10;
+  // [optional] If the query string contains multiple search terms, whether all terms need to match (and) or only one term needs to match (or) for a document to be considered a match. Default is or.
+  optional Operator operator = 11;
+  // [optional] The number of leading characters that are not considered in fuzziness. Default is 0.
+  optional int32 prefix_length = 12;
 }
 
 message MatchNoneQuery {
@@ -2238,36 +2208,22 @@ enum ZeroTermsQuery {
 }
 
 message MatchPhrasePrefixQuery {
+  // [required] Specifies the field against which to run a search query
+  string field = 1;
+  // [required] The query string to use for search
+  string query = 2;
   // [optional] Floating point number used to decrease or increase the relevance scores of the query. Boost values are relative to the default value of 1.0. A boost value between 0 and 1.0 decreases the relevance score. A value greater than 1.0 increases the relevance score.
-  optional float boost = 1;
-
+  optional float boost = 3;
   // [optional] Query name for query tagging.
-  optional string x_name = 2;
-
-  // [optional]
-  // The analyzer used to tokenize the query string text.
-  // Default is the index-time analyzer specified for the default_field. If no analyzer is specified for the default_field, the analyzer is the default analyzer for the index.
-  string analyzer = 3;
-
-  // [optional]
-  // The maximum number of terms to which the query can expand. Fuzzy queries “expand to” a number of matching terms that are within the distance specified in fuzziness. Then OpenSearch tries to match those terms.
-  // Default is 50.
-  int32 max_expansions = 4;
-
-  // [required]
-  // The query string to use for search
-  string query = 5;
-
-  // [optional]
-  // Controls the degree to which words in a query can be misordered and still be considered a match. From the Lucene documentation: “The number of other words permitted between words in query phrase.
-  // For example, to switch the order of two words requires two moves (the first move places the words atop one another), so to permit reorderings of phrases, the slop must be at least two. A value of zero requires an exact match.”
-  int32 slop = 6;
-
-  // [optional]
-  // In some cases, the analyzer removes all terms from a query string. For example, the stop analyzer removes all terms from the string an but this. In those cases, zero_terms_query specifies whether to match no documents (none) or all documents (all). Valid values are none and all.
-  // Default is none.
-  ZeroTermsQuery zero_terms_query = 7;
-
+  optional string x_name = 4;
+  // [optional] The analyzer used to tokenize the query string text. Default is the index-time analyzer specified for the default_field. If no analyzer is specified for the default_field, the analyzer is the default analyzer for the index.
+  optional string analyzer = 5;
+  // [optional] The maximum number of terms to which the query can expand. Fuzzy queries “expand to” a number of matching terms that are within the distance specified in fuzziness. Then OpenSearch tries to match those terms. Default is 50.
+  optional int32 max_expansions = 6;
+  // [optional] Controls the degree to which words in a query can be misordered and still be considered a match. From the Lucene documentation: “The number of other words permitted between words in query phrase. For example, to switch the order of two words requires two moves (the first move places the words atop one another), so to permit reorderings of phrases, the slop must be at least two. A value of zero requires an exact match.”
+  optional int32 slop = 7;
+  // [optional] In some cases, the analyzer removes all terms from a query string. For example, the stop analyzer removes all terms from the string an but this. In those cases, zero_terms_query specifies whether to match no documents (none) or all documents (all). Valid values are none and all. Default is none.
+  optional ZeroTermsQuery zero_terms_query = 8;
 }
 
 message MatchPhraseQuery {
