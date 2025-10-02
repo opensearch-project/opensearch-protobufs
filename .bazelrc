@@ -2,12 +2,12 @@
 build --proto_compiler=@com_google_protobuf//:protoc
 build --protocopt=--experimental_allow_proto3_optional
 
-# Set C++ standard to C++17
-build --cxxopt=-std=c++17
-build --host_cxxopt=-std=c++17
+# Set C++ standard to C++14
+build --cxxopt=-std=c++14
+build --host_cxxopt=-std=c++14
 
 # Enable deprecated java_common.compile parameters
 build --incompatible_java_common_parameters=false
 
-# Enable bazelmod for select MODULE.bazel dependencies
-build --enable_bzlmod
+# Disabel bazelmod by default
+build --noenable_bzlmod

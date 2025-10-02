@@ -1,6 +1,7 @@
 load("@io_bazel_rules_go//go:def.bzl", "go_library")
 load("@versioning//:version.bzl", "VERSION")
-load("@rules_proto_grpc_python//:defs.bzl", "python_proto_library", "python_grpc_library")
+load("@rules_proto_grpc//java:defs.bzl", "java_proto_library")
+load("@rules_proto_grpc//python:defs.bzl", "python_proto_library", "python_grpc_library")
 load("@rules_python//python:packaging.bzl", "py_wheel")
 
 package(default_visibility = ["//visibility:public"])
@@ -18,7 +19,7 @@ java_library(
 )
 
 python_proto_library(
-    name = "python_schemas_all",
+    name = "python_schemas",
     visibility = ["//visibility:public"],
     generate_pyi = True,
     protos = [
@@ -29,7 +30,7 @@ python_proto_library(
 )
 
 python_grpc_library(
-    name = "python_protos_all",
+    name = "python_services",
     visibility = ["//visibility:public"],
     generate_pyi = True,
     protos = [
@@ -37,7 +38,7 @@ python_grpc_library(
         "//protos/services:search_service_proto",
     ],
     deps = [
-        ":python_schemas_all"
+        ":python_schemas"
     ]
 )
 
@@ -62,7 +63,7 @@ https://github.com/protocolbuffers/protobuf/issues/2283
 
 genrule(
     name = "fix_python_imports",
-    srcs = [":python_protos_all", ":python_protos_all_pb", ":python_grpc_all", ":python_grpc_all_pb"],
+    srcs = [":python_schemas", ":python_schemas_pb", ":python_services", ":python_services_pb"],
     outs = [
         "opensearch/protobufs/schemas/common_pb2.py",
         "opensearch/protobufs/schemas/common_pb2.pyi",
@@ -83,14 +84,9 @@ genrule(
     ],
     cmd = """
         mkdir -p $(RULEDIR)/opensearch/protobufs/
-        cp -rL $(BINDIR)/python_protos_all_pb/protos/schemas $(RULEDIR)/opensearch/protobufs
-        cp -rL $(BINDIR)/python_protos_all_pb/protos/services $(RULEDIR)/opensearch/protobufs
+        cp -rL $(BINDIR)/python_schemas_pb/protos/schemas $(RULEDIR)/opensearch/protobufs
+        cp -rL $(BINDIR)/python_services_pb/protos/services $(RULEDIR)/opensearch/protobufs
         
-        # Copy gRPC files over the existing service files
-        if [ -d $(BINDIR)/python_grpc_all_pb/protos/services ]; then
-            cp -rL $(BINDIR)/python_grpc_all_pb/protos/services/* $(RULEDIR)/opensearch/protobufs/services/
-        fi
-
         # Find and replace "from protos" with "from opensearch.protobufs" in all files
         find $(RULEDIR)/opensearch/protobufs/ -type f -exec sed -i 's/from protos/from opensearch.protobufs/g' {} +
         
