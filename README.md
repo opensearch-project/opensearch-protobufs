@@ -17,7 +17,7 @@ Generate protobuf libraries for your preferred language:
 bazel build //:java_protos_all
 
 # Python
-bazel build //:python_protos_all
+bazel build //:python_schemas //:python_services
 
 # Go
 bazel build //:go_protos_all

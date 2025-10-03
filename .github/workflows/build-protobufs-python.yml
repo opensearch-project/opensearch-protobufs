@@ -15,4 +15,4 @@ jobs:
           distribution: temurin # Temurin is a distribution of adoptium
           java-version: 21
       - name: build protobufs python
-        run: bazel build //:python_protos_all
+        run: bazel build //:python_schemas //:python_services
