@@ -90,8 +90,7 @@ RUN ./gradlew :plugins:transport-grpc:internalClusterTest -Drepos.mavenLocal
 
 FROM build-bazel AS build-bazel-python
 
-RUN bazel build //:python_schemas
-RUN bazel build //:python_services
+RUN bazel build //:python_schemas //:python_services
 
 FROM build-bazel-python AS package-bazel-python
 
