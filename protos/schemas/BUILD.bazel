@@ -1,7 +1,6 @@
 # protos/schemas/BUILD.bazel
 load("@rules_proto//proto:defs.bzl", "proto_library")
 load("@rules_proto_grpc//java:defs.bzl", "java_proto_library")
-load("@rules_proto_grpc//python:defs.bzl", "python_proto_library")
 load("@io_bazel_rules_go//proto:def.bzl", "go_proto_library")
 
 package(default_visibility = ["//visibility:public"])
@@ -45,21 +44,6 @@ java_proto_library(
     name = "search_java_proto",
     protos = [":search_proto"],
     deps = [":common_java_proto"],
-)
-
-python_proto_library(
-    name = "common_python_proto",
-    protos = [":common_proto"],
-)
-
-python_proto_library(
-    name = "document_python_proto",
-    protos = [":document_proto"],
-)
-
-python_proto_library(
-    name = "search_python_proto",
-    protos = [":search_proto"],
 )
 
 go_proto_library(
