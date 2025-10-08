@@ -90,10 +90,6 @@ message SearchRequest {
   optional GlobalParams global_params = 33;
 }
 
-message FloatMap {
-  map<string, float> float_map = 1;
-}
-
 message SearchRequestBody {
   // [optional] In the optional aggs parameter, you can define any number of aggregations. Each aggregation is defined by its name and one of the types of aggregations that OpenSearch supports.
   // TODO not supported yet
@@ -118,7 +114,7 @@ message SearchRequestBody {
   optional TrackHits track_total_hits = 7;
 
   // [optional] Values used to boost the score of specified indexes. Specify in the format of <index> : <boost-multiplier>
-  repeated FloatMap indices_boost = 8;
+  map<string, float> indices_boost = 8;
 
   // [optional] The fields that OpenSearch should return using their docvalue forms. Specify a format to return results in a certain format, such as date and time.
   repeated FieldAndFormat docvalue_fields = 9;
