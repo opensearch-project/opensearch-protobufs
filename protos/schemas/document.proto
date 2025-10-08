@@ -40,7 +40,7 @@ message BulkRequest {
   // [optional] The number of active shards that must be available before OpenSearch processes the request. Default is 1 (only the primary shard). Set to all or a positive integer. Values greater than 1 require replicas. For example, if you specify a value of 3, the index must have two replicas distributed across two additional nodes for the operation to succeed.
   optional WaitForActiveShards wait_for_active_shards = 11;
   // [required] The request body contains create, delete, index, and update actions and their associated source data
-  repeated BulkRequestBody request_body = 12;
+  repeated BulkRequestBody bulk_request_body = 12;
   // [optional] Global parameters
   optional GlobalParams global_params = 13;
 }
