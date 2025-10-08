@@ -184,25 +184,7 @@ message DeleteOperation {
 }
 
 // todo: Proposal Spec this name
-// Bulk response contains the individual results of each operation in the request, returned in the order submitted. The success or failure of an individual operation does not affect other operations in the request.
 message BulkResponse {
-  oneof response {
-    // The bulk success response
-    BulkResponseBody bulk_response_body = 1;
-    // The bulk error response
-    BulkErrorResponse bulk_error_response = 2;
-  }
-}
-
-message BulkErrorResponse {
-  // [optional] The bulk error
-  optional Error error = 1;
-  // [optional] HTTP response status code
-  optional int32 status = 2;
-}
-
-message BulkResponseBody {
-
   // [required] If true, one or more of the operations in the bulk request did not complete successfully.
   bool errors = 1;
   // [required] Contains the result of each operation in the bulk request, in the order they were submitted.
