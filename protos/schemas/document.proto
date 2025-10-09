@@ -317,23 +317,6 @@ message IndexDocumentRequest {
   optional SourceType source_type = 16;
 }
 
-// The response from index document request
-message IndexDocumentResponse {
-  oneof response {
-    // Index document success response
-    IndexDocumentResponseBody index_document_response_body = 1;
-    // Index document failure response
-    IndexDocumentErrorResponse index_document_error_response = 2;
-  }
-}
-
-// The error response from index document request
-message IndexDocumentErrorResponse {
-  // [optional]
-  optional Error error = 1;
-  // [optional] HTTP response status code
-  optional int32 status = 2;
-}
 
 enum Result {
   RESULT_UNSPECIFIED = 0;
@@ -344,7 +327,8 @@ enum Result {
   RESULT_UPDATED = 5;
 }
 
-message IndexDocumentResponseBody {
+// The response from index document request
+message IndexDocumentResponse {
   // [optional] The document type.
   optional string x_type = 1;
   // [optional] The document's ID.
@@ -393,7 +377,8 @@ message DeleteDocumentRequest {
   optional WaitForActiveShards wait_for_active_shards = 10;
 }
 
-message DeleteDocumentResponseBody {
+// The response from delete index document with Id request
+message DeleteDocumentResponse {
   // [optional] The document type.
   optional string x_type = 1;
   // [optional] The document's ID.
@@ -413,21 +398,6 @@ message DeleteDocumentResponseBody {
   // [optional] if `true`, it requires immediate visibility of the document
   optional bool forced_refresh = 9;
 
-}
-
-// The response from delete index document with Id request
-message DeleteDocumentResponse {
-  oneof response {
-    DeleteDocumentResponseBody delete_document_response_body = 1;
-    DeleteDocumentErrorResponse delete_document_error_response = 2;
-  }
-}
-// The error response from delete index document with Id request
-message DeleteDocumentErrorResponse {
-  // [optional]
-  optional Error error = 1;
-  // [optional] HTTP response status code
-  optional int32 status = 2;
 }
 
 // Update index document with Id request
@@ -507,20 +477,6 @@ message UpdateDocumentRequestBody {
 
 // The response from update index document with Id request
 message UpdateDocumentResponse {
-  oneof response {
-    UpdateDocumentResponseBody update_document_response_body = 1;
-    UpdateDocumentErrorResponse update_document_error_response = 2;
-  }
-}
-// The error response from update index document with Id request
-message UpdateDocumentErrorResponse {
-  // [optional]
-  optional Error error = 1;
-  // [optional]  HTTP response status code
-  optional int32 status = 2;
-}
-
-message UpdateDocumentResponseBody {
   // [optional] The document type.
   optional string x_type = 1;
   // [optional] The document's ID.
@@ -577,7 +533,8 @@ message GetDocumentRequest {
   optional SourceType source_type = 13;
 }
 
-message GetDocumentResponseBody {
+// The response from get document request with document ID specified request
+message GetDocumentResponse {
   // [optional] The document type.
   optional string x_type = 1;
   // [optional] The name of the index.
@@ -606,19 +563,4 @@ message GetDocumentResponseBody {
   }
   // [optional] The document's version number. Updated whenever the document changes.
   optional int64 x_version = 10;
-}
-
-// The response from get document request with document ID specified request
-message GetDocumentResponse {
-  oneof response {
-    GetDocumentResponseBody get_document_response_body = 1;
-    GetDocumentErrorResponse get_document_error_response = 2;
-  }
-}
-// The error response from get document request with document ID specified request
-message GetDocumentErrorResponse {
-  // [optional]
-  optional Error error = 1;
-  // [optional] HTTP response status code
-  optional int32 status = 2;
 }
