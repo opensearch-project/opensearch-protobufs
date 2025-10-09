@@ -343,7 +343,7 @@ message IndexDocumentResponse {
   // [optional] The sequence number assigned when the document was indexed.
   optional int64 x_seq_no = 6;
   // [optional] Detailed information about the cluster's shards.
-  ShardStatistics x_shards = 7;
+  optional ShardStatistics x_shards = 7;
   // [optional] The document's version.
   optional int64 x_version = 8;
   // [optional] if `true`, it requires immediate visibility of the document
@@ -540,7 +540,7 @@ message GetDocumentResponse {
   // [optional] The name of the index.
   optional string x_index = 2;
   // [optional] Contains the document's data that's stored in the index. Only returned if both stored_fields and found are true.
-  ObjectMap fields = 3;
+  optional ObjectMap fields = 3;
   // [optional] Whether the document exists.
   optional bool found = 4;
   // [optional] The document's ID.
