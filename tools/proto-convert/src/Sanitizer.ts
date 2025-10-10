@@ -7,6 +7,7 @@ import {traverse} from "./utils/OpenApiTraverser";
  * and renaming schema definitions.
  */
 export class Sanitizer {
+  private static readonly META_PREFIX = "x";
   public sanitize(spec: any): any {
     this.sanitize_ref(spec);
     this.sanitize_spec_name(spec as OpenAPIV3.Document);
@@ -73,7 +74,7 @@ export class Sanitizer {
       onResponseSchema: (schema) => this.sanitize_schema(schema),
       onParameter: (param, _paramName) => {
         if (!('$ref' in param) && param.name && param.name.startsWith('_')) {
-          param.name = `x${param.name}`;
+          param.name = `${Sanitizer.META_PREFIX}${param.name}`;
         }
       }
     });
@@ -93,7 +94,7 @@ export class Sanitizer {
   public rename_properties_name(properties: Record<string, OpenAPIV3.SchemaObject>) {
     for (var propName in properties) {
       if(propName.startsWith("_")) {
-        const newPropName = "x" + propName;
+        const newPropName = Sanitizer.META_PREFIX + propName;
         properties[newPropName] = properties[propName];
         delete properties[propName];
       }
@@ -104,7 +105,7 @@ export class Sanitizer {
     for (var index in requireList) {
       var propName = requireList[index];
       if(propName.startsWith("_")) {
-        requireList[index] = "x" + propName;
+        requireList[index] = Sanitizer.META_PREFIX + propName;
       }
     }
   }
