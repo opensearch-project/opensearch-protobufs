@@ -74,7 +74,7 @@ export class Sanitizer {
       onResponseSchema: (schema) => this.sanitize_schema(schema),
       onParameter: (param, _paramName) => {
         if (!('$ref' in param) && param.name && param.name.startsWith('_')) {
-          param.name = `${Sanitizer.META_PREFIX}${param.name}`;
+          param.name = Sanitizer.META_PREFIX + param.name;
         }
       }
     });
