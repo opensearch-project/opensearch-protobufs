@@ -65,7 +65,7 @@ If using snapshot jar uploaded to sonatype:
 ```
 repositories {
   maven {
-    url = 'https://central.sonatype.com/repository/maven-snapshots/'
+    url = 'https://ci.opensearch.org/ci/dbc/snapshots/maven/'
   }
 }
 
