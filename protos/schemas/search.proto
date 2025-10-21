@@ -870,9 +870,143 @@ message NestedIdentity {
 }
 
 message AggregationContainer {
-  CardinalityAggregation cardinality = 10;
+  // [optional] The custom metadata attached to a resource.
+  optional ObjectMap meta = 1;
 
-  MissingAggregation missing = 37;
+  oneof aggregation {
+    // AdjacencyMatrixAggregation adjacency_matrix = 2;
+
+    // AutoDateHistogramAggregation auto_date_histogram = 3;
+
+    // AverageAggregation avg = 4;
+
+    // AverageBucketAggregation avg_bucket = 5;
+
+    // BoxplotAggregation boxplot = 6;
+
+    // BucketScriptAggregation bucket_script = 7;
+
+    // BucketSelectorAggregation bucket_selector = 8;
+
+    // BucketSortAggregation bucket_sort = 9;
+
+    // [optional] cardinality aggregation
+    CardinalityAggregation cardinality = 10;
+
+    // ChildrenAggregation children = 11;
+
+    // CompositeAggregation composite = 12;
+
+    // CumulativeCardinalityAggregation cumulative_cardinality = 13;
+
+    // CumulativeSumAggregation cumulative_sum = 14;
+
+    // DateHistogramAggregation date_histogram = 15;
+
+    // DateRangeAggregation date_range = 16;
+
+    // DerivativeAggregation derivative = 17;
+
+    // DiversifiedSamplerAggregation diversified_sampler = 18;
+
+    // ExtendedStatsAggregation extended_stats = 19;
+
+    // ExtendedStatsBucketAggregation extended_stats_bucket = 20;
+
+    // [optional] filter query which limits matching documents for the aggregations and its sub aggregations
+    QueryContainer filter = 21;
+
+    // FiltersAggregation filters = 22;
+
+    // GeoBoundsAggregation geo_bounds = 23;
+
+    // GeoCentroidAggregation geo_centroid = 24;
+
+    // GeoDistanceAggregation geo_distance = 25;
+
+    // GeoHashGridAggregation geohash_grid = 26;
+
+    // GeoTileGridAggregation geotile_grid = 27;
+
+    // GlobalAggregation global = 28;
+
+    // HistogramAggregation histogram = 29;
+
+    // IpRangeAggregation ip_range = 30;
+
+    // MatrixStatsAggregation matrix_stats = 31;
+
+    // MaxAggregation max = 32;
+
+    // MaxBucketAggregation max_bucket = 33;
+
+    // MedianAbsoluteDeviationAggregation median_absolute_deviation = 34;
+
+    // MinAggregation min = 35;
+
+    // MinBucketAggregation min_bucket = 36;
+
+    // [optional] missing aggregation
+    MissingAggregation missing = 37;
+
+    // MovingAverageAggregation moving_avg = 38;
+
+    // MovingPercentilesAggregation moving_percentiles = 39;
+
+    // MovingFunctionAggregation moving_fn = 40;
+
+    // MultiTermsAggregation multi_terms = 41;
+
+    // NestedAggregation nested = 42;
+
+    // NormalizeAggregation normalize = 43;
+
+    // ParentAggregation parent = 44;
+
+    // PercentileRanksAggregation percentile_ranks = 45;
+
+    // PercentilesAggregation percentiles = 46;
+
+    // PercentilesBucketAggregation percentiles_bucket = 47;
+
+    // RangeAggregation range = 48;
+
+    // RareTermsAggregation rare_terms = 49;
+
+    // RateAggregation rate = 50;
+
+    // ReverseNestedAggregation reverse_nested = 51;
+
+    // SamplerAggregation sampler = 52;
+
+    // ScriptedMetricAggregation scripted_metric = 53;
+
+    // SerialDifferencingAggregation serial_diff = 54;
+
+    // SignificantTermsAggregation significant_terms = 55;
+
+    // SignificantTextAggregation significant_text = 56;
+
+    // StatsAggregation stats = 57;
+
+    // StatsBucketAggregation stats_bucket = 58;
+
+    // SumAggregation sum = 59;
+
+    // SumBucketAggregation sum_bucket = 60;
+
+    // TermsAggregation terms = 61;
+
+    // TopHitsAggregation top_hits = 62;
+
+    // TTestAggregation t_test = 63;
+
+    // ValueCountAggregation value_count = 64;
+
+    // WeightedAverageAggregation weighted_avg = 65;
+
+    // VariableWidthHistogramAggregation variable_width_histogram = 66;
+  }
 }
 
 message Aggregate {
