@@ -1010,9 +1010,129 @@ message AggregationContainer {
 }
 
 message Aggregate {
+  // optional AdjacencyMatrixAggregate adjacency_matrix = 1;
+
+  // optional AutoDateHistogramAggregate auto_date_histogram = 2;
+
+  // optional AvgAggregate avg = 3;
+
+  // optional BoxPlotAggregate box_plot = 4;
+
+  // optional BucketMetricValueAggregate bucket_metric_value = 5;
+
+  // [optional] cardinality aggregation response
   optional CardinalityAggregate cardinality = 6;
 
+  // optional ChildrenAggregate children = 7;
+
+  // optional CompositeAggregate composite = 8;
+
+  // optional DateHistogramAggregate date_histogram = 9;
+
+  // optional DateRangeAggregate date_range = 10;
+
+  // optional DerivativeAggregate derivative = 11;
+
+  // optional DoubleTermsAggregate dterms = 12;
+
+  // optional ExtendedStatsAggregate extended_stats = 13;
+
+  // optional ExtendedStatsBucketAggregate extended_stats_bucket = 14;
+
+  // optional FilterAggregate filter = 15;
+
+  // optional FiltersAggregate filters = 16;
+
+  // optional GeoBoundsAggregate geo_bounds = 17;
+
+  // optional GeoCentroidAggregate geo_centroid = 18;
+
+  // optional GeoDistanceAggregate geo_distance = 19;
+
+  // optional GeoHashGridAggregate geohash_grid = 20;
+
+  // optional GeoTileGridAggregate geotile_grid = 21;
+
+  // optional GlobalAggregate global = 22;
+
+  // optional HdrPercentilesAggregate hdr_percentiles = 23;
+
+  // optional HdrPercentileRanksAggregate hdr_percentile_ranks = 24;
+
+  // optional HistogramAggregate histogram = 25;
+
+  // optional IpRangeAggregate ip_range = 26;
+
+  // optional LongRareTermsAggregate lrareterms = 27;
+
+  // optional LongTermsAggregate lterms = 28;
+
+  // optional MatrixStatsAggregate matrix_stats = 29;
+
+  // optional MaxAggregate max = 30;
+
+  // optional MedianAbsoluteDeviationAggregate median_absolute_deviation = 31;
+
+  // optional MinAggregate min = 32;
+
+  // [optional] cardinality aggregation response
   optional MissingAggregate missing = 33;
+
+  // optional MultiTermsAggregate multi_terms = 34;
+
+  // optional NestedAggregate nested = 35;
+
+  // optional ParentAggregate parent = 36;
+
+  // optional PercentilesBucketAggregate percentiles_bucket = 37;
+
+  // optional RangeAggregate range = 38;
+
+  // optional RateAggregate rate = 39;
+
+  // optional ReverseNestedAggregate reverse_nested = 40;
+
+  // optional SamplerAggregate sampler = 41;
+
+  // optional ScriptedMetricAggregate scripted_metric = 42;
+
+  // optional SignificantLongTermsAggregate siglterms = 43;
+
+  // optional SignificantStringTermsAggregate sigsterms = 44;
+
+  // optional CumulativeCardinalityAggregate simple_long_value = 45;
+
+  // optional SimpleValueAggregate simple_value = 46;
+
+  // optional StatsAggregate stats = 47;
+
+  // optional StatsBucketAggregate stats_bucket = 48;
+
+  // optional StringRareTermsAggregate srareterms = 49;
+
+  // optional StringTermsAggregate sterms = 50;
+
+  // optional SumAggregate sum = 51;
+
+  // optional TDigestPercentilesAggregate tdigest_percentiles = 52;
+
+  // optional TDigestPercentileRanksAggregate tdigest_percentile_ranks = 53;
+
+  // optional TTestAggregate t_test = 54;
+
+  // optional TopHitsAggregate top_hits = 55;
+
+  // optional UnmappedRareTermsAggregate umrareterms = 56;
+
+  // optional UnmappedSignificantTermsAggregate umsigterms = 57;
+
+  // optional UnmappedTermsAggregate umterms = 58;
+
+  // optional ValueCountAggregate value_count = 59;
+
+  // optional VariableWidthHistogramAggregate variable_width_histogram = 60;
+
+  // optional WeightedAvgAggregate weighted_avg = 61;
 }
 
 message CardinalityAggregation {
