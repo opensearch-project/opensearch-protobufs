@@ -92,8 +92,7 @@ message SearchRequest {
 
 message SearchRequestBody {
   // [optional] In the optional aggs parameter, you can define any number of aggregations. Each aggregation is defined by its name and one of the types of aggregations that OpenSearch supports.
-  // TODO not supported yet
-  // map<string, AggregationContainer> aggregations = 1;
+  map<string, AggregationContainer> aggregations = 1;
 
   // [optional] The collapse parameter groups search results by a particular field value. This returns only the top document within each group, which helps reduce redundancy by eliminating duplicates.
   optional FieldCollapse collapse = 2;
@@ -197,10 +196,6 @@ message SearchRequestBody {
   // [optional] Value to associate with the request for additional logging.
   repeated string stats = 34;
 
-  // [optional] Defines the aggregations that are run as part of the search request.
-  // TODO not supported yet
-  // map<string, AggregationContainer> aggs = 32;
-
   // [optional]
   // TODO add to spec (since 2.14)
   map<string, DerivedField> derived = 35;
@@ -275,6 +270,9 @@ message SearchResponse {
   // [optional]
   // todo: not supported yet
   // map<string, SuggestArray> suggest = 14;
+
+  // [optional] Aggregation results
+  map<string, Aggregate> aggregations = 15;
 }
 
 message ProcessorExecutionDetail {
@@ -869,4 +867,338 @@ message NestedIdentity {
   // [optional] Inner nested object.
   optional NestedIdentity x_nested = 3;
 
+}
+
+message AggregationContainer {
+  // [optional] The custom metadata attached to a resource.
+  optional ObjectMap meta = 1;
+
+  oneof aggregation {
+    // AdjacencyMatrixAggregation adjacency_matrix = 2;
+
+    // AutoDateHistogramAggregation auto_date_histogram = 3;
+
+    // AverageAggregation avg = 4;
+
+    // AverageBucketAggregation avg_bucket = 5;
+
+    // BoxplotAggregation boxplot = 6;
+
+    // BucketScriptAggregation bucket_script = 7;
+
+    // BucketSelectorAggregation bucket_selector = 8;
+
+    // BucketSortAggregation bucket_sort = 9;
+
+    // [optional] cardinality aggregation
+    CardinalityAggregation cardinality = 10;
+
+    // ChildrenAggregation children = 11;
+
+    // CompositeAggregation composite = 12;
+
+    // CumulativeCardinalityAggregation cumulative_cardinality = 13;
+
+    // CumulativeSumAggregation cumulative_sum = 14;
+
+    // DateHistogramAggregation date_histogram = 15;
+
+    // DateRangeAggregation date_range = 16;
+
+    // DerivativeAggregation derivative = 17;
+
+    // DiversifiedSamplerAggregation diversified_sampler = 18;
+
+    // ExtendedStatsAggregation extended_stats = 19;
+
+    // ExtendedStatsBucketAggregation extended_stats_bucket = 20;
+
+    // [optional] filter query which limits matching documents for the aggregations and its sub aggregations
+    QueryContainer filter = 21;
+
+    // FiltersAggregation filters = 22;
+
+    // GeoBoundsAggregation geo_bounds = 23;
+
+    // GeoCentroidAggregation geo_centroid = 24;
+
+    // GeoDistanceAggregation geo_distance = 25;
+
+    // GeoHashGridAggregation geohash_grid = 26;
+
+    // GeoTileGridAggregation geotile_grid = 27;
+
+    // GlobalAggregation global = 28;
+
+    // HistogramAggregation histogram = 29;
+
+    // IpRangeAggregation ip_range = 30;
+
+    // MatrixStatsAggregation matrix_stats = 31;
+
+    // MaxAggregation max = 32;
+
+    // MaxBucketAggregation max_bucket = 33;
+
+    // MedianAbsoluteDeviationAggregation median_absolute_deviation = 34;
+
+    // MinAggregation min = 35;
+
+    // MinBucketAggregation min_bucket = 36;
+
+    // [optional] missing aggregation
+    MissingAggregation missing = 37;
+
+    // MovingAverageAggregation moving_avg = 38;
+
+    // MovingPercentilesAggregation moving_percentiles = 39;
+
+    // MovingFunctionAggregation moving_fn = 40;
+
+    // MultiTermsAggregation multi_terms = 41;
+
+    // NestedAggregation nested = 42;
+
+    // NormalizeAggregation normalize = 43;
+
+    // ParentAggregation parent = 44;
+
+    // PercentileRanksAggregation percentile_ranks = 45;
+
+    // PercentilesAggregation percentiles = 46;
+
+    // PercentilesBucketAggregation percentiles_bucket = 47;
+
+    // RangeAggregation range = 48;
+
+    // RareTermsAggregation rare_terms = 49;
+
+    // RateAggregation rate = 50;
+
+    // ReverseNestedAggregation reverse_nested = 51;
+
+    // SamplerAggregation sampler = 52;
+
+    // ScriptedMetricAggregation scripted_metric = 53;
+
+    // SerialDifferencingAggregation serial_diff = 54;
+
+    // SignificantTermsAggregation significant_terms = 55;
+
+    // SignificantTextAggregation significant_text = 56;
+
+    // StatsAggregation stats = 57;
+
+    // StatsBucketAggregation stats_bucket = 58;
+
+    // SumAggregation sum = 59;
+
+    // SumBucketAggregation sum_bucket = 60;
+
+    // TermsAggregation terms = 61;
+
+    // TopHitsAggregation top_hits = 62;
+
+    // TTestAggregation t_test = 63;
+
+    // ValueCountAggregation value_count = 64;
+
+    // WeightedAverageAggregation weighted_avg = 65;
+
+    // VariableWidthHistogramAggregation variable_width_histogram = 66;
+  }
+}
+
+message Aggregate {
+  // optional AdjacencyMatrixAggregate adjacency_matrix = 1;
+
+  // optional AutoDateHistogramAggregate auto_date_histogram = 2;
+
+  // optional AvgAggregate avg = 3;
+
+  // optional BoxPlotAggregate box_plot = 4;
+
+  // optional BucketMetricValueAggregate bucket_metric_value = 5;
+
+  // [optional] cardinality aggregation response
+  optional CardinalityAggregate cardinality = 6;
+
+  // optional ChildrenAggregate children = 7;
+
+  // optional CompositeAggregate composite = 8;
+
+  // optional DateHistogramAggregate date_histogram = 9;
+
+  // optional DateRangeAggregate date_range = 10;
+
+  // optional DerivativeAggregate derivative = 11;
+
+  // optional DoubleTermsAggregate dterms = 12;
+
+  // optional ExtendedStatsAggregate extended_stats = 13;
+
+  // optional ExtendedStatsBucketAggregate extended_stats_bucket = 14;
+
+  // optional FilterAggregate filter = 15;
+
+  // optional FiltersAggregate filters = 16;
+
+  // optional GeoBoundsAggregate geo_bounds = 17;
+
+  // optional GeoCentroidAggregate geo_centroid = 18;
+
+  // optional GeoDistanceAggregate geo_distance = 19;
+
+  // optional GeoHashGridAggregate geohash_grid = 20;
+
+  // optional GeoTileGridAggregate geotile_grid = 21;
+
+  // optional GlobalAggregate global = 22;
+
+  // optional HdrPercentilesAggregate hdr_percentiles = 23;
+
+  // optional HdrPercentileRanksAggregate hdr_percentile_ranks = 24;
+
+  // optional HistogramAggregate histogram = 25;
+
+  // optional IpRangeAggregate ip_range = 26;
+
+  // optional LongRareTermsAggregate lrareterms = 27;
+
+  // optional LongTermsAggregate lterms = 28;
+
+  // optional MatrixStatsAggregate matrix_stats = 29;
+
+  // optional MaxAggregate max = 30;
+
+  // optional MedianAbsoluteDeviationAggregate median_absolute_deviation = 31;
+
+  // optional MinAggregate min = 32;
+
+  // [optional] cardinality aggregation response
+  optional MissingAggregate missing = 33;
+
+  // optional MultiTermsAggregate multi_terms = 34;
+
+  // optional NestedAggregate nested = 35;
+
+  // optional ParentAggregate parent = 36;
+
+  // optional PercentilesBucketAggregate percentiles_bucket = 37;
+
+  // optional RangeAggregate range = 38;
+
+  // optional RateAggregate rate = 39;
+
+  // optional ReverseNestedAggregate reverse_nested = 40;
+
+  // optional SamplerAggregate sampler = 41;
+
+  // optional ScriptedMetricAggregate scripted_metric = 42;
+
+  // optional SignificantLongTermsAggregate siglterms = 43;
+
+  // optional SignificantStringTermsAggregate sigsterms = 44;
+
+  // optional CumulativeCardinalityAggregate simple_long_value = 45;
+
+  // optional SimpleValueAggregate simple_value = 46;
+
+  // optional StatsAggregate stats = 47;
+
+  // optional StatsBucketAggregate stats_bucket = 48;
+
+  // optional StringRareTermsAggregate srareterms = 49;
+
+  // optional StringTermsAggregate sterms = 50;
+
+  // optional SumAggregate sum = 51;
+
+  // optional TDigestPercentilesAggregate tdigest_percentiles = 52;
+
+  // optional TDigestPercentileRanksAggregate tdigest_percentile_ranks = 53;
+
+  // optional TTestAggregate t_test = 54;
+
+  // optional TopHitsAggregate top_hits = 55;
+
+  // optional UnmappedRareTermsAggregate umrareterms = 56;
+
+  // optional UnmappedSignificantTermsAggregate umsigterms = 57;
+
+  // optional UnmappedTermsAggregate umterms = 58;
+
+  // optional ValueCountAggregate value_count = 59;
+
+  // optional VariableWidthHistogramAggregate variable_width_histogram = 60;
+
+  // optional WeightedAvgAggregate weighted_avg = 61;
+}
+
+message CardinalityAggregation {
+  // [optional] The custom metadata attached to a resource.
+  optional ObjectMap meta = 1;
+
+  // [optional] Name of the aggregaton.
+  optional string name = 2;
+
+  // [optional] Field for which to calculate cardinality.
+  optional string field = 3;
+
+  // [optional] If set documents missing the field are counted towards the cardinality total.
+  // Note the FieldValue provided here is arbitrary for the purposes of CardinalityAggregation.
+  optional FieldValue missing = 4;
+
+  // [optional] Script to be included in aggregation execution.
+  optional Script script = 5;
+
+  // [optional] A unique count below which counts are expected to be close to accurate. This allows to trade memory for accuracy.
+  optional int32 precision_threshold = 6;
+
+  // [optional] Execution hint to achieve higher performance given specific conditions.
+  optional CardinalityExecutionMode execution_hint = 7;
+}
+
+message CardinalityAggregate {
+  // [optional] The custom metadata attached to a resource.
+  optional ObjectMap meta = 1;
+
+  // [required] Field cardinality.
+  int64 value = 2;
+}
+
+enum CardinalityExecutionMode {
+  // OpenSearch will determine execution mode automatically when none specified.
+  CARDINALITY_EXECUTION_MODE_UNSPECIFIED = 0;
+  // Cardinality will be calculated by hasing the contents of each field.
+  // Standard approach for high cardinality fields where field contents is not frequently repeated.
+  CARDINALITY_EXECUTION_MODE_DIRECT = 1;
+  // Cardinality will be calculated based on the global ordinals for this field.
+  // More memory efficient for low cardinality fields where global ordinals can be efficiently calculated.
+  CARDINALITY_EXECUTION_MODE_GLOBAL_ORDINALS = 2;
+}
+
+message MissingAggregation {
+  // [optional] The custom metadata attached to a resource.
+  optional ObjectMap meta = 1;
+
+  // [optional] Name of the aggregaton.
+  optional string name = 2;
+
+  // [optional] Sub-aggregations for this bucket aggregation
+  map<string, AggregationContainer> aggregations = 3;
+
+  // [optional] The path to a field or an array of paths. Some APIs support wildcards in the path, which allows you to select multiple fields.
+  optional string field = 5;
+}
+
+message MissingAggregate {
+  // [optional] The custom metadata attached to a resource.
+  optional ObjectMap meta = 1;
+
+  // [required] Count of documents missing the field.
+  int64 doc_count = 2;
+
+  // [optional] Result of sub aggregations on missing field docs.
+  map<string, Aggregate> aggregations = 3;
 }
