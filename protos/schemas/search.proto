@@ -1156,7 +1156,7 @@ message CardinalityAggregation {
   optional int32 precision_threshold = 6;
 
   // [optional] Execution hint to achieve higher performance given specific conditions.
-  optional CardinalityExecutionMode execution_hint = 8;
+  optional CardinalityExecutionMode execution_hint = 7;
 }
 
 message CardinalityAggregate {
