@@ -1193,12 +1193,12 @@ message MissingAggregation {
 }
 
 message MissingAggregate {
-  // The custom metadata attached to a resource.
+  // [optional] The custom metadata attached to a resource.
   optional ObjectMap meta = 1;
 
-  // Count of documents missing the field.
+  // [required] Count of documents missing the field.
   int64 doc_count = 2;
 
-  // Result of sub aggregations on missing field docs.
+  // [optional] Result of sub aggregations on missing field docs.
   map<string, Aggregate> aggregations = 3;
 }
