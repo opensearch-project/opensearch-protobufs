@@ -608,7 +608,7 @@ message BoolQuery {
   // Floating point number used to decrease or increase the relevance scores of the query. Boost values are relative to the default value of 1.0. A boost value between 0 and 1.0 decreases the relevance score. A value greater than 1.0 increases the relevance score.
   optional float boost = 1;
 
-  optional string underscore_name = 2;
+  optional string x_name = 2;
 
   // The clause (query) must appear in matching documents. However, unlike `must`, the score of the query will be ignored.
   repeated QueryContainer filter = 3;
@@ -631,7 +631,7 @@ message BoostingQuery {
   // Floating point number used to decrease or increase the relevance scores of the query. Boost values are relative to the default value of 1.0. A boost value between 0 and 1.0 decreases the relevance score. A value greater than 1.0 increases the relevance score.
   optional float boost = 1;
 
-  optional string underscore_name = 2;
+  optional string x_name = 2;
 
   // Floating point number between 0 and 1.0 used to decrease the relevance scores of documents matching the `negative` query.
   float negative_boost = 3;
@@ -768,8 +768,7 @@ message BucketSortAggregation {
   // The number of buckets to return. Defaults to all buckets of the parent aggregation.
   optional int32 size = 5;
 
-  // The list of sort options.
-  repeated SortOptions sort = 6;
+  repeated SortCombinations sort = 6;
 }
 message Buckets {
   oneof buckets {
@@ -815,7 +814,7 @@ message BulkRequestInner {
 message BulkResponseBase {
   bool errors = 1;
 
-  repeated ResponseItemMap items = 2;
+  repeated Items items = 2;
 
   int64 took = 3;
 
@@ -862,9 +861,7 @@ message CardinalityAggregation {
   // A unique count below which counts are expected to be close to accurate. This allows to trade memory for accuracy.
   optional int32 precision_threshold = 6;
 
-  optional bool rehash = 7;
-
-  optional CardinalityExecutionMode execution_hint = 8;
+  optional CardinalityExecutionMode execution_hint = 7;
 }
 enum CardinalityExecutionMode {
   CARDINALITY_EXECUTION_MODE_UNSPECIFIED = 0;
@@ -946,7 +943,7 @@ message CombinedFieldsQuery {
   // Floating point number used to decrease or increase the relevance scores of the query. Boost values are relative to the default value of 1.0. A boost value between 0 and 1.0 decreases the relevance score. A value greater than 1.0 increases the relevance score.
   optional float boost = 1;
 
-  optional string underscore_name = 2;
+  optional string x_name = 2;
 
   // List of fields to search. Field wildcard patterns are allowed. Only `text` fields are supported, and they must all have the same search `analyzer`.
   repeated string fields = 3;
@@ -972,7 +969,7 @@ message CommonTermsQuery {
   // Floating point number used to decrease or increase the relevance scores of the query. Boost values are relative to the default value of 1.0. A boost value between 0 and 1.0 decreases the relevance score. A value greater than 1.0 increases the relevance score.
   optional float boost = 1;
 
-  optional string underscore_name = 2;
+  optional string x_name = 2;
 
   optional string analyzer = 3;
 
@@ -986,7 +983,7 @@ message CommonTermsQuery {
 
   string query = 8;
 
-  optional string field = 9;
+  string field = 9;
 }
 message Completion {
   int32 length = 1;
@@ -1008,16 +1005,16 @@ message CompletionAllOfOptionsInner {
 
   optional float score = 5;
 
-  optional string underscore_id = 6;
+  optional string x_id = 6;
 
-  optional string underscore_index = 7;
+  optional string x_index = 7;
 
   // The routing value for the document.
-  optional string underscore_routing = 8;
+  optional string x_routing = 8;
 
-  optional float underscore_score = 9;
+  optional float x_score = 9;
 
-  optional ObjectMap underscore_source = 10;
+  optional ObjectMap x_source = 10;
 }
 message CompletionContext {
   optional double boost = 1;
@@ -1053,16 +1050,16 @@ message CompletionSuggestAllOfOptions {
 
   optional float score = 5;
 
-  optional string underscore_id = 6;
+  optional string x_id = 6;
 
-  optional string underscore_index = 7;
+  optional string x_index = 7;
 
   // The routing value for the document.
-  optional string underscore_routing = 8;
+  optional string x_routing = 8;
 
-  optional float underscore_score = 9;
+  optional float x_score = 9;
 
-  optional ObjectMap underscore_source = 10;
+  optional ObjectMap x_source = 10;
 }
 message CompletionSuggestOption {
   optional bool collate_match = 1;
@@ -1075,16 +1072,16 @@ message CompletionSuggestOption {
 
   optional float score = 5;
 
-  optional string underscore_id = 6;
+  optional string x_id = 6;
 
-  optional string underscore_index = 7;
+  optional string x_index = 7;
 
   // The routing value for the document.
-  optional string underscore_routing = 8;
+  optional string x_routing = 8;
 
-  optional float underscore_score = 9;
+  optional float x_score = 9;
 
-  optional ObjectMap underscore_source = 10;
+  optional ObjectMap x_source = 10;
 }
 message CompletionSuggester {
   optional string analyzer = 1;
@@ -1240,7 +1237,7 @@ message ConstantScoreQuery {
   // Floating point number used to decrease or increase the relevance scores of the query. Boost values are relative to the default value of 1.0. A boost value between 0 and 1.0 decreases the relevance score. A value greater than 1.0 increases the relevance score.
   optional float boost = 1;
 
-  optional string underscore_name = 2;
+  optional string x_name = 2;
 
   QueryContainer filter = 3;
 }
@@ -1440,7 +1437,7 @@ message DateRangeQuery {
   // Floating point number used to decrease or increase the relevance scores of the query. Boost values are relative to the default value of 1.0. A boost value between 0 and 1.0 decreases the relevance score. A value greater than 1.0 increases the relevance score.
   optional float boost = 1;
 
-  optional string underscore_name = 2;
+  optional string x_name = 2;
 
   optional RangeRelation relation = 3;
 
@@ -1462,7 +1459,7 @@ message DateRangeQuery {
   // The time zone identifier.
   optional string time_zone = 11;
 
-  optional string field = 12;
+  string field = 12;
 }
 message DateRangeQueryAllOfFrom {
   oneof date_range_query_all_of_from {
@@ -1511,9 +1508,9 @@ message DeleteOperation {
   optional string routing = 1;
 
   // The unique identifier for a resource.
-  optional string underscore_id = 2;
+  optional string x_id = 2;
 
-  optional string underscore_index = 3;
+  optional string x_index = 3;
 
   optional int64 if_primary_term = 4;
 
@@ -1576,7 +1573,7 @@ message DisMaxQuery {
   // Floating point number used to decrease or increase the relevance scores of the query. Boost values are relative to the default value of 1.0. A boost value between 0 and 1.0 decreases the relevance score. A value greater than 1.0 increases the relevance score.
   optional float boost = 1;
 
-  optional string underscore_name = 2;
+  optional string x_name = 2;
 
   // One or more query clauses. Returned documents must match one or more of these queries. If a document matches multiple queries, OpenSearch uses the highest relevance score.
   repeated QueryContainer queries = 3;
@@ -1595,7 +1592,7 @@ message DistanceFeatureQueryOneOf {
   // Floating point number used to decrease or increase the relevance scores of the query. Boost values are relative to the default value of 1.0. A boost value between 0 and 1.0 decreases the relevance score. A value greater than 1.0 increases the relevance score.
   optional float boost = 1;
 
-  optional string underscore_name = 2;
+  optional string x_name = 2;
 
   GeoLocation origin = 3;
 
@@ -1608,7 +1605,7 @@ message DistanceFeatureQueryOneOf1 {
   // Floating point number used to decrease or increase the relevance scores of the query. Boost values are relative to the default value of 1.0. A boost value between 0 and 1.0 decreases the relevance score. A value greater than 1.0 increases the relevance score.
   optional float boost = 1;
 
-  optional string underscore_name = 2;
+  optional string x_name = 2;
 
   string origin = 3;
 
@@ -1707,7 +1704,7 @@ message ErrorResponseBase {
   ErrorCause error = 1;
 
   // The HTTP status code.
-  GeneralNumber status = 2;
+  int32 status = 2;
 }
 message EwmaModelSettings {
   optional float alpha = 1;
@@ -1743,7 +1740,7 @@ message ExistsQuery {
   // Floating point number used to decrease or increase the relevance scores of the query. Boost values are relative to the default value of 1.0. A boost value between 0 and 1.0 decreases the relevance score. A value greater than 1.0 increases the relevance score.
   optional float boost = 1;
 
-  optional string underscore_name = 2;
+  optional string x_name = 2;
 
   // The path to a field or an array of paths. Some APIs support wildcards in the path, which allows you to select multiple fields.
   string field = 3;
@@ -2116,6 +2113,9 @@ message FieldSort {
   // The format to use for the sort values.
   optional string format = 7;
 }
+message FieldSortMap {
+  map<string, FieldSort> field_sort_map = 1;
+}
 enum FieldSortNumericType {
   FIELD_SORT_NUMERIC_TYPE_UNSPECIFIED = 0;
   FIELD_SORT_NUMERIC_TYPE_DATE = 1;
@@ -2351,7 +2351,7 @@ message FunctionScoreQuery {
   // Floating point number used to decrease or increase the relevance scores of the query. Boost values are relative to the default value of 1.0. A boost value between 0 and 1.0 decreases the relevance score. A value greater than 1.0 increases the relevance score.
   optional float boost = 1;
 
-  optional string underscore_name = 2;
+  optional string x_name = 2;
 
   optional FunctionBoostMode boost_mode = 3;
 
@@ -2381,7 +2381,7 @@ message FuzzyQuery {
   // Floating point number used to decrease or increase the relevance scores of the query. Boost values are relative to the default value of 1.0. A boost value between 0 and 1.0 decreases the relevance score. A value greater than 1.0 increases the relevance score.
   optional float boost = 1;
 
-  optional string underscore_name = 2;
+  optional string x_name = 2;
 
   // Maximum number of variations created.
   optional int32 max_expansions = 3;
@@ -2399,7 +2399,7 @@ message FuzzyQuery {
   // Term you wish to find in the provided field.
   FieldValue value = 8;
 
-  optional string field = 9;
+  string field = 9;
 }
 enum GapPolicy {
   GAP_POLICY_UNSPECIFIED = 0;
@@ -2411,7 +2411,7 @@ message GeoBoundingBoxQuery {
   // Floating point number used to decrease or increase the relevance scores of the query. Boost values are relative to the default value of 1.0. A boost value between 0 and 1.0 decreases the relevance score. A value greater than 1.0 increases the relevance score.
   optional float boost = 1;
 
-  optional string underscore_name = 2;
+  optional string x_name = 2;
 
   optional GeoExecution type = 3;
 
@@ -2527,7 +2527,7 @@ message GeoDistanceQuery {
   // Floating point number used to decrease or increase the relevance scores of the query. Boost values are relative to the default value of 1.0. A boost value between 0 and 1.0 decreases the relevance score. A value greater than 1.0 increases the relevance score.
   optional float boost = 1;
 
-  optional string underscore_name = 2;
+  optional string x_name = 2;
 
   string distance = 3;
 
@@ -2645,7 +2645,7 @@ message GeoPolygonQuery {
   // Floating point number used to decrease or increase the relevance scores of the query. Boost values are relative to the default value of 1.0. A boost value between 0 and 1.0 decreases the relevance score. A value greater than 1.0 increases the relevance score.
   optional float boost = 1;
 
-  optional string underscore_name = 2;
+  optional string x_name = 2;
 
   optional GeoValidationMethod validation_method = 3;
 
@@ -2663,7 +2663,7 @@ message GeoShapeQuery {
   // Floating point number used to decrease or increase the relevance scores of the query. Boost values are relative to the default value of 1.0. A boost value between 0 and 1.0 decreases the relevance score. A value greater than 1.0 increases the relevance score.
   optional float boost = 1;
 
-  optional string underscore_name = 2;
+  optional string x_name = 2;
 
   // Set to `true` to ignore an unmapped field and not match any documents for this query. Set to `false` to throw an exception if the field is not mapped.
   optional bool ignore_unmapped = 3;
@@ -2756,7 +2756,7 @@ message HasChildQuery {
   // Floating point number used to decrease or increase the relevance scores of the query. Boost values are relative to the default value of 1.0. A boost value between 0 and 1.0 decreases the relevance score. A value greater than 1.0 increases the relevance score.
   optional float boost = 1;
 
-  optional string underscore_name = 2;
+  optional string x_name = 2;
 
   // Set to `true` to ignore an unmapped field and not match any documents for this query. Set to `false` to throw an exception if the field is not mapped.
   optional bool ignore_unmapped = 3;
@@ -2780,7 +2780,7 @@ message HasParentQuery {
   // Floating point number used to decrease or increase the relevance scores of the query. Boost values are relative to the default value of 1.0. A boost value between 0 and 1.0 decreases the relevance score. A value greater than 1.0 increases the relevance score.
   optional float boost = 1;
 
-  optional string underscore_name = 2;
+  optional string x_name = 2;
 
   // Set to `true` to ignore an unmapped field and not match any documents for this query. Set to `false` to throw an exception if the field is not mapped.
   optional bool ignore_unmapped = 3;
@@ -3067,9 +3067,9 @@ message HistogramBucket {
   optional string key_as_string = 3;
 }
 message HistogramOrder {
-  optional SortOrder underscore_count = 1;
+  optional SortOrder x_count = 1;
 
-  optional SortOrder underscore_key = 2;
+  optional SortOrder x_key = 2;
 }
 message Hit {
   optional ObjectMap fields = 1;
@@ -3085,38 +3085,38 @@ message Hit {
   repeated FieldValue sort = 6;
 
   // The type of document or resource.
-  optional string underscore_type = 7;
+  optional string x_type = 7;
 
-  optional string underscore_index = 8;
+  optional string x_index = 8;
 
   // The unique identifier for a resource.
-  optional string underscore_id = 9;
+  optional string x_id = 9;
 
-  optional HitUnderscoreScore underscore_score = 10;
+  optional HitXScore x_score = 10;
 
-  optional Explanation underscore_explanation = 11;
+  optional Explanation x_explanation = 11;
 
-  optional NestedIdentity underscore_nested = 12;
+  optional NestedIdentity x_nested = 12;
 
-  repeated string underscore_ignored = 13;
+  repeated string x_ignored = 13;
 
-  optional string underscore_shard = 14;
+  optional string x_shard = 14;
 
-  optional string underscore_node = 15;
+  optional string x_node = 15;
 
-  optional string underscore_routing = 16;
+  optional string x_routing = 16;
 
-  optional ObjectMap underscore_source = 17;
+  optional ObjectMap x_source = 17;
 
   // The sequence number of the document.
-  optional int64 underscore_seq_no = 18;
+  optional int64 x_seq_no = 18;
 
-  optional int64 underscore_primary_term = 19;
+  optional int64 x_primary_term = 19;
 
-  optional int64 underscore_version = 20;
+  optional int64 x_version = 20;
 }
-message HitUnderscoreScore {
-  oneof hit_underscore_score {
+message HitXScore {
+  oneof hit_x_score {
     NullValue null_value = 1;
 
     double double = 2;
@@ -3143,35 +3143,35 @@ message HitsMetadataHitsInner {
   repeated FieldValue sort = 6;
 
   // The type of document or resource.
-  optional string underscore_type = 7;
+  optional string x_type = 7;
 
-  optional string underscore_index = 8;
+  optional string x_index = 8;
 
   // The unique identifier for a resource.
-  optional string underscore_id = 9;
+  optional string x_id = 9;
 
-  optional HitUnderscoreScore underscore_score = 10;
+  optional HitXScore x_score = 10;
 
-  optional Explanation underscore_explanation = 11;
+  optional Explanation x_explanation = 11;
 
-  optional NestedIdentity underscore_nested = 12;
+  optional NestedIdentity x_nested = 12;
 
-  repeated string underscore_ignored = 13;
+  repeated string x_ignored = 13;
 
-  optional string underscore_shard = 14;
+  optional string x_shard = 14;
 
-  optional string underscore_node = 15;
+  optional string x_node = 15;
 
-  optional string underscore_routing = 16;
+  optional string x_routing = 16;
 
-  optional ObjectMap underscore_source = 17;
+  optional ObjectMap x_source = 17;
 
   // The sequence number of the document.
-  optional int64 underscore_seq_no = 18;
+  optional int64 x_seq_no = 18;
 
-  optional int64 underscore_primary_term = 19;
+  optional int64 x_primary_term = 19;
 
-  optional int64 underscore_version = 20;
+  optional int64 x_version = 20;
 }
 message HitsMetadataJsonValue {
   optional HitsMetadataTotal total = 1;
@@ -3283,7 +3283,7 @@ message HybridQuery {
   // Floating point number used to decrease or increase the relevance scores of the query. Boost values are relative to the default value of 1.0. A boost value between 0 and 1.0 decreases the relevance score. A value greater than 1.0 increases the relevance score.
   optional float boost = 1;
 
-  optional string underscore_name = 2;
+  optional string x_name = 2;
 
   repeated QueryContainer queries = 3;
 
@@ -3315,7 +3315,7 @@ message IdsQuery {
   // Floating point number used to decrease or increase the relevance scores of the query. Boost values are relative to the default value of 1.0. A boost value between 0 and 1.0 decreases the relevance score. A value greater than 1.0 increases the relevance score.
   optional float boost = 1;
 
-  optional string underscore_name = 2;
+  optional string x_name = 2;
 
   repeated string values = 3;
 }
@@ -3324,9 +3324,9 @@ message IndexOperation {
   optional string routing = 1;
 
   // The unique identifier for a resource.
-  optional string underscore_id = 2;
+  optional string x_id = 2;
 
-  optional string underscore_index = 3;
+  optional string x_index = 3;
 
   // The pipeline ID for preprocessing documents. When the index has a default ingest pipeline specified, then setting the value to `_none` disables the default ingest pipeline for this request. When a final pipeline is configured, that pipeline will always run, regardless of the value of this parameter.
   optional string pipeline = 4;
@@ -3353,16 +3353,16 @@ message InlineGetDictUserDefined {
   bool found = 2;
 
   // The sequence number of the document.
-  optional int64 underscore_seq_no = 3;
+  optional int64 x_seq_no = 3;
 
   // The primary term of the document.
-  optional int32 underscore_primary_term = 4;
+  optional int64 x_primary_term = 4;
 
   // The routing value for the document.
-  optional string underscore_routing = 5;
+  optional string x_routing = 5;
 
   // The source of the document.
-  optional ObjectMap underscore_source = 6;
+  optional ObjectMap x_source = 6;
 }
 message InlineScript {
   // Specifies any named parameters that are passed into the script as variables.  Use parameters instead of hard-coded values to decrease compilation time.
@@ -3402,8 +3402,7 @@ message InnerHits {
   // A comma-separated list or a wildcard expression specifying the fields to include in the statistics. Used as the default list unless a specific field list is provided in the `completion_fields` or `fielddata_fields` parameters.
   repeated string fields = 11;
 
-  // The list of sort options.
-  repeated SortOptions sort = 12;
+  repeated SortCombinations sort = 12;
 
   // A comma-separated list or a wildcard expression specifying the fields to include in the statistics. Used as the default list unless a specific field list is provided in the `completion_fields` or `fielddata_fields` parameters.
   repeated string stored_fields = 13;
@@ -3412,7 +3411,7 @@ message InnerHits {
 
   optional bool version = 15;
 
-  optional SourceConfig underscore_source = 16;
+  optional SourceConfig x_source = 16;
 }
 message InnerHitsResult {
   HitsMetadata hits = 1;
@@ -3517,7 +3516,7 @@ message IntervalsQuery {
   // Floating point number used to decrease or increase the relevance scores of the query. Boost values are relative to the default value of 1.0. A boost value between 0 and 1.0 decreases the relevance score. A value greater than 1.0 increases the relevance score.
   optional float boost = 1;
 
-  optional string underscore_name = 2;
+  optional string x_name = 2;
 
   optional IntervalsAllOf all_of = 3;
 
@@ -3531,7 +3530,7 @@ message IntervalsQuery {
 
   optional IntervalsWildcard wildcard = 8;
 
-  optional string field = 9;
+  string field = 9;
 }
 message IntervalsWildcard {
   // Analyzer used to analyze the `pattern`. Defaults to the top-level field's analyzer.
@@ -3586,6 +3585,15 @@ message IpRangeBucket {
 
   optional string to = 4;
 }
+message Items {
+  optional ResponseItem index = 1;
+
+  optional ResponseItem create = 2;
+
+  optional ResponseItem update = 3;
+
+  optional ResponseItem delete = 4;
+}
 message KeyedPercentilesValue {
   oneof keyed_percentiles_value {
     double double = 1;
@@ -3611,7 +3619,7 @@ message KnnQuery {
   // Floating point number used to decrease or increase the relevance scores of the query. Boost values are relative to the default value of 1.0. A boost value between 0 and 1.0 decreases the relevance score. A value greater than 1.0 increases the relevance score.
   optional float boost = 1;
 
-  optional string underscore_name = 2;
+  optional string x_name = 2;
 
   repeated float vector = 3;
 
@@ -3633,7 +3641,7 @@ message KnnQuery {
 
   optional bool expand_nested_docs = 10;
 
-  optional string field = 11;
+  string field = 11;
 }
 message KnnQueryRescore {
   oneof knn_query_rescore {
@@ -3745,12 +3753,12 @@ message LikeDocument {
   optional VersionType version_type = 6;
 
   // The unique identifier for a resource.
-  optional string underscore_id = 7;
+  optional string x_id = 7;
 
-  optional string underscore_index = 8;
+  optional string x_index = 8;
 
   // The type of document or resource.
-  optional string underscore_type = 9;
+  optional string x_type = 9;
 }
 message LinearInterpolationSmoothingModel {
   double bigram_lambda = 1;
@@ -3830,13 +3838,13 @@ message MatchAllQuery {
   // Floating point number used to decrease or increase the relevance scores of the query. Boost values are relative to the default value of 1.0. A boost value between 0 and 1.0 decreases the relevance score. A value greater than 1.0 increases the relevance score.
   optional float boost = 1;
 
-  optional string underscore_name = 2;
+  optional string x_name = 2;
 }
 message MatchBoolPrefixQuery {
   // Floating point number used to decrease or increase the relevance scores of the query. Boost values are relative to the default value of 1.0. A boost value between 0 and 1.0 decreases the relevance score. A value greater than 1.0 increases the relevance score.
   optional float boost = 1;
 
-  optional string underscore_name = 2;
+  optional string x_name = 2;
 
   // Analyzer used to convert the text in the query value into tokens.
   optional string analyzer = 3;
@@ -3861,19 +3869,19 @@ message MatchBoolPrefixQuery {
   // Terms you wish to find in the provided field. The last term is used in a prefix query.
   string query = 11;
 
-  optional string field = 12;
+  string field = 12;
 }
 message MatchNoneQuery {
   // Floating point number used to decrease or increase the relevance scores of the query. Boost values are relative to the default value of 1.0. A boost value between 0 and 1.0 decreases the relevance score. A value greater than 1.0 increases the relevance score.
   optional float boost = 1;
 
-  optional string underscore_name = 2;
+  optional string x_name = 2;
 }
 message MatchPhrasePrefixQuery {
   // Floating point number used to decrease or increase the relevance scores of the query. Boost values are relative to the default value of 1.0. A boost value between 0 and 1.0 decreases the relevance score. A value greater than 1.0 increases the relevance score.
   optional float boost = 1;
 
-  optional string underscore_name = 2;
+  optional string x_name = 2;
 
   // Analyzer used to convert text in the query value into tokens.
   optional string analyzer = 3;
@@ -3889,13 +3897,13 @@ message MatchPhrasePrefixQuery {
 
   optional ZeroTermsQuery zero_terms_query = 7;
 
-  optional string field = 8;
+  string field = 8;
 }
 message MatchPhraseQuery {
   // Floating point number used to decrease or increase the relevance scores of the query. Boost values are relative to the default value of 1.0. A boost value between 0 and 1.0 decreases the relevance score. A value greater than 1.0 increases the relevance score.
   optional float boost = 1;
 
-  optional string underscore_name = 2;
+  optional string x_name = 2;
 
   // Analyzer used to convert the text in the query value into tokens.
   optional string analyzer = 3;
@@ -3908,13 +3916,13 @@ message MatchPhraseQuery {
 
   optional ZeroTermsQuery zero_terms_query = 6;
 
-  optional string field = 7;
+  string field = 7;
 }
 message MatchQuery {
   // Floating point number used to decrease or increase the relevance scores of the query. Boost values are relative to the default value of 1.0. A boost value between 0 and 1.0 decreases the relevance score. A value greater than 1.0 increases the relevance score.
   optional float boost = 1;
 
-  optional string underscore_name = 2;
+  optional string x_name = 2;
 
   // Analyzer used to convert the text in the query value into tokens.
   optional string analyzer = 3;
@@ -3949,7 +3957,7 @@ message MatchQuery {
 
   optional ZeroTermsQuery zero_terms_query = 15;
 
-  optional string field = 16;
+  string field = 16;
 }
 message MatrixAggregation {
   // The custom metadata attached to a resource.
@@ -4175,7 +4183,7 @@ message MoreLikeThisQuery {
   // Floating point number used to decrease or increase the relevance scores of the query. Boost values are relative to the default value of 1.0. A boost value between 0 and 1.0 decreases the relevance score. A value greater than 1.0 increases the relevance score.
   optional float boost = 1;
 
-  optional string underscore_name = 2;
+  optional string x_name = 2;
 
   // The analyzer that is used to analyze the free form text. Defaults to the analyzer associated with the first field in fields.
   optional string analyzer = 3;
@@ -4494,7 +4502,7 @@ message MultiMatchQuery {
   // Floating point number used to decrease or increase the relevance scores of the query. Boost values are relative to the default value of 1.0. A boost value between 0 and 1.0 decreases the relevance score. A value greater than 1.0 increases the relevance score.
   optional float boost = 1;
 
-  optional string underscore_name = 2;
+  optional string x_name = 2;
 
   // Analyzer used to convert the text in the query value into tokens.
   optional string analyzer = 3;
@@ -4649,13 +4657,13 @@ message NestedIdentity {
 
   int32 offset = 2;
 
-  optional NestedIdentity underscore_nested = 3;
+  optional NestedIdentity x_nested = 3;
 }
 message NestedQuery {
   // Floating point number used to decrease or increase the relevance scores of the query. Boost values are relative to the default value of 1.0. A boost value between 0 and 1.0 decreases the relevance score. A value greater than 1.0 increases the relevance score.
   optional float boost = 1;
 
-  optional string underscore_name = 2;
+  optional string x_name = 2;
 
   // Set to `true` to ignore an unmapped field and not match any documents for this query. Set to `false` to throw an exception if the field is not mapped.
   optional bool ignore_unmapped = 3;
@@ -4686,7 +4694,7 @@ message NeuralQuery {
   // Floating point number used to decrease or increase the relevance scores of the query. Boost values are relative to the default value of 1.0. A boost value between 0 and 1.0 decreases the relevance score. A value greater than 1.0 increases the relevance score.
   optional float boost = 1;
 
-  optional string underscore_name = 2;
+  optional string x_name = 2;
 
   optional string query_text = 3;
 
@@ -4702,7 +4710,7 @@ message NeuralQuery {
 
   optional QueryContainer filter = 9;
 
-  optional string field = 10;
+  string field = 10;
 }
 message NoriAnalyzer {
   NoriAnalyzerType type = 1;
@@ -4759,7 +4767,7 @@ message NumberRangeQuery {
   // Floating point number used to decrease or increase the relevance scores of the query. Boost values are relative to the default value of 1.0. A boost value between 0 and 1.0 decreases the relevance score. A value greater than 1.0 increases the relevance score.
   optional float boost = 1;
 
-  optional string underscore_name = 2;
+  optional string x_name = 2;
 
   optional RangeRelation relation = 3;
 
@@ -4779,7 +4787,7 @@ message NumberRangeQuery {
 
   optional NumberRangeQueryAllOfTo to = 9;
 
-  optional string field = 10;
+  string field = 10;
 }
 message NumberRangeQueryAllOfFrom {
   oneof number_range_query_all_of_from {
@@ -4818,9 +4826,9 @@ message OperationBase {
   optional string routing = 1;
 
   // The unique identifier for a resource.
-  optional string underscore_id = 2;
+  optional string x_id = 2;
 
-  optional string underscore_index = 3;
+  optional string x_index = 3;
 }
 message OperationContainer {
   optional IndexOperation index = 1;
@@ -4863,7 +4871,7 @@ message ParentIdQuery {
   // Floating point number used to decrease or increase the relevance scores of the query. Boost values are relative to the default value of 1.0. A boost value between 0 and 1.0 decreases the relevance score. A value greater than 1.0 increases the relevance score.
   optional float boost = 1;
 
-  optional string underscore_name = 2;
+  optional string x_name = 2;
 
   // The unique identifier for a resource.
   optional string id = 3;
@@ -4980,7 +4988,7 @@ message PercolateQuery {
   // Floating point number used to decrease or increase the relevance scores of the query. Boost values are relative to the default value of 1.0. A boost value between 0 and 1.0 decreases the relevance score. A value greater than 1.0 increases the relevance score.
   optional float boost = 1;
 
-  optional string underscore_name = 2;
+  optional string x_name = 2;
 
   optional ObjectMap document = 3;
 
@@ -5007,17 +5015,23 @@ message PercolateQuery {
   optional int64 version = 11;
 }
 message PhaseTook {
-  int32 dfs_pre_query = 1;
+  // The time taken for the distributed frequency search `pre-query` phase.
+  int64 dfs_pre_query = 1;
 
-  int32 query = 2;
+  // The time taken for the `query` phase.
+  int64 query = 2;
 
-  int32 fetch = 3;
+  // The time taken for the `fetch` phase.
+  int64 fetch = 3;
 
-  int32 dfs_query = 4;
+  // The time taken for the distributed frequency search query phase.
+  int64 dfs_query = 4;
 
-  int32 expand = 5;
+  // The time taken for the `expand` phase.
+  int64 expand = 5;
 
-  int32 can_match = 6;
+  // The time taken for the `can_match` phase.
+  int64 can_match = 6;
 }
 message PhoneAnalyzer {
   // Optional ISO 3166 country code, defaults to \"ZZ\" (unknown region).
@@ -5113,15 +5127,15 @@ message PhraseSuggester {
 }
 message PinnedDoc {
   // The unique identifier for a resource.
-  string underscore_id = 1;
+  string x_id = 1;
 
-  string underscore_index = 2;
+  string x_index = 2;
 }
 message PinnedQuery {
   // Floating point number used to decrease or increase the relevance scores of the query. Boost values are relative to the default value of 1.0. A boost value between 0 and 1.0 decreases the relevance score. A value greater than 1.0 increases the relevance score.
   optional float boost = 1;
 
-  optional string underscore_name = 2;
+  optional string x_name = 2;
 
   QueryContainer organic = 3;
 
@@ -5155,7 +5169,7 @@ message PrefixQuery {
   // Floating point number used to decrease or increase the relevance scores of the query. Boost values are relative to the default value of 1.0. A boost value between 0 and 1.0 decreases the relevance score. A value greater than 1.0 increases the relevance score.
   optional float boost = 1;
 
-  optional string underscore_name = 2;
+  optional string x_name = 2;
 
   optional MultiTermQueryRewrite rewrite = 3;
 
@@ -5165,7 +5179,7 @@ message PrefixQuery {
   // Allows ASCII case insensitive matching of the value with the indexed field values when set to `true`. Default is `false` which means the case sensitivity of matching depends on the underlying field's mapping.
   optional bool case_insensitive = 5;
 
-  optional string field = 6;
+  string field = 6;
 }
 message ProcessorExecutionDetail {
   optional string processor_name = 1;
@@ -5194,7 +5208,7 @@ message QueryBase {
   // Floating point number used to decrease or increase the relevance scores of the query. Boost values are relative to the default value of 1.0. A boost value between 0 and 1.0 decreases the relevance score. A value greater than 1.0 increases the relevance score.
   optional float boost = 1;
 
-  optional string underscore_name = 2;
+  optional string x_name = 2;
 }
 message QueryBreakdown {
   int64 advance = 1;
@@ -5381,7 +5395,7 @@ message QueryStringQuery {
   // Floating point number used to decrease or increase the relevance scores of the query. Boost values are relative to the default value of 1.0. A boost value between 0 and 1.0 decreases the relevance score. A value greater than 1.0 increases the relevance score.
   optional float boost = 1;
 
-  optional string underscore_name = 2;
+  optional string x_name = 2;
 
   // If `true`, the wildcard characters `*` and `?` are allowed as the first character of the query string.
   optional bool allow_leading_wildcard = 3;
@@ -5529,7 +5543,7 @@ message RangeQueryBase {
   // Floating point number used to decrease or increase the relevance scores of the query. Boost values are relative to the default value of 1.0. A boost value between 0 and 1.0 decreases the relevance score. A value greater than 1.0 increases the relevance score.
   optional float boost = 1;
 
-  optional string underscore_name = 2;
+  optional string x_name = 2;
 
   optional RangeRelation relation = 3;
 }
@@ -5559,7 +5573,7 @@ message RankFeatureQuery {
   // Floating point number used to decrease or increase the relevance scores of the query. Boost values are relative to the default value of 1.0. A boost value between 0 and 1.0 decreases the relevance score. A value greater than 1.0 increases the relevance score.
   optional float boost = 1;
 
-  optional string underscore_name = 2;
+  optional string x_name = 2;
 
   // The path to a field or an array of paths. Some APIs support wildcards in the path, which allows you to select multiple fields.
   string field = 3;
@@ -5644,7 +5658,7 @@ message RegexpQuery {
   // Floating point number used to decrease or increase the relevance scores of the query. Boost values are relative to the default value of 1.0. A boost value between 0 and 1.0 decreases the relevance score. A value greater than 1.0 increases the relevance score.
   optional float boost = 1;
 
-  optional string underscore_name = 2;
+  optional string x_name = 2;
 
   // Allows case insensitive matching of the regular expression value with the indexed field values when set to `true`. When `false`, case sensitivity of matching depends on the underlying field's mapping.
   optional bool case_insensitive = 3;
@@ -5660,7 +5674,7 @@ message RegexpQuery {
   // Regular expression for terms you wish to find in the provided field.
   string value = 7;
 
-  optional string field = 8;
+  string field = 8;
 }
 message Rescore {
   RescoreQuery query = 1;
@@ -5695,26 +5709,23 @@ message ResponseItem {
   optional InlineGetDictUserDefined get = 5;
 
   // The document type.
-  optional string underscore_type = 6;
+  optional string x_type = 6;
 
   // The document ID associated with the operation.
-  optional string underscore_id = 7;
+  optional string x_id = 7;
 
   // The name of the index associated with the operation. If the operation targets a data stream, this is the backing index into which the document was written.
-  string underscore_index = 8;
+  string x_index = 8;
 
   // The primary term assigned to the document for the operation.
-  optional int64 underscore_primary_term = 9;
+  optional int64 x_primary_term = 9;
 
   // The sequence number of the document.
-  optional int64 underscore_seq_no = 10;
+  optional int64 x_seq_no = 10;
 
-  optional ShardInfo underscore_shards = 11;
+  optional ShardInfo x_shards = 11;
 
-  optional int64 underscore_version = 12;
-}
-message ResponseItemMap {
-  map<string, ResponseItem> response_item_map = 1;
+  optional int64 x_version = 12;
 }
 message ReverseNestedAggregate {
   // The custom metadata attached to a resource.
@@ -5808,7 +5819,7 @@ message ScriptQuery {
   // Floating point number used to decrease or increase the relevance scores of the query. Boost values are relative to the default value of 1.0. A boost value between 0 and 1.0 decreases the relevance score. A value greater than 1.0 increases the relevance score.
   optional float boost = 1;
 
-  optional string underscore_name = 2;
+  optional string x_name = 2;
 
   Script script = 3;
 }
@@ -5819,7 +5830,7 @@ message ScriptScoreQuery {
   // Floating point number used to decrease or increase the relevance scores of the query. Boost values are relative to the default value of 1.0. A boost value between 0 and 1.0 decreases the relevance score. A value greater than 1.0 increases the relevance score.
   optional float boost = 1;
 
-  optional string underscore_name = 2;
+  optional string x_name = 2;
 
   // Documents with a score lower than this floating point number are excluded from the search results.
   optional float min_score = 3;
@@ -5940,8 +5951,7 @@ message SearchRequest {
 
   optional SlicedScroll slice = 19;
 
-  // The list of sort options.
-  repeated SortOptions sort = 20;
+  repeated SortCombinations sort = 20;
 
   // Array of wildcard (`*`) patterns. The request returns values for field names matching these patterns in the `hits.fields` property of the response.
   repeated FieldAndFormat fields = 21;
@@ -5971,7 +5981,7 @@ message SearchRequest {
   // Stats groups to associate with the search. Each group maintains a statistics aggregation for its associated searches. You can retrieve these stats using the indexes stats API.
   repeated string stats = 30;
 
-  optional SourceConfig underscore_source = 31;
+  optional SourceConfig x_source = 31;
 }
 message SearchResponse {
   int64 took = 1;
@@ -5999,11 +6009,11 @@ message SearchResponse {
 
   optional bool terminated_early = 12;
 
-  ShardStatistics underscore_shards = 13;
+  ShardStatistics x_shards = 13;
 
-  optional ClusterStatistics underscore_clusters = 14;
+  optional ClusterStatistics x_clusters = 14;
 
-  optional string underscore_scroll_id = 15;
+  optional string x_scroll_id = 15;
 }
 message SearchResult {
   int64 took = 1;
@@ -6031,11 +6041,11 @@ message SearchResult {
 
   optional bool terminated_early = 12;
 
-  ShardStatistics underscore_shards = 13;
+  ShardStatistics x_shards = 13;
 
-  optional ClusterStatistics underscore_clusters = 14;
+  optional ClusterStatistics x_clusters = 14;
 
-  optional string underscore_scroll_id = 15;
+  optional string x_scroll_id = 15;
 }
 message SearchResultHits {
   optional HitsMetadataTotal total = 1;
@@ -6058,35 +6068,35 @@ message SearchResultHitsAllOfHitsInner {
   repeated FieldValue sort = 6;
 
   // The type of document or resource.
-  optional string underscore_type = 7;
+  optional string x_type = 7;
 
-  optional string underscore_index = 8;
+  optional string x_index = 8;
 
   // The unique identifier for a resource.
-  optional string underscore_id = 9;
+  optional string x_id = 9;
 
-  optional HitUnderscoreScore underscore_score = 10;
+  optional HitXScore x_score = 10;
 
-  optional Explanation underscore_explanation = 11;
+  optional Explanation x_explanation = 11;
 
-  optional NestedIdentity underscore_nested = 12;
+  optional NestedIdentity x_nested = 12;
 
-  repeated string underscore_ignored = 13;
+  repeated string x_ignored = 13;
 
-  optional string underscore_shard = 14;
+  optional string x_shard = 14;
 
-  optional string underscore_node = 15;
+  optional string x_node = 15;
 
-  optional string underscore_routing = 16;
+  optional string x_routing = 16;
 
-  optional ObjectMap underscore_source = 17;
+  optional ObjectMap x_source = 17;
 
   // The sequence number of the document.
-  optional int64 underscore_seq_no = 18;
+  optional int64 x_seq_no = 18;
 
-  optional int64 underscore_primary_term = 19;
+  optional int64 x_primary_term = 19;
 
-  optional int64 underscore_version = 20;
+  optional int64 x_version = 20;
 }
 enum SearchType {
   SEARCH_TYPE_UNSPECIFIED = 0;
@@ -6428,7 +6438,7 @@ message SimpleQueryStringQuery {
   // Floating point number used to decrease or increase the relevance scores of the query. Boost values are relative to the default value of 1.0. A boost value between 0 and 1.0 decreases the relevance score. A value greater than 1.0 increases the relevance score.
   optional float boost = 1;
 
-  optional string underscore_name = 2;
+  optional string x_name = 2;
 
   // Analyzer used to convert text in the query string into tokens.
   optional string analyzer = 3;
@@ -6559,6 +6569,18 @@ enum SnowballLanguage {
   SNOWBALL_LANGUAGE_SWEDISH = 21;
   SNOWBALL_LANGUAGE_TURKISH = 22;
 }
+message SortCombinations {
+  oneof sort_combinations {
+    // The path to a field or an array of paths. Some APIs support wildcards in the path, which allows you to select multiple fields.
+    string field = 1;
+
+    StringMap field_with_direction = 2;
+
+    FieldSortMap field_with_order = 3;
+
+    SortOptions options = 4;
+  }
+}
 enum SortMode {
   SORT_MODE_UNSPECIFIED = 0;
   SORT_MODE_AVG = 1;
@@ -6567,13 +6589,12 @@ enum SortMode {
   SORT_MODE_MIN = 4;
   SORT_MODE_SUM = 5;
 }
-enum SortOptions {
-  SORT_OPTIONS_UNSPECIFIED = 0;
-  SORT_OPTIONS__SCORE = 1;
-  SORT_OPTIONS__DOC = 2;
-  SORT_OPTIONS_STRING = 3;
-  SORT_OPTIONS_OBJECT = 4;
-  SORT_OPTIONS_OBJECT2 = 5;
+message SortOptions {
+  optional ScoreSort x_score = 1;
+
+  optional GeoDistanceSort x_geo_distance = 2;
+
+  optional ScriptSort x_script = 3;
 }
 enum SortOrder {
   SORT_ORDER_UNSPECIFIED = 0;
@@ -6605,7 +6626,7 @@ message SpanContainingQuery {
   // Floating point number used to decrease or increase the relevance scores of the query. Boost values are relative to the default value of 1.0. A boost value between 0 and 1.0 decreases the relevance score. A value greater than 1.0 increases the relevance score.
   optional float boost = 1;
 
-  optional string underscore_name = 2;
+  optional string x_name = 2;
 
   SpanQuery big = 3;
 
@@ -6615,7 +6636,7 @@ message SpanFieldMaskingQuery {
   // Floating point number used to decrease or increase the relevance scores of the query. Boost values are relative to the default value of 1.0. A boost value between 0 and 1.0 decreases the relevance score. A value greater than 1.0 increases the relevance score.
   optional float boost = 1;
 
-  optional string underscore_name = 2;
+  optional string x_name = 2;
 
   // The path to a field or an array of paths. Some APIs support wildcards in the path, which allows you to select multiple fields.
   string field = 3;
@@ -6626,7 +6647,7 @@ message SpanFirstQuery {
   // Floating point number used to decrease or increase the relevance scores of the query. Boost values are relative to the default value of 1.0. A boost value between 0 and 1.0 decreases the relevance score. A value greater than 1.0 increases the relevance score.
   optional float boost = 1;
 
-  optional string underscore_name = 2;
+  optional string x_name = 2;
 
   // Controls the maximum end position permitted in a match.
   int32 end = 3;
@@ -6634,7 +6655,7 @@ message SpanFirstQuery {
   SpanQuery match = 4;
 }
 message SpanGapQuery {
-  optional string field = 1;
+  string field = 1;
 
   optional int32 span_width = 2;
 }
@@ -6642,7 +6663,7 @@ message SpanMultiTermQuery {
   // Floating point number used to decrease or increase the relevance scores of the query. Boost values are relative to the default value of 1.0. A boost value between 0 and 1.0 decreases the relevance score. A value greater than 1.0 increases the relevance score.
   optional float boost = 1;
 
-  optional string underscore_name = 2;
+  optional string x_name = 2;
 
   QueryContainer match = 3;
 }
@@ -6650,7 +6671,7 @@ message SpanNearQuery {
   // Floating point number used to decrease or increase the relevance scores of the query. Boost values are relative to the default value of 1.0. A boost value between 0 and 1.0 decreases the relevance score. A value greater than 1.0 increases the relevance score.
   optional float boost = 1;
 
-  optional string underscore_name = 2;
+  optional string x_name = 2;
 
   // Array of one or more other span type queries.
   repeated SpanQuery clauses = 3;
@@ -6665,7 +6686,7 @@ message SpanNotQuery {
   // Floating point number used to decrease or increase the relevance scores of the query. Boost values are relative to the default value of 1.0. A boost value between 0 and 1.0 decreases the relevance score. A value greater than 1.0 increases the relevance score.
   optional float boost = 1;
 
-  optional string underscore_name = 2;
+  optional string x_name = 2;
 
   // The number of tokens from within the include span that can't have overlap with the exclude span. Equivalent to setting both `pre` and `post`.
   optional int32 dist = 3;
@@ -6684,7 +6705,7 @@ message SpanOrQuery {
   // Floating point number used to decrease or increase the relevance scores of the query. Boost values are relative to the default value of 1.0. A boost value between 0 and 1.0 decreases the relevance score. A value greater than 1.0 increases the relevance score.
   optional float boost = 1;
 
-  optional string underscore_name = 2;
+  optional string x_name = 2;
 
   // Array of one or more other span type queries.
   repeated SpanQuery clauses = 3;
@@ -6715,17 +6736,17 @@ message SpanTermQuery {
   // Floating point number used to decrease or increase the relevance scores of the query. Boost values are relative to the default value of 1.0. A boost value between 0 and 1.0 decreases the relevance score. A value greater than 1.0 increases the relevance score.
   optional float boost = 1;
 
-  optional string underscore_name = 2;
+  optional string x_name = 2;
 
   string value = 3;
 
-  optional string field = 4;
+  string field = 4;
 }
 message SpanWithinQuery {
   // Floating point number used to decrease or increase the relevance scores of the query. Boost values are relative to the default value of 1.0. A boost value between 0 and 1.0 decreases the relevance score. A value greater than 1.0 increases the relevance score.
   optional float boost = 1;
 
-  optional string underscore_name = 2;
+  optional string x_name = 2;
 
   SpanQuery big = 3;
 
@@ -7138,14 +7159,14 @@ message TermQuery {
   // Floating point number used to decrease or increase the relevance scores of the query. Boost values are relative to the default value of 1.0. A boost value between 0 and 1.0 decreases the relevance score. A value greater than 1.0 increases the relevance score.
   optional float boost = 1;
 
-  optional string underscore_name = 2;
+  optional string x_name = 2;
 
   FieldValue value = 3;
 
   // Allows ASCII case insensitive matching of the value with the indexed field values when set to `true`. When `false`, the case sensitivity of matching depends on the underlying field's mapping.
   optional bool case_insensitive = 4;
 
-  optional string field = 5;
+  string field = 5;
 }
 message TermSuggest {
   int32 length = 1;
@@ -7391,7 +7412,7 @@ message TermsPartition {
 message TermsQuery {
   optional ObjectMap boost = 1;
 
-  optional ObjectMap underscore_name = 2;
+  optional ObjectMap x_name = 2;
 
   // Specifies the types of values used for filtering. Valid values are `default` and `bitmap`. Default is `default`.
   optional TermsQueryValueType value_type = 3;
@@ -7414,7 +7435,7 @@ message TermsSetQuery {
   // Floating point number used to decrease or increase the relevance scores of the query. Boost values are relative to the default value of 1.0. A boost value between 0 and 1.0 decreases the relevance score. A value greater than 1.0 increases the relevance score.
   optional float boost = 1;
 
-  optional string underscore_name = 2;
+  optional string x_name = 2;
 
   // The path to a field or an array of paths. Some APIs support wildcards in the path, which allows you to select multiple fields.
   optional string minimum_should_match_field = 3;
@@ -7423,7 +7444,7 @@ message TermsSetQuery {
 
   repeated string terms = 5;
 
-  optional string field = 6;
+  string field = 6;
 }
 message TestPopulation {
   // The path to a field or an array of paths. Some APIs support wildcards in the path, which allows you to select multiple fields.
@@ -7478,8 +7499,7 @@ message TopHitsAggregation {
   // The maximum number of top matching hits to return per bucket.
   optional int32 size = 11;
 
-  // The list of sort options.
-  repeated SortOptions sort = 12;
+  repeated SortCombinations sort = 12;
 
   // A comma-separated list or a wildcard expression specifying the fields to include in the statistics. Used as the default list unless a specific field list is provided in the `completion_fields` or `fielddata_fields` parameters.
   repeated string stored_fields = 13;
@@ -7493,7 +7513,7 @@ message TopHitsAggregation {
   // If `true`, returns sequence number and primary term of the last modification of each hit.
   optional bool seq_no_primary_term = 16;
 
-  optional SourceConfig underscore_source = 17;
+  optional SourceConfig x_source = 17;
 }
 message TopLeftBottomRightGeoBounds {
   // The upper-left corner coordinates.
@@ -7530,7 +7550,7 @@ message TypeQuery {
   // Floating point number used to decrease or increase the relevance scores of the query. Boost values are relative to the default value of 1.0. A boost value between 0 and 1.0 decreases the relevance score. A value greater than 1.0 increases the relevance score.
   optional float boost = 1;
 
-  optional string underscore_name = 2;
+  optional string x_name = 2;
 
   string value = 3;
 }
@@ -7578,16 +7598,16 @@ message UpdateAction {
   // If the document does not already exist, the contents of `upsert` are inserted as a new document. If the document exists, the `script` is executed.
   optional ObjectMap upsert = 6;
 
-  optional SourceConfig underscore_source = 7;
+  optional SourceConfig x_source = 7;
 }
 message UpdateOperation {
   // The routing value for the document.
   optional string routing = 1;
 
   // The unique identifier for a resource.
-  optional string underscore_id = 2;
+  optional string x_id = 2;
 
-  optional string underscore_index = 3;
+  optional string x_index = 3;
 
   optional int64 if_primary_term = 4;
 
@@ -7740,7 +7760,7 @@ message WildcardQuery {
   // Floating point number used to decrease or increase the relevance scores of the query. Boost values are relative to the default value of 1.0. A boost value between 0 and 1.0 decreases the relevance score. A value greater than 1.0 increases the relevance score.
   optional float boost = 1;
 
-  optional string underscore_name = 2;
+  optional string x_name = 2;
 
   // Allows case insensitive matching of the pattern with the indexed field values when set to `true`. Default is `false` which means the case sensitivity of matching depends on the underlying field's mapping.
   optional bool case_insensitive = 3;
@@ -7753,7 +7773,7 @@ message WildcardQuery {
   // Wildcard pattern for terms you wish to find in the provided field. Required, when value is not set.
   optional string wildcard = 6;
 
-  optional string field = 7;
+  string field = 7;
 }
 message WktGeoBounds {
   // The WKT string representation of the geographical bounds.
@@ -7763,7 +7783,7 @@ message WrapperQuery {
   // Floating point number used to decrease or increase the relevance scores of the query. Boost values are relative to the default value of 1.0. A boost value between 0 and 1.0 decreases the relevance score. A value greater than 1.0 increases the relevance score.
   optional float boost = 1;
 
-  optional string underscore_name = 2;
+  optional string x_name = 2;
 
   // A base64 encoded query. The binary data format can be any of JSON, YAML, CBOR or SMILE encodings
   string query = 3;
@@ -7773,9 +7793,9 @@ message WriteOperation {
   optional string routing = 1;
 
   // The unique identifier for a resource.
-  optional string underscore_id = 2;
+  optional string x_id = 2;
 
-  optional string underscore_index = 3;
+  optional string x_index = 3;
 
   // The pipeline ID for preprocessing documents. When the index has a default ingest pipeline specified, then setting the value to `_none` disables the default ingest pipeline for this request. When a final pipeline is configured, that pipeline will always run, regardless of the value of this parameter.
   optional string pipeline = 4;
@@ -7792,7 +7812,7 @@ message XyShapeQuery {
   // Floating point number used to decrease or increase the relevance scores of the query. Boost values are relative to the default value of 1.0. A boost value between 0 and 1.0 decreases the relevance score. A value greater than 1.0 increases the relevance score.
   optional float boost = 1;
 
-  optional string underscore_name = 2;
+  optional string x_name = 2;
 
   optional bool ignore_unmapped = 3;
 
