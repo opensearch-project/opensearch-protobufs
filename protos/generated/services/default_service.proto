@@ -15,13 +15,13 @@ message BulkRequest {
   repeated BulkRequestInner bulk_request_inner = 2;
 
   // `true` or `false` to return the `_source` field or not, or a list of fields to return.
-  optional SourceConfigParam underscore_source = 3;
+  optional SourceConfigParam x_source = 3;
 
   // A comma-separated list of source fields to exclude from the response.
-  repeated string underscore_source_excludes = 4;
+  repeated string x_source_excludes = 4;
 
   // A comma-separated list of source fields to include in the response.
-  repeated string underscore_source_includes = 5;
+  repeated string x_source_includes = 5;
 
   // ID of the pipeline to use to preprocess incoming documents. If the index has a default ingest pipeline specified, then setting the value to `_none` disables the default ingest pipeline for this request. If a final pipeline is configured it will always run, regardless of the value of this parameter.
   optional string pipeline = 6;
@@ -70,13 +70,13 @@ message SearchRequest {
   repeated string index = 1;
 
   // Indicates which source fields are returned for matching documents. These fields are returned in the `hits._source` property of the search response. Valid values are: `true` to return the entire document source; `false` to not return the document source; `<string>` to return the source fields that are specified as a comma-separated list (supports wildcard (`*`) patterns).
-  optional SourceConfigParam underscore_source = 2;
+  optional SourceConfigParam x_source = 2;
 
   // A comma-separated list of source fields to exclude from the response. You can also use this parameter to exclude fields from the subset specified in `_source_includes` query parameter. If the `_source` parameter is `false`, this parameter is ignored.
-  repeated string underscore_source_excludes = 3;
+  repeated string x_source_excludes = 3;
 
   // A comma-separated list of source fields to include in the response. If this parameter is specified, only these source fields are returned. You can exclude fields from this subset using the `_source_excludes` query parameter. If the `_source` parameter is `false`, this parameter is ignored.
-  repeated string underscore_source_includes = 4;
+  repeated string x_source_includes = 4;
 
   // If `false`, the request returns an error if any wildcard expression, index alias, or `_all` value targets only missing or closed indexes. This behavior applies even if the request targets other open indexes. For example, a request targeting `foo*,bar*` returns an error if an index starts with `foo` but no index starts with `bar`.
   optional bool allow_no_indices = 5;
