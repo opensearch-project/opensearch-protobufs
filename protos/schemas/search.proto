@@ -365,6 +365,15 @@ message HitXScore {
   }
 }
 
+// Content type of the source document
+enum SourceContentType {
+  SOURCE_CONTENT_TYPE_UNSPECIFIED = 0;
+  SOURCE_CONTENT_TYPE_JSON = 1;
+  SOURCE_CONTENT_TYPE_SMILE = 2;
+  SOURCE_CONTENT_TYPE_CBOR = 3;
+  SOURCE_CONTENT_TYPE_YAML = 4;
+}
+
 message HitsMetadataHitsInner {
 
   optional string x_type = 1;
@@ -427,6 +436,9 @@ message HitsMetadataHitsInner {
   // [optional] Contains metadata values for the documents.
   // TODO: No field named "meta_fields" in the spec. Needs adaptor_unnest.
   optional ObjectMap meta_fields = 21;
+
+  // [optional] Content type of the x_source document
+  optional SourceContentType x_source_content_type = 22;
 }
 
 message ClusterStatistics {
