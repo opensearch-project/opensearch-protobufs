@@ -1324,7 +1324,7 @@ message DateDecayPlacement {
   optional string origin = 3;
 
   // A duration. Units can be `nanos`, `micros`, `ms` (milliseconds), `s` (seconds), `m` (minutes), `h` (hours) and `d` (days). Also accepts `0` without a unit and `-1` to indicate an unspecified value.
-  optional string scale = 4;
+  string scale = 4;
 }
 message DateHistogramAggregate {
   // The custom metadata attached to a resource.
@@ -1459,7 +1459,13 @@ message DateRangeQuery {
   // The time zone identifier.
   optional string time_zone = 11;
 
-  string field = 12;
+  // Include the lower bound
+  optional bool include_lower = 12;
+
+  // Include the upper bound
+  optional bool include_upper = 13;
+
+  string field = 14;
 }
 message DateRangeQueryAllOfFrom {
   oneof date_range_query_all_of_from {
@@ -1497,11 +1503,13 @@ message DecayFunctionBase {
   optional MultiValueMode multi_value_mode = 1;
 }
 message DecayPlacement {
-  optional DateDecayPlacement date_decay_placement = 1;
+  oneof decay_placement {
+    DateDecayPlacement date_decay_placement = 1;
 
-  optional GeoDecayPlacement geo_decay_placement = 2;
+    GeoDecayPlacement geo_decay_placement = 2;
 
-  optional NumericDecayPlacement numeric_decay_placement = 3;
+    NumericDecayPlacement numeric_decay_placement = 3;
+  }
 }
 message DeleteOperation {
   // The routing value for the document.
@@ -2489,9 +2497,9 @@ message GeoDecayPlacement {
 
   optional string offset = 2;
 
-  optional GeoLocation origin = 3;
+  GeoLocation origin = 3;
 
-  optional string scale = 4;
+  string scale = 4;
 }
 message GeoDistanceAggregate {
   // The custom metadata attached to a resource.
@@ -2538,7 +2546,10 @@ message GeoDistanceQuery {
   // Set to `true` to ignore an unmapped field and not match any documents for this query. Set to `false` to throw an exception if the field is not mapped.
   optional bool ignore_unmapped = 6;
 
-  map<string, GeoLocation> location = 7;
+  // The unit of distance measurement.
+  optional DistanceUnit unit = 7;
+
+  map<string, GeoLocation> location = 8;
 }
 message GeoDistanceSort {
   // The mode for sorting on array or multi-valued fields.
@@ -4787,7 +4798,13 @@ message NumberRangeQuery {
 
   optional NumberRangeQueryAllOfTo to = 9;
 
-  string field = 10;
+  // Include the lower bound
+  optional bool include_lower = 10;
+
+  // Include the upper bound
+  optional bool include_upper = 11;
+
+  string field = 12;
 }
 message NumberRangeQueryAllOfFrom {
   oneof number_range_query_all_of_from {
@@ -4812,9 +4829,9 @@ message NumericDecayPlacement {
 
   optional double offset = 2;
 
-  optional double origin = 3;
+  double origin = 3;
 
-  optional double scale = 4;
+  double scale = 4;
 }
 enum OpType {
   OP_TYPE_UNSPECIFIED = 0;
@@ -5475,7 +5492,9 @@ message RandomScoreFunctionSeed {
   oneof random_score_function_seed {
     int32 int32 = 1;
 
-    string string = 2;
+    int64 int64 = 2;
+
+    string string = 3;
   }
 }
 message RangeAggregate {
@@ -5990,7 +6009,7 @@ message SearchResponse {
 
   optional PhaseTook phase_took = 3;
 
-  SearchResultHits hits = 4;
+  HitsMetadata hits = 4;
 
   repeated ProcessorExecutionDetail processor_results = 5;
 
@@ -6022,7 +6041,7 @@ message SearchResult {
 
   optional PhaseTook phase_took = 3;
 
-  SearchResultHits hits = 4;
+  HitsMetadata hits = 4;
 
   repeated ProcessorExecutionDetail processor_results = 5;
 
@@ -6046,57 +6065,6 @@ message SearchResult {
   optional ClusterStatistics x_clusters = 14;
 
   optional string x_scroll_id = 15;
-}
-message SearchResultHits {
-  optional HitsMetadataTotal total = 1;
-
-  repeated SearchResultHitsAllOfHitsInner hits = 2;
-
-  optional HitsMetadataMaxScore max_score = 3;
-}
-message SearchResultHitsAllOfHitsInner {
-  optional ObjectMap fields = 1;
-
-  map<string, StringArray> highlight = 2;
-
-  map<string, InnerHitsResult> inner_hits = 3;
-
-  repeated string matched_queries = 4;
-
-  map<string, StringArray> ignored_field_values = 5;
-
-  repeated FieldValue sort = 6;
-
-  // The type of document or resource.
-  optional string x_type = 7;
-
-  optional string x_index = 8;
-
-  // The unique identifier for a resource.
-  optional string x_id = 9;
-
-  optional HitXScore x_score = 10;
-
-  optional Explanation x_explanation = 11;
-
-  optional NestedIdentity x_nested = 12;
-
-  repeated string x_ignored = 13;
-
-  optional string x_shard = 14;
-
-  optional string x_node = 15;
-
-  optional string x_routing = 16;
-
-  optional ObjectMap x_source = 17;
-
-  // The sequence number of the document.
-  optional int64 x_seq_no = 18;
-
-  optional int64 x_primary_term = 19;
-
-  optional int64 x_version = 20;
 }
 enum SearchType {
   SEARCH_TYPE_UNSPECIFIED = 0;
