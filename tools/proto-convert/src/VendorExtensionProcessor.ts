@@ -8,7 +8,7 @@ import Logger from './utils/logger';
  */
 export class VendorExtensionProcessor {
     private static readonly GRPC_REMOVED_EXTENSION = 'x-protobuf-excluded';
-    
+
     private root: OpenAPIV3.Document;
     private logger: Logger;
 
@@ -23,7 +23,7 @@ export class VendorExtensionProcessor {
      */
     public process(): OpenAPIV3.Document {
         this.logger.info(`Processing vendor extensions (${VendorExtensionProcessor.GRPC_REMOVED_EXTENSION})...`);
-        
+
         this.removeGrpcRemovedFromPaths();
         traverse(this.root, {
             onSchema: (schema: any, name: string) => {
@@ -37,12 +37,41 @@ export class VendorExtensionProcessor {
                 this.removeGrpcRemovedProperties(schema);
             }
         });
-        
+
         return this.root;
     }
 
     private hasGrpcRemoved(item: any): boolean {
-        return item && typeof item === 'object' && VendorExtensionProcessor.GRPC_REMOVED_EXTENSION in item && item[VendorExtensionProcessor.GRPC_REMOVED_EXTENSION] === true;
+        if (!item || typeof item !== 'object') return false;
+
+        if (VendorExtensionProcessor.GRPC_REMOVED_EXTENSION in item && !!item[VendorExtensionProcessor.GRPC_REMOVED_EXTENSION]) {
+            return true;
+        }
+        if ('$ref' in item && typeof item.$ref === 'string') {
+            const resolved = this.resolveRef(item.$ref);
+            if (resolved && VendorExtensionProcessor.GRPC_REMOVED_EXTENSION in resolved && !!resolved[VendorExtensionProcessor.GRPC_REMOVED_EXTENSION]) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * Resolve a $ref string to the actual object
+     */
+    private resolveRef(ref: string): any {
+        if (!ref.startsWith('#/')) return null;
+
+        const parts = ref.substring(2).split('/');
+        let current: any = this.root;
+
+        for (const part of parts) {
+            if (!current || typeof current !== 'object') return null;
+            current = current[part];
+        }
+
+        return current;
     }
 
     /**
@@ -50,19 +79,19 @@ export class VendorExtensionProcessor {
      */
     private removeGrpcRemovedFromPaths(): void {
         if (!this.root.paths) return;
-        
+
         for (const pathKey in this.root.paths) {
             const pathItem = this.root.paths[pathKey];
             if (!pathItem || typeof pathItem !== 'object' || '$ref' in pathItem) continue;
-            
+
             // Handle operations
             for (const method in pathItem) {
-                if (method === 'parameters' || method === '$ref' || method === 'summary' || 
+                if (method === 'parameters' || method === '$ref' || method === 'summary' ||
                     method === 'description' || method === 'servers') continue;
-                    
+
                 const operation = (pathItem as any)[method];
                 if (!operation || typeof operation !== 'object') continue;
-                
+
                 // Remove parameters with x-protobuf-excluded
                 if (Array.isArray(operation.parameters)) {
                     const originalLength = operation.parameters.length;
@@ -72,7 +101,7 @@ export class VendorExtensionProcessor {
                         this.logger.info(`Removed ${removedCount} parameter(s) from ${method.toUpperCase()} ${pathKey} (${VendorExtensionProcessor.GRPC_REMOVED_EXTENSION})`);
                     }
                 }
-                
+
                 // Remove responses with x-protobuf-excluded
                 if (operation.responses) {
                     for (const status in operation.responses) {
@@ -88,7 +117,7 @@ export class VendorExtensionProcessor {
 
     private removeGrpcRemovedProperties(schema: OpenAPIV3.SchemaObject): void {
         if (!schema?.properties) return;
-        
+
         for (const prop in schema.properties) {
             const propSchema = schema.properties[prop];
             if (propSchema && typeof propSchema === 'object' && !('$ref' in propSchema)) {
