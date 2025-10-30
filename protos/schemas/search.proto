@@ -995,7 +995,8 @@ message AggregationContainer {
 
     // SumBucketAggregation sum_bucket = 60;
 
-    // TermsAggregation terms = 61;
+    // [optional] terms aggregation
+    TermsAggregation terms = 61;
 
     // TopHitsAggregation top_hits = 62;
 
@@ -1201,4 +1202,96 @@ message MissingAggregate {
 
   // [optional] Result of sub aggregations on missing field docs.
   map<string, Aggregate> aggregations = 3;
+}
+
+enum MissingOrder {
+  MISSING_ORDER_UNSPECIFIED = 0;
+  MISSING_ORDER_DEFAULT = 1;
+  MISSING_ORDER_FIRST = 2;
+  MISSING_ORDER_LAST = 3;
+}
+
+message StringMap {
+  map<string, string> string_map = 1;
+}
+
+message TermsAggregation {
+  // The custom metadata attached to a resource.
+  optional ObjectMap meta = 1;
+
+  optional string name = 2;
+
+  // Sub-aggregations for this bucket aggregation
+  map<string, AggregationContainer> aggregations = 3;
+
+  // Sub-aggregations for this bucket aggregation
+  map<string, AggregationContainer> aggs = 4;
+
+  optional TermsAggregationCollectMode collect_mode = 5;
+
+  repeated string exclude = 6;
+
+  optional TermsAggregationExecutionHint execution_hint = 7;
+
+  // The path to a field or an array of paths. Some APIs support wildcards in the path, which allows you to select multiple fields.
+  optional string field = 8;
+
+  optional TermsInclude include = 9;
+
+  // Only return values that are found in more than `min_doc_count` hits.
+  optional int32 min_doc_count = 10;
+
+  optional FieldValue missing = 11;
+
+  optional MissingOrder missing_order = 12;
+
+  optional bool missing_bucket = 13;
+
+  // Coerced unmapped fields into the specified type.
+  optional string value_type = 14;
+
+  repeated StringMap order = 15;
+
+  optional Script script = 16;
+
+  // The number of candidate terms produced by each shard. By default, `shard_size` will be automatically estimated based on the number of shards and the `size` parameter.
+  optional int32 shard_size = 17;
+
+  // Set to `true` to return the `doc_count_error_upper_bound`, which is an upper bound to the error on the `doc_count` returned by each shard.
+  optional bool show_term_doc_count_error = 18;
+
+  // The number of buckets returned out of the overall terms list.
+  optional int32 size = 19;
+
+  optional string format = 20;
+}
+
+enum TermsAggregationCollectMode {
+  TERMS_AGGREGATION_COLLECT_MODE_UNSPECIFIED = 0;
+  TERMS_AGGREGATION_COLLECT_MODE_BREADTH_FIRST = 1;
+  TERMS_AGGREGATION_COLLECT_MODE_DEPTH_FIRST = 2;
+}
+
+enum TermsAggregationExecutionHint {
+  TERMS_AGGREGATION_EXECUTION_HINT_UNSPECIFIED = 0;
+  TERMS_AGGREGATION_EXECUTION_HINT_GLOBAL_ORDINALS = 1;
+  TERMS_AGGREGATION_EXECUTION_HINT_GLOBAL_ORDINALS_HASH = 2;
+  TERMS_AGGREGATION_EXECUTION_HINT_GLOBAL_ORDINALS_LOW_CARDINALITY = 3;
+  TERMS_AGGREGATION_EXECUTION_HINT_MAP = 4;
+}
+
+message TermsInclude {
+  oneof terms_include {
+    StringArray string_array = 1;
+
+    TermsPartition partition = 2;
+  }
+}
+
+message TermsPartition {
+  // The number of partitions.
+  int64 num_partitions = 1;
+
+  // The partition number for this request.
+  int64 partition = 2;
 }
