@@ -200,3 +200,14 @@ export function remove_unused(spec: OpenAPIV3.Document): void {
         obj.$ref !== undefined && !_.includes(remaining, obj.$ref)
     );
 }
+
+/**
+ * Checks if a schema object is a simple $ref with no other properties.
+ */
+export function is_simple_ref(schema: any): boolean {
+    if (!schema || typeof schema !== 'object') {
+        return false;
+    }
+    const keys = Object.keys(schema);
+    return keys.length === 1 && '$ref' in schema;
+}

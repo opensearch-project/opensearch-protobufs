@@ -1,7 +1,7 @@
 import type {OpenAPIV3} from "openapi-types";
 import {traverse} from './utils/OpenApiTraverser';
 import isEqual from 'lodash.isequal';
-import {compressMultipleUnderscores, isPrimitiveType, resolveObj, isReferenceObject, isEmptyObjectSchema} from './utils/helper';
+import {compressMultipleUnderscores, isPrimitiveType, resolveObj, isReferenceObject, isEmptyObjectSchema, is_simple_ref} from './utils/helper';
 import Logger from "./utils/logger";
 
 
@@ -47,6 +47,7 @@ export class SchemaModifier {
                 if (!schema || isReferenceObject(schema)) return;
                 this.simplifySingleMapSchema(schema, visit)
                 this.handleAdditionalPropertiesUndefined(schema)
+                this.markOneOfExtensions(schema);
             },
         });
         return this.root
@@ -474,5 +475,86 @@ export class SchemaModifier {
                 this.logger.info(`Removed array wrapper from array of maps schema`);
             }
         }
+    }
+
+    /**
+     * Marks schemas and properties with oneOf extensions.
+     * Adds x-oneof-property to properties when schema has minProperties=1 and maxProperties=1.
+     * Adds x-oneof-schema to schemas that have the min/max pattern AND to parent schemas
+     * that contain nested schemas with the pattern.
+     **/
+    markOneOfExtensions(schema: OpenAPIV3.SchemaObject): void {
+        const hasDirectPattern = schema.minProperties === 1 && schema.maxProperties === 1;
+        const hasNestedPattern = this.hasNestedOneOfPattern(schema);
+
+        if (!hasDirectPattern && !hasNestedPattern) {
+            return;
+        }
+
+        if (hasDirectPattern) {
+            if (schema.properties) {
+                for (const propName in schema.properties) {
+                    const prop = schema.properties[propName] as any;
+                    if (prop && typeof prop === 'object') {
+                        prop['x-oneof-property'] = true;
+
+                        if ('$ref' in prop) {
+                            this.markReferencedSchemaAsOneof(prop.$ref);
+                        }
+                    }
+                }
+            }
+            (schema as any)['x-oneof-schema'] = true;
+            this.logger.info(`Added x-oneof-property to properties and marked schema with x-oneof-schema`);
+        } else if (hasNestedPattern) {
+            (schema as any)['x-oneof-schema'] = true;
+            this.logger.info(`Marked parent schema with x-oneof-schema (contains nested oneOf pattern)`);
+        }
+    }
+
+    /**
+     * Recursively marks $ref schemas that are part of a oneOf, but stops when reaching a schema with actual content.
+     **/
+    private markReferencedSchemaAsOneof(ref: string, visited: Set<string> = new Set()): void {
+        if (visited.has(ref)) {
+            return;
+        }
+        visited.add(ref);
+
+        const schemaName = ref.split('/').pop();
+        if (!schemaName || !this.root.components?.schemas) {
+            return;
+        }
+
+        const schema = this.root.components.schemas[schemaName];
+        if (!schema) {
+            return;
+        }
+
+        if (is_simple_ref(schema)) {
+            (schema as any)['x-oneof-property'] = true;
+            this.markReferencedSchemaAsOneof((schema as any).$ref, visited);
+        }
+    }
+
+    /**
+     * Checks if schema has nested items (in allOf/anyOf/oneOf) with oneOf pattern.
+     **/
+    private hasNestedOneOfPattern(schema: OpenAPIV3.SchemaObject): boolean {
+        const composedKeys = ['allOf', 'anyOf', 'oneOf'] as const;
+        for (const key of composedKeys) {
+            const items = schema[key];
+            if (Array.isArray(items)) {
+                for (const item of items) {
+                    if (item && typeof item === 'object' && !('$ref' in item)) {
+                        const itemSchema = item as any;
+                        if (itemSchema.minProperties === 1 && itemSchema.maxProperties === 1) {
+                            return true;
+                        }
+                    }
+                }
+            }
+        }
+        return false;
     }
 }
