@@ -7,6 +7,7 @@ Inspired from [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 - Add .pyi type hints to the python wheel ([#253](https://github.com/opensearch-project/opensearch-protobufs/pull/253))
 - Preprocessing: change prefix from underscore_ to x_ and require map key ([#216](https://github.com/opensearch-project/opensearch-protobufs/pull/216))
 - Add Cardinality and Missing aggregations. ([#245](https://github.com/opensearch-project/opensearch-protobufs/pull/245))
+- Add terms aggregation protos  ([#268](https://github.com/opensearch-project/opensearch-protobufs/pull/268))
 
 ### Changed
 - Revert bulk response back to without error response ([#256](https://github.com/opensearch-project/opensearch-protobufs/pull/256))

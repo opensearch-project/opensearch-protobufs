@@ -995,7 +995,8 @@ message AggregationContainer {
 
     // SumBucketAggregation sum_bucket = 60;
 
-    // TermsAggregation terms = 61;
+    // [optional] terms aggregation
+    TermsAggregation terms = 61;
 
     // TopHitsAggregation top_hits = 62;
 
@@ -1201,4 +1202,79 @@ message MissingAggregate {
 
   // [optional] Result of sub aggregations on missing field docs.
   map<string, Aggregate> aggregations = 3;
+}
+
+message TermsAggregation {
+  // [optional] The custom metadata attached to a resource.
+  optional ObjectMap meta = 1;
+
+  // [optional] Name of the aggregation.
+  optional string name = 2;
+
+  // [optional] The field to aggregate on.
+  optional string field = 3;
+
+  // [optional] The number of term buckets to return. Defaults to 10.
+  optional int32 size = 4;
+
+  // [optional] The number of term buckets each shard will return. Higher values improve accuracy but increase memory usage.
+  optional int32 shard_size = 5;
+
+  // [optional] Only return terms that appear in at least this many documents.
+  optional int64 min_doc_count = 6;
+
+  // [optional] Only consider terms from shards that appear in at least this many documents.
+  optional int64 shard_min_doc_count = 7;
+
+  // [optional] If set, documents missing the field are considered to have this value.
+  optional FieldValue missing = 8;
+
+  // [optional] Script to generate terms.
+  optional Script script = 9;
+
+  // [optional] How to order the buckets. Can be by count, key, or sub-aggregation.
+  repeated BucketOrder order = 10;
+
+  // [optional] Execution hint for aggregation. Can be 'map' or 'global_ordinals'.
+  optional string execution_hint = 11;
+
+  // [optional] Sub-aggregations for this bucket aggregation.
+  map<string, AggregationContainer> aggregations = 12;
+
+  // [optional] Whether to show the document count error for each term. Defaults to false.
+  optional bool show_term_doc_count_error = 13;
+
+  // [optional] Include/exclude patterns for terms.
+  optional IncludeExclude include_exclude = 14;
+
+  // [optional] Collection mode for sub-aggregations.
+  optional string collect_mode = 15;
+}
+
+message BucketOrder {
+  // [optional] The key to order by (e.g., "_count", "_key", or a sub-aggregation name).
+  optional string key = 1;
+
+  // [optional] Whether to sort in ascending order. Defaults to true.
+  optional bool asc = 2;
+}
+
+message IncludeExclude {
+  // [optional] Include pattern (can be a regex or array of values).
+  optional string include = 1;
+
+  // [optional] Exclude pattern (can be a regex or array of values).
+  optional string exclude = 2;
+
+  // [optional] Include values as an array.
+  repeated string include_values = 3;
+
+  // [optional] Exclude values as an array.
+  repeated string exclude_values = 4;
+
+  // [optional] Number of partitions for partitioning the terms.
+  optional int32 num_partitions = 5;
+
+  // [optional] Partition ID to include.
+  optional int32 partition = 6;
 }
