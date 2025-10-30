@@ -1140,24 +1140,21 @@ message CardinalityAggregation {
   // [optional] The custom metadata attached to a resource.
   optional ObjectMap meta = 1;
 
-  // [optional] Name of the aggregaton.
-  optional string name = 2;
-
   // [optional] Field for which to calculate cardinality.
-  optional string field = 3;
+  optional string field = 2;
 
   // [optional] If set documents missing the field are counted towards the cardinality total.
   // Note the FieldValue provided here is arbitrary for the purposes of CardinalityAggregation.
-  optional FieldValue missing = 4;
+  optional FieldValue missing = 3;
 
   // [optional] Script to be included in aggregation execution.
-  optional Script script = 5;
+  optional Script script = 4;
 
   // [optional] A unique count below which counts are expected to be close to accurate. This allows to trade memory for accuracy.
-  optional int32 precision_threshold = 6;
+  optional int32 precision_threshold = 5;
 
-  // [optional] Execution hint to achieve higher performance given specific conditions.
-  optional CardinalityExecutionMode execution_hint = 7;
+  // [optional] Execution hint to achieve higher performance given specific conditions. Added in OpenSearch 2.19.1.
+  optional CardinalityExecutionMode execution_hint = 6;
 }
 
 message CardinalityAggregate {
@@ -1171,26 +1168,25 @@ message CardinalityAggregate {
 enum CardinalityExecutionMode {
   // OpenSearch will determine execution mode automatically when none specified.
   CARDINALITY_EXECUTION_MODE_UNSPECIFIED = 0;
-  // Cardinality will be calculated by hasing the contents of each field.
+  // Cardinality will be calculated by hashing the contents of each field.
   // Standard approach for high cardinality fields where field contents is not frequently repeated.
   CARDINALITY_EXECUTION_MODE_DIRECT = 1;
   // Cardinality will be calculated based on the global ordinals for this field.
   // More memory efficient for low cardinality fields where global ordinals can be efficiently calculated.
   CARDINALITY_EXECUTION_MODE_GLOBAL_ORDINALS = 2;
+  // Save memory by using a segmented approach for HLL structures (added in OpenSearch 2.19.1).
+  CARDINALITY_EXECUTION_MODE_SEGMENT_ORDINALS = 3;
 }
 
 message MissingAggregation {
   // [optional] The custom metadata attached to a resource.
   optional ObjectMap meta = 1;
 
-  // [optional] Name of the aggregaton.
-  optional string name = 2;
-
   // [optional] Sub-aggregations for this bucket aggregation
-  map<string, AggregationContainer> aggregations = 3;
+  map<string, AggregationContainer> aggregations = 2;
 
   // [optional] The path to a field or an array of paths. Some APIs support wildcards in the path, which allows you to select multiple fields.
-  optional string field = 5;
+  optional string field = 3;
 }
 
 message MissingAggregate {
@@ -1204,13 +1200,6 @@ message MissingAggregate {
   map<string, Aggregate> aggregations = 3;
 }
 
-enum MissingOrder {
-  MISSING_ORDER_UNSPECIFIED = 0;
-  MISSING_ORDER_DEFAULT = 1;
-  MISSING_ORDER_FIRST = 2;
-  MISSING_ORDER_LAST = 3;
-}
-
 message StringMap {
   map<string, string> string_map = 1;
 }
@@ -1218,8 +1207,6 @@ message StringMap {
 message TermsAggregation {
   // The custom metadata attached to a resource.
   optional ObjectMap meta = 1;
-
-  optional string name = 2;
 
   // Sub-aggregations for this bucket aggregation
   map<string, AggregationContainer> aggregations = 3;
@@ -1243,10 +1230,6 @@ message TermsAggregation {
 
   optional FieldValue missing = 11;
 
-  optional MissingOrder missing_order = 12;
-
-  optional bool missing_bucket = 13;
-
   // Coerced unmapped fields into the specified type.
   optional string value_type = 14;
 
@@ -1264,6 +1247,9 @@ message TermsAggregation {
   optional int32 size = 19;
 
   optional string format = 20;
+
+  // The minimum number of documents in a bucket on each shard for it to be returned.
+  optional int32 shard_min_doc_count = 21;
 }
 
 enum TermsAggregationCollectMode {
