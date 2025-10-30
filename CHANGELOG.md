@@ -10,6 +10,7 @@ Inspired from [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 
 ### Changed
 - Update preprocessing for x-protobuf-excluded ([#266](https://github.com/opensearch-project/opensearch-protobufs/pull/266))
+- Fix aggregations protos ([#270](https://github.com/opensearch-project/opensearch-protobufs/pull/270))
 
 ### Removed
 - Remove error responses for single doc ingestion APIS (Index, Update, Get, Delete Doc) ([#258](https://github.com/opensearch-project/opensearch-protobufs/pull/258))
