@@ -1204,6 +1204,17 @@ message MissingAggregate {
   map<string, Aggregate> aggregations = 3;
 }
 
+enum MissingOrder {
+  MISSING_ORDER_UNSPECIFIED = 0;
+  MISSING_ORDER_DEFAULT = 1;
+  MISSING_ORDER_FIRST = 2;
+  MISSING_ORDER_LAST = 3;
+}
+
+message StringMap {
+  map<string, string> string_map = 1;
+}
+
 message TermsAggregation {
   // The custom metadata attached to a resource.
   optional ObjectMap meta = 1;
