@@ -1647,7 +1647,9 @@ message ErrorCause {
 
   repeated ErrorCause suppressed = 6;
 
-  repeated string header = 7;
+  map<string, StringArray> header = 7;
+
+  optional ObjectMap metadata = 8;
 }
 message ErrorResponseBase {
   ErrorCause error = 1;
@@ -2490,6 +2492,8 @@ message GeoDistanceSort {
   optional DistanceUnit unit = 6;
 
   optional GeoValidationMethod validation_method = 7;
+
+  map<string, GeoLocationArray> location = 8;
 }
 enum GeoDistanceType {
   GEO_DISTANCE_TYPE_UNSPECIFIED = 0;
@@ -3270,6 +3274,8 @@ message InlineGetDictUserDefined {
 
   // The source of the document.
   optional ObjectMap x_source = 6;
+
+  optional ObjectMap metadata_fields = 7;
 }
 message InlineScript {
   // Specifies any named parameters that are passed into the script as variables. Use parameters instead of hard-coded values to decrease compilation time.
@@ -6335,9 +6341,7 @@ message SpanFirstQuery {
   SpanQuery match = 4;
 }
 message SpanGapQuery {
-  string field = 1;
-
-  optional int32 span_width = 2;
+  map<string, int32> span_width = 1;
 }
 message SpanMultiTermQuery {
   // Floating point number used to decrease or increase the relevance scores of the query. Boost values are relative to the default value of 1.0. A boost value between 0 and 1.0 decreases the relevance score. A value greater than 1.0 increases the relevance score.
@@ -6718,6 +6722,8 @@ enum SuggestSort {
 message Suggester {
   // The global suggest text, which avoids repetition when the same text is used in several suggesters.
   optional string text = 1;
+
+  map<string, FieldSuggester> suggesters = 2;
 }
 message SuggesterBase {
   optional string analyzer = 1;
