@@ -19,6 +19,7 @@ export class SchemaModifier {
         traverse(this.root, {
             onSchemaProperty: (schema) => {
                 this.deduplicateEnumValue(schema)
+                this.convertAdditionalPropertiesToProperty(schema, true)
                 this.handleAdditionalPropertiesUndefined(schema)
                 this.convertNullTypeToNullValue(schema)
                 this.collapseOrMergeOneOfArray(schema)
@@ -26,6 +27,7 @@ export class SchemaModifier {
             onSchema: (schema, schemaName) => {
                 if (!schema || isReferenceObject(schema)) return;
                 this.deduplicateEnumValue(schema)
+                this.convertAdditionalPropertiesToProperty(schema, false)
                 this.handleAdditionalPropertiesUndefined(schema)
                 this.convertNullTypeToNullValue(schema)
                 this.handleOneOfConst(schema, schemaName)
@@ -36,11 +38,14 @@ export class SchemaModifier {
         const visit = new Set();
         traverse(this.root, {
             onSchemaProperty: (schema) => {
-                this.simplifySingleMapSchema(schema, visit)
+                this.simplifySingleMapSchema(schema, visit);
+                this.handleAdditionalPropertiesUndefined(schema)
+
             },
             onSchema: (schema) => {
                 if (!schema || isReferenceObject(schema)) return;
                 this.simplifySingleMapSchema(schema, visit)
+                this.handleAdditionalPropertiesUndefined(schema)
             },
         });
         return this.root
@@ -70,7 +75,6 @@ export class SchemaModifier {
                     break;
                 }
             }
-            
             // if found string+const, collect all values
             if (hasStringWithConst) {
                 for (const item of schema.oneOf) {
@@ -84,7 +88,6 @@ export class SchemaModifier {
                         }
                     }
                 }
-                
                 // Convert to enum
                 delete schema.oneOf;
                 schema.type = 'string';
@@ -342,5 +345,96 @@ export class SchemaModifier {
         if ((schema.type as any) === 'null') {
             (schema as any).type = 'NullValue';
         }
+    }
+
+    /**
+     * Converts additionalProperties with a title into a named property.
+     *
+     * @param schema - The schema to process
+     * @param isNestedProperty - If true, skip conversion (nested properties already have context)
+     *
+     * Example:
+     *   Input:
+     *   {
+     *     type: "object",
+     *     properties: { distance: { type: "string" } },
+     *     propertyNames: { title: "field", type: "string" },
+     *     additionalProperties: {
+     *       title: "location",
+     *       $ref: "#/components/schemas/GeoLocation"
+     *     },
+     *     minProperties: 2
+     *   }
+     *
+     *   Output:
+     *   {
+     *     type: "object",
+     *     properties: {
+     *       distance: { type: "string" },
+     *       location: {
+     *         type: "object",
+     *         additionalProperties: {
+     *           $ref: "#/components/schemas/GeoLocation"
+     *         }
+     *       }
+     *     },
+     *     minProperties: 2
+     *   }
+     **/
+    convertAdditionalPropertiesToProperty(schema: OpenAPIV3.SchemaObject, isNestedProperty: boolean = false): void {
+        if (!schema.additionalProperties || typeof schema.additionalProperties !== 'object') {
+            return;
+        }
+
+        const additionalProps = schema.additionalProperties as any;
+
+        if (isNestedProperty) {
+            return;
+        }
+
+        if (!additionalProps.title || typeof additionalProps.title !== 'string') {
+            return;
+        }
+
+        const propertyName = additionalProps.title;
+
+        if (!schema.properties) {
+            schema.properties = {};
+        }
+
+        if (schema.properties[propertyName]) {
+            this.logger.warn(`Property '${propertyName}' already exists in schema, skipping additionalProperties conversion`);
+            return;
+        }
+
+        const innerAdditionalProps: any = {};
+        for (const key in additionalProps) {
+            if (key !== 'title') {
+                innerAdditionalProps[key] = additionalProps[key];
+            }
+        }
+        const hasSchemaDefinition = Boolean(
+            innerAdditionalProps.type ||
+            innerAdditionalProps.$ref ||
+            innerAdditionalProps.properties ||
+            innerAdditionalProps.enum ||
+            innerAdditionalProps.items ||
+            innerAdditionalProps.allOf ||
+            innerAdditionalProps.anyOf ||
+            innerAdditionalProps.oneOf
+        );
+
+        schema.properties[propertyName] = {
+            type: 'object',
+            additionalProperties: hasSchemaDefinition ? innerAdditionalProps : true
+        };
+
+        delete schema.additionalProperties;
+
+        if ('propertyNames' in schema) {
+            delete schema.propertyNames;
+        }
+
+        this.logger.info(`Converted additionalProperties to named property '${propertyName}' with type: object`);
     }
 }
