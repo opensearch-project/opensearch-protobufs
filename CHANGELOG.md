@@ -8,6 +8,7 @@ Inspired from [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 - Add Cardinality and Missing aggregations. ([#245](https://github.com/opensearch-project/opensearch-protobufs/pull/245))
 - Add terms aggregation protos  ([#268](https://github.com/opensearch-project/opensearch-protobufs/pull/268))
 - Preprocessing: Handle unnamed additionalProperties.([#272](https://github.com/opensearch-project/opensearch-protobufs/pull/272))
+- Preprocessing - Preprocessing - Add filter to not convert additionalProperties when only one key allowed ([#288](https://github.com/opensearch-project/opensearch-protobufs/pull/288))
 
 ### Changed
 - Update preprocessing for x-protobuf-excluded ([#266](https://github.com/opensearch-project/opensearch-protobufs/pull/266))

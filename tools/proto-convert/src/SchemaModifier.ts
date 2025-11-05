@@ -19,7 +19,6 @@ export class SchemaModifier {
         traverse(this.root, {
             onSchemaProperty: (schema) => {
                 this.deduplicateEnumValue(schema)
-                this.convertAdditionalPropertiesToProperty(schema, true)
                 this.handleAdditionalPropertiesUndefined(schema)
                 this.convertNullTypeToNullValue(schema)
                 this.collapseOrMergeOneOfArray(schema)
@@ -27,7 +26,7 @@ export class SchemaModifier {
             onSchema: (schema, schemaName) => {
                 if (!schema || isReferenceObject(schema)) return;
                 this.deduplicateEnumValue(schema)
-                this.convertAdditionalPropertiesToProperty(schema, false)
+                this.convertAdditionalPropertiesToProperty(schema)
                 this.handleAdditionalPropertiesUndefined(schema)
                 this.convertNullTypeToNullValue(schema)
                 this.handleOneOfConst(schema, schemaName)
@@ -351,7 +350,6 @@ export class SchemaModifier {
      * Converts additionalProperties with a title into a named property.
      *
      * @param schema - The schema to process
-     * @param isNestedProperty - If true, skip conversion (nested properties already have context)
      *
      * Example:
      *   Input:
@@ -381,14 +379,14 @@ export class SchemaModifier {
      *     minProperties: 2
      *   }
      **/
-    convertAdditionalPropertiesToProperty(schema: OpenAPIV3.SchemaObject, isNestedProperty: boolean = false): void {
+    convertAdditionalPropertiesToProperty(schema: OpenAPIV3.SchemaObject): void {
         if (!schema.additionalProperties || typeof schema.additionalProperties !== 'object') {
             return;
         }
 
         const additionalProps = schema.additionalProperties as any;
 
-        if (isNestedProperty) {
+        if (schema.minProperties === 1 && schema.maxProperties === 1) {
             return;
         }
 
