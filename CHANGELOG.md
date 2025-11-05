@@ -20,3 +20,10 @@ Inspired from [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 ### Fixed
 
 ### Security
+- Updated gRPC from 1.68.2 to 1.70.0 to address multiple Netty vulnerabilities (CVE-2024-47535 and others)
+- Updated Protobuf from 3.25.5 to 3.25.8 to address CVE-2024-7254 (stack overflow vulnerability)
+- Updated JavaScript dependencies to address low-severity vulnerabilities:
+  - eslint-config-standard-with-typescript: 43.0.1 -> 43.0.2
+  - json-schema-to-typescript: 14.0.4 -> 15.0.2
+  - @eslint/eslintrc: 3.0.2 -> 3.1.0
+- Added JUnit override >=4.13.2 to address test framework vulnerabilities
