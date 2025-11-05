@@ -136,7 +136,7 @@ load("@io_grpc_grpc_java//:repositories.bzl", "IO_GRPC_GRPC_JAVA_ARTIFACTS", "IO
 
 maven_install(
     artifacts = IO_GRPC_GRPC_JAVA_ARTIFACTS + [
-        # Security fixes: Updated Netty versions to address CVE-2025-58057, CVE-2025-58056, CVE-2025-55163, CVE-2025-24970, CVE-2025-25193
+        # Security fixes: Force newer Netty versions to address vulnerabilities
         "io.netty:netty-common:4.1.118.Final",
         "io.netty:netty-buffer:4.1.125.Final",
         "io.netty:netty-codec:4.1.125.Final",
