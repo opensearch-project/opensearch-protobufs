@@ -136,18 +136,18 @@ load("@io_grpc_grpc_java//:repositories.bzl", "IO_GRPC_GRPC_JAVA_ARTIFACTS", "IO
 
 maven_install(
     artifacts = IO_GRPC_GRPC_JAVA_ARTIFACTS + [
-        # Security fixes: Force newer Netty versions to address vulnerabilities
-        "io.netty:netty-common:4.1.115.Final",
-        "io.netty:netty-buffer:4.1.115.Final",
-        "io.netty:netty-codec:4.1.115.Final",
-        "io.netty:netty-codec-http:4.1.115.Final",
-        "io.netty:netty-codec-http2:4.1.115.Final",
-        "io.netty:netty-codec-socks:4.1.115.Final",
-        "io.netty:netty-handler:4.1.115.Final",
-        "io.netty:netty-handler-proxy:4.1.115.Final",
-        "io.netty:netty-resolver:4.1.115.Final",
-        "io.netty:netty-transport:4.1.115.Final",
-        "io.netty:netty-transport-native-unix-common:4.1.115.Final",
+        # Security fixes: Updated Netty versions to address CVE-2025-58057, CVE-2025-58056, CVE-2025-55163, CVE-2025-24970, CVE-2025-25193
+        "io.netty:netty-common:4.1.118.Final",
+        "io.netty:netty-buffer:4.1.125.Final",
+        "io.netty:netty-codec:4.1.125.Final",
+        "io.netty:netty-codec-http:4.1.125.Final",
+        "io.netty:netty-codec-http2:4.1.125.Final",
+        "io.netty:netty-codec-socks:4.1.125.Final",
+        "io.netty:netty-handler:4.1.118.Final",
+        "io.netty:netty-handler-proxy:4.1.125.Final",
+        "io.netty:netty-resolver:4.1.125.Final",
+        "io.netty:netty-transport:4.1.125.Final",
+        "io.netty:netty-transport-native-unix-common:4.1.125.Final",
         # Force secure Guava version
         "com.google.guava:guava:32.0.1-android",
     ],
