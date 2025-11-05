@@ -97,7 +97,7 @@ genrule(
 )
 
 genrule(
-    name = "fix_python_imports",
+    name = "python_protos_all",
     srcs = [
         ":python_schemas",
         ":python_services",
@@ -164,6 +164,6 @@ py_wheel(
     platform = "any",
     python_requires = ">=3.10",
     deps = [
-        ":fix_python_imports",
+        ":python_protos_all",
     ],
 )
