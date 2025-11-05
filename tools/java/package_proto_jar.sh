@@ -78,10 +78,14 @@ fi
 
 
 # Step 2: Download protobuf-java and gRPC dependencies if needed
-PROTOBUF_VERSION="3.25.5"
+PROTOBUF_VERSION="3.25.8"
 GRPC_VERSION="1.68.2"
 GUAVA_VERSION="33.2.1-jre"
 JAVAX_ANNOTATION_VERSION="1.3.2"
+# Explicit dependency versions to override transitive vulnerabilities
+GOOGLE_AUTH_VERSION="1.27.0"
+OKIO_VERSION="3.9.1"
+
 PROTOBUF_JAR="${OUTPUT_DIR_MAVEN}/protobuf-java-${PROTOBUF_VERSION}.jar"
 GRPC_STUB_JAR="${OUTPUT_DIR_MAVEN}/grpc-stub-${GRPC_VERSION}.jar"
 GRPC_PROTOBUF_JAR="${OUTPUT_DIR_MAVEN}/grpc-protobuf-${GRPC_VERSION}.jar"
@@ -89,6 +93,8 @@ GRPC_CORE_JAR="${OUTPUT_DIR_MAVEN}/grpc-core-${GRPC_VERSION}.jar"
 GRPC_API_JAR="${OUTPUT_DIR_MAVEN}/grpc-api-${GRPC_VERSION}.jar"
 GUAVA_JAR="${OUTPUT_DIR_MAVEN}/guava-${GUAVA_VERSION}.jar"
 JAVAX_ANNOTATION_JAR="${OUTPUT_DIR_MAVEN}/javax.annotation-api-${JAVAX_ANNOTATION_VERSION}.jar"
+GOOGLE_AUTH_JAR="${OUTPUT_DIR_MAVEN}/google-auth-library-oauth2-http-${GOOGLE_AUTH_VERSION}.jar"
+OKIO_JAR="${OUTPUT_DIR_MAVEN}/okio-${OKIO_VERSION}.jar"
 
 if [ ! -f "${PROTOBUF_JAR}" ]; then
   echo "Downloading protobuf-java dependency..."
@@ -125,10 +131,20 @@ if [ ! -f "${JAVAX_ANNOTATION_JAR}" ]; then
   curl -s -o "${JAVAX_ANNOTATION_JAR}" "https://repo1.maven.org/maven2/javax/annotation/javax.annotation-api/${JAVAX_ANNOTATION_VERSION}/javax.annotation-api-${JAVAX_ANNOTATION_VERSION}.jar"
 fi
 
+if [ ! -f "${GOOGLE_AUTH_JAR}" ]; then
+  echo "Downloading google-auth-library dependency..."
+  curl -s -o "${GOOGLE_AUTH_JAR}" "https://repo1.maven.org/maven2/com/google/auth/google-auth-library-oauth2-http/${GOOGLE_AUTH_VERSION}/google-auth-library-oauth2-http-${GOOGLE_AUTH_VERSION}.jar"
+fi
+
+if [ ! -f "${OKIO_JAR}" ]; then
+  echo "Downloading okio dependency..."
+  curl -s -o "${OKIO_JAR}" "https://repo1.maven.org/maven2/com/squareup/okio/okio/${OKIO_VERSION}/okio-${OKIO_VERSION}.jar"
+fi
+
 # Step 3: Compile Java files
 echo "Compiling Java files..."
 find "$OUTPUT_DIR_JAVA" -name "*.java" > "${OUTPUT_DIR_MAVEN}/sources.txt"
-javac -cp "${PROTOBUF_JAR}:${GRPC_STUB_JAR}:${GRPC_PROTOBUF_JAR}:${GRPC_CORE_JAR}:${GRPC_API_JAR}:${GUAVA_JAR}:${JAVAX_ANNOTATION_JAR}" -d "${OUTPUT_DIR_MAVEN}/classes" @"${OUTPUT_DIR_MAVEN}/sources.txt"
+javac -cp "${PROTOBUF_JAR}:${GRPC_STUB_JAR}:${GRPC_PROTOBUF_JAR}:${GRPC_CORE_JAR}:${GRPC_API_JAR}:${GUAVA_JAR}:${JAVAX_ANNOTATION_JAR}:${GOOGLE_AUTH_JAR}:${OKIO_JAR}" -d "${OUTPUT_DIR_MAVEN}/classes" @"${OUTPUT_DIR_MAVEN}/sources.txt"
 
 # Step 3: Create POM file
 echo "Creating POM file..."
@@ -268,7 +284,7 @@ echo "}"
 echo "Prepare publishing artifacts"
 PUBLISH_DIR="$OUTPUT_DIR_MAVEN/publish"
 rm -rf "$PUBLISH_DIR" && mkdir -p "$PUBLISH_DIR"
-cp -v "${OUTPUT_DIR_MAVEN}/META-INF/maven/${GROUP_ID}/${ARTIFACT_ID}/pom.xml" "${PUBLISH_DIR}/${JAR_NAME%.jar}.pom" 
+cp -v "${OUTPUT_DIR_MAVEN}/META-INF/maven/${GROUP_ID}/${ARTIFACT_ID}/pom.xml" "${PUBLISH_DIR}/${JAR_NAME%.jar}.pom"
 cp -v "${OUTPUT_DIR_MAVEN}/${JAR_NAME}" "${PUBLISH_DIR}"
 cp -v "${OUTPUT_DIR_MAVEN}/${SOURCES_JAR_NAME}" "${PUBLISH_DIR}"
 cp -v "${OUTPUT_DIR_MAVEN}/${JAVADOC_JAR_NAME}" "${PUBLISH_DIR}"
