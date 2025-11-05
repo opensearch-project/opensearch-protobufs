@@ -135,12 +135,28 @@ load("@rules_jvm_external//:defs.bzl", "maven_install")
 load("@io_grpc_grpc_java//:repositories.bzl", "IO_GRPC_GRPC_JAVA_ARTIFACTS", "IO_GRPC_GRPC_JAVA_OVERRIDE_TARGETS", "grpc_java_repositories")
 
 maven_install(
-    artifacts = IO_GRPC_GRPC_JAVA_ARTIFACTS,
+    artifacts = IO_GRPC_GRPC_JAVA_ARTIFACTS + [
+        # Security fixes: Force newer Netty versions to address vulnerabilities
+        "io.netty:netty-common:4.1.115.Final",
+        "io.netty:netty-buffer:4.1.115.Final",
+        "io.netty:netty-codec:4.1.115.Final",
+        "io.netty:netty-codec-http:4.1.115.Final",
+        "io.netty:netty-codec-http2:4.1.115.Final",
+        "io.netty:netty-codec-socks:4.1.115.Final",
+        "io.netty:netty-handler:4.1.115.Final",
+        "io.netty:netty-handler-proxy:4.1.115.Final",
+        "io.netty:netty-resolver:4.1.115.Final",
+        "io.netty:netty-transport:4.1.115.Final",
+        "io.netty:netty-transport-native-unix-common:4.1.115.Final",
+        # Force secure Guava version
+        "com.google.guava:guava:32.0.1-android",
+    ],
     generate_compat_repositories = True,
     override_targets = IO_GRPC_GRPC_JAVA_OVERRIDE_TARGETS,
     repositories = [
         "https://repo.maven.apache.org/maven2/",
     ],
+    version_conflict_policy = "pinned",
 )
 
 load("@maven//:compat.bzl", "compat_repositories")
