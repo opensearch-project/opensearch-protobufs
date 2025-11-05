@@ -1,7 +1,7 @@
 # protos/services/BUILD.bazel
 load("@rules_proto//proto:defs.bzl", "proto_library")
-load("@rules_proto_grpc//java:defs.bzl", "java_grpc_library")
-load("@io_bazel_rules_go//proto:def.bzl", "go_grpc_library")
+load("@rules_proto_grpc_java//:defs.bzl", "java_grpc_library")
+load("@rules_proto_grpc_go//:defs.bzl", "go_grpc_library")
 
 package(default_visibility = ["//visibility:public"])
 
@@ -9,34 +9,47 @@ proto_library(
     name = "document_service_proto",
     srcs = ["document_service.proto"],
     deps = ["//protos/schemas:document_proto"],
+    visibility = ["//visibility:public"],
 )
 
 proto_library(
     name = "search_service_proto",
     srcs = ["search_service.proto"],
     deps = ["//protos/schemas:search_proto"],
+    visibility = ["//visibility:public"],
 )
 
+# Java gRPC
 java_grpc_library(
-    name = "document_service_java_proto",
+    name = "document_service_java_grpc",
     protos = [":document_service_proto"],
     deps = ["//protos/schemas:document_java_proto"],
 )
 
 java_grpc_library(
-    name = "search_service_java_proto",
+    name = "search_service_java_grpc",
     protos = [":search_service_proto"],
     deps = ["//protos/schemas:search_java_proto"],
 )
 
+# Go gRPC - using single package as specified in go_package option
 go_grpc_library(
-    name = "document_service_go_proto",
-    protos = [":document_service_proto"],
-    deps = ["//protos/schemas:document_go_proto"],
+    name = "services_go_grpc",
+    importpath = "github.com/opensearch-project/opensearch-protobufs/go/services",
+    protos = [
+        ":document_service_proto",
+        ":search_service_proto",
+    ],
+    deps = ["//protos/schemas:schemas_go_proto"],
 )
 
-go_grpc_library(
-    name = "search_service_go_proto",
-    protos = [":search_service_proto"],
-    deps = ["//protos/schemas:search_go_proto"],
+# Aliases for backward compatibility
+alias(
+    name = "document_service_go_grpc",
+    actual = ":services_go_grpc",
+)
+
+alias(
+    name = "search_service_go_grpc",
+    actual = ":services_go_grpc",
 )

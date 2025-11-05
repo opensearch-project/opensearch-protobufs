@@ -1,13 +1,13 @@
 # Enable proto3 optional fields
-build --proto_compiler=@com_google_protobuf//:protoc
+build --proto_compiler=@protobuf//:protoc
 build --protocopt=--experimental_allow_proto3_optional
 
-# Set C++ standard to C++14
-build --cxxopt=-std=c++14
-build --host_cxxopt=-std=c++14
+# Set C++ standard to C++17 (required by abseil-cpp in Bazel 8+)
+build --cxxopt=-std=c++17
+build --host_cxxopt=-std=c++17
 
 # Enable deprecated java_common.compile parameters
 build --incompatible_java_common_parameters=false
 
-# Disable bazelmod by default
-common --noenable_bzlmod
+# Use Bzlmod for rules_proto_grpc 5.x (required)
+common --enable_bzlmod

@@ -78,8 +78,9 @@ fi
 
 
 # Step 2: Download protobuf-java and gRPC dependencies if needed
-PROTOBUF_VERSION="3.25.8"
-GRPC_VERSION="1.70.0"
+# Note: Protobuf 31.1 is the new versioning (equivalent to 4.31.1)
+PROTOBUF_VERSION="4.31.1"
+GRPC_VERSION="1.76.0"
 GUAVA_VERSION="33.2.1-jre"
 JAVAX_ANNOTATION_VERSION="1.3.2"
 PROTOBUF_JAR="${OUTPUT_DIR_MAVEN}/protobuf-java-${PROTOBUF_VERSION}.jar"
