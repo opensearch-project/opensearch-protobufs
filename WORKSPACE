@@ -2,6 +2,18 @@ workspace(name = "proto_workspace")
 
 load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 
+"""
+Official rules_license 1.0.0 provides SSLeay-standalone license ensuring Python services build correctly with BoringSSL dependencies
+"""
+
+http_archive(
+    name = "rules_license",
+    sha256 = "26d4021f6898e23b82ef953078389dd49ac2b5618ac564ade4ef87cced147b38",
+    urls = [
+        "https://github.com/bazelbuild/rules_license/releases/download/1.0.0/rules_license-1.0.0.tar.gz",
+    ],
+)
+
 load("//:version_helper.bzl", "version_helper")
 version_helper(
     name = "versioning",
@@ -20,7 +32,7 @@ http_archive(
 )
 
 """
-Protoc compiler - 3.25.5 and associated C dependencies.
+Protoc compiler - 3.25.8 and associated C dependencies.
 Includes some native support for language specific rules.
 """
 
@@ -36,9 +48,9 @@ http_archive(
 
 http_archive(
     name = "com_google_protobuf",
-    sha256 = "4356e78744dfb2df3890282386c8568c85868116317d9b3ad80eb11c2aecf2ff",
-    strip_prefix = "protobuf-3.25.5",
-    urls = ["https://github.com/protocolbuffers/protobuf/archive/v3.25.5.tar.gz"],
+    sha256 = "21d9e2a29b2df374134b25b552eef4cefb01db190ecda5613e09e0b45e3d3088",
+    strip_prefix = "protobuf-3.25.8",
+    urls = ["https://github.com/protocolbuffers/protobuf/archive/v3.25.8.tar.gz"],
 )
 
 load("@com_google_protobuf//:protobuf_deps.bzl", "protobuf_deps")
@@ -77,14 +89,15 @@ rules_proto_grpc_toolchains()
 
 """
 Official gRPC repo bazel dependencies.
-We must match the version used in OS core exactly - 1.68.2.
+Using gRPC 1.70.0 - the highest version compatible with current Bazel ecosystem.
+Note: gRPC 1.75.0 requires Bazel 8+ with complex dependency management that causes cycles.
 """
 
 http_archive(
     name = "com_github_grpc_grpc",
-    strip_prefix = "grpc-1.68.2",
-    urls = ["https://github.com/grpc/grpc/archive/v1.68.2.tar.gz"],
-    sha256 = "afbc5d78d6ba6d509cc6e264de0d49dcd7304db435cbf2d630385bacf49e066c",
+    strip_prefix = "grpc-1.70.0",
+    urls = ["https://github.com/grpc/grpc/archive/v1.70.0.tar.gz"],
+    sha256 = "3c95034f6b23ce7d286e2e7b5f3f4f223720b8bb3f5a9662ff96b7013b2c3c26",
 )
 
 load("@com_github_grpc_grpc//bazel:grpc_deps.bzl", "grpc_deps")

@@ -78,8 +78,8 @@ fi
 
 
 # Step 2: Download protobuf-java and gRPC dependencies if needed
-PROTOBUF_VERSION="3.25.5"
-GRPC_VERSION="1.68.2"
+PROTOBUF_VERSION="3.25.8"
+GRPC_VERSION="1.70.0"
 GUAVA_VERSION="33.2.1-jre"
 JAVAX_ANNOTATION_VERSION="1.3.2"
 PROTOBUF_JAR="${OUTPUT_DIR_MAVEN}/protobuf-java-${PROTOBUF_VERSION}.jar"
@@ -268,7 +268,7 @@ echo "}"
 echo "Prepare publishing artifacts"
 PUBLISH_DIR="$OUTPUT_DIR_MAVEN/publish"
 rm -rf "$PUBLISH_DIR" && mkdir -p "$PUBLISH_DIR"
-cp -v "${OUTPUT_DIR_MAVEN}/META-INF/maven/${GROUP_ID}/${ARTIFACT_ID}/pom.xml" "${PUBLISH_DIR}/${JAR_NAME%.jar}.pom" 
+cp -v "${OUTPUT_DIR_MAVEN}/META-INF/maven/${GROUP_ID}/${ARTIFACT_ID}/pom.xml" "${PUBLISH_DIR}/${JAR_NAME%.jar}.pom"
 cp -v "${OUTPUT_DIR_MAVEN}/${JAR_NAME}" "${PUBLISH_DIR}"
 cp -v "${OUTPUT_DIR_MAVEN}/${SOURCES_JAR_NAME}" "${PUBLISH_DIR}"
 cp -v "${OUTPUT_DIR_MAVEN}/${JAVADOC_JAR_NAME}" "${PUBLISH_DIR}"
