@@ -4,10 +4,10 @@ Inspired from [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 
 ## [Unreleased]
 ### Added
-- Preprocessing: change prefix from underscore_ to x_ and require map key ([#216](https://github.com/opensearch-project/opensearch-protobufs/pull/216))
+- Preprocessing: Change prefix from underscore_ to x_ and require map key ([#216](https://github.com/opensearch-project/opensearch-protobufs/pull/216))
 - Add Cardinality and Missing aggregations. ([#245](https://github.com/opensearch-project/opensearch-protobufs/pull/245))
 - Add terms aggregation protos  ([#268](https://github.com/opensearch-project/opensearch-protobufs/pull/268))
-- Add terms aggregation protos  ([#268](https://github.com/opensearch-project/opensearch-protobufs/pull/268))
+- Preprocessing: Handle unnamed additionalProperties.([#272](https://github.com/opensearch-project/opensearch-protobufs/pull/272))
 - Support importing without proto file name knowledge in Python generated protobuf code ([#275](https://github.com/opensearch-project/opensearch-protobufs/pull/275))
 
 ### Changed
