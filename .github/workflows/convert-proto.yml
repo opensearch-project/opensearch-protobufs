@@ -1,6 +1,8 @@
 name: Auto Proto Convert
 
 on:
+  # for testing
+  pull_request:
   workflow_dispatch:
     inputs:
       input_param:
