@@ -1,4 +1,4 @@
-name: Build OpenSearch Protobufs JAVA Artifact JARs
+name: Build OpenSearch Protobufs JAVA Artifact JARs - empty change to trigger Mend
 
 on:
   pull_request:

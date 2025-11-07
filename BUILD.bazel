@@ -1,7 +1,8 @@
-load("@io_bazel_rules_go//go:def.bzl", "go_library")
-load("@versioning//:version.bzl", "VERSION")
-load("@rules_proto_grpc//python:defs.bzl", "python_proto_library", "python_grpc_library")
+load("@rules_go//go:def.bzl", "go_library")
+load("//:version.bzl", "VERSION")
+load("@rules_proto_grpc_python//:defs.bzl", "python_grpc_library", "python_proto_library")
 load("@rules_python//python:packaging.bzl", "py_wheel")
+load("@rules_java//java:defs.bzl", "java_library")
 
 package(default_visibility = ["//visibility:public"])
 
@@ -12,13 +13,16 @@ java_library(
         "//protos/schemas:common_java_proto",
         "//protos/schemas:document_java_proto",
         "//protos/schemas:search_java_proto",
-        "//protos/services:document_service_java_proto",
-        "//protos/services:search_service_java_proto",
+        "//protos/services:document_service_java_grpc",
+        "//protos/services:search_service_java_grpc",
     ],
 )
 
-python_proto_library(
-    name = "python_schemas",
+# Python proto compilation (using compile rules directly for debugging)
+load("@rules_proto_grpc_python//:defs.bzl", "python_proto_compile", "python_grpc_compile")
+
+python_proto_compile(
+    name = "python_schemas_pb",
     visibility = ["//visibility:public"],
     protos = [
         "//protos/schemas:common_proto",
@@ -27,16 +31,26 @@ python_proto_library(
     ],
 )
 
-python_grpc_library(
-    name = "python_services",
+python_grpc_compile(
+    name = "python_services_pb",
     visibility = ["//visibility:public"],
     protos = [
         "//protos/services:document_service_proto",
         "//protos/services:search_service_proto",
     ],
-    deps = [
-        ":python_schemas"
-    ]
+)
+
+# Aliases for backward compatibility
+alias(
+    name = "python_schemas",
+    actual = ":python_schemas_pb",
+    visibility = ["//visibility:public"],
+)
+
+alias(
+    name = "python_services",
+    actual = ":python_services_pb",
+    visibility = ["//visibility:public"],
 )
 
 go_library(
@@ -46,8 +60,8 @@ go_library(
         "//protos/schemas:common_go_proto",
         "//protos/schemas:document_go_proto",
         "//protos/schemas:search_go_proto",
-        "//protos/services:document_service_go_proto",
-        "//protos/services:search_service_go_proto",
+        "//protos/services:document_service_go_grpc",
+        "//protos/services:search_service_go_grpc",
     ],
 )
 
@@ -68,7 +82,7 @@ genrule(
         "//protos/schemas:search.proto",
         "//protos/services:document_service.proto",
         "//protos/services:search_service.proto",
-        "@com_google_protobuf//:well_known_type_protos",
+        "@protobuf//:well_known_type_protos",
     ],
     outs = [
         "python_pyi/schemas/common_pb2.pyi",
@@ -79,9 +93,9 @@ genrule(
     ],
     cmd = """
         # Use protoc with --pyi_out to generate debug symbols
-        $(location @com_google_protobuf//:protoc) \
+        $(location @protobuf//:protoc) \
             --proto_path=. \
-            --proto_path=external/com_google_protobuf/src \
+            --proto_path=external/protobuf~/src \
             --pyi_out=$(RULEDIR) \
             protos/schemas/common.proto \
             protos/schemas/document.proto \
@@ -93,7 +107,7 @@ genrule(
         mv $(RULEDIR)/protos/schemas $(RULEDIR)/python_pyi
         mv $(RULEDIR)/protos/services $(RULEDIR)/python_pyi
     """,
-    tools = ["@com_google_protobuf//:protoc"],
+    tools = ["@protobuf//:protoc"],
 )
 
 genrule(
