@@ -97,8 +97,13 @@ genrule(
 )
 
 genrule(
-    name = "fix_python_imports",
-    srcs = [":python_schemas", ":python_services", ":generate_pyi_files"],
+    name = "python_protos_all",
+    srcs = [
+        ":python_schemas",
+        ":python_services",
+        ":generate_pyi_files",
+        "tools/generate_init_files.py",
+    ],
     outs = [
         "opensearch/protobufs/schemas/common_pb2.py",
         "opensearch/protobufs/schemas/common_pb2.pyi",
@@ -112,6 +117,8 @@ genrule(
         "opensearch/protobufs/services/search_service_pb2.py",
         "opensearch/protobufs/services/search_service_pb2.pyi",
         "opensearch/protobufs/services/search_service_pb2_grpc.py",
+        "opensearch/__init__.py",
+        "opensearch/protobufs/__init__.py",
         "opensearch/protobufs/schemas/__init__.py",
         "opensearch/protobufs/services/__init__.py",
     ],
@@ -126,9 +133,9 @@ genrule(
 
         # Find and replace "from protos" with "from opensearch.protobufs" in all files
         find $(RULEDIR)/opensearch/protobufs/ -type f -exec sed -i 's/from protos/from opensearch.protobufs/g' {} +
+        # Generate __init__.py files automatically
+        python3 tools/generate_init_files.py $(RULEDIR)/opensearch/protobufs/schemas $(RULEDIR)/opensearch/protobufs/services
 
-        touch $(RULEDIR)/opensearch/protobufs/schemas/__init__.py
-        touch $(RULEDIR)/opensearch/protobufs/services/__init__.py
     """,
 )
 
@@ -157,6 +164,6 @@ py_wheel(
     platform = "any",
     python_requires = ">=3.10",
     deps = [
-        ":fix_python_imports",
+        ":python_protos_all",
     ],
 )

@@ -17,7 +17,7 @@ Generate protobuf libraries for your preferred language:
 bazel build //:java_protos_all
 
 # Python
-bazel build //:python_schemas //:python_services
+bazel build //:python_protos_all
 
 # Go
 bazel build //:go_protos_all
@@ -109,16 +109,16 @@ SearchResponse response = client.search(request);
 ### Python
 
 ```python
-from opensearch.protobufs.schemas import search_pb2
-from opensearch.protobufs.services import search_service_pb2
+from opensearch.protobufs.schemas import SearchRequest, BulkRequest, IndexDocumentRequest
+from opensearch.protobufs.services import SearchServiceStub
 
 # Use generated message types
-request = search_pb2.SearchRequest()
+request = SearchRequest()
 request.query = "elasticsearch"
 request.size = 10
 
 # Use generated gRPC clients
-client = search_service_pb2.SearchServiceStub(channel)
+client = SearchServiceStub(channel)
 response = client.Search(request)
 ```
 
@@ -135,8 +135,8 @@ bazel-bin/protos/services/*_go_proto_pb/protos/services/*.pb.go
 bazel-bin/libjava_protos_all.jar
 
 # Python
-bazel-bin/protos/schemas/*_python_proto_pb/protos/schemas/*_pb2.py
-bazel-bin/protos/services/*_python_proto_pb/protos/services/*_pb2.py
+bazel-bin/opensearch/protobufs/schemas/
+bazel-bin/opensearch/protobufs/services/
 ```
 
 ## Intended usage of the repo

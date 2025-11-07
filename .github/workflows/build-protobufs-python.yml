@@ -10,5 +10,31 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
-      - name: build protobufs python
-        run: bazel build //:python_schemas //:python_services
+
+      - uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      - name: Install Python dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install pytest
+
+      - name: Run unit tests
+        run: |
+          cd tools
+          python -m pytest test_generate_init_files.py -v --tb=short
+
+      - name: Build Python protobufs
+        run: bazel build //:python_protos_all
+
+      - name: Test Python imports
+        run: |
+          # Create virtual environment for testing
+          python -m venv test_env
+          source test_env/bin/activate
+          pip install grpcio protobuf
+
+          # Run the dedicated test script
+          export PYTHONPATH=bazel-bin
+          python tools/python/print_modules.py
