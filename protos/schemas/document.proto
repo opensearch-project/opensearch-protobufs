@@ -84,6 +84,10 @@ message UpdateAction {
   optional bytes upsert = 6;
   // [optional]
   optional SourceConfig x_source = 7;
+  // [optional] Only perform the operation if the document has this sequence number
+  optional int64 if_seq_no = 8;
+  // [optional] Only perform the operation if the document has this primary term.
+  optional int64 if_primary_term = 9;
 }
 
 enum OpType {

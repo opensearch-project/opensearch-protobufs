@@ -9,6 +9,7 @@ Inspired from [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 - Add terms aggregation protos  ([#268](https://github.com/opensearch-project/opensearch-protobufs/pull/268))
 - Preprocessing: Handle unnamed additionalProperties.([#272](https://github.com/opensearch-project/opensearch-protobufs/pull/272))
 - Support importing without proto file name knowledge in Python generated protobuf code ([#275](https://github.com/opensearch-project/opensearch-protobufs/pull/275))
+- Add `if_seq_no` and `if_primary_term` to `UpdateAction` ([#291](https://github.com/opensearch-project/opensearch-protobufs/pull/291))
 
 ### Changed
 - Update preprocessing for x-protobuf-excluded ([#266](https://github.com/opensearch-project/opensearch-protobufs/pull/266))
