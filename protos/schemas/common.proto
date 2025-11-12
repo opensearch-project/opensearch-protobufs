@@ -486,7 +486,23 @@ message QueryContainer {
 
     // To filter documents based on a custom condition written in the Painless scripting language.
     ScriptQuery script = 31;
+
+    // To combine relevance scores from multiple queries into one score for a given document.
+    HybridQuery hybrid = 32;
   }
+}
+
+message HybridQuery {
+  // [optional] Floating point number used to decrease or increase the relevance scores of the query. Boost values are relative to the default value of 1.0. A boost value between 0 and 1.0 decreases the relevance score. A value greater than 1.0 increases the relevance score.
+  optional float boost = 1;
+  // [optional] The name of the filter.
+  optional string x_name = 2;
+  // [optional] An array of one or more query clauses that are used to match documents. A document must match at least one query clause in order to be returned in the results
+  repeated QueryContainer queries = 3;
+  // [optional]
+  optional int32 pagination_depth = 4;
+  // [optional] Only supported for 3.x. A filter to apply to all the subqueries of the hybrid query.
+  optional QueryContainer filter = 5;
 }
 
 message ScriptQuery {
