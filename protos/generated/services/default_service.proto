@@ -12,7 +12,7 @@ message BulkRequest {
   // Name of the data stream, index, or index alias to perform bulk actions on.
   string index = 1;
 
-  repeated BulkRequestInner bulk_request_inner = 2;
+  repeated BulkRequestBody bulk_request_body = 2;
 
   // `true` or `false` to return the `_source` field or not, or a list of fields to return.
   optional SourceConfigParam x_source = 3;
@@ -62,7 +62,7 @@ message BulkRequest {
 
 message BulkResponse {
   oneof response {
-    BulkResponseBase bulk_response_base_200 = 1;
+    BulkResponse bulk_response_200 = 1;
   }
 }
 message SearchRequest {
@@ -177,7 +177,7 @@ message SearchRequest {
   // A comma-separated list of filters used to filter the response. Use wildcards to match any field or part of a field's name. To exclude fields, use `-`.
   repeated string filter_path = 37;
 
-  optional SearchRequest search_request = 38;
+  optional SearchRequestBody search_request_body = 38;
 }
 
 message SearchResponse {
