@@ -501,7 +501,7 @@ message HybridQuery {
   repeated QueryContainer queries = 3;
   // [optional]
   optional int32 pagination_depth = 4;
-  // [optional] A filter to apply to all the subqueries of the hybrid query.
+  // [optional] Only supported for 3.x. A filter to apply to all the subqueries of the hybrid query.
   optional QueryContainer filter = 5;
 }
 
