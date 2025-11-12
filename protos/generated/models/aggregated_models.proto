@@ -765,14 +765,14 @@ enum BuiltinScriptLanguage {
   BUILTIN_SCRIPT_LANGUAGE_MUSTACHE = 3;
   BUILTIN_SCRIPT_LANGUAGE_PAINLESS = 4;
 }
-message BulkRequestInner {
+message BulkRequestBody {
   optional OperationContainer operation_container = 1;
 
   optional UpdateAction update_action = 2;
 
   optional ObjectMap object_map = 3;
 }
-message BulkResponseBase {
+message BulkResponse {
   bool errors = 1;
 
   repeated Items items = 2;
@@ -5678,7 +5678,7 @@ message SearchProfile {
 
   int64 rewrite_time = 3;
 }
-message SearchRequest {
+message SearchRequestBody {
   // Defines the aggregations that are run as part of the search request.
   map<string, AggregationContainer> aggregations = 1;
 
@@ -6341,7 +6341,9 @@ message SpanFirstQuery {
   SpanQuery match = 4;
 }
 message SpanGapQuery {
-  map<string, int32> span_width = 1;
+  string field = 1;
+
+  optional int32 span_width = 2;
 }
 message SpanMultiTermQuery {
   // Floating point number used to decrease or increase the relevance scores of the query. Boost values are relative to the default value of 1.0. A boost value between 0 and 1.0 decreases the relevance score. A value greater than 1.0 increases the relevance score.
@@ -7072,12 +7074,12 @@ message TermsPartition {
   int64 partition = 2;
 }
 message TermsQuery {
-  optional ObjectMap boost = 1;
-
-  optional ObjectMap x_name = 2;
+  optional float boost = 1;
 
   // Specifies the types of values used for filtering. Valid values are `default` and `bitmap`. Default is `default`.
-  optional TermsQueryValueType value_type = 3;
+  optional TermsQueryValueType value_type = 2;
+
+  optional string x_name = 3;
 
   map<string, TermsQueryField> terms = 4;
 }
@@ -7252,15 +7254,18 @@ message UpdateAction {
   // When `true`, uses the contents of `doc` as the value of `upsert`.
   optional bool doc_as_upsert = 3;
 
-  optional Script script = 4;
+  // The sequence number of the document.
+  optional int64 if_seq_no = 4;
+
+  optional Script script = 5;
 
   // When `true`, executes the script whether or not the document exists.
-  optional bool scripted_upsert = 5;
+  optional bool scripted_upsert = 6;
 
   // If the document does not already exist, the contents of `upsert` are inserted as a new document. If the document exists, the `script` is executed.
-  optional ObjectMap upsert = 6;
+  optional ObjectMap upsert = 7;
 
-  optional SourceConfig x_source = 7;
+  optional SourceConfig x_source = 8;
 }
 message UpdateOperation {
   // The routing value for the document.
