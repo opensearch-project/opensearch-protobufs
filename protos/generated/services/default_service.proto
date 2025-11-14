@@ -44,20 +44,8 @@ message BulkRequest {
   // The number of shard copies that must be active before proceeding with the operation. Set to all or any positive integer up to the total number of shards in the index (`number_of_replicas+1`).
   optional WaitForActiveShards wait_for_active_shards = 12;
 
-  // Whether to pretty-format the returned JSON response.
-  optional bool pretty = 13;
-
-  // Whether to return human-readable values for statistics.
-  optional bool human = 14;
-
-  // Whether to include the stack trace of returned errors.
-  optional bool error_trace = 15;
-
-  // The URL-encoded request definition. Useful for libraries that do not accept a request body for non-POST requests.
-  optional string source = 16;
-
-  // A comma-separated list of filters used to filter the response. Use wildcards to match any field or part of a field's name. To exclude fields, use `-`.
-  repeated string filter_path = 17;
+  // Global query parameters
+  optional GlobalParams global_params = 13;
 }
 
 message BulkResponse {
@@ -162,22 +150,10 @@ message SearchRequest {
   // If `true`, aggregation and suggester names are be prefixed by their respective types in the response.
   optional bool typed_keys = 32;
 
-  // Whether to pretty-format the returned JSON response.
-  optional bool pretty = 33;
+  // Global query parameters
+  optional GlobalParams global_params = 33;
 
-  // Whether to return human-readable values for statistics.
-  optional bool human = 34;
-
-  // Whether to include the stack trace of returned errors.
-  optional bool error_trace = 35;
-
-  // The URL-encoded request definition. Useful for libraries that do not accept a request body for non-POST requests.
-  optional string source = 36;
-
-  // A comma-separated list of filters used to filter the response. Use wildcards to match any field or part of a field's name. To exclude fields, use `-`.
-  repeated string filter_path = 37;
-
-  optional SearchRequestBody search_request_body = 38;
+  optional SearchRequestBody search_request_body = 34;
 }
 
 message SearchResponse {
