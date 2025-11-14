@@ -4,7 +4,7 @@ inputSpec: build/processed-opensearch-openapi.yaml
 templateDir: tools/proto-convert/src/config/protobuf-schema-template/
 additionalProperties:
   packageName: org.opensearch.protobufs
-  addJsonNameAnnotation: true
+  addJsonNameAnnotation: false
   flattenComplexType: true
   numberedFieldNumberList: true
   startEnumsWithUnspecified: true

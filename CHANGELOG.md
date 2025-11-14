@@ -11,6 +11,8 @@ Inspired from [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 - Support importing without proto file name knowledge in Python generated protobuf code ([#275](https://github.com/opensearch-project/opensearch-protobufs/pull/275))
 - Preprocessing - Add filter to not convert additionalProperties when only one key allowed ([#292](https://github.com/opensearch-project/opensearch-protobufs/pull/292))
 - Add HybridQuery protos ([#294](https://github.com/opensearch-project/opensearch-protobufs/pull/294))
+- Preprocessing - Consolidate global parameters into GlobalParams schema ([#293](https://github.com/opensearch-project/opensearch-protobufs/pull/293))
+
 ### Changed
 - Update preprocessing for x-protobuf-excluded ([#266](https://github.com/opensearch-project/opensearch-protobufs/pull/266))
 - Fix aggregations protos ([#270](https://github.com/opensearch-project/opensearch-protobufs/pull/270))
