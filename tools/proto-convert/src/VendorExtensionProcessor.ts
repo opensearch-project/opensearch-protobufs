@@ -1,5 +1,6 @@
 import { OpenAPIV3 } from 'openapi-types';
 import { traverse } from './utils/OpenApiTraverser';
+import { resolveRef } from './utils/helper';
 import Logger from './utils/logger';
 
 /**
@@ -7,7 +8,8 @@ import Logger from './utils/logger';
  * Handles processing of vendor extensions in OpenAPI specifications.
  */
 export class VendorExtensionProcessor {
-    private static readonly GRPC_REMOVED_EXTENSION = 'x-protobuf-excluded';
+    private static readonly PROTOBUF_EXCLUDED_EXTENSION = 'x-protobuf-excluded';
+    private static readonly PROTOBUF_TYPE_EXTENSION = 'x-protobuf-type';
 
     private root: OpenAPIV3.Document;
     private logger: Logger;
@@ -22,34 +24,39 @@ export class VendorExtensionProcessor {
      * Direct path-level handling + traverse for schemas only
      */
     public process(): OpenAPIV3.Document {
-        this.logger.info(`Processing vendor extensions (${VendorExtensionProcessor.GRPC_REMOVED_EXTENSION})...`);
 
-        this.removeGrpcRemovedFromPaths();
+        this.removeProtobufExcludedFromPaths();
         traverse(this.root, {
             onSchema: (schema: any, name: string) => {
                 if ('$ref' in schema) return;
-                this.removeGrpcRemovedProperties(schema);
+                this.removeProtobufExcludedProperties(schema);
+                this.applyTypeOverride(schema);
             },
             onResponseSchema: (schema: any, name: string) => {
-                this.removeGrpcRemovedProperties(schema);
+                this.removeProtobufExcludedProperties(schema);
+                this.applyTypeOverride(schema);
             },
             onRequestSchema: (schema: any, name: string) => {
-                this.removeGrpcRemovedProperties(schema);
+                this.removeProtobufExcludedProperties(schema);
+                this.applyTypeOverride(schema);
+            },
+            onSchemaProperty: (schema: any, name: string) => {
+                this.applyTypeOverride(schema);
             }
         });
 
         return this.root;
     }
 
-    private hasGrpcRemoved(item: any): boolean {
+    private hasProtobufExcluded(item: any): boolean {
         if (!item || typeof item !== 'object') return false;
 
-        if (VendorExtensionProcessor.GRPC_REMOVED_EXTENSION in item && !!item[VendorExtensionProcessor.GRPC_REMOVED_EXTENSION]) {
+        if (VendorExtensionProcessor.PROTOBUF_EXCLUDED_EXTENSION in item && !!item[VendorExtensionProcessor.PROTOBUF_EXCLUDED_EXTENSION]) {
             return true;
         }
         if ('$ref' in item && typeof item.$ref === 'string') {
-            const resolved = this.resolveRef(item.$ref);
-            if (resolved && VendorExtensionProcessor.GRPC_REMOVED_EXTENSION in resolved && !!resolved[VendorExtensionProcessor.GRPC_REMOVED_EXTENSION]) {
+            const resolved = resolveRef(item.$ref, this.root);
+            if (resolved && VendorExtensionProcessor.PROTOBUF_EXCLUDED_EXTENSION in resolved && !!resolved[VendorExtensionProcessor.PROTOBUF_EXCLUDED_EXTENSION]) {
                 return true;
             }
         }
@@ -58,26 +65,9 @@ export class VendorExtensionProcessor {
     }
 
     /**
-     * Resolve a $ref string to the actual object
-     */
-    private resolveRef(ref: string): any {
-        if (!ref.startsWith('#/')) return null;
-
-        const parts = ref.substring(2).split('/');
-        let current: any = this.root;
-
-        for (const part of parts) {
-            if (!current || typeof current !== 'object') return null;
-            current = current[part];
-        }
-
-        return current;
-    }
-
-    /**
      * Remove x-protobuf-excluded items from path-level elements directly
      */
-    private removeGrpcRemovedFromPaths(): void {
+    private removeProtobufExcludedFromPaths(): void {
         if (!this.root.paths) return;
 
         for (const pathKey in this.root.paths) {
@@ -95,19 +85,19 @@ export class VendorExtensionProcessor {
                 // Remove parameters with x-protobuf-excluded
                 if (Array.isArray(operation.parameters)) {
                     const originalLength = operation.parameters.length;
-                    operation.parameters = operation.parameters.filter((p: any) => !this.hasGrpcRemoved(p));
+                    operation.parameters = operation.parameters.filter((p: any) => !this.hasProtobufExcluded(p));
                     const removedCount = originalLength - operation.parameters.length;
                     if (removedCount > 0) {
-                        this.logger.info(`Removed ${removedCount} parameter(s) from ${method.toUpperCase()} ${pathKey} (${VendorExtensionProcessor.GRPC_REMOVED_EXTENSION})`);
+                        this.logger.info(`Removed ${removedCount} parameter(s) from ${method.toUpperCase()} ${pathKey} (${VendorExtensionProcessor.PROTOBUF_EXCLUDED_EXTENSION})`);
                     }
                 }
 
                 // Remove responses with x-protobuf-excluded
                 if (operation.responses) {
                     for (const status in operation.responses) {
-                        if (this.hasGrpcRemoved(operation.responses[status])) {
+                        if (this.hasProtobufExcluded(operation.responses[status])) {
                             delete operation.responses[status];
-                            this.logger.info(`Removed response ${status} from ${method.toUpperCase()} ${pathKey} (${VendorExtensionProcessor.GRPC_REMOVED_EXTENSION})`);
+                            this.logger.info(`Removed response ${status} from ${method.toUpperCase()} ${pathKey} (${VendorExtensionProcessor.PROTOBUF_EXCLUDED_EXTENSION})`);
                         }
                     }
                 }
@@ -115,17 +105,43 @@ export class VendorExtensionProcessor {
         }
     }
 
-    private removeGrpcRemovedProperties(schema: OpenAPIV3.SchemaObject): void {
+    private removeProtobufExcludedProperties(schema: OpenAPIV3.SchemaObject): void {
         if (!schema?.properties) return;
 
         for (const prop in schema.properties) {
             const propSchema = schema.properties[prop];
             if (propSchema && typeof propSchema === 'object' && !('$ref' in propSchema)) {
-                if (this.hasGrpcRemoved(propSchema)) {
+                if (this.hasProtobufExcluded(propSchema)) {
                     delete schema.properties[prop];
-                    this.logger.info(`Removed schema property ${prop} (${VendorExtensionProcessor.GRPC_REMOVED_EXTENSION})`);
+                    this.logger.info(`Removed schema property ${prop} (${VendorExtensionProcessor.PROTOBUF_EXCLUDED_EXTENSION})`);
                 }
             }
+        }
+    }
+
+    /**
+     * Apply type override to a schema if it has x-protobuf-type
+     */
+    private applyTypeOverride(schema: any): void {
+        if (!schema) return;
+
+        if (VendorExtensionProcessor.PROTOBUF_TYPE_EXTENSION in schema) {
+            const protoType = schema[VendorExtensionProcessor.PROTOBUF_TYPE_EXTENSION];
+
+            // Clear structural properties that might conflict
+            if ('$ref' in schema) {
+                delete schema.$ref;
+            }
+            if ('properties' in schema) {
+                delete schema.properties;
+            }
+            if ('additionalProperties' in schema) {
+                delete schema.additionalProperties;
+            }
+
+            schema.type = protoType;
+            delete schema[VendorExtensionProcessor.PROTOBUF_TYPE_EXTENSION];
+            this.logger.info(`Applied ${VendorExtensionProcessor.PROTOBUF_TYPE_EXTENSION}: ${protoType}`);
         }
     }
 }

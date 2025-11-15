@@ -12,6 +12,7 @@ Inspired from [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 - Preprocessing - Add filter to not convert additionalProperties when only one key allowed ([#292](https://github.com/opensearch-project/opensearch-protobufs/pull/292))
 - Add HybridQuery protos ([#294](https://github.com/opensearch-project/opensearch-protobufs/pull/294))
 - Preprocessing - Consolidate global parameters into GlobalParams schema ([#295](https://github.com/opensearch-project/opensearch-protobufs/pull/295))
+- Preprocessing - x-protobuf-type override origin type ([#297](https://github.com/opensearch-project/opensearch-protobufs/pull/297))
 
 ### Changed
 - Update preprocessing for x-protobuf-excluded ([#266](https://github.com/opensearch-project/opensearch-protobufs/pull/266))

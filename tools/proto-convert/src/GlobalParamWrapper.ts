@@ -47,10 +47,13 @@ export class GlobalParameterConsolidator {
                     const propertyObj: any = {
                         ...param
                     };
+                    delete propertyObj.schema;
+                    if (param.schema) {
+                        Object.assign(propertyObj, param.schema);
+                    }
 
                     properties[paramName] = propertyObj;
                     addedParams.add(paramName);
-                    console.log(`Found global parameter: ${paramKey}`);
                 }
             }
         }
