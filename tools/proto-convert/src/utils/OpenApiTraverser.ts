@@ -47,11 +47,14 @@ export function traverse(
     if (components.requestBodies) {
         for (const requestName in components.requestBodies) {
             const request = components.requestBodies[requestName];
-            if (!('$ref' in request) && request.content?.['application/json']?.schema) {
-                const schema = request.content['application/json'].schema;
-                if (!('$ref' in schema)) {
-                    visitors.onRequestSchema?.(schema, requestName);
-                    traverseSchema(schema, visitors);
+            if (!('$ref' in request)) {
+                for (const contentType in request.content || {}) {
+                    const content = (request.content as any)?.[contentType];
+                    if (content?.schema && !('$ref' in content.schema)) {
+                        const schema = content.schema;
+                        visitors.onRequestSchema?.(schema, requestName);
+                        traverseSchema(schema as OpenAPIV3.SchemaObject, visitors);
+                    }
                 }
             }
         }
