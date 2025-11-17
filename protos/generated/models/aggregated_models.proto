@@ -770,7 +770,7 @@ message BulkRequestBody {
 
   optional UpdateAction update_action = 2;
 
-  optional ObjectMap object_map = 3;
+  optional bytes object = 3;
 }
 message BulkResponse {
   bool errors = 1;
@@ -964,7 +964,7 @@ message CompletionAllOfOptionsInner {
 
   optional float x_score = 9;
 
-  optional ObjectMap x_source = 10;
+  optional bytes x_source = 10;
 }
 message CompletionContext {
   optional double boost = 1;
@@ -1009,7 +1009,7 @@ message CompletionSuggestAllOfOptions {
 
   optional float x_score = 9;
 
-  optional ObjectMap x_source = 10;
+  optional bytes x_source = 10;
 }
 message CompletionSuggestOption {
   optional bool collate_match = 1;
@@ -1031,7 +1031,7 @@ message CompletionSuggestOption {
 
   optional float x_score = 9;
 
-  optional ObjectMap x_source = 10;
+  optional bytes x_source = 10;
 }
 message CompletionSuggester {
   optional string analyzer = 1;
@@ -2684,15 +2684,13 @@ message GlobalAggregation {
   map<string, AggregationContainer> aggs = 4;
 }
 message GlobalParams {
-  optional ObjectMap pretty = 1;
+  // Whether to return human-readable values for statistics.
+  optional bool human = 1;
 
-  optional ObjectMap human = 2;
+  // Whether to include the stack trace of returned errors.
+  optional bool error_trace = 2;
 
-  optional ObjectMap error_trace = 3;
-
-  optional ObjectMap source = 4;
-
-  optional ObjectMap filter_path = 5;
+  repeated string filter_path = 3;
 }
 message GoogleNormalizedDistanceHeuristic {
   // Set to `false` if you defined a custom background filter that represents a different set of documents that you want to compare to.
@@ -3050,7 +3048,7 @@ message Hit {
 
   optional string x_routing = 16;
 
-  optional ObjectMap x_source = 17;
+  optional bytes x_source = 17;
 
   // The sequence number of the document.
   optional int64 x_seq_no = 18;
@@ -3108,7 +3106,7 @@ message HitsMetadataHitsInner {
 
   optional string x_routing = 16;
 
-  optional ObjectMap x_source = 17;
+  optional bytes x_source = 17;
 
   // The sequence number of the document.
   optional int64 x_seq_no = 18;
@@ -3286,7 +3284,7 @@ message InlineGetDictUserDefined {
   optional string x_routing = 5;
 
   // The source of the document.
-  optional ObjectMap x_source = 6;
+  optional bytes x_source = 6;
 
   optional ObjectMap metadata_fields = 7;
 }
@@ -7262,7 +7260,7 @@ message UpdateAction {
   optional bool detect_noop = 1;
 
   // A partial update to an existing document.
-  optional ObjectMap doc = 2;
+  optional bytes doc = 2;
 
   // When `true`, uses the contents of `doc` as the value of `upsert`.
   optional bool doc_as_upsert = 3;
@@ -7276,7 +7274,7 @@ message UpdateAction {
   optional bool scripted_upsert = 6;
 
   // If the document does not already exist, the contents of `upsert` are inserted as a new document. If the document exists, the `script` is executed.
-  optional ObjectMap upsert = 7;
+  optional bytes upsert = 7;
 
   optional SourceConfig x_source = 8;
 }
