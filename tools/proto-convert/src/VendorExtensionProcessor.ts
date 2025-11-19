@@ -11,6 +11,16 @@ export class VendorExtensionProcessor {
     private static readonly PROTOBUF_EXCLUDED_EXTENSION = 'x-protobuf-excluded';
     private static readonly PROTOBUF_TYPE_EXTENSION = 'x-protobuf-type';
 
+    private static readonly PROTOBUF_TYPE_MAPPING: Record<string, { type: string; format?: string }> = {
+        'int32': { type: 'integer', format: 'int32' },
+        'int64': { type: 'integer', format: 'int64' },
+        'float': { type: 'number', format: 'float' },
+        'double': { type: 'number', format: 'double' },
+        'bool': { type: 'boolean' },
+        'boolean': { type: 'boolean' },
+        'string': { type: 'string' },
+    };
+
     private root: OpenAPIV3.Document;
     private logger: Logger;
 
@@ -28,7 +38,6 @@ export class VendorExtensionProcessor {
         this.removeProtobufExcludedFromPaths();
         traverse(this.root, {
             onSchema: (schema: any, name: string) => {
-                if ('$ref' in schema) return;
                 this.removeProtobufExcludedProperties(schema);
                 this.applyTypeOverride(schema);
             },
@@ -138,10 +147,28 @@ export class VendorExtensionProcessor {
             if ('additionalProperties' in schema) {
                 delete schema.additionalProperties;
             }
+            if ('oneOf' in schema) {
+                delete schema.oneOf;
+            }
+            if ('anyOf' in schema) {
+                delete schema.anyOf;
+            }
+            if ('allOf' in schema) {
+                delete schema.allOf;
+            }
 
-            schema.type = protoType;
+            const typeMapping = VendorExtensionProcessor.PROTOBUF_TYPE_MAPPING[protoType];
+            if (typeMapping) {
+                schema.type = typeMapping.type;
+                if (typeMapping.format) {
+                    schema.format = typeMapping.format;
+                }
+            } else {
+                schema.type = protoType;
+            }
+
             delete schema[VendorExtensionProcessor.PROTOBUF_TYPE_EXTENSION];
-            this.logger.info(`Applied ${VendorExtensionProcessor.PROTOBUF_TYPE_EXTENSION}: ${protoType}`);
+            this.logger.info(`Applied ${VendorExtensionProcessor.PROTOBUF_TYPE_EXTENSION}: ${protoType} -> type: ${schema.type}${schema.format ? `, format: ${schema.format}` : ''}`);
         }
     }
 }

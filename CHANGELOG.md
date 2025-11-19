@@ -13,7 +13,7 @@ Inspired from [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 - Add HybridQuery protos ([#294](https://github.com/opensearch-project/opensearch-protobufs/pull/294))
 - Preprocessing - Consolidate global parameters into GlobalParams schema ([#295](https://github.com/opensearch-project/opensearch-protobufs/pull/295))
 - Preprocessing - x-protobuf-type override origin type ([#297](https://github.com/opensearch-project/opensearch-protobufs/pull/297))
-
+- Preprocessing - Support x-protobuf-type overrides in composed schemas with proper OpenAPI type+format mapping ([#300](https://github.com/opensearch-project/opensearch-protobufs/pull/300))
 ### Changed
 - Update preprocessing for x-protobuf-excluded ([#266](https://github.com/opensearch-project/opensearch-protobufs/pull/266))
 - Fix aggregations protos ([#270](https://github.com/opensearch-project/opensearch-protobufs/pull/270))
