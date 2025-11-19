@@ -48,11 +48,6 @@ message BulkRequest {
   optional GlobalParams global_params = 13;
 }
 
-message BulkResponse {
-  oneof response {
-    BulkResponse bulk_response_200 = 1;
-  }
-}
 message SearchRequest {
   // A comma-separated list of data streams, indexes, and aliases to search. Supports wildcards (`*`). To search all data streams and indexes, omit this parameter or use `*` or `_all`.
   repeated string index = 1;
@@ -129,37 +124,26 @@ message SearchRequest {
   // Period to retain the search context for scrolling. See Scroll search results. By default, this value cannot exceed `1d` (24 hours). You can change this limit using the `search.max_keep_alive` cluster-level setting.
   optional string scroll = 25;
 
-  // Customizable sequence of processing stages applied to search queries.
-  optional string search_pipeline = 26;
-
   // How distributed term frequencies are calculated for relevance scoring.
-  optional SearchType search_type = 27;
+  optional SearchType search_type = 26;
 
   // Specifies which field to use for suggestions.
-  optional string suggest_field = 28;
+  optional string suggest_field = 27;
 
   // Specifies the suggest mode. This parameter can only be used when the `suggest_field` and `suggest_text` query string parameters are specified.
-  optional SuggestMode suggest_mode = 29;
+  optional SuggestMode suggest_mode = 28;
 
   // Number of suggestions to return. This parameter can only be used when the `suggest_field` and `suggest_text` query string parameters are specified.
-  optional int32 suggest_size = 30;
+  optional int32 suggest_size = 29;
 
   // The source text for which the suggestions should be returned. This parameter can only be used when the `suggest_field` and `suggest_text` query string parameters are specified.
-  optional string suggest_text = 31;
+  optional string suggest_text = 30;
 
   // If `true`, aggregation and suggester names are be prefixed by their respective types in the response.
-  optional bool typed_keys = 32;
+  optional bool typed_keys = 31;
 
   // Global query parameters
-  optional GlobalParams global_params = 33;
+  optional GlobalParams global_params = 32;
 
-  optional SearchRequestBody search_request_body = 34;
-}
-
-message SearchResponse {
-  oneof response {
-    SearchResponse search_response_200 = 1;
-    ErrorResponseBase error_response_base_400 = 2;
-    ErrorResponseBase error_response_base_404 = 3;
-  }
+  optional SearchRequestBody search_request_body = 33;
 }

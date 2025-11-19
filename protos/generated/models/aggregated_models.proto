@@ -1709,16 +1709,7 @@ message Explanation {
 
   repeated Explanation details = 2;
 
-  ExplanationValue value = 3;
-}
-message ExplanationValue {
-  optional int32 int32 = 1;
-
-  optional int64 int64 = 2;
-
-  optional float float = 3;
-
-  optional double double = 4;
+  float value = 3;
 }
 message ExtendedBounds {
   ObjectMap max = 1;
@@ -2058,9 +2049,6 @@ message FieldSort {
 
   // The numeric type to use for sorting.
   optional FieldSortNumericType numeric_type = 6;
-
-  // The format to use for the sort values.
-  optional string format = 7;
 }
 message FieldSortMap {
   map<string, FieldSort> field_sort_map = 1;
@@ -2137,9 +2125,11 @@ enum FieldType {
 message FieldValue {
   optional bool bool = 1;
 
-  optional GeneralNumber general_number = 2;
+  optional NullValue null_value = 2;
 
-  optional string string = 3;
+  optional GeneralNumber general_number = 3;
+
+  optional string string = 4;
 }
 message FieldValueArray {
   repeated FieldValue field_value_array = 1;
@@ -3056,6 +3046,8 @@ message Hit {
   optional int64 x_primary_term = 19;
 
   optional int64 x_version = 20;
+
+  optional ObjectMap meta_fields = 21;
 }
 message HitXScore {
   oneof hit_x_score {
@@ -3114,6 +3106,8 @@ message HitsMetadataHitsInner {
   optional int64 x_primary_term = 19;
 
   optional int64 x_version = 20;
+
+  optional ObjectMap meta_fields = 21;
 }
 message HitsMetadataJsonValue {
   optional HitsMetadataTotal total = 1;
@@ -6681,13 +6675,6 @@ message StringTermsBucket {
 
   string key = 3;
 }
-message StringifiedInteger {
-  oneof stringified_integer {
-    int32 int32 = 1;
-
-    string string = 2;
-  }
-}
 message StupidBackoffSmoothingModel {
   double discount = 1;
 }
@@ -7382,7 +7369,7 @@ enum WaitForActiveShardOptions {
 message WaitForActiveShards {
   oneof wait_for_active_shards {
     // The number of active shards to wait for.
-    StringifiedInteger count = 1;
+    int32 count = 1;
 
     // Determines how many shards to wait for.
     WaitForActiveShardOptions option = 2;
