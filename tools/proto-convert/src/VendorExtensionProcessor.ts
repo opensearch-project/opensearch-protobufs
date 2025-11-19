@@ -17,7 +17,6 @@ export class VendorExtensionProcessor {
         'float': { type: 'number', format: 'float' },
         'double': { type: 'number', format: 'double' },
         'bool': { type: 'boolean' },
-        'boolean': { type: 'boolean' },
         'string': { type: 'string' },
     };
 
