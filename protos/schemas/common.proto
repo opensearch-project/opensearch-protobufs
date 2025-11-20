@@ -24,8 +24,8 @@ message GlobalParams {
 message WaitForActiveShards {
 
   oneof wait_for_active_shards {
-    int32 int32 = 1;
-    WaitForActiveShardOptions wait_for_active_shard_options = 2;
+    int32 count = 1;
+    WaitForActiveShardOptions option = 2;
   }
 }
 enum WaitForActiveShardOptions {
@@ -44,18 +44,15 @@ message Script {
 }
 
 message InlineScript {
-  // [optional]
-  // The parameters that can be passed to the script.
-  ObjectMap params = 1;
+  // [optional] The parameters that can be passed to the script.
+  optional ObjectMap params = 1;
 
-  // [optional]
-  // The script's language. Default is painless.
-  ScriptLanguage lang = 2;
+  // [optional] The script's language. Default is painless.
+  optional ScriptLanguage lang = 2;
 
   map<string, string> options = 3;
 
-  // [required]
-  // The script source.
+  // [required] The script source.
   string source = 4;
 }
 
@@ -101,11 +98,9 @@ enum SuggestMode {
 }
 
 message StoredScriptId {
-  // [optional]
-  // The parameters that can be passed to the script.
-  ObjectMap params = 1;
-  // [required]
-  // The ID of a stored script previously created using the Create Stored Script API.
+  // [optional] The parameters that can be passed to the script.
+  optional ObjectMap params = 1;
+  // [required] The ID of a stored script previously created using the Create Stored Script API.
   string id = 2;
 }
 
@@ -201,9 +196,9 @@ message SourceConfigParam {
 
   oneof source_config_param {
     // `true` or `false` to return the `_source` field or not
-    bool bool = 1;
+    bool fetch = 1;
     // list of fields to be retrieved from `_source`
-    StringArray string_array = 2;
+    StringArray fields = 2;
   }
 
 }
@@ -307,17 +302,11 @@ message ErrorCause {
 
   repeated ErrorCause suppressed = 6;
 
-  optional string index = 7;
-
-  optional string shard = 8;
-
-  optional string index_uuid = 9;
-
   // [optional] The spec actually does not have a field named 'metadata'. This should have adaptor_unnest.
-  map<string, ObjectMap.Value> metadata = 10;
+  optional ObjectMap metadata = 7;
 
   // [optional]
-  map<string, StringOrStringArray> header = 11;
+  map<string, StringOrStringArray> header = 8;
 }
 message ShardStatistics {
   // [required] Number of shards that failed to execute the request. Note that shards that are not allocated will be considered neither successful nor failed. Having failed+successful less than total is thus an indication that some of the shards were not allocated.
@@ -333,7 +322,7 @@ message ShardStatistics {
   repeated ShardFailure failures = 4;
 
   // [optional] Number of shards that skipped the request because a lightweight check helped realize that no documents could possibly match on this shard. This typically happens when a search request includes a range filter and the shard only has values that fall outside of that range.
-  int32 skipped = 5;
+  optional int32 skipped = 5;
 
 }
 
@@ -832,7 +821,7 @@ message Highlight {
   optional int32 max_fragment_length = 12;
 
   // [optional] If set to a non-negative value, highlighting stops at this defined maximum limit. The rest of the text is not processed, thus not highlighted and no error is returned The `max_analyzed_offset` query setting does not override the `index.highlight.max_analyzed_offset` setting, which prevails when it's set to lower value than the query setting.
-  optional int32 max_analyzed_offset = 13;
+  optional int32 max_analyzer_offset = 13;
 
   // [optional] Specifies the number of characters, starting from the beginning of the field, to return if there are no matching fragments to highlight. Default is 0.
   optional int32 no_match_size = 14;
@@ -885,7 +874,7 @@ message HighlightField {
   optional string boundary_scanner_locale = 5;
 
   // [x-deprecated]
-  bool force_source = 6;
+  optional bool force_source = 6;
 
   // [optional] Specifies how to split text into highlighted fragments. Valid only for the plain highlighter. Default HIGHLIGHTER_FRAGMENTER_SPAN.
   optional HighlighterFragmenter fragmenter = 7;
@@ -901,7 +890,7 @@ message HighlightField {
   optional int32 max_fragment_length = 11;
 
   // [optional] If set to a non-negative value, highlighting stops at this defined maximum limit. The rest of the text is not processed, thus not highlighted and no error is returned The `max_analyzed_offset` query setting does not override the `index.highlight.max_analyzed_offset` setting, which prevails when it's set to lower value than the query setting.
-  optional int32 max_analyzed_offset = 12;
+  optional int32 max_analyzer_offset = 12;
 
   // [optional] Specifies the number of characters, starting from the beginning of the field, to return if there are no matching fragments to highlight. Default is 0.
   optional int32 no_match_size = 13;
@@ -1021,7 +1010,7 @@ enum FieldType {
 
 message ScoreSort {
   // Specifies the sort order (asc or dsc) for the score.
-  SortOrder order = 1;
+  optional SortOrder order = 1;
 }
 
 enum SortOrder {
@@ -2280,7 +2269,7 @@ message MultiMatchQuery {
   repeated string fields = 6;
 
   // [optional] Determines how OpenSearch rewrites the query. Valid values are constant_score, scoring_boolean, constant_score_boolean, top_terms_N, top_terms_boost_N, and top_terms_blended_freqs_N. If the fuzziness parameter is not 0, the query uses a fuzzy_rewrite method of top_terms_blended_freqs_${max_expansions} by default. Default is constant_score.
-  optional string fuzzy_rewrite = 7;
+  optional MultiTermQueryRewrite fuzzy_rewrite = 7;
 
   // [optional] The number of character edits (insert, delete, substitute) that it takes to change one word to another when determining whether a term matched a value.
   optional Fuzziness fuzziness = 8;

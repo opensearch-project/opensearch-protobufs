@@ -118,7 +118,7 @@ export class VendorExtensionProcessor {
 
         for (const prop in schema.properties) {
             const propSchema = schema.properties[prop];
-            if (propSchema && typeof propSchema === 'object' && !('$ref' in propSchema)) {
+            if (propSchema && typeof propSchema === 'object') {
                 if (this.hasProtobufExcluded(propSchema)) {
                     delete schema.properties[prop];
                     this.logger.info(`Removed schema property ${prop} (${VendorExtensionProcessor.PROTOBUF_EXCLUDED_EXTENSION})`);

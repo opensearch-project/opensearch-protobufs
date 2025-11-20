@@ -18,6 +18,7 @@ Inspired from [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 - Update preprocessing for x-protobuf-excluded ([#266](https://github.com/opensearch-project/opensearch-protobufs/pull/266))
 - Fix aggregations protos ([#270](https://github.com/opensearch-project/opensearch-protobufs/pull/270))
 - Bump gradle to 9.2.0 and JDK to 25 in GHAs ([#276](https://github.com/opensearch-project/opensearch-protobufs/pull/276))
+- Align protobuf 0.24.0 with latest spec ([#302](https://github.com/opensearch-project/opensearch-protobufs/pull/302))
 
 ### Removed
 - Remove error responses for single doc ingestion APIS (Index, Update, Get, Delete Doc) ([#258](https://github.com/opensearch-project/opensearch-protobufs/pull/258))

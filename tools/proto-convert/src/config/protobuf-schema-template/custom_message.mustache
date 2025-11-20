@@ -3,14 +3,15 @@ message ObjectMap {
 
   message Value {
     oneof value {
-      int32 int32 = 1;
-      int64 int64 = 2;
-      float float = 3;
-      double double = 4;
-      string string = 5;
-      bool bool = 6;
-      ObjectMap object_map = 7;
-      ListValue list_value = 8;
+      NullValue null_value = 1;
+      int32 int32 = 2;
+      int64 int64 = 3;
+      float float = 4;
+      double double = 5;
+      string string = 6;
+      bool bool = 7;
+      ObjectMap object_map = 8;
+      ListValue list_value = 9;
     }
   }
 

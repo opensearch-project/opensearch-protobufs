@@ -222,7 +222,7 @@ message ResponseItem {
   optional string x_type = 3;
 
   // [optional] The document ID associated with the operation.
-  optional Id x_id = 4;
+  optional string x_id = 4;
 
   // [optional] Contains additional information about the failed operation.
   optional ErrorCause error = 5;
@@ -247,17 +247,17 @@ message ResponseItem {
 
 message InlineGetDictUserDefined {
   // [optional]
-  ObjectMap metadata_fields = 1;
+  optional ObjectMap metadata_fields = 1;
   // [optional]
-  ObjectMap fields = 2;
+  optional ObjectMap fields = 2;
   // [required] Whether the document exists.
   bool found = 3;
   // [optional] The sequence number assigned to the document for the operation. Sequence numbers are used to ensure an older version of a document doesn't overwrite a newer version
-  optional int64 seq_no = 4;
+  optional int64 x_seq_no = 4;
   // [optional] The primary term assigned to the document for the operation.
   optional int64 x_primary_term = 5;
   // [optional] Custom value used to route operations to a specific shard.
-  string x_routing = 6;
+  optional string x_routing = 6;
   // [optional] Contains the document's data
   optional bytes x_source = 7;
 }
