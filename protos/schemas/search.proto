@@ -211,7 +211,7 @@ message DerivedField {
   // [optional]
   optional string prefilter_field = 4;
   // [optional]
-  map<string, ObjectMap> properties = 5;
+  optional ObjectMap properties = 5;
   // [optional]
   optional bool ignore_malformed = 6;
   // [optional]
@@ -367,16 +367,16 @@ message HitsMetadataHitsInner {
 
   optional string x_type = 1;
 
-  // [required] Name of the index containing the returned document.
-  string x_index = 2;
-  // [required] Unique identifier for the returned document. This ID is only unique within the returned index.
-  string x_id = 3;
+  // [optional] Name of the index containing the returned document.
+  optional string x_index = 2;
+  // [optional] Unique identifier for the returned document. This ID is only unique within the returned index.
+  optional string x_id = 3;
 
   // [optional] Relevance of the returned document.
   optional HitXScore x_score = 4;
 
   // [optional] Explanation of how the relevance score (_score) is calculated for every result.
-  optional Explanation explanation = 5;
+  optional Explanation x_explanation = 5;
 
   // [optional] Contains field values for the documents.
   optional ObjectMap fields = 6;
@@ -739,14 +739,14 @@ message FetchProfileDebug {
 
 message FetchProfile {
 
-  optional string type = 1;
+  string type = 1;
 
-  optional string description = 2;
+  string description = 2;
 
   // Time unit for nanoseconds
-  optional int64 time_in_nanos = 3;
+  int64 time_in_nanos = 3;
 
-  optional FetchProfileBreakdown breakdown = 4;
+  FetchProfileBreakdown breakdown = 4;
 
   optional FetchProfileDebug debug = 5;
 
@@ -756,19 +756,21 @@ message FetchProfile {
 
 
 message FetchProfileBreakdown {
+  optional int32 load_source = 1;
 
-  optional int32 load_stored_fields = 1;
+  optional int32 load_source_count = 2;
 
-  optional int32 load_stored_fields_count = 2;
+  optional int32 load_stored_fields = 3;
 
-  optional int32 next_reader = 3;
+  optional int32 load_stored_fields_count = 4;
 
-  optional int32 next_reader_count = 4;
+  optional int32 next_reader = 5;
 
-  optional int32 process_count = 5;
+  optional int32 next_reader_count = 6;
 
-  optional int32 process = 6;
+  optional int32 process_count = 7;
 
+  optional int32 process = 8;
 }
 
 message AggregationProfileDebug {
@@ -852,7 +854,7 @@ message Explanation {
   // [optional] Shows any subcalculations performed.
   repeated Explanation details = 2;
   // [required] Shows the result of the calculation,
-  double value = 3;
+  float value = 3;
 
 }
 
