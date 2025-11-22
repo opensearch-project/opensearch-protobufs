@@ -800,7 +800,7 @@ message Highlight {
   // [optional] Provides a locale for the boundary_scanner. Valid values are language tags (for example, "en-US"). Default is Locale.ROOT.
   optional string boundary_scanner_locale = 5;
 
-  // [x-deprecated]
+  // [optional] Forces the highlighting to highlight fields based on the source even if fields are stored separately.
   optional bool force_source = 6;
 
   // [optional] Specifies how to split text into highlighted fragments. Valid only for the plain highlighter. Default HIGHLIGHTER_FRAGMENTER_SPAN.
