@@ -2,6 +2,7 @@ import {mkdirSync, writeFileSync, readFileSync} from 'fs'
 import {parse, visit, Document} from 'yaml'
 import {dirname} from "path";
 import {OpenAPIV3} from "openapi-types";
+import _ from 'lodash';
 
 export function read_yaml<T = Record<string, any>> (file_path: string, exclude_schema: boolean = false): T {
     const doc = parse(readFileSync(file_path, 'utf8'))
@@ -112,4 +113,25 @@ export function isEmptyObjectSchema(schema: OpenAPIV3.SchemaObject): boolean {
 
 export function isReferenceObject(schema: any): schema is OpenAPIV3.ReferenceObject {
     return schema !== null && typeof schema === 'object' && '$ref' in schema;
+}
+
+/**
+ * Recursively delete all items matching the given condition
+ * This includes removing them from their parent collections and cleaning up empty arrays
+ */
+export function deleteMatchingKeys(obj: any, condition: (item: any) => boolean): void {
+    for (const key in obj) {
+        const item = obj[key];
+
+        if (_.isObject(item)) {
+            if (condition(item)) {
+                delete obj[key];
+            } else {
+                deleteMatchingKeys(item, condition);
+                if (_.isArray(item)) {
+                    obj[key] = _.compact(item);
+                }
+            }
+        }
+    }
 }

@@ -1,6 +1,6 @@
 import { OpenAPIV3 } from 'openapi-types';
 import { traverse } from './utils/OpenApiTraverser';
-import { resolveRef } from './utils/helper';
+import { resolveRef, deleteMatchingKeys } from './utils/helper';
 import Logger from './utils/logger';
 
 /**
@@ -10,6 +10,7 @@ import Logger from './utils/logger';
 export class VendorExtensionProcessor {
     private static readonly PROTOBUF_EXCLUDED_EXTENSION = 'x-protobuf-excluded';
     private static readonly PROTOBUF_TYPE_EXTENSION = 'x-protobuf-type';
+    private static readonly PROTOBUF_NAME_EXTENSION = 'x-protobuf-name';
 
     private static readonly PROTOBUF_TYPE_MAPPING: Record<string, { type: string; format?: string }> = {
         'int32': { type: 'integer', format: 'int32' },
@@ -30,23 +31,26 @@ export class VendorExtensionProcessor {
 
     /**
      * Process the spec by pruning anything marked with x-protobuf-excluded
-     * Direct path-level handling + traverse for schemas only
+     * and applying vendor extensions (x-protobuf-name, x-protobuf-type)
      */
     public process(): OpenAPIV3.Document {
+        deleteMatchingKeys(this.root, (item: any) => this.hasProtobufExcluded(item));
 
-        this.removeProtobufExcludedFromPaths();
         traverse(this.root, {
+            onParameter: (param: any, name: string) => {
+                this.applyNameOverrideToParameter(param);
+            },
             onSchema: (schema: any, name: string) => {
-                this.removeProtobufExcludedProperties(schema);
                 this.applyTypeOverride(schema);
+                this.applyNameOverride(schema);
             },
             onResponseSchema: (schema: any, name: string) => {
-                this.removeProtobufExcludedProperties(schema);
                 this.applyTypeOverride(schema);
+                this.applyNameOverride(schema);
             },
             onRequestSchema: (schema: any, name: string) => {
-                this.removeProtobufExcludedProperties(schema);
                 this.applyTypeOverride(schema);
+                this.applyNameOverride(schema);
             },
             onSchemaProperty: (schema: any, name: string) => {
                 this.applyTypeOverride(schema);
@@ -73,55 +77,61 @@ export class VendorExtensionProcessor {
     }
 
     /**
-     * Remove x-protobuf-excluded items from path-level elements directly
+     * Apply name override to a parameter if it has x-protobuf-name
      */
-    private removeProtobufExcludedFromPaths(): void {
-        if (!this.root.paths) return;
+    private applyNameOverrideToParameter(param: OpenAPIV3.ParameterObject): void {
+        if (!param || typeof param !== 'object' || !(VendorExtensionProcessor.PROTOBUF_NAME_EXTENSION in param)) return;
 
-        for (const pathKey in this.root.paths) {
-            const pathItem = this.root.paths[pathKey];
-            if (!pathItem || typeof pathItem !== 'object' || '$ref' in pathItem) continue;
+        const newName = param[VendorExtensionProcessor.PROTOBUF_NAME_EXTENSION];
+        if (typeof newName === 'string' && param.name && newName !== param.name) {
+            const oldName = param.name;
+            param.name = newName;
+            delete param[VendorExtensionProcessor.PROTOBUF_NAME_EXTENSION];
+            this.logger.info(`Renamed parameter '${oldName}' -> '${newName}' (${VendorExtensionProcessor.PROTOBUF_NAME_EXTENSION})`);
+        }
+    }
 
-            // Handle operations
-            for (const method in pathItem) {
-                if (method === 'parameters' || method === '$ref' || method === 'summary' ||
-                    method === 'description' || method === 'servers') continue;
 
-                const operation = (pathItem as any)[method];
-                if (!operation || typeof operation !== 'object') continue;
+    /**
+     * Apply name override to schema properties and composed schemas (oneOf, anyOf, allOf)
+     * - For properties: renames property keys
+     * - For composed schemas: sets title field for sub-schemas
+     */
+    private applyNameOverride(schema: any): void {
+        if (!schema || typeof schema !== 'object') return;
 
-                // Remove parameters with x-protobuf-excluded
-                if (Array.isArray(operation.parameters)) {
-                    const originalLength = operation.parameters.length;
-                    operation.parameters = operation.parameters.filter((p: any) => !this.hasProtobufExcluded(p));
-                    const removedCount = originalLength - operation.parameters.length;
-                    if (removedCount > 0) {
-                        this.logger.info(`Removed ${removedCount} parameter(s) from ${method.toUpperCase()} ${pathKey} (${VendorExtensionProcessor.PROTOBUF_EXCLUDED_EXTENSION})`);
-                    }
-                }
+        // Rename properties within schema.properties collection
+        if (schema?.properties) {
+            for (const prop in schema.properties) {
+                const propSchema = schema.properties[prop];
+                if (propSchema && typeof propSchema === 'object' && VendorExtensionProcessor.PROTOBUF_NAME_EXTENSION in propSchema) {
+                    const newName = propSchema[VendorExtensionProcessor.PROTOBUF_NAME_EXTENSION];
+                    if (typeof newName === 'string' && newName !== prop) {
+                        schema.properties[newName] = schema.properties[prop];
+                        delete schema.properties[prop];
+                        delete schema.properties[newName][VendorExtensionProcessor.PROTOBUF_NAME_EXTENSION];
 
-                // Remove responses with x-protobuf-excluded
-                if (operation.responses) {
-                    for (const status in operation.responses) {
-                        if (this.hasProtobufExcluded(operation.responses[status])) {
-                            delete operation.responses[status];
-                            this.logger.info(`Removed response ${status} from ${method.toUpperCase()} ${pathKey} (${VendorExtensionProcessor.PROTOBUF_EXCLUDED_EXTENSION})`);
-                        }
+                        this.logger.info(`Renamed property '${prop}' -> '${newName}' (${VendorExtensionProcessor.PROTOBUF_NAME_EXTENSION})`);
                     }
                 }
             }
         }
-    }
 
-    private removeProtobufExcludedProperties(schema: OpenAPIV3.SchemaObject): void {
-        if (!schema?.properties) return;
+        // Set title for composed schemas (oneOf, anyOf, allOf)
+        const composedKeys = ['allOf', 'anyOf', 'oneOf'] as const;
+        for (const key of composedKeys) {
+            const subschemas = schema[key];
+            if (!Array.isArray(subschemas)) continue;
 
-        for (const prop in schema.properties) {
-            const propSchema = schema.properties[prop];
-            if (propSchema && typeof propSchema === 'object') {
-                if (this.hasProtobufExcluded(propSchema)) {
-                    delete schema.properties[prop];
-                    this.logger.info(`Removed schema property ${prop} (${VendorExtensionProcessor.PROTOBUF_EXCLUDED_EXTENSION})`);
+            for (const subschema of subschemas) {
+                if (subschema && typeof subschema === 'object' && VendorExtensionProcessor.PROTOBUF_NAME_EXTENSION in subschema) {
+                    const titleValue = subschema[VendorExtensionProcessor.PROTOBUF_NAME_EXTENSION];
+                    if (typeof titleValue === 'string') {
+                        const oldTitle = subschema.title;
+                        subschema.title = titleValue;
+                        delete subschema[VendorExtensionProcessor.PROTOBUF_NAME_EXTENSION];
+                        this.logger.info(`Set title for ${key} sub-schema: '${oldTitle}' -> '${titleValue}' (${VendorExtensionProcessor.PROTOBUF_NAME_EXTENSION})`);
+                    }
                 }
             }
         }
@@ -170,4 +180,5 @@ export class VendorExtensionProcessor {
             this.logger.info(`Applied ${VendorExtensionProcessor.PROTOBUF_TYPE_EXTENSION}: ${protoType} -> type: ${schema.type}${schema.format ? `, format: ${schema.format}` : ''}`);
         }
     }
+
 }

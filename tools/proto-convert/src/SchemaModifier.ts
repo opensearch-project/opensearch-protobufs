@@ -22,6 +22,7 @@ export class SchemaModifier {
                 this.handleAdditionalPropertiesUndefined(schema)
                 this.convertNullTypeToNullValue(schema)
                 this.collapseOrMergeOneOfArray(schema)
+                this.removeArrayOfMapWrapper(schema)
             },
             onSchema: (schema, schemaName) => {
                 if (!schema || isReferenceObject(schema)) return;
@@ -32,6 +33,7 @@ export class SchemaModifier {
                 this.handleOneOfConst(schema, schemaName)
                 this.collapseOrMergeOneOfArray(schema)
                 this.collapseOneOfObjectPropContainsTitleSchema(schema)
+                this.removeArrayOfMapWrapper(schema)
             },
         });
         const visit = new Set();
@@ -434,5 +436,43 @@ export class SchemaModifier {
         }
 
         this.logger.info(`Converted additionalProperties to named property '${propertyName}' with type: object`);
+    }
+
+    /**
+     * Removes the array wrapper if the schema is an array of maps (additionalProperties).
+     * Converts array of objects with only additionalProperties into just the additionalProperties schema.
+     *
+     * Example:
+     *   Input:
+     *   {
+     *     type: "array",
+     *     items: {
+     *       type: "object",
+     *       additionalProperties: {
+     *         $ref: "#/components/schemas/Value"
+     *       }
+     *     }
+     *   }
+     *
+     *   Output:
+     *   {
+     *     type: "object",
+     *     additionalProperties: {
+     *       $ref: "#/components/schemas/Value"
+     *     }
+     *   }
+     **/
+    removeArrayOfMapWrapper(schema: OpenAPIV3.SchemaObject): void {
+        if (schema.type === 'array' && schema.items && typeof schema.items === 'object' && !('$ref' in schema.items)) {
+            const items = schema.items as OpenAPIV3.SchemaObject;
+
+            if (items.type === 'object' && items.additionalProperties && !items.properties) {
+                (schema as any).type = 'object';
+                schema.additionalProperties = items.additionalProperties;
+                delete (schema as any).items;
+
+                this.logger.info(`Removed array wrapper from array of maps schema`);
+            }
+        }
     }
 }
