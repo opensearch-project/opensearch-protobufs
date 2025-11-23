@@ -11,14 +11,15 @@ message ObjectMap {
 
   message Value {
     oneof value {
-      int32 int32 = 1;
-      int64 int64 = 2;
-      float float = 3;
-      double double = 4;
-      string string = 5;
-      bool bool = 6;
-      ObjectMap object_map = 7;
-      ListValue list_value = 8;
+      NullValue null_value = 1;
+      int32 int32 = 2;
+      int64 int64 = 3;
+      float float = 4;
+      double double = 5;
+      string string = 6;
+      bool bool = 7;
+      ObjectMap object_map = 8;
+      ListValue list_value = 9;
     }
   }
 
@@ -775,7 +776,7 @@ message BulkRequestBody {
 message BulkResponse {
   bool errors = 1;
 
-  repeated Items items = 2;
+  repeated Item items = 2;
 
   int64 took = 3;
 
@@ -1074,7 +1075,7 @@ message CompositeAggregation {
   optional int32 size = 6;
 
   // The value sources used to build composite buckets. Keys are returned in the order of the `sources` definition.
-  repeated CompositeAggregationSourceMap sources = 7;
+  map<string, CompositeAggregationSource> sources = 7;
 }
 message CompositeAggregationSource {
   optional CompositeTermsAggregationSource terms = 1;
@@ -1084,9 +1085,6 @@ message CompositeAggregationSource {
   optional CompositeDateHistogramAggregationSource date_histogram = 3;
 
   optional CompositeGeoTileGridAggregationSource geotile_grid = 4;
-}
-message CompositeAggregationSourceMap {
-  map<string, CompositeAggregationSource> composite_aggregation_source_map = 1;
 }
 message CompositeBucket {
   int64 doc_count = 1;
@@ -2198,9 +2196,6 @@ message FiltersAggregation {
 }
 message FiltersBucket {
   int64 doc_count = 1;
-}
-message FloatMap {
-  map<string, float> float_map = 1;
 }
 message FormatMetricAggregationBase {
   // The custom metadata attached to a resource.
@@ -3502,7 +3497,7 @@ message IpRangeBucket {
 
   optional string to = 4;
 }
-message Items {
+message Item {
   optional ResponseItem index = 1;
 
   optional ResponseItem create = 2;
@@ -5706,7 +5701,7 @@ message SearchRequestBody {
   optional TrackHits track_total_hits = 8;
 
   // Boosts the `_score` of documents from specified indexes.
-  repeated FloatMap indices_boost = 9;
+  map<string, float> indices_boost = 9;
 
   // Array of wildcard (`*`) patterns. The request returns doc values for field names matching these patterns in the `hits.fields` property of the response.
   repeated FieldAndFormat docvalue_fields = 10;
@@ -5878,7 +5873,7 @@ message ShardFailure {
 
   optional string status = 5;
 
-  optional bool primary = 6;
+  bool primary = 6;
 }
 message ShardInfo {
   int32 failed = 1;
@@ -6265,7 +6260,7 @@ message SortCombinations {
     // The path to a field or an array of paths. Some APIs support wildcards in the path, which allows you to select multiple fields.
     string field = 1;
 
-    StringMap field_with_direction = 2;
+    SortOrderMap field_with_direction = 2;
 
     FieldSortMap field_with_order = 3;
 
@@ -6291,6 +6286,9 @@ enum SortOrder {
   SORT_ORDER_UNSPECIFIED = 0;
   SORT_ORDER_ASC = 1;
   SORT_ORDER_DESC = 2;
+}
+message SortOrderMap {
+  map<string, SortOrder> sort_order_map = 1;
 }
 message SourceConfig {
   oneof source_config {
@@ -7011,7 +7009,7 @@ message TermsAggregation {
   // Coerced unmapped fields into the specified type.
   optional string value_type = 14;
 
-  repeated StringMap order = 15;
+  map<string, SortOrder> order = 15;
 
   optional Script script = 16;
 
@@ -7252,18 +7250,15 @@ message UpdateAction {
   // When `true`, uses the contents of `doc` as the value of `upsert`.
   optional bool doc_as_upsert = 3;
 
-  // The sequence number of the document.
-  optional int64 if_seq_no = 4;
-
-  optional Script script = 5;
+  optional Script script = 4;
 
   // When `true`, executes the script whether or not the document exists.
-  optional bool scripted_upsert = 6;
+  optional bool scripted_upsert = 5;
 
   // If the document does not already exist, the contents of `upsert` are inserted as a new document. If the document exists, the `script` is executed.
-  optional bytes upsert = 7;
+  optional bytes upsert = 6;
 
-  optional SourceConfig x_source = 8;
+  optional SourceConfig x_source = 7;
 }
 message UpdateOperation {
   // The routing value for the document.
