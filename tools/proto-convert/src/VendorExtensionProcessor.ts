@@ -1,7 +1,8 @@
 import { OpenAPIV3 } from 'openapi-types';
 import { traverse } from './utils/OpenApiTraverser';
-import { resolveRef, deleteMatchingKeys } from './utils/helper';
+import { resolveRef, deleteMatchingKeys, remove_unused } from './utils/helper';
 import Logger from './utils/logger';
+import _ from 'lodash';
 
 /**
  * VendorExtensionProcessor class:
@@ -35,6 +36,8 @@ export class VendorExtensionProcessor {
      */
     public process(): OpenAPIV3.Document {
         deleteMatchingKeys(this.root, (item: any) => this.hasProtobufExcluded(item));
+
+        remove_unused(this.root);
 
         traverse(this.root, {
             onParameter: (param: any, name: string) => {
