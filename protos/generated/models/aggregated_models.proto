@@ -367,14 +367,11 @@ message AggregationProfile {
 
   string description = 2;
 
-  // Time unit for nanoseconds.
-  int64 time_in_nanos = 3;
+  string type = 3;
 
-  string type = 4;
+  optional AggregationProfileDebug debug = 4;
 
-  optional AggregationProfileDebug debug = 5;
-
-  repeated AggregationProfile children = 6;
+  repeated AggregationProfile children = 5;
 }
 message AggregationProfileDebug {
   optional int32 segments_with_multi_valued_ords = 1;
@@ -518,6 +515,7 @@ message AutoDateHistogramAggregation {
 
   optional MinimumInterval minimum_interval = 8;
 
+  // A date and time, either as a string whose format depends on the context (defaulting to ISO_8601) or the number of milliseconds since the epoch. OpenSearch accepts both as an input but will generally output a string. representation.
   optional string missing = 9;
 
   // Time zone specified as a ISO 8601 UTC offset.
@@ -880,10 +878,7 @@ message Collector {
 
   string reason = 2;
 
-  // Time unit for nanoseconds.
-  int64 time_in_nanos = 3;
-
-  repeated Collector children = 4;
+  repeated Collector children = 3;
 }
 enum CombinedFieldsOperator {
   COMBINED_FIELDS_OPERATOR_UNSPECIFIED = 0;
@@ -1252,6 +1247,7 @@ message DateDecayPlacement {
   // A duration. Units can be `nanos`, `micros`, `ms` (milliseconds), `s` (seconds), `m` (minutes), `h` (hours) and `d` (days). Also accepts `0` without a unit and `-1` to indicate an unspecified value.
   optional string offset = 2;
 
+  // A date and time, either as a string whose format depends on the context (defaulting to ISO_8601) or the number of milliseconds since the epoch. OpenSearch accepts both as an input but will generally output a string. representation.
   optional string origin = 3;
 
   // A duration. Units can be `nanos`, `micros`, `ms` (milliseconds), `s` (seconds), `m` (minutes), `h` (hours) and `d` (days). Also accepts `0` without a unit and `-1` to indicate an unspecified value.
@@ -1296,6 +1292,7 @@ message DateHistogramAggregation {
   // Only returns buckets that have `min_doc_count` number of documents. By default, all buckets between the first bucket that matches documents and the last one are returned.
   optional int32 min_doc_count = 12;
 
+  // A date and time, either as a string whose format depends on the context (defaulting to ISO_8601) or the number of milliseconds since the epoch. OpenSearch accepts both as an input but will generally output a string. representation.
   optional string missing = 13;
 
   // A duration. Units can be `nanos`, `micros`, `ms` (milliseconds), `s` (seconds), `m` (minutes), `h` (hours) and `d` (days). Also accepts `0` without a unit and `-1` to indicate an unspecified value.
@@ -1317,9 +1314,6 @@ message DateHistogramBucket {
   int64 doc_count = 1;
 
   optional string key_as_string = 2;
-
-  // The time unit for milliseconds.
-  int64 key = 3;
 }
 message DateRangeAggregate {
   // The custom metadata attached to a resource.
@@ -1410,14 +1404,6 @@ message DateRangeQueryAllOfTo {
     string string = 1;
 
     NullValue null_value = 2;
-  }
-}
-message DateTime {
-  oneof date_time {
-    string string = 1;
-
-    // The time unit for milliseconds.
-    int64 int64 = 2;
   }
 }
 enum Day {
@@ -1962,14 +1948,11 @@ message FetchProfile {
 
   string description = 2;
 
-  // Time unit for nanoseconds.
-  int64 time_in_nanos = 3;
+  FetchProfileBreakdown breakdown = 3;
 
-  FetchProfileBreakdown breakdown = 4;
+  optional FetchProfileDebug debug = 4;
 
-  optional FetchProfileDebug debug = 5;
-
-  repeated FetchProfile children = 6;
+  repeated FetchProfile children = 5;
 }
 message FetchProfileBreakdown {
   optional int32 load_source = 1;
@@ -2111,14 +2094,15 @@ enum FieldType {
   FIELD_TYPE_RANK_FEATURES = 36;
   FIELD_TYPE_SCALED_FLOAT = 37;
   FIELD_TYPE_SEARCH_AS_YOU_TYPE = 38;
-  FIELD_TYPE_SHORT = 39;
-  FIELD_TYPE_TEXT = 40;
-  FIELD_TYPE_TOKEN_COUNT = 41;
-  FIELD_TYPE_UNSIGNED_LONG = 42;
-  FIELD_TYPE_VERSION = 43;
-  FIELD_TYPE_WILDCARD = 44;
-  FIELD_TYPE_XY_POINT = 45;
-  FIELD_TYPE_XY_SHAPE = 46;
+  FIELD_TYPE_SEMANTIC = 39;
+  FIELD_TYPE_SHORT = 40;
+  FIELD_TYPE_TEXT = 41;
+  FIELD_TYPE_TOKEN_COUNT = 42;
+  FIELD_TYPE_UNSIGNED_LONG = 43;
+  FIELD_TYPE_VERSION = 44;
+  FIELD_TYPE_WILDCARD = 45;
+  FIELD_TYPE_XY_POINT = 46;
+  FIELD_TYPE_XY_SHAPE = 47;
 }
 message FieldValue {
   optional bool bool = 1;
@@ -3762,34 +3746,32 @@ message MatchQuery {
   // If `true`, match phrase queries are automatically created for multi-term synonyms.
   optional bool auto_generate_synonyms_phrase_query = 4;
 
-  optional float cutoff_frequency = 5;
+  optional Fuzziness fuzziness = 5;
 
-  optional Fuzziness fuzziness = 6;
-
-  optional MultiTermQueryRewrite fuzzy_rewrite = 7;
+  optional MultiTermQueryRewrite fuzzy_rewrite = 6;
 
   // If `true`, edits for fuzzy matching include transpositions of two adjacent characters (for example, `ab` to `ba`).
-  optional bool fuzzy_transpositions = 8;
+  optional bool fuzzy_transpositions = 7;
 
   // If `true`, format-based errors, such as providing a text query value for a numeric field, are ignored.
-  optional bool lenient = 9;
+  optional bool lenient = 8;
 
   // Maximum number of terms to which the query will expand.
-  optional int32 max_expansions = 10;
+  optional int32 max_expansions = 9;
 
-  optional MinimumShouldMatch minimum_should_match = 11;
+  optional MinimumShouldMatch minimum_should_match = 10;
 
-  optional Operator operator = 12;
+  optional Operator operator = 11;
 
   // Number of beginning characters left unchanged for fuzzy matching.
-  optional int32 prefix_length = 13;
+  optional int32 prefix_length = 12;
 
   // Text, number, Boolean value or date you wish to find in the provided field.
-  FieldValue query = 14;
+  FieldValue query = 13;
 
-  optional ZeroTermsQuery zero_terms_query = 15;
+  optional ZeroTermsQuery zero_terms_query = 14;
 
-  string field = 16;
+  string field = 15;
 }
 message MatrixAggregation {
   // The custom metadata attached to a resource.
@@ -5160,12 +5142,9 @@ message QueryProfile {
 
   string description = 2;
 
-  // Time unit for nanoseconds.
-  int64 time_in_nanos = 3;
+  string type = 3;
 
-  string type = 4;
-
-  repeated QueryProfile children = 5;
+  repeated QueryProfile children = 4;
 }
 message QueryStringQuery {
   // Floating point number used to decrease or increase the relevance scores of the query. Boost values are relative to the default value of 1.0. A boost value between 0 and 1.0 decreases the relevance score. A value greater than 1.0 increases the relevance score.
