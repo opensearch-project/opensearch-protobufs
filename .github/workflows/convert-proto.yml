@@ -64,6 +64,8 @@ jobs:
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
+            const toml = require('toml');
+
             // Check if version was provided as input
             const inputVersion = "${{ inputs.opensearch_version }}";
             if (inputVersion && inputVersion.trim() !== "") {
@@ -72,35 +74,32 @@ jobs:
               return;
             }
 
-            // Otherwise fetch version from buildSrc/version.properties on main branch
+            // Otherwise fetch version from gradle/libs.versions.toml on main branch
             try {
               const response = await github.request(
                 'GET /repos/{owner}/{repo}/contents/{path}',
                 {
                   owner: 'opensearch-project',
                   repo: 'OpenSearch',
-                  path: 'buildSrc/version.properties',
+                  path: 'gradle/libs.versions.toml',
                   ref: 'main'
                 }
               );
 
-              // Decode the file content
               const content = Buffer.from(response.data.content, 'base64').toString('utf-8');
 
-              // Extract opensearch version (e.g., "opensearch = 3.4.0")
-              const match = content.match(/opensearch\s*=\s*([^\s]+)/);
+              // Parse TOML and extract opensearch version
+              const parsed = toml.parse(content);
+              const version = parsed.versions.opensearch;
 
-              if (match && match[1]) {
-                const version = match[1].trim();
+              if (version) {
                 core.setOutput("version", version);
-                console.log("Fetched OpenSearch version from source: " + version);
+                console.log("Fetched OpenSearch version from gradle/libs.versions.toml: " + version);
               } else {
-                console.log("Warning: Could not parse version from buildSrc/version.properties");
-                core.setOutput("version", "unknown");
+                core.setFailed("Could not find opensearch version in gradle/libs.versions.toml");
               }
             } catch (error) {
-              console.log("Warning: Could not fetch OpenSearch version: " + error.message);
-              core.setOutput("version", "unknown");
+              core.setFailed("Could not fetch OpenSearch version: " + error.message);
             }
 
       - name: Run Proto Conversion
