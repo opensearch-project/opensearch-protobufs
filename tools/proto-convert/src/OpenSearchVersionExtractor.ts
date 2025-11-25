@@ -5,10 +5,9 @@ import { deleteMatchingKeys, remove_unused } from './utils/helper';
 import type { OpenAPIV3 } from 'openapi-types';
 
 /**
- * Processes version-related vendor extensions:
- * - x-version-added: Removes fields added after current version
- * - x-version-deprecated: Removes fields deprecated in current version or earlier
- * - x-version-removed: Removes fields removed before current version
+ * x-version-added: Removes fields if the added version > target version.
+ * x-version-deprecated: Removes fields if deprecated version <= target version.
+ * x-version-removed: Removes fields if removed version <= target version.
  */
 export class OpenSearchVersionExtractor {
   private _logger: Logger;
