@@ -135,3 +135,68 @@ export function deleteMatchingKeys(obj: any, condition: (item: any) => boolean):
         }
     }
 }
+
+/**
+ * Find all $ref references in the spec, including nested references
+ */
+export function find_refs(
+    current: Record<string, any>,
+    root?: Record<string, any>,
+    call_stack: string[] = []
+): Set<string> {
+    const results = new Set<string>();
+
+    if (root === undefined) {
+        root = current;
+        current = current.paths;
+    }
+
+    if (current?.$ref != null) {
+        const ref = current.$ref as string;
+        results.add(ref);
+
+        const ref_node = resolveRef(ref, root as OpenAPIV3.Document);
+        if (ref_node !== undefined && !call_stack.includes(ref)) {
+            call_stack.push(ref);
+            find_refs(ref_node as Record<string, any>, root, call_stack).forEach((ref) => results.add(ref));
+        }
+    }
+
+    if (_.isObject(current)) {
+        _.forEach(current, (v) => {
+            find_refs(v as Record<string, any>, root, call_stack).forEach((ref) => results.add(ref));
+        });
+    }
+
+    return results;
+}
+
+/**
+ * Remove unused component definitions and broken $ref entries
+ */
+export function remove_unused(spec: OpenAPIV3.Document): void {
+    if (spec === undefined) return;
+
+    const references = find_refs(spec);
+
+    const componentTypes = ['parameters', 'requestBodies', 'responses', 'schemas'];
+    for (const componentType of componentTypes) {
+        const components = spec.components?.[componentType as keyof OpenAPIV3.ComponentsObject];
+        if (!components || !_.isObject(components)) continue;
+
+        for (const key of Object.keys(components)) {
+            if (!references.has(`#/components/${componentType}/${key}`)) {
+                delete components[key];
+            }
+        }
+    }
+
+    const remaining = _.flatMap(
+        ['schemas', 'parameters', 'responses', 'requestBodies'],
+        (key) => _.keys((spec?.components as any)?.[key]).map((ref) => `#/components/${key}/${ref}`)
+    );
+
+    deleteMatchingKeys(spec, (obj: any) =>
+        obj.$ref !== undefined && !_.includes(remaining, obj.$ref)
+    );
+}

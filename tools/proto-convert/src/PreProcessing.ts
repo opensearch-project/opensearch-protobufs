@@ -7,6 +7,7 @@ import * as path from 'path';
 import {SchemaModifier} from "./SchemaModifier";
 import {VendorExtensionProcessor} from "./VendorExtensionProcessor";
 import {GlobalParameterConsolidator} from "./GlobalParamWrapper";
+import {OpenSearchVersionExtractor} from "./OpenSearchVersionExtractor";
 import type {OpenAPIV3} from "openapi-types";
 
 let config_filtered_path: string[] | undefined;
@@ -30,6 +31,7 @@ const command = new Command()
       .default(default_api_to_proto)
   )
   .addOption(new Option('--verbose', 'show merge details').default(false))
+  .addOption(new Option('--opensearch-version <version>', 'current OpenSearch version for deprecation removal').default('3.4'))
   .allowExcessArguments(false)
   .parse();
 
@@ -39,6 +41,7 @@ type PreprocessingOpts = {
   output: string;
   filtered_path: string[];
   verbose: boolean;
+  opensearchVersion: string;
 };
 
 const opts = command.opts() as PreprocessingOpts;
@@ -49,7 +52,8 @@ try {
   logger.info(`PreProcessing ${opts.filtered_path.join(', ')} into ${opts.output} ...`)
   const original_spec = read_yaml(opts.input)
   const filtered_spec = new Filter().filter_spec(original_spec, opts.filtered_path);
-  const sanitized_spec = new Sanitizer().sanitize(filtered_spec);
+  const version_processed_spec = new OpenSearchVersionExtractor(filtered_spec, logger).process(opts.opensearchVersion);
+  const sanitized_spec = new Sanitizer().sanitize(version_processed_spec);
   const consolidated_spec = new GlobalParameterConsolidator(sanitized_spec).consolidate();
   const vendor_processed_spec = new VendorExtensionProcessor(consolidated_spec, logger).process();
   const schema_modified_spec = new SchemaModifier(vendor_processed_spec, logger).modify();
