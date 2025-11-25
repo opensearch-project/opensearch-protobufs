@@ -4,13 +4,13 @@ on:
   workflow_dispatch:
     inputs:
       opensearch_version:
-        description: 'OpenSearch version (e.g., 3.4, 3.3.2). Leave empty to fetch latest.'
+        description: 'OpenSearch version. Leave empty to fetch latest.'
         required: false
         type: string
 jobs:
   auto-proto-convert:
     runs-on: ubuntu-latest
-    # if: github.repository == 'opensearch-project/opensearch-protobufs'
+    if: github.repository == 'opensearch-project/opensearch-protobufs'
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
