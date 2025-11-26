@@ -3,7 +3,9 @@
     "configMode": "AUTO",
     "configExternalURL": "",
     "projectToken": "",
-    "baseBranches": []
+    "baseBranches": ["main"],
+    "scanPullRequests": true,
+    "incrementalScan": true
   },
   "scanSettingsSAST": {
     "enableScan": false,
