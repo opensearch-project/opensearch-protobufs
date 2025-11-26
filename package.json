@@ -68,6 +68,9 @@
     "junit": ">=4.13.2",
     "@babel/helpers": ">=7.26.10",
     "@babel/runtime": ">=7.26.10",
-    "brace-expansion": ">=4.0.1"
+    "brace-expansion": ">=4.0.1",
+    "minimist": ">=1.2.6",
+    "resolve": ">=1.22.2",
+    "js-yaml": ">=4.1.1"
   }
 }
