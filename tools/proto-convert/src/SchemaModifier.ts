@@ -479,12 +479,11 @@ export class SchemaModifier {
 
     /**
      * Marks schemas and properties with oneOf extensions.
-     * Adds x-oneof-property to properties when schema has minProperties=1 and maxProperties=1.
-     * Adds x-oneof-schema to schemas that have the min/max pattern AND to parent schemas
-     * that contain nested schemas with the pattern.
+     * Adds x-oneof-property to properties when schema has maxProperties=1.
+     * Adds x-oneof-schema to schemas that have the max pattern AND to parent schemas
      **/
     markOneOfExtensions(schema: OpenAPIV3.SchemaObject): void {
-        const hasDirectPattern = schema.minProperties === 1 && schema.maxProperties === 1;
+        const hasDirectPattern = schema.maxProperties === 1;
         const hasNestedPattern = this.hasNestedOneOfPattern(schema);
 
         if (!hasDirectPattern && !hasNestedPattern) {
@@ -548,7 +547,7 @@ export class SchemaModifier {
                 for (const item of items) {
                     if (item && typeof item === 'object' && !('$ref' in item)) {
                         const itemSchema = item as any;
-                        if (itemSchema.minProperties === 1 && itemSchema.maxProperties === 1) {
+                        if (itemSchema.maxProperties === 1) {
                             return true;
                         }
                     }
