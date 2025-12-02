@@ -34,6 +34,7 @@ export class SchemaModifier {
                 this.collapseOrMergeOneOfArray(schema)
                 this.collapseOneOfObjectPropContainsTitleSchema(schema)
                 this.removeArrayOfMapWrapper(schema)
+                this.convertOneOfToMinMaxProperties(schema)
             },
         });
         const visit = new Set();
@@ -475,6 +476,88 @@ export class SchemaModifier {
                 this.logger.info(`Removed array wrapper from array of maps schema`);
             }
         }
+    }
+
+    /**
+     * Converts oneOf pattern with single-property objects into minProperties/maxProperties pattern.
+     * For AggregationContainer
+     *
+     * Example:
+     *   Input:
+     *   {
+     *     allOf: [
+     *       { properties: { meta: {...} } },
+     *       { oneOf: [
+     *           { properties: { field1: {...} }, required: [field1] },
+     *           { properties: { field2: {...} }, required: [field2] }
+     *         ]
+     *       }
+     *     ]
+     *   }
+     *
+     *   Output:
+     *   {
+     *     allOf: [
+     *       { properties: { meta: {...} } },
+     *       {
+     *         properties: {
+     *           field1: {...},
+     *           field2: {...}
+     *         },
+     *         minProperties: 1,
+     *         maxProperties: 1
+     *       }
+     *     ]
+     *   }
+     **/
+    convertOneOfToMinMaxProperties(schema: OpenAPIV3.SchemaObject): void {
+        if (Array.isArray(schema.oneOf) && schema.oneOf.length > 0) {
+            if (this.isOneOfWithSingleProperties(schema.oneOf)) {
+                this.flattenOneOfToProperties(schema);
+                this.logger.info(`Converted oneOf pattern to minProperties/maxProperties`);
+            }
+        }
+    }
+
+    /**
+     * Checks if oneOf items are all single-property objects
+     **/
+    private isOneOfWithSingleProperties(oneOfItems: any[]): boolean {
+        return oneOfItems.every(item => {
+            if (!item || typeof item !== 'object' || '$ref' in item) {
+                return false;
+            }
+            const hasProperties = item.properties && Object.keys(item.properties).length === 1;
+            const hasRequired = Array.isArray(item.required) && item.required.length === 1;
+            return hasProperties && hasRequired;
+        });
+    }
+
+    /**
+     * Flattens oneOf structure into merged properties with minProperties/maxProperties
+     **/
+    private flattenOneOfToProperties(schema: any): void {
+        if (!Array.isArray(schema.oneOf)) {
+            return;
+        }
+
+        const mergedProperties: any = {};
+
+        for (const item of schema.oneOf) {
+            if (item && item.properties) {
+                Object.assign(mergedProperties, item.properties);
+            }
+        }
+
+        schema.properties = mergedProperties;
+        schema.minProperties = 1;
+        schema.maxProperties = 1;
+
+        if ('unevaluatedProperties' in schema) {
+            delete schema.unevaluatedProperties;
+        }
+        delete schema.oneOf;
+        delete schema.required;
     }
 
     /**

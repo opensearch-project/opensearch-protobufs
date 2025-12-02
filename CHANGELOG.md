@@ -7,6 +7,7 @@ Inspired from [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 - Preprocessing - Support x-protobuf-name overrides existing property and parameter name ([#306](https://github.com/opensearch-project/opensearch-protobufs/pull/306))
 - Preprocessing - Handling spec added/deprecated versioning.([#309](https://github.com/opensearch-project/opensearch-protobufs/pull/309))
 - preprocessing - Support maxProperties=1 constraints by marking them as `oneof` for protobuf generation ([#317](https://github.com/opensearch-project/opensearch-protobufs/pull/317))
+- Preprocessing - Support x-protobuf-required to enforce required protobuf field and convert oneOf properties pattern to min/max Properties = 1 ([#318](https://github.com/opensearch-project/opensearch-protobufs/pull/318))
 
 ### Changed
 
