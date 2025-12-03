@@ -134,14 +134,6 @@ enum NullValue {
   NULL_VALUE_NULL = 1;
 }
 
-// [optional] Controls how document source fields are returned in the response.
-// - If not set, source is returned as bytes (default, recommended for better performance)
-// - If set to SOURCE_TYPE_STRUCT: source is returned as a structured protobuf message
-enum SourceType {
-  SOURCE_TYPE_UNSPECIFIED = 0;
-  SOURCE_TYPE_STRUCT = 1;
-}
-
 message GeoLocation {
   oneof geo_location {
     // The location specified using latitude and longitude coordinates.
@@ -160,12 +152,6 @@ message GeoLocation {
 message DoubleArray {
   // The location specified as an array of `[longitude, latitude]`.
   repeated double double_array = 1;
-}
-
-message NumberArray {
-
-  repeated double number_array = 1;
-
 }
 
 message LatLonGeoLocation {
@@ -214,15 +200,6 @@ message StringOrStringArray {
   }
 }
 
-
-message Id {
-  oneof id {
-    NullValue null_value = 1;
-    string string = 2;
-  }
-}
-
-
 message SourceConfig {
 
   oneof source_config{
@@ -232,49 +209,6 @@ message SourceConfig {
     // [optional] source_filter type containing a list of source fields to include or exclude.
     SourceFilter filter = 2;
   }
-
-}
-
-message RuntimeField {
-
-  // For type `lookup`
-  repeated RuntimeFieldFetchFields fetch_fields = 1;
-
-  // A custom format for `date` type runtime fields.
-  string format = 2;
-
-  // Path to field or array of paths. Some API's support wildcards in the path to select multiple fields.
-  string input_field = 3;
-
-  // Path to field or array of paths. Some API's support wildcards in the path to select multiple fields.
-  string target_field = 4;
-
-  string target_index = 5;
-
-  Script script = 6;
-
-  RuntimeFieldType type = 7;
-
-}
-
-enum RuntimeFieldType {
-  RUNTIME_FIELD_TYPE_UNSPECIFIED = 0;
-  RUNTIME_FIELD_TYPE_BOOLEAN = 1;
-  RUNTIME_FIELD_TYPE_DATE = 2;
-  RUNTIME_FIELD_TYPE_DOUBLE = 3;
-  RUNTIME_FIELD_TYPE_GEO_POINT = 4;
-  RUNTIME_FIELD_TYPE_IP = 5;
-  RUNTIME_FIELD_TYPE_KEYWORD = 6;
-  RUNTIME_FIELD_TYPE_LONG = 7;
-  RUNTIME_FIELD_TYPE_LOOKUP = 8;
-}
-
-message RuntimeFieldFetchFields {
-
-  // Path to field or array of paths. Some API's support wildcards in the path to select multiple fields.
-  string field = 1;
-
-  string format = 2;
 
 }
 
@@ -361,24 +295,6 @@ message ShardFailure {
   // [required]
   bool primary = 6;
 
-}
-
-message ShardSearchFailure {
-
-  // [optional] Name of the index in which the shard failure occurred.
-  optional string index = 1;
-
-  // [optional] ID of the node where the shard is located.
-  optional string node = 2;
-
-  // [required] Provides details about the error that caused the shard failure.
-  ErrorCause reason = 3;
-
-  // [required] The shard number where the failure occurred.
-  int32 shard = 4;
-
-  // [optional] Error status.
-  optional string status = 5;
 }
 
 message QueryContainer {
@@ -925,11 +841,6 @@ message HighlightField {
 
 }
 
-message FieldWithOrderMap {
-  // [required] Map of fields and their corresponding sort order.
-  map<string, ScoreSort> field_with_order_map = 1;
-}
-
 message FieldSort {
   // The value to use when the field is missing.
   optional FieldValue missing = 1;
@@ -1354,17 +1265,6 @@ message MatchQuery {
   optional ZeroTermsQuery zero_terms_query = 15;
 }
 
-message Query {
-  oneof query{
-    // if the query value is string type.
-    string string = 1;
-    // if the query value is number type.
-    GeneralNumber general_number = 2;
-    // if the query value is boolean type.
-    bool bool = 3;
-  }
-}
-
 message BoolQuery {
 
   // [optional] Floating point number used to decrease or increase the relevance scores of the query. Boost values are relative to the default value of 1.0. A boost value between 0 and 1.0 decreases the relevance score. A value greater than 1.0 increases the relevance score.
@@ -1701,21 +1601,6 @@ message PrefixQuery {
   optional bool case_insensitive = 6;
 }
 
-message TermsLookupFieldStringArrayMap {
-  oneof terms_lookup_field_string_array_map {
-    // terms_lookup_field terms you wish to find in the provided field
-    TermsLookupField terms_lookup_field = 1;
-    // string_array terms value you wish to find in the provided field
-    StringArray string_array = 2;
-  }
-}
-
-enum ValueType {
-    VALUE_TYPE_UNSPECIFIED = 0;
-    VALUE_TYPE_BITMAP = 1;
-    VALUE_TYPE_DEFAULT = 2;
-}
-
 enum TermsQueryValueType {
   TERMS_QUERY_VALUE_TYPE_UNSPECIFIED = 0;
   TERMS_QUERY_VALUE_TYPE_BITMAP = 1;
@@ -1747,29 +1632,6 @@ message TermsLookup {
 
 message FieldValueArray {
   repeated FieldValue field_value_array = 1;
-}
-
-message TermsLookupField {
-
-  // [required]
-  // The name of the index from which to fetch field values
-  string index = 1;
-
-  // [required]
-  // The document ID of the document from which to fetch field values.
-  string id = 2;
-
-  // [required]
-  // The name of the field from which to fetch field values. Specify nested fields using dot path notation
-  string path = 3;
-
-  // [optional]
-  // Custom routing value of the document from which to fetch term values. If a custom routing value was provided when the document was indexed, this parameter is required.
-  optional string routing = 4;
-
-  // [optional]
-  optional bool store = 5;
-
 }
 
 message TermsSetQuery {
@@ -2031,32 +1893,6 @@ enum RangeRelation {
   RANGE_RELATION_CONTAINS = 1;
   RANGE_RELATION_INTERSECTS = 2;
   RANGE_RELATION_WITHIN = 3;
-}
-
-message RegexpQuery {
-  // [required] Specifies the field against which to run a search query
-  string field = 1;
-
-  // [required] Regular expression for terms you wish to find in the provided field.
-  string value = 2;
-
-  // [optional] Floating point number used to decrease or increase the relevance scores of the query. Boost values are relative to the default value of 1.0. A boost value between 0 and 1.0 decreases the relevance score. A value greater than 1.0 increases the relevance score.
-  optional float boost = 3;
-
-  // [optional] Query name for query tagging
-  optional string x_name = 4;
-
-  // [optional] If true, allows case-insensitive matching of the regular expression value with the indexed field values. Default is false (case sensitivity is determined by the field’s mapping).
-  optional bool case_insensitive = 5;
-
-  // [optional] Enables optional operators for the regular expression.
-  optional string flags = 6;
-
-  // [optional] Lucene converts a regular expression to an automaton with a number of determinized states. This parameter specifies the maximum number of automaton states the query requires. Use this parameter to prevent high resource consumption. To run complex regular expressions, you may need to increase the value of this parameter. Default is 10,000.
-  optional int32 max_determinized_states = 7;
-
-  // [optional] Determines how OpenSearch rewrites and scores multi-term queries. Valid values are constant_score, scoring_boolean, constant_score_boolean, top_terms_N, top_terms_boost_N, and top_terms_blended_freqs_N. Default is constant_score.
-  optional MultiTermQueryRewrite rewrite = 8;
 }
 
 message FuzzyQuery {
@@ -2334,348 +2170,4 @@ enum FieldValueFactorModifier {
   FIELD_VALUE_FACTOR_MODIFIER_RECIPROCAL = 8;
   FIELD_VALUE_FACTOR_MODIFIER_SQRT = 9;
   FIELD_VALUE_FACTOR_MODIFIER_SQUARE = 10;
-}
-
-message DutchAnalyzer {
-  DutchAnalyzerType type = 1;
-
-  repeated string stopwords = 2;
-}
-enum DutchAnalyzerType {
-  DUTCH_ANALYZER_TYPE_UNSPECIFIED = 0;
-  DUTCH_ANALYZER_TYPE_DUTCH = 1;
-}
-
-message FingerprintAnalyzer {
-  FingerprintAnalyzerType type = 1;
-
-  optional string version = 2;
-
-  int32 max_output_size = 3;
-
-  bool preserve_original = 4;
-
-  string separator = 5;
-
-  repeated string stopwords = 6;
-
-  optional string stopwords_path = 7;
-}
-enum FingerprintAnalyzerType {
-  FINGERPRINT_ANALYZER_TYPE_UNSPECIFIED = 0;
-  FINGERPRINT_ANALYZER_TYPE_FINGERPRINT = 1;
-}
-
-message IcuAnalyzer {
-  IcuAnalyzerType type = 1;
-
-  IcuNormalizationType method = 2;
-
-  IcuNormalizationMode mode = 3;
-}
-enum IcuAnalyzerType {
-  ICU_ANALYZER_TYPE_UNSPECIFIED = 0;
-  ICU_ANALYZER_TYPE_ICU_ANALYZER = 1;
-}
-enum IcuNormalizationMode {
-  ICU_NORMALIZATION_MODE_UNSPECIFIED = 0;
-  ICU_NORMALIZATION_MODE_COMPOSE = 1;
-  ICU_NORMALIZATION_MODE_DECOMPOSE = 2;
-}
-enum IcuNormalizationType {
-  ICU_NORMALIZATION_TYPE_UNSPECIFIED = 0;
-  ICU_NORMALIZATION_TYPE_NFC = 1;
-  ICU_NORMALIZATION_TYPE_NFKC = 2;
-  ICU_NORMALIZATION_TYPE_NFKC_CF = 3;
-}
-
-message KeywordAnalyzer {
-  KeywordAnalyzerType type = 1;
-
-  optional string version = 2;
-}
-enum KeywordAnalyzerType {
-  KEYWORD_ANALYZER_TYPE_UNSPECIFIED = 0;
-  KEYWORD_ANALYZER_TYPE_KEYWORD = 1;
-}
-
-
-message LanguageAnalyzer {
-  LanguageAnalyzerType type = 1;
-
-  optional string version = 2;
-
-  Language language = 3;
-
-  repeated string stem_exclusion = 4;
-
-  repeated string stopwords = 5;
-
-  optional string stopwords_path = 6;
-}
-enum LanguageAnalyzerType {
-  LANGUAGE_ANALYZER_TYPE_UNSPECIFIED = 0;
-  LANGUAGE_ANALYZER_TYPE_LANGUAGE = 1;
-}
-
-enum Language {
-  LANGUAGE_UNSPECIFIED = 0;
-  LANGUAGE_ARABIC = 1;
-  LANGUAGE_ARMENIAN = 2;
-  LANGUAGE_BASQUE = 3;
-  LANGUAGE_BRAZILIAN = 4;
-  LANGUAGE_BULGARIAN = 5;
-  LANGUAGE_CATALAN = 6;
-  LANGUAGE_CHINESE = 7;
-  LANGUAGE_CJK = 8;
-  LANGUAGE_CZECH = 9;
-  LANGUAGE_DANISH = 10;
-  LANGUAGE_DUTCH = 11;
-  LANGUAGE_ENGLISH = 12;
-  LANGUAGE_ESTONIAN = 13;
-  LANGUAGE_FINNISH = 14;
-  LANGUAGE_FRENCH = 15;
-  LANGUAGE_GALICIAN = 16;
-  LANGUAGE_GERMAN = 17;
-  LANGUAGE_GREEK = 18;
-  LANGUAGE_HINDI = 19;
-  LANGUAGE_HUNGARIAN = 20;
-  LANGUAGE_INDONESIAN = 21;
-  LANGUAGE_IRISH = 22;
-  LANGUAGE_ITALIAN = 23;
-  LANGUAGE_LATVIAN = 24;
-  LANGUAGE_NORWEGIAN = 25;
-  LANGUAGE_PERSIAN = 26;
-  LANGUAGE_PORTUGUESE = 27;
-  LANGUAGE_ROMANIAN = 28;
-  LANGUAGE_RUSSIAN = 29;
-  LANGUAGE_SORANI = 30;
-  LANGUAGE_SPANISH = 31;
-  LANGUAGE_SWEDISH = 32;
-  LANGUAGE_THAI = 33;
-  LANGUAGE_TURKISH = 34;
-}
-
-message NoriAnalyzer {
-  NoriAnalyzerType type = 1;
-
-  optional string version = 2;
-
-  optional NoriDecompoundMode decompound_mode = 3;
-
-  repeated string stoptags = 4;
-
-  optional string user_dictionary = 5;
-}
-enum NoriAnalyzerType {
-  NORI_ANALYZER_TYPE_UNSPECIFIED = 0;
-  NORI_ANALYZER_TYPE_NORI = 1;
-}
-enum NoriDecompoundMode {
-  NORI_DECOMPOUND_MODE_UNSPECIFIED = 0;
-  NORI_DECOMPOUND_MODE_DISCARD = 1;
-  NORI_DECOMPOUND_MODE_MIXED = 2;
-  NORI_DECOMPOUND_MODE_NONE = 3;
-}
-
-message PatternAnalyzer {
-  PatternAnalyzerType type = 1;
-
-  optional string version = 2;
-
-  optional string flags = 3;
-
-  optional bool lowercase = 4;
-
-  string pattern = 5;
-
-  repeated string stopwords = 6;
-}
-enum PatternAnalyzerType {
-  PATTERN_ANALYZER_TYPE_UNSPECIFIED = 0;
-  PATTERN_ANALYZER_TYPE_PATTERN = 1;
-}
-
-message SimpleAnalyzer{
-  enum Type {
-    TYPE_UNSPECIFIED = 0;
-    TYPE_SIMPLE = 1;
-  }
-  Type type = 1;
-
-  string version = 2;
-}
-
-message StandardAnalyzer {
-  StandardAnalyzerType type = 1;
-
-  optional int32 max_token_length = 2;
-
-  repeated string stopwords = 3;
-}
-
-enum StandardAnalyzerType {
-  STANDARD_ANALYZER_TYPE_UNSPECIFIED = 0;
-  STANDARD_ANALYZER_TYPE_STANDARD = 1;
-}
-
-message StopAnalyzer {
-  StopAnalyzerType type = 1;
-
-  optional string version = 2;
-
-  repeated string stopwords = 3;
-
-  optional string stopwords_path = 4;
-}
-enum StopAnalyzerType {
-  STOP_ANALYZER_TYPE_UNSPECIFIED = 0;
-  STOP_ANALYZER_TYPE_STOP = 1;
-}
-
-message WhitespaceAnalyzer {
-  WhitespaceAnalyzerType type = 1;
-
-  optional string version = 2;
-}
-enum WhitespaceAnalyzerType {
-  WHITESPACE_ANALYZER_TYPE_UNSPECIFIED = 0;
-  WHITESPACE_ANALYZER_TYPE_WHITESPACE = 1;
-}
-
-message CustomAnalyzer {
-  CustomAnalyzerType type = 1;
-
-  repeated string char_filter = 2;
-
-  repeated string filter = 3;
-
-  optional int32 position_increment_gap = 4;
-
-  optional int32 position_offset_gap = 5;
-
-  string tokenizer = 6;
-}
-enum CustomAnalyzerType {
-  CUSTOM_ANALYZER_TYPE_UNSPECIFIED = 0;
-  CUSTOM_ANALYZER_TYPE_CUSTOM = 1;
-}
-
-message Analyzer {
-  oneof analyzer {
-    CustomAnalyzer custom_analyzer = 1;
-    FingerprintAnalyzer fingerprint_analyzer = 2;
-    KeywordAnalyzer keyword_analyzer = 3;
-    LanguageAnalyzer language_analyzer = 4;
-    NoriAnalyzer nori_analyzer = 5;
-    PatternAnalyzer pattern_analyzer = 6;
-    SimpleAnalyzer simple_analyzer = 7;
-    StandardAnalyzer standard_analyzer = 8;
-    StopAnalyzer stop_analyzer = 9;
-    WhitespaceAnalyzer whitespace_analyzer = 10;
-    IcuAnalyzer icu_analyzer = 11;
-    KuromojiAnalyzer kuromoji_analyzer = 12;
-    SnowballAnalyzer snowball_analyzer = 13;
-    DutchAnalyzer dutch_analyzer = 14;
-  }
-}
-
-message KuromojiAnalyzer {
-  KuromojiAnalyzerType type = 1;
-
-  KuromojiTokenizationMode mode = 2;
-
-  optional string user_dictionary = 3;
-}
-enum KuromojiAnalyzerType {
-  KUROMOJI_ANALYZER_TYPE_UNSPECIFIED = 0;
-  KUROMOJI_ANALYZER_TYPE_KUROMOJI = 1;
-}
-enum KuromojiTokenizationMode {
-  KUROMOJI_TOKENIZATION_MODE_UNSPECIFIED = 0;
-  KUROMOJI_TOKENIZATION_MODE_EXTENDED = 1;
-  KUROMOJI_TOKENIZATION_MODE_NORMAL = 2;
-  KUROMOJI_TOKENIZATION_MODE_SEARCH = 3;
-}
-
-message SnowballAnalyzer {
-  SnowballAnalyzerType type = 1;
-
-  optional string version = 2;
-
-  SnowballLanguage language = 3;
-
-  repeated string stopwords = 4;
-}
-enum SnowballAnalyzerType {
-  SNOWBALL_ANALYZER_TYPE_UNSPECIFIED = 0;
-  SNOWBALL_ANALYZER_TYPE_SNOWBALL = 1;
-}
-
-enum SnowballLanguage {
-  SNOWBALL_LANGUAGE_UNSPECIFIED = 0;
-  SNOWBALL_LANGUAGE_ARMENIAN = 1;
-  SNOWBALL_LANGUAGE_BASQUE = 2;
-  SNOWBALL_LANGUAGE_CATALAN = 3;
-  SNOWBALL_LANGUAGE_DANISH = 4;
-  SNOWBALL_LANGUAGE_DUTCH = 5;
-  SNOWBALL_LANGUAGE_ENGLISH = 6;
-  SNOWBALL_LANGUAGE_FINNISH = 7;
-  SNOWBALL_LANGUAGE_FRENCH = 8;
-  SNOWBALL_LANGUAGE_GERMAN = 9;
-  SNOWBALL_LANGUAGE_GERMAN2 = 10;
-  SNOWBALL_LANGUAGE_HUNGARIAN = 11;
-  SNOWBALL_LANGUAGE_ITALIAN = 12;
-  SNOWBALL_LANGUAGE_KP = 13;
-  SNOWBALL_LANGUAGE_LOVINS = 14;
-  SNOWBALL_LANGUAGE_NORWEGIAN = 15;
-  SNOWBALL_LANGUAGE_PORTER = 16;
-  SNOWBALL_LANGUAGE_PORTUGUESE = 17;
-  SNOWBALL_LANGUAGE_ROMANIAN = 18;
-  SNOWBALL_LANGUAGE_RUSSIAN = 19;
-  SNOWBALL_LANGUAGE_SPANISH = 20;
-  SNOWBALL_LANGUAGE_SWEDISH = 21;
-  SNOWBALL_LANGUAGE_TURKISH = 22;
-}
-
-message Error {
-  oneof version {
-    OpenSearchExceptionV1 v1 = 1;
-  }
-}
-
-
-message OpenSearchExceptionV1 {
-  string type = 1;
-  string reason = 2;
-  repeated .google.protobuf.Struct root_cause = 3;
-
-  .google.protobuf.Struct caused_by = 4;
-  string stack_trace = 5;
-  .google.protobuf.Struct suppressed = 6;
-
-  .google.protobuf.Struct additional_details = 7;
-}
-
-message InlineGet {
-
-  .google.protobuf.Struct fields = 1;
-
-  bool found = 2;
-
-  int64 x_seq_no = 3;
-
-  int64 x_primary_term = 4;
-
-  repeated string x_routing = 5;
-
-  oneof inline_get_source {
-
-    // struct_source field to be returned upon explicit request by user
-    .google.protobuf.Struct struct_source = 6;
-
-    // Use bytes for better latency/performance, as it reduces payload size over the wire
-    bytes x_source = 7;
-
-  }
 }

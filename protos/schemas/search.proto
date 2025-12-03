@@ -454,41 +454,6 @@ message ClusterStatistics {
 
 }
 
-enum ClusterSearchStatus {
-  CLUSTER_SEARCH_STATUS_UNSPECIFIED = 0;
-  // The search failed on a cluster marked with skip_unavailable=false
-  CLUSTER_SEARCH_STATUS_FAILED = 1;
-  // Searches on at least one shard of the cluster was successful and at least one failed
-  CLUSTER_SEARCH_STATUS_PARTIAL = 2;
-  // Searches on all shards were successful
-  CLUSTER_SEARCH_STATUS_RUNNING = 3;
-  // The search failed on a cluster marked with skip_unavailable=true
-  CLUSTER_SEARCH_STATUS_SKIPPED = 4;
-  // Searches on all shards were successful
-  CLUSTER_SEARCH_STATUS_SUCCESSFUL = 5;
-}
-
-message ClusterDetails {
-  // [required] All possible cluster search states.
-  ClusterSearchStatus status = 1;
-
-  // [required] The index expression supplied by the user. If you provide a wildcard such as logs-*, this section will show the value with the wildcard, not the concrete indices being searched.
-  string indices = 2;
-
-  // [optional] How long (in milliseconds) the sub-search took on that cluster.
-  optional int64 took = 3;
-
-  // [required] If true, the request timed out before completion; returned results may be partial or empty.
-  bool timed_out = 4;
-
-  // [optional] The shard details for the sub-search on that cluster.
-  optional ShardStatistics shards = 5;
-
-  // [optional] An array of any shard-specific failures that occurred during the search operation
-  repeated ShardSearchFailure failures = 6;
-
-}
-
 message Profile {
 
   // [required] A search request can be executed against one or more shards in the index, and a search may involve one or more indexes. Thus, the profile.shards array contains profiling information for each shard that was involved in the search.
@@ -638,11 +603,6 @@ message SearchProfile {
   int64 rewrite_time = 3;
 
 }
-
-message NumberMap {
-  map<string, float> number_map = 1;
-}
-
 
 message PointInTimeReference {
   // [required] ID for the PIT to search. If you provide a pit object, this parameter is required.
