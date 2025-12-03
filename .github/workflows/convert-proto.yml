@@ -34,11 +34,11 @@ jobs:
       - name: Download Release Assets
         uses: robinraju/release-downloader@v1
         with:
-          repository: 'opensearch-project/opensearch-api-specification'
-          latest: true
-          fileName: 'opensearch-openapi.yaml'
-          tag: 'main-latest'
-          preRelease: true
+         repository: 'opensearch-project/opensearch-api-specification'
+         latest: true
+         fileName: 'opensearch-openapi.yaml'
+         tag: 'main-latest'
+         preRelease: true
 
       - name: Get Latest Commit ID
         id: get_commit
@@ -126,7 +126,7 @@ jobs:
 
       - name: Reformat proto files
         run: |
-          buf format -w protos/generated
+         buf format -w protos/generated
 
       - name: Configure Git User
         run: |

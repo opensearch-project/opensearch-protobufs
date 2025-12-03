@@ -58,6 +58,7 @@
   "devDependencies": {
     "@types/jest": "^29.5.14",
     "@types/lodash.isequal": "^4.5.8",
+    "@types/semver": "^7.7.1",
     "jest": "^29.7.0",
     "ts-jest": "^29.3.0",
     "typescript": "^5.8.2"
