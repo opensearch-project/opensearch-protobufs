@@ -620,19 +620,15 @@ export class SchemaModifier {
     }
 
     /**
-     * Checks if schema has nested items (in allOf/anyOf/oneOf) with oneOf pattern.
+     * Checks if schema has nested items in allOf with oneOf pattern (minProperties/maxProperties = 1).
      **/
     private hasNestedOneOfPattern(schema: OpenAPIV3.SchemaObject): boolean {
-        const composedKeys = ['allOf', 'anyOf', 'oneOf'] as const;
-        for (const key of composedKeys) {
-            const items = schema[key];
-            if (Array.isArray(items)) {
-                for (const item of items) {
-                    if (item && typeof item === 'object' && !('$ref' in item)) {
-                        const itemSchema = item as any;
-                        if (itemSchema.maxProperties === 1) {
-                            return true;
-                        }
+        if (Array.isArray(schema?.allOf)) {
+            for (const item of schema.allOf) {
+                if (item && typeof item === 'object' && !('$ref' in item)) {
+                    const itemSchema = item as any;
+                    if (itemSchema.maxProperties === 1) {
+                        return true;
                     }
                 }
             }
