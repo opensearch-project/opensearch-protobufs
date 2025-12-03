@@ -620,7 +620,7 @@ export class SchemaModifier {
     }
 
     /**
-     * Checks if schema has nested items in allOf with oneOf pattern (minProperties/maxProperties = 1).
+     * Checks if schema has nested items in allOf with oneOf pattern (maxProperties = 1).
      **/
     private hasNestedOneOfPattern(schema: OpenAPIV3.SchemaObject): boolean {
         if (Array.isArray(schema?.allOf)) {
