@@ -232,149 +232,148 @@ message AggregationContainer {
   // The custom metadata attached to a resource.
   optional ObjectMap meta = 1;
 
-  AdjacencyMatrixAggregation adjacency_matrix = 2;
+  oneof aggregation_container {
+    AdjacencyMatrixAggregation adjacency_matrix = 2;
 
-  AutoDateHistogramAggregation auto_date_histogram = 3;
+    AutoDateHistogramAggregation auto_date_histogram = 3;
 
-  AverageAggregation avg = 4;
+    AverageAggregation avg = 4;
 
-  AverageBucketAggregation avg_bucket = 5;
+    AverageBucketAggregation avg_bucket = 5;
 
-  BoxplotAggregation boxplot = 6;
+    BoxplotAggregation boxplot = 6;
 
-  BucketScriptAggregation bucket_script = 7;
+    BucketScriptAggregation bucket_script = 7;
 
-  BucketSelectorAggregation bucket_selector = 8;
+    BucketSelectorAggregation bucket_selector = 8;
 
-  BucketSortAggregation bucket_sort = 9;
+    BucketSortAggregation bucket_sort = 9;
 
-  CardinalityAggregation cardinality = 10;
+    CardinalityAggregation cardinality = 10;
 
-  ChildrenAggregation children = 11;
+    ChildrenAggregation children = 11;
 
-  CompositeAggregation composite = 12;
+    CompositeAggregation composite = 12;
 
-  CumulativeCardinalityAggregation cumulative_cardinality = 13;
+    CumulativeCardinalityAggregation cumulative_cardinality = 13;
 
-  CumulativeSumAggregation cumulative_sum = 14;
+    CumulativeSumAggregation cumulative_sum = 14;
 
-  DateHistogramAggregation date_histogram = 15;
+    DateHistogramAggregation date_histogram = 15;
 
-  DateRangeAggregation date_range = 16;
+    DateRangeAggregation date_range = 16;
 
-  DerivativeAggregation derivative = 17;
+    DerivativeAggregation derivative = 17;
 
-  DiversifiedSamplerAggregation diversified_sampler = 18;
+    DiversifiedSamplerAggregation diversified_sampler = 18;
 
-  ExtendedStatsAggregation extended_stats = 19;
+    ExtendedStatsAggregation extended_stats = 19;
 
-  ExtendedStatsBucketAggregation extended_stats_bucket = 20;
+    ExtendedStatsBucketAggregation extended_stats_bucket = 20;
 
-  QueryContainer filter = 21;
+    QueryContainer filter = 21;
 
-  FiltersAggregation filters = 22;
+    FiltersAggregation filters = 22;
 
-  GeoBoundsAggregation geo_bounds = 23;
+    GeoBoundsAggregation geo_bounds = 23;
 
-  GeoCentroidAggregation geo_centroid = 24;
+    GeoCentroidAggregation geo_centroid = 24;
 
-  GeoDistanceAggregation geo_distance = 25;
+    GeoDistanceAggregation geo_distance = 25;
 
-  GeoHashGridAggregation geohash_grid = 26;
+    GeoHashGridAggregation geohash_grid = 26;
 
-  GeoTileGridAggregation geotile_grid = 27;
+    GeoTileGridAggregation geotile_grid = 27;
 
-  GlobalAggregation global = 28;
+    GlobalAggregation global = 28;
 
-  HistogramAggregation histogram = 29;
+    HistogramAggregation histogram = 29;
 
-  IpRangeAggregation ip_range = 30;
+    IpRangeAggregation ip_range = 30;
 
-  MatrixStatsAggregation matrix_stats = 31;
+    MatrixStatsAggregation matrix_stats = 31;
 
-  MaxAggregation max = 32;
+    MaxAggregation max = 32;
 
-  MaxBucketAggregation max_bucket = 33;
+    MaxBucketAggregation max_bucket = 33;
 
-  MedianAbsoluteDeviationAggregation median_absolute_deviation = 34;
+    MedianAbsoluteDeviationAggregation median_absolute_deviation = 34;
 
-  MinAggregation min = 35;
+    MinAggregation min = 35;
 
-  MinBucketAggregation min_bucket = 36;
+    MinBucketAggregation min_bucket = 36;
 
-  MissingAggregation missing = 37;
+    MissingAggregation missing = 37;
 
-  MovingAverageAggregation moving_avg = 38;
+    MovingAverageAggregation moving_avg = 38;
 
-  MovingPercentilesAggregation moving_percentiles = 39;
+    MovingPercentilesAggregation moving_percentiles = 39;
 
-  MovingFunctionAggregation moving_fn = 40;
+    MovingFunctionAggregation moving_fn = 40;
 
-  MultiTermsAggregation multi_terms = 41;
+    MultiTermsAggregation multi_terms = 41;
 
-  NestedAggregation nested = 42;
+    NestedAggregation nested = 42;
 
-  NormalizeAggregation normalize = 43;
+    NormalizeAggregation normalize = 43;
 
-  ParentAggregation parent = 44;
+    ParentAggregation parent = 44;
 
-  PercentileRanksAggregation percentile_ranks = 45;
+    PercentileRanksAggregation percentile_ranks = 45;
 
-  PercentilesAggregation percentiles = 46;
+    PercentilesAggregation percentiles = 46;
 
-  PercentilesBucketAggregation percentiles_bucket = 47;
+    PercentilesBucketAggregation percentiles_bucket = 47;
 
-  RangeAggregation range = 48;
+    RangeAggregation range = 48;
 
-  RareTermsAggregation rare_terms = 49;
+    RareTermsAggregation rare_terms = 49;
 
-  RateAggregation rate = 50;
+    RateAggregation rate = 50;
 
-  ReverseNestedAggregation reverse_nested = 51;
+    ReverseNestedAggregation reverse_nested = 51;
 
-  SamplerAggregation sampler = 52;
+    SamplerAggregation sampler = 52;
 
-  ScriptedMetricAggregation scripted_metric = 53;
+    ScriptedMetricAggregation scripted_metric = 53;
 
-  SerialDifferencingAggregation serial_diff = 54;
+    SerialDifferencingAggregation serial_diff = 54;
 
-  SignificantTermsAggregation significant_terms = 55;
+    SignificantTermsAggregation significant_terms = 55;
 
-  SignificantTextAggregation significant_text = 56;
+    SignificantTextAggregation significant_text = 56;
 
-  StatsAggregation stats = 57;
+    StatsAggregation stats = 57;
 
-  StatsBucketAggregation stats_bucket = 58;
+    StatsBucketAggregation stats_bucket = 58;
 
-  SumAggregation sum = 59;
+    SumAggregation sum = 59;
 
-  SumBucketAggregation sum_bucket = 60;
+    SumBucketAggregation sum_bucket = 60;
 
-  TermsAggregation terms = 61;
+    TermsAggregation terms = 61;
 
-  TopHitsAggregation top_hits = 62;
+    TopHitsAggregation top_hits = 62;
 
-  TTestAggregation t_test = 63;
+    TTestAggregation t_test = 63;
 
-  ValueCountAggregation value_count = 64;
+    ValueCountAggregation value_count = 64;
 
-  WeightedAverageAggregation weighted_avg = 65;
+    WeightedAverageAggregation weighted_avg = 65;
 
-  VariableWidthHistogramAggregation variable_width_histogram = 66;
+    VariableWidthHistogramAggregation variable_width_histogram = 66;
+  }
 }
 message AggregationProfile {
   AggregationBreakdown breakdown = 1;
 
   string description = 2;
 
-  // Time unit for nanoseconds.
-  int64 time_in_nanos = 3;
+  string type = 3;
 
-  string type = 4;
+  optional AggregationProfileDebug debug = 4;
 
-  optional AggregationProfileDebug debug = 5;
-
-  repeated AggregationProfile children = 6;
+  repeated AggregationProfile children = 5;
 }
 message AggregationProfileDebug {
   optional int32 segments_with_multi_valued_ords = 1;
@@ -518,6 +517,7 @@ message AutoDateHistogramAggregation {
 
   optional MinimumInterval minimum_interval = 8;
 
+  // A date and time, either as a string whose format depends on the context (defaulting to ISO_8601) or the number of milliseconds since the epoch. OpenSearch accepts both as an input but will generally output a string. representation.
   optional string missing = 9;
 
   // Time zone specified as a ISO 8601 UTC offset.
@@ -767,7 +767,7 @@ enum BuiltinScriptLanguage {
   BUILTIN_SCRIPT_LANGUAGE_PAINLESS = 4;
 }
 message BulkRequestBody {
-  optional OperationContainer operation_container = 1;
+  OperationContainer operation_container = 1;
 
   optional UpdateAction update_action = 2;
 
@@ -829,6 +829,7 @@ enum CardinalityExecutionMode {
   CARDINALITY_EXECUTION_MODE_UNSPECIFIED = 0;
   CARDINALITY_EXECUTION_MODE_DIRECT = 1;
   CARDINALITY_EXECUTION_MODE_GLOBAL_ORDINALS = 2;
+  CARDINALITY_EXECUTION_MODE_SEGMENT_ORDINALS = 3;
 }
 message ChiSquareHeuristic {
   // Set to `false` if you defined a custom background filter that represents a different set of documents that you want to compare to.
@@ -880,10 +881,7 @@ message Collector {
 
   string reason = 2;
 
-  // Time unit for nanoseconds.
-  int64 time_in_nanos = 3;
-
-  repeated Collector children = 4;
+  repeated Collector children = 3;
 }
 enum CombinedFieldsOperator {
   COMBINED_FIELDS_OPERATOR_UNSPECIFIED = 0;
@@ -1252,6 +1250,7 @@ message DateDecayPlacement {
   // A duration. Units can be `nanos`, `micros`, `ms` (milliseconds), `s` (seconds), `m` (minutes), `h` (hours) and `d` (days). Also accepts `0` without a unit and `-1` to indicate an unspecified value.
   optional string offset = 2;
 
+  // A date and time, either as a string whose format depends on the context (defaulting to ISO_8601) or the number of milliseconds since the epoch. OpenSearch accepts both as an input but will generally output a string. representation.
   optional string origin = 3;
 
   // A duration. Units can be `nanos`, `micros`, `ms` (milliseconds), `s` (seconds), `m` (minutes), `h` (hours) and `d` (days). Also accepts `0` without a unit and `-1` to indicate an unspecified value.
@@ -1296,6 +1295,7 @@ message DateHistogramAggregation {
   // Only returns buckets that have `min_doc_count` number of documents. By default, all buckets between the first bucket that matches documents and the last one are returned.
   optional int32 min_doc_count = 12;
 
+  // A date and time, either as a string whose format depends on the context (defaulting to ISO_8601) or the number of milliseconds since the epoch. OpenSearch accepts both as an input but will generally output a string. representation.
   optional string missing = 13;
 
   // A duration. Units can be `nanos`, `micros`, `ms` (milliseconds), `s` (seconds), `m` (minutes), `h` (hours) and `d` (days). Also accepts `0` without a unit and `-1` to indicate an unspecified value.
@@ -1317,9 +1317,6 @@ message DateHistogramBucket {
   int64 doc_count = 1;
 
   optional string key_as_string = 2;
-
-  // The time unit for milliseconds.
-  int64 key = 3;
 }
 message DateRangeAggregate {
   // The custom metadata attached to a resource.
@@ -1410,14 +1407,6 @@ message DateRangeQueryAllOfTo {
     string string = 1;
 
     NullValue null_value = 2;
-  }
-}
-message DateTime {
-  oneof date_time {
-    string string = 1;
-
-    // The time unit for milliseconds.
-    int64 int64 = 2;
   }
 }
 enum Day {
@@ -1962,14 +1951,11 @@ message FetchProfile {
 
   string description = 2;
 
-  // Time unit for nanoseconds.
-  int64 time_in_nanos = 3;
+  FetchProfileBreakdown breakdown = 3;
 
-  FetchProfileBreakdown breakdown = 4;
+  optional FetchProfileDebug debug = 4;
 
-  optional FetchProfileDebug debug = 5;
-
-  repeated FetchProfile children = 6;
+  repeated FetchProfile children = 5;
 }
 message FetchProfileBreakdown {
   optional int32 load_source = 1;
@@ -2065,11 +2051,13 @@ message FieldSuggester {
 
   optional string text = 3;
 
-  optional CompletionSuggester completion = 4;
+  oneof field_suggester {
+    CompletionSuggester completion = 4;
 
-  optional PhraseSuggester phrase = 5;
+    PhraseSuggester phrase = 5;
 
-  optional TermSuggester term = 6;
+    TermSuggester term = 6;
+  }
 }
 enum FieldType {
   FIELD_TYPE_UNSPECIFIED = 0;
@@ -2111,14 +2099,15 @@ enum FieldType {
   FIELD_TYPE_RANK_FEATURES = 36;
   FIELD_TYPE_SCALED_FLOAT = 37;
   FIELD_TYPE_SEARCH_AS_YOU_TYPE = 38;
-  FIELD_TYPE_SHORT = 39;
-  FIELD_TYPE_TEXT = 40;
-  FIELD_TYPE_TOKEN_COUNT = 41;
-  FIELD_TYPE_UNSIGNED_LONG = 42;
-  FIELD_TYPE_VERSION = 43;
-  FIELD_TYPE_WILDCARD = 44;
-  FIELD_TYPE_XY_POINT = 45;
-  FIELD_TYPE_XY_SHAPE = 46;
+  FIELD_TYPE_SEMANTIC = 39;
+  FIELD_TYPE_SHORT = 40;
+  FIELD_TYPE_TEXT = 41;
+  FIELD_TYPE_TOKEN_COUNT = 42;
+  FIELD_TYPE_UNSIGNED_LONG = 43;
+  FIELD_TYPE_VERSION = 44;
+  FIELD_TYPE_WILDCARD = 45;
+  FIELD_TYPE_XY_POINT = 46;
+  FIELD_TYPE_XY_SHAPE = 47;
 }
 message FieldValue {
   optional bool bool = 1;
@@ -2241,17 +2230,19 @@ message FunctionScoreContainer {
 
   optional float weight = 2;
 
-  optional DecayFunction exp = 3;
+  oneof function_score_container {
+    DecayFunction exp = 3;
 
-  optional DecayFunction gauss = 4;
+    DecayFunction gauss = 4;
 
-  optional DecayFunction linear = 5;
+    DecayFunction linear = 5;
 
-  optional FieldValueFactorScoreFunction field_value_factor = 6;
+    FieldValueFactorScoreFunction field_value_factor = 6;
 
-  optional RandomScoreFunction random_score = 7;
+    RandomScoreFunction random_score = 7;
 
-  optional ScriptScoreFunction script_score = 8;
+    ScriptScoreFunction script_score = 8;
+  }
 }
 enum FunctionScoreMode {
   FUNCTION_SCORE_MODE_UNSPECIFIED = 0;
@@ -2304,7 +2295,7 @@ message FuzzyQuery {
   // Number of beginning characters left unchanged when creating expansions.
   optional int32 prefix_length = 4;
 
-  optional MultiTermQueryRewrite rewrite = 5;
+  optional string rewrite = 5;
 
   // Indicates whether edits include transpositions of two adjacent characters (for example, `ab` to `ba`).
   optional bool transpositions = 6;
@@ -3347,36 +3338,40 @@ message IntervalsAnyOf {
   optional IntervalsFilter filter = 2;
 }
 message IntervalsContainer {
-  optional IntervalsAllOf all_of = 1;
+  oneof intervals_container {
+    IntervalsAllOf all_of = 1;
 
-  optional IntervalsAnyOf any_of = 2;
+    IntervalsAnyOf any_of = 2;
 
-  optional IntervalsFuzzy fuzzy = 3;
+    IntervalsFuzzy fuzzy = 3;
 
-  optional IntervalsMatch match = 4;
+    IntervalsMatch match = 4;
 
-  optional IntervalsPrefix prefix = 5;
+    IntervalsPrefix prefix = 5;
 
-  optional IntervalsWildcard wildcard = 6;
+    IntervalsWildcard wildcard = 6;
+  }
 }
 message IntervalsFilter {
-  optional IntervalsContainer after = 1;
+  oneof intervals_filter {
+    IntervalsContainer after = 1;
 
-  optional IntervalsContainer before = 2;
+    IntervalsContainer before = 2;
 
-  optional IntervalsContainer contained_by = 3;
+    IntervalsContainer contained_by = 3;
 
-  optional IntervalsContainer containing = 4;
+    IntervalsContainer containing = 4;
 
-  optional IntervalsContainer not_contained_by = 5;
+    IntervalsContainer not_contained_by = 5;
 
-  optional IntervalsContainer not_containing = 6;
+    IntervalsContainer not_containing = 6;
 
-  optional IntervalsContainer not_overlapping = 7;
+    IntervalsContainer not_overlapping = 7;
 
-  optional IntervalsContainer overlapping = 8;
+    IntervalsContainer overlapping = 8;
 
-  optional Script script = 9;
+    Script script = 9;
+  }
 }
 message IntervalsFuzzy {
   // Analyzer used to normalize the term.
@@ -3430,19 +3425,21 @@ message IntervalsQuery {
 
   optional string x_name = 2;
 
-  optional IntervalsAllOf all_of = 3;
-
-  optional IntervalsAnyOf any_of = 4;
-
-  optional IntervalsFuzzy fuzzy = 5;
-
-  optional IntervalsMatch match = 6;
-
-  optional IntervalsPrefix prefix = 7;
-
-  optional IntervalsWildcard wildcard = 8;
-
   string field = 9;
+
+  oneof intervals_query {
+    IntervalsAllOf all_of = 3;
+
+    IntervalsAnyOf any_of = 4;
+
+    IntervalsFuzzy fuzzy = 5;
+
+    IntervalsMatch match = 6;
+
+    IntervalsPrefix prefix = 7;
+
+    IntervalsWildcard wildcard = 8;
+  }
 }
 message IntervalsWildcard {
   // Analyzer used to analyze the `pattern`. Defaults to the top-level field's analyzer.
@@ -3498,13 +3495,15 @@ message IpRangeBucket {
   optional string to = 4;
 }
 message Item {
-  optional ResponseItem index = 1;
+  oneof item {
+    ResponseItem index = 1;
 
-  optional ResponseItem create = 2;
+    ResponseItem create = 2;
 
-  optional ResponseItem update = 3;
+    ResponseItem update = 3;
 
-  optional ResponseItem delete = 4;
+    ResponseItem delete = 4;
+  }
 }
 message KeyedPercentilesValue {
   oneof keyed_percentiles_value {
@@ -3683,7 +3682,7 @@ message MatchBoolPrefixQuery {
 
   optional Fuzziness fuzziness = 4;
 
-  optional MultiTermQueryRewrite fuzzy_rewrite = 5;
+  optional string fuzzy_rewrite = 5;
 
   // If `true`, edits for fuzzy matching include transpositions of two adjacent characters (for example, `ab` to `ba`). Can be applied to the term subqueries constructed for all terms but the final term.
   optional bool fuzzy_transpositions = 6;
@@ -3762,34 +3761,32 @@ message MatchQuery {
   // If `true`, match phrase queries are automatically created for multi-term synonyms.
   optional bool auto_generate_synonyms_phrase_query = 4;
 
-  optional float cutoff_frequency = 5;
+  optional Fuzziness fuzziness = 5;
 
-  optional Fuzziness fuzziness = 6;
-
-  optional MultiTermQueryRewrite fuzzy_rewrite = 7;
+  optional string fuzzy_rewrite = 6;
 
   // If `true`, edits for fuzzy matching include transpositions of two adjacent characters (for example, `ab` to `ba`).
-  optional bool fuzzy_transpositions = 8;
+  optional bool fuzzy_transpositions = 7;
 
   // If `true`, format-based errors, such as providing a text query value for a numeric field, are ignored.
-  optional bool lenient = 9;
+  optional bool lenient = 8;
 
   // Maximum number of terms to which the query will expand.
-  optional int32 max_expansions = 10;
+  optional int32 max_expansions = 9;
 
-  optional MinimumShouldMatch minimum_should_match = 11;
+  optional MinimumShouldMatch minimum_should_match = 10;
 
-  optional Operator operator = 12;
+  optional Operator operator = 11;
 
   // Number of beginning characters left unchanged for fuzzy matching.
-  optional int32 prefix_length = 13;
+  optional int32 prefix_length = 12;
 
   // Text, number, Boolean value or date you wish to find in the provided field.
-  FieldValue query = 14;
+  FieldValue query = 13;
 
-  optional ZeroTermsQuery zero_terms_query = 15;
+  optional ZeroTermsQuery zero_terms_query = 14;
 
-  string field = 16;
+  string field = 15;
 }
 message MatrixAggregation {
   // The custom metadata attached to a resource.
@@ -4342,56 +4339,47 @@ message MultiMatchQuery {
   // If `true`, match phrase queries are automatically created for multi-term synonyms.
   optional bool auto_generate_synonyms_phrase_query = 4;
 
-  optional float cutoff_frequency = 5;
-
   // A comma-separated list or a wildcard expression specifying the fields to include in the statistics. Used as the default list unless a specific field list is provided in the `completion_fields` or `fielddata_fields` parameters.
-  repeated string fields = 6;
+  repeated string fields = 5;
 
-  optional Fuzziness fuzziness = 7;
+  optional Fuzziness fuzziness = 6;
 
-  optional MultiTermQueryRewrite fuzzy_rewrite = 8;
+  optional string fuzzy_rewrite = 7;
 
   // If `true`, edits for fuzzy matching include transpositions of two adjacent characters (for example, `ab` to `ba`). Can be applied to the term subqueries constructed for all terms but the final term.
-  optional bool fuzzy_transpositions = 9;
+  optional bool fuzzy_transpositions = 8;
 
   // If `true`, format-based errors, such as providing a text query value for a numeric field, are ignored.
-  optional bool lenient = 10;
+  optional bool lenient = 9;
 
   // Maximum number of terms to which the query will expand.
-  optional int32 max_expansions = 11;
+  optional int32 max_expansions = 10;
 
-  optional MinimumShouldMatch minimum_should_match = 12;
+  optional MinimumShouldMatch minimum_should_match = 11;
 
-  optional Operator operator = 13;
+  optional Operator operator = 12;
 
   // Number of beginning characters left unchanged for fuzzy matching.
-  optional int32 prefix_length = 14;
+  optional int32 prefix_length = 13;
 
   // Text, number, Boolean value or date you wish to find in the provided field.
-  string query = 15;
+  string query = 14;
 
   // Maximum number of positions allowed between matching tokens.
-  optional int32 slop = 16;
+  optional int32 slop = 15;
 
   // Determines how scores for each per-term blended query and scores across groups are combined.
-  optional float tie_breaker = 17;
+  optional float tie_breaker = 16;
 
-  optional TextQueryType type = 18;
+  optional TextQueryType type = 17;
 
-  optional ZeroTermsQuery zero_terms_query = 19;
+  optional ZeroTermsQuery zero_terms_query = 18;
 }
 message MultiTermLookup {
   // The path to a field or an array of paths. Some APIs support wildcards in the path, which allows you to select multiple fields.
   string field = 1;
 
   optional FieldValue missing = 2;
-}
-enum MultiTermQueryRewrite {
-  MULTI_TERM_QUERY_REWRITE_UNSPECIFIED = 0;
-  MULTI_TERM_QUERY_REWRITE_CONSTANT_SCORE = 1;
-  MULTI_TERM_QUERY_REWRITE_CONSTANT_SCORE_BOOLEAN = 2;
-  MULTI_TERM_QUERY_REWRITE_SCORING_BOOLEAN = 3;
-  MULTI_TERM_QUERY_REWRITE_STRING = 4;
 }
 message MultiTermsAggregate {
   // The custom metadata attached to a resource.
@@ -4648,13 +4636,15 @@ message OperationBase {
   optional string x_index = 3;
 }
 message OperationContainer {
-  optional IndexOperation index = 1;
+  oneof operation_container {
+    IndexOperation index = 1;
 
-  optional WriteOperation create = 2;
+    WriteOperation create = 2;
 
-  optional UpdateOperation update = 3;
+    UpdateOperation update = 3;
 
-  optional DeleteOperation delete = 4;
+    DeleteOperation delete = 4;
+  }
 }
 enum Operator {
   OPERATOR_UNSPECIFIED = 0;
@@ -4901,26 +4891,6 @@ message PhraseSuggester {
 
   optional int32 token_limit = 16;
 }
-message PinnedDoc {
-  // The unique identifier for a resource.
-  string x_id = 1;
-
-  string x_index = 2;
-}
-message PinnedQuery {
-  // Floating point number used to decrease or increase the relevance scores of the query. Boost values are relative to the default value of 1.0. A boost value between 0 and 1.0 decreases the relevance score. A value greater than 1.0 increases the relevance score.
-  optional float boost = 1;
-
-  optional string x_name = 2;
-
-  QueryContainer organic = 3;
-
-  // Document IDs listed in the order they are to appear in results. Required if `docs` is not specified.
-  repeated string ids = 4;
-
-  // Documents listed in the order they are to appear in results. Required if `ids` is not specified.
-  repeated PinnedDoc docs = 5;
-}
 message PipelineAggregationBase {
   // The custom metadata attached to a resource.
   optional ObjectMap meta = 1;
@@ -4947,7 +4917,7 @@ message PrefixQuery {
 
   optional string x_name = 2;
 
-  optional MultiTermQueryRewrite rewrite = 3;
+  optional string rewrite = 3;
 
   // Beginning characters of terms you wish to find in the provided field.
   string value = 4;
@@ -5024,148 +4994,145 @@ message QueryBreakdown {
   int64 set_min_competitive_score_count = 18;
 }
 message QueryContainer {
-  optional BoolQuery bool = 1;
+  oneof query_container {
+    BoolQuery bool = 1;
 
-  optional BoostingQuery boosting = 2;
+    BoostingQuery boosting = 2;
 
-  optional CommonTermsQuery common = 3;
+    CommonTermsQuery common = 3;
 
-  optional CombinedFieldsQuery combined_fields = 4;
+    CombinedFieldsQuery combined_fields = 4;
 
-  optional ConstantScoreQuery constant_score = 5;
+    ConstantScoreQuery constant_score = 5;
 
-  optional DisMaxQuery dis_max = 6;
+    DisMaxQuery dis_max = 6;
 
-  optional DistanceFeatureQuery distance_feature = 7;
+    DistanceFeatureQuery distance_feature = 7;
 
-  optional ExistsQuery exists = 8;
+    ExistsQuery exists = 8;
 
-  optional FunctionScoreQuery function_score = 9;
+    FunctionScoreQuery function_score = 9;
 
-  // Returns documents that contain terms similar to the search term, as measured by a Levenshtein edit distance.
-  optional FuzzyQuery fuzzy = 10;
+    // Returns documents that contain terms similar to the search term, as measured by a Levenshtein edit distance.
+    FuzzyQuery fuzzy = 10;
 
-  optional GeoBoundingBoxQuery geo_bounding_box = 11;
+    GeoBoundingBoxQuery geo_bounding_box = 11;
 
-  optional GeoDistanceQuery geo_distance = 12;
+    GeoDistanceQuery geo_distance = 12;
 
-  optional GeoPolygonQuery geo_polygon = 13;
+    GeoPolygonQuery geo_polygon = 13;
 
-  optional GeoShapeQuery geo_shape = 14;
+    GeoShapeQuery geo_shape = 14;
 
-  optional HasChildQuery has_child = 15;
+    HasChildQuery has_child = 15;
 
-  optional HasParentQuery has_parent = 16;
+    HasParentQuery has_parent = 16;
 
-  optional HybridQuery hybrid = 17;
+    HybridQuery hybrid = 17;
 
-  optional IdsQuery ids = 18;
+    IdsQuery ids = 18;
 
-  // Returns documents based on the order and proximity of matching terms.
-  optional IntervalsQuery intervals = 19;
+    // Returns documents based on the order and proximity of matching terms.
+    IntervalsQuery intervals = 19;
 
-  optional KnnQuery knn = 20;
+    KnnQuery knn = 20;
 
-  // Returns documents that match a provided text, number, date or Boolean value. The provided text is analyzed before matching.
-  optional MatchQuery match = 21;
+    // Returns documents that match a provided text, number, date or Boolean value. The provided text is analyzed before matching.
+    MatchQuery match = 21;
 
-  optional MatchAllQuery match_all = 22;
+    MatchAllQuery match_all = 22;
 
-  // Analyzes its input and constructs a `bool` query from the terms. Each term except the last is used in a `term` query. The last term is used in a prefix query.
-  optional MatchBoolPrefixQuery match_bool_prefix = 23;
+    // Analyzes its input and constructs a `bool` query from the terms. Each term except the last is used in a `term` query. The last term is used in a prefix query.
+    MatchBoolPrefixQuery match_bool_prefix = 23;
 
-  optional MatchNoneQuery match_none = 24;
+    MatchNoneQuery match_none = 24;
 
-  // Analyzes the text and creates a phrase query out of the analyzed text.
-  optional MatchPhraseQuery match_phrase = 25;
+    // Analyzes the text and creates a phrase query out of the analyzed text.
+    MatchPhraseQuery match_phrase = 25;
 
-  // Returns documents that contain the words of a provided text, in the same order as provided. The last term of the provided text is treated as a prefix, matching any words that begin with that term.
-  optional MatchPhrasePrefixQuery match_phrase_prefix = 26;
+    // Returns documents that contain the words of a provided text, in the same order as provided. The last term of the provided text is treated as a prefix, matching any words that begin with that term.
+    MatchPhrasePrefixQuery match_phrase_prefix = 26;
 
-  optional MoreLikeThisQuery more_like_this = 27;
+    MoreLikeThisQuery more_like_this = 27;
 
-  optional MultiMatchQuery multi_match = 28;
+    MultiMatchQuery multi_match = 28;
 
-  optional NestedQuery nested = 29;
+    NestedQuery nested = 29;
 
-  optional NeuralQuery neural = 30;
+    NeuralQuery neural = 30;
 
-  optional ParentIdQuery parent_id = 31;
+    ParentIdQuery parent_id = 31;
 
-  optional PercolateQuery percolate = 32;
+    PercolateQuery percolate = 32;
 
-  optional PinnedQuery pinned = 33;
+    // Returns documents that contain a specific prefix in a provided field.
+    PrefixQuery prefix = 33;
 
-  // Returns documents that contain a specific prefix in a provided field.
-  optional PrefixQuery prefix = 34;
+    QueryStringQuery query_string = 34;
 
-  optional QueryStringQuery query_string = 35;
+    // Returns documents that contain terms within a provided range.
+    RangeQuery range = 35;
 
-  // Returns documents that contain terms within a provided range.
-  optional RangeQuery range = 36;
+    RankFeatureQuery rank_feature = 36;
 
-  optional RankFeatureQuery rank_feature = 37;
+    // Returns documents that contain terms matching a regular expression.
+    RegexpQuery regexp = 37;
 
-  // Returns documents that contain terms matching a regular expression.
-  optional RegexpQuery regexp = 38;
+    ScriptQuery script = 38;
 
-  optional ScriptQuery script = 39;
+    ScriptScoreQuery script_score = 39;
 
-  optional ScriptScoreQuery script_score = 40;
+    SimpleQueryStringQuery simple_query_string = 40;
 
-  optional SimpleQueryStringQuery simple_query_string = 41;
+    SpanContainingQuery span_containing = 41;
 
-  optional SpanContainingQuery span_containing = 42;
+    SpanFieldMaskingQuery field_masking_span = 42;
 
-  optional SpanFieldMaskingQuery field_masking_span = 43;
+    SpanFirstQuery span_first = 43;
 
-  optional SpanFirstQuery span_first = 44;
+    SpanMultiTermQuery span_multi = 44;
 
-  optional SpanMultiTermQuery span_multi = 45;
+    SpanNearQuery span_near = 45;
 
-  optional SpanNearQuery span_near = 46;
+    SpanNotQuery span_not = 46;
 
-  optional SpanNotQuery span_not = 47;
+    SpanOrQuery span_or = 47;
 
-  optional SpanOrQuery span_or = 48;
+    // Matches spans containing a term.
+    SpanTermQuery span_term = 48;
 
-  // Matches spans containing a term.
-  optional SpanTermQuery span_term = 49;
+    SpanWithinQuery span_within = 49;
 
-  optional SpanWithinQuery span_within = 50;
+    // Return documents using a template query contains placeholders that are resolved by search request processors during query execution.
+    ObjectMap template = 50;
 
-  // Return documents using a template query contains placeholders that are resolved by search request processors during query execution.
-  optional ObjectMap template = 51;
+    // Returns documents that contain an exact term in a provided field. To return a document, the query term must exactly match the queried field's value, including white space and capitalization.
+    TermQuery term = 51;
 
-  // Returns documents that contain an exact term in a provided field. To return a document, the query term must exactly match the queried field's value, including white space and capitalization.
-  optional TermQuery term = 52;
+    // Returns documents that contain one or more exact terms in a provided field.
+    TermsQuery terms = 52;
 
-  // Returns documents that contain one or more exact terms in a provided field.
-  optional TermsQuery terms = 53;
+    // Returns documents that contain a minimum number of exact terms in a provided field. To return a document, a required number of terms must exactly match the field values, including white space and capitalization.
+    TermsSetQuery terms_set = 53;
 
-  // Returns documents that contain a minimum number of exact terms in a provided field. To return a document, a required number of terms must exactly match the field values, including white space and capitalization.
-  optional TermsSetQuery terms_set = 54;
+    TypeQuery type = 54;
 
-  optional TypeQuery type = 55;
+    // Returns documents that contain terms matching a wildcard pattern.
+    WildcardQuery wildcard = 55;
 
-  // Returns documents that contain terms matching a wildcard pattern.
-  optional WildcardQuery wildcard = 56;
+    WrapperQuery wrapper = 56;
 
-  optional WrapperQuery wrapper = 57;
-
-  optional XyShapeQuery xy_shape = 58;
+    XyShapeQuery xy_shape = 57;
+  }
 }
 message QueryProfile {
   QueryBreakdown breakdown = 1;
 
   string description = 2;
 
-  // Time unit for nanoseconds.
-  int64 time_in_nanos = 3;
+  string type = 3;
 
-  string type = 4;
-
-  repeated QueryProfile children = 5;
+  repeated QueryProfile children = 4;
 }
 message QueryStringQuery {
   // Floating point number used to decrease or increase the relevance scores of the query. Boost values are relative to the default value of 1.0. A boost value between 0 and 1.0 decreases the relevance score. A value greater than 1.0 increases the relevance score.
@@ -5206,7 +5173,7 @@ message QueryStringQuery {
   // Number of beginning characters left unchanged for fuzzy matching.
   optional int32 fuzzy_prefix_length = 14;
 
-  optional MultiTermQueryRewrite fuzzy_rewrite = 15;
+  optional string fuzzy_rewrite = 15;
 
   // If `true`, edits for fuzzy matching include transpositions of two adjacent characters (for example, `ab` to `ba`).
   optional bool fuzzy_transpositions = 16;
@@ -5231,7 +5198,7 @@ message QueryStringQuery {
   // Suffix appended to quoted text in the query string. You can use this suffix to use a different analysis method for exact matches.
   optional string quote_field_suffix = 23;
 
-  optional MultiTermQueryRewrite rewrite = 24;
+  optional string rewrite = 24;
 
   // How to combine the queries generated from the individual search terms in the resulting `dis_max` query.
   optional float tie_breaker = 25;
@@ -5427,10 +5394,9 @@ enum RateMode {
 }
 enum Refresh {
   REFRESH_UNSPECIFIED = 0;
-  REFRESH_BOOLEAN = 1;
-  REFRESH_FALSE = 2;
-  REFRESH_TRUE = 3;
-  REFRESH_WAIT_FOR = 4;
+  REFRESH_FALSE = 1;
+  REFRESH_TRUE = 2;
+  REFRESH_WAIT_FOR = 3;
 }
 message RegexpQuery {
   // Floating point number used to decrease or increase the relevance scores of the query. Boost values are relative to the default value of 1.0. A boost value between 0 and 1.0 decreases the relevance score. A value greater than 1.0 increases the relevance score.
@@ -5447,7 +5413,7 @@ message RegexpQuery {
   // Maximum number of automaton states required for the query.
   optional int32 max_determinized_states = 5;
 
-  optional MultiTermQueryRewrite rewrite = 6;
+  optional string rewrite = 6;
 
   // Regular expression for terms you wish to find in the provided field.
   string value = 7;
@@ -6249,11 +6215,13 @@ message SlicedScroll {
   int32 max = 3;
 }
 message SmoothingModel {
-  optional LaplaceSmoothingModel laplace = 1;
+  oneof smoothing_model {
+    LaplaceSmoothingModel laplace = 1;
 
-  optional LinearInterpolationSmoothingModel linear_interpolation = 2;
+    LinearInterpolationSmoothingModel linear_interpolation = 2;
 
-  optional StupidBackoffSmoothingModel stupid_backoff = 3;
+    StupidBackoffSmoothingModel stupid_backoff = 3;
+  }
 }
 message SortCombinations {
   oneof sort_combinations {
@@ -6276,11 +6244,13 @@ enum SortMode {
   SORT_MODE_SUM = 5;
 }
 message SortOptions {
-  optional ScoreSort x_score = 1;
+  oneof sort_options {
+    ScoreSort x_score = 1;
 
-  optional GeoDistanceSort x_geo_distance = 2;
+    GeoDistanceSort x_geo_distance = 2;
 
-  optional ScriptSort x_script = 3;
+    ScriptSort x_script = 3;
+  }
 }
 enum SortOrder {
   SORT_ORDER_UNSPECIFIED = 0;
@@ -6400,26 +6370,28 @@ message SpanOrQuery {
   repeated SpanQuery clauses = 3;
 }
 message SpanQuery {
-  optional SpanContainingQuery span_containing = 1;
+  oneof span_query {
+    SpanContainingQuery span_containing = 1;
 
-  optional SpanFieldMaskingQuery field_masking_span = 2;
+    SpanFieldMaskingQuery field_masking_span = 2;
 
-  optional SpanFirstQuery span_first = 3;
+    SpanFirstQuery span_first = 3;
 
-  optional SpanGapQuery span_gap = 4;
+    SpanGapQuery span_gap = 4;
 
-  optional SpanMultiTermQuery span_multi = 5;
+    SpanMultiTermQuery span_multi = 5;
 
-  optional SpanNearQuery span_near = 6;
+    SpanNearQuery span_near = 6;
 
-  optional SpanNotQuery span_not = 7;
+    SpanNotQuery span_not = 7;
 
-  optional SpanOrQuery span_or = 8;
+    SpanOrQuery span_or = 8;
 
-  // The equivalent of the `term` query but for use with other span queries.
-  optional SpanTermQuery span_term = 9;
+    // The equivalent of the `term` query but for use with other span queries.
+    SpanTermQuery span_term = 9;
 
-  optional SpanWithinQuery span_within = 10;
+    SpanWithinQuery span_within = 10;
+  }
 }
 message SpanTermQuery {
   // Floating point number used to decrease or increase the relevance scores of the query. Boost values are relative to the default value of 1.0. A boost value between 0 and 1.0 decreases the relevance score. A value greater than 1.0 increases the relevance score.
@@ -7002,27 +6974,26 @@ message TermsAggregation {
 
   optional FieldValue missing = 11;
 
-  optional MissingOrder missing_order = 12;
-
-  optional bool missing_bucket = 13;
-
   // Coerced unmapped fields into the specified type.
-  optional string value_type = 14;
+  optional string value_type = 12;
 
-  map<string, SortOrder> order = 15;
+  map<string, SortOrder> order = 13;
 
-  optional Script script = 16;
+  optional Script script = 14;
 
   // The number of candidate terms produced by each shard. By default, `shard_size` will be automatically estimated based on the number of shards and the `size` parameter.
-  optional int32 shard_size = 17;
+  optional int32 shard_size = 15;
+
+  // The minimum number of documents in a bucket on each shard for it to be returned.
+  optional int32 shard_min_doc_count = 16;
 
   // Set to `true` to return the `doc_count_error_upper_bound`, which is an upper bound to the error on the `doc_count` returned by each shard.
-  optional bool show_term_doc_count_error = 18;
+  optional bool show_term_doc_count_error = 17;
 
   // The number of buckets returned out of the overall terms list.
-  optional int32 size = 19;
+  optional int32 size = 18;
 
-  optional string format = 20;
+  optional string format = 19;
 }
 enum TermsAggregationCollectMode {
   TERMS_AGGREGATION_COLLECT_MODE_UNSPECIFIED = 0;
@@ -7416,7 +7387,7 @@ message WildcardQuery {
   // Allows case insensitive matching of the pattern with the indexed field values when set to `true`. Default is `false` which means the case sensitivity of matching depends on the underlying field's mapping.
   optional bool case_insensitive = 3;
 
-  optional MultiTermQueryRewrite rewrite = 4;
+  optional string rewrite = 4;
 
   // Wildcard pattern for terms you wish to find in the provided field. Required, when wildcard is not set.
   optional string value = 5;
