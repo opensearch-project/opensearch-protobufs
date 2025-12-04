@@ -24,6 +24,7 @@ Inspired from [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 - Remove error responses for single doc ingestion APIS (Index, Update, Get, Delete Doc) ([#258](https://github.com/opensearch-project/opensearch-protobufs/pull/258))
 
 ### Fixed
+- Include LICENSE.txt in Python wheel distribution ([#321](https://github.com/opensearch-project/opensearch-protobufs/pull/321))
 
 ### Security
 - Updated gRPC from 1.68.2 to 1.70.0 to address multiple Netty vulnerabilities (CVE-2024-47535 and others)

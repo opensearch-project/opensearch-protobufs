@@ -163,6 +163,9 @@ py_wheel(
     },
     platform = "any",
     python_requires = ">=3.10",
+    extra_distinfo_files = {
+        "//:LICENSE.txt": "LICENSE.txt",
+    },
     deps = [
         ":python_protos_all",
     ],
