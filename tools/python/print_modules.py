@@ -20,10 +20,10 @@ print('Search module attributes:', [attr for attr in dir(search_pb2) if not attr
 
 print('\n=== Testing new import style (no file name dependency) ===')
 from opensearch.protobufs.schemas import (
-    BulkRequest, BulkRequestBody, IndexDocumentRequest,
+    BulkRequest, BulkRequestBody,
     GlobalParams, Script, ObjectMap
 )
-print('✓ Successfully imported BulkRequest, BulkRequestBody, IndexDocumentRequest, GlobalParams, Script, ObjectMap')
+print('✓ Successfully imported BulkRequest, BulkRequestBody, GlobalParams, Script, ObjectMap')
 
 # Demonstrate usage
 bulk_request = BulkRequest()
