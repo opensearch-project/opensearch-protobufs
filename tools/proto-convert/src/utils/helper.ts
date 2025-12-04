@@ -57,32 +57,13 @@ export function resolveObj(
     return obj as OpenAPIV3.SchemaObject;
 }
 
-export function resolveRef(
-    ref: string,
-    root: OpenAPIV3.Document
-): OpenAPIV3.SchemaObject | undefined {
-    if (!ref.startsWith("#/")) {
-        return undefined;
+export function resolveRef (ref: string, root: Record<string, any>): Record<string, any> | undefined {
+    const paths = ref.replace('#/', '').split('/')
+    for (const p of paths) {
+        root = root[p]
+        if (root === undefined) break
     }
-
-    const pathParts = ref.replace(/^#\//, "").split("/");
-
-    let current: any = root;
-    for (const part of pathParts) {
-        if (current == null || typeof current !== "object") {
-            return undefined;
-        }
-        current = current[part];
-    }
-
-    if (!current) {
-        return undefined;
-    }
-    if ("$ref" in current) {
-        return resolveObj(current, root);
-    }
-
-    return current as OpenAPIV3.SchemaObject;
+    return root
 }
 
 export function isPrimitiveType(schema: OpenAPIV3.SchemaObject): boolean {
@@ -137,38 +118,33 @@ export function deleteMatchingKeys(obj: any, condition: (item: any) => boolean):
 }
 
 /**
- * Find all $ref references in the spec, including nested references
+ * Find all $ref references in the spec, including nested references.
  */
-export function find_refs(
-    current: Record<string, any>,
-    root?: Record<string, any>,
-    call_stack: string[] = []
-): Set<string> {
-    const results = new Set<string>();
+export function find_refs (current: Record<string, any>, root?: Record<string, any>, call_stack: string[] = []): Set<string> {
+    var results = new Set<string>()
 
     if (root === undefined) {
-        root = current;
-        current = current.paths;
+        root = current
+        current = current.paths
     }
 
     if (current?.$ref != null) {
-        const ref = current.$ref as string;
-        results.add(ref);
-
-        const ref_node = resolveRef(ref, root as OpenAPIV3.Document);
+        const ref = current.$ref as string
+        results.add(ref)
+        const ref_node = resolveRef(ref, root as OpenAPIV3.Document)
         if (ref_node !== undefined && !call_stack.includes(ref)) {
-            call_stack.push(ref);
-            find_refs(ref_node as Record<string, any>, root, call_stack).forEach((ref) => results.add(ref));
+            call_stack.push(ref)
+            find_refs(ref_node, root, call_stack).forEach((ref) => results.add(ref))
         }
     }
 
     if (_.isObject(current)) {
         _.forEach(current, (v) => {
             find_refs(v as Record<string, any>, root, call_stack).forEach((ref) => results.add(ref));
-        });
+        })
     }
 
-    return results;
+    return results
 }
 
 /**
