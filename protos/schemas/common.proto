@@ -1048,7 +1048,7 @@ message ScriptScoreQuery {
   optional string x_name = 2;
 
   // Documents with a score lower than this floating point number are excluded from the search results.
-  float min_score = 3;
+  optional float min_score = 3;
 
   QueryContainer query = 4;
 
@@ -1082,39 +1082,40 @@ message SimpleQueryStringQuery {
   optional string x_name = 2;
 
   // Analyzer used to convert text in the query string into tokens.
-  string analyzer = 3;
+  optional string analyzer = 3;
 
   // If `true`, the query attempts to analyze wildcard terms in the query string.
-  bool analyze_wildcard = 4;
+  optional bool analyze_wildcard = 4;
 
-  // If `true`, the parser creates a match_phrase query for each multi-position token.
-  bool auto_generate_synonyms_phrase_query = 5;
+  // If `true`, the parser creates a `match_phrase` query for each multi-position token.
+  optional bool auto_generate_synonyms_phrase_query = 5;
 
-  Operator default_operator = 6;
+  optional Operator default_operator = 6;
 
+  // Array of fields you wish to search. Accepts wildcard expressions. You also can boost relevance scores for matches to particular fields using a caret (`^`) notation. Defaults to the `index.query.default_field index` setting, which has a default value of `*`.
   repeated string fields = 7;
 
-  SimpleQueryStringFlags flags = 8;
+  optional SimpleQueryStringFlags flags = 8;
 
   // Maximum number of terms to which the query expands for fuzzy matching.
-  int32 fuzzy_max_expansions = 9;
+  optional int32 fuzzy_max_expansions = 9;
 
   // Number of beginning characters left unchanged for fuzzy matching.
-  int32 fuzzy_prefix_length = 10;
+  optional int32 fuzzy_prefix_length = 10;
 
   // If `true`, edits for fuzzy matching include transpositions of two adjacent characters (for example, `ab` to `ba`).
-  bool fuzzy_transpositions = 11;
+  optional bool fuzzy_transpositions = 11;
 
   // If `true`, format-based errors, such as providing a text value for a numeric field, are ignored.
-  bool lenient = 12;
+  optional bool lenient = 12;
 
-  MinimumShouldMatch minimum_should_match = 13;
+  optional MinimumShouldMatch minimum_should_match = 13;
+
   // Query string in the simple query string syntax you wish to parse and use for search.
   string query = 14;
 
   // Suffix appended to quoted text in the query string.
-  string quote_field_suffix = 15;
-
+  optional string quote_field_suffix = 15;
 }
 
 message WildcardQuery {
@@ -1339,7 +1340,7 @@ message DisMaxQuery {
   repeated QueryContainer queries = 3;
 
   // Floating point number between 0 and 1.0 used to increase the relevance scores of documents matching multiple query clauses.
-  float tie_breaker = 4;
+  optional float tie_breaker = 4;
 
 }
 
@@ -1389,43 +1390,39 @@ message IntervalsAllOf {
   repeated IntervalsContainer intervals = 1;
 
   // Maximum number of positions between the matching terms. Intervals produced by the rules further apart than this are not considered matches.
-  int32 max_gaps = 2;
+  optional int32 max_gaps = 2;
 
   // If `true`, intervals produced by the rules should appear in the order in which they are specified.
-  bool ordered = 3;
+  optional bool ordered = 3;
 
-  IntervalsFilter filter = 4;
+  optional IntervalsFilter filter = 4;
 
 }
 
 message IntervalsAnyOf {
-
   // An array of rules to match.
   repeated IntervalsContainer intervals = 1;
 
-  IntervalsFilter filter = 2;
-
+  optional IntervalsFilter filter = 2;
 }
 
 message IntervalsMatch {
-
   // Analyzer used to analyze terms in the query.
-  string analyzer = 1;
+  optional string analyzer = 1;
 
   // Maximum number of positions between the matching terms. Terms further apart than this are not considered matches.
-  int32 max_gaps = 2;
+  optional int32 max_gaps = 2;
 
   // If `true`, matching terms must appear in their specified order.
-  bool ordered = 3;
+  optional bool ordered = 3;
 
   // Text you wish to find in the provided field.
   string query = 4;
 
-  // Path to field or array of paths. Some API's support wildcards in the path to select multiple fields.
-  string use_field = 5;
+  // The path to a field or an array of paths. Some APIs support wildcards in the path, which allows you to select multiple fields.
+  optional string use_field = 5;
 
-  IntervalsFilter filter = 6;
-
+  optional IntervalsFilter filter = 6;
 }
 
 message IntervalsQuery {
@@ -1709,70 +1706,70 @@ message QueryStringQuery {
   // [optional] Query name for query tagging.
   optional string x_name = 2;
 
-  bool allow_leading_wildcard = 3;
+  optional bool allow_leading_wildcard = 3;
 
   // Analyzer used to convert text in the query string into tokens.
-  string analyzer = 4;
+  optional string analyzer = 4;
 
   // If `true`, the query attempts to analyze wildcard terms in the query string.
-  bool analyze_wildcard = 5;
+  optional bool analyze_wildcard = 5;
 
   // If `true`, match phrase queries are automatically created for multi-term synonyms.
-  bool auto_generate_synonyms_phrase_query = 6;
+  optional bool auto_generate_synonyms_phrase_query = 6;
 
   // Path to field or array of paths. Some API's support wildcards in the path to select multiple fields.
-  string default_field = 7;
+  optional string default_field = 7;
 
-  Operator default_operator = 8;
+  optional Operator default_operator = 8;
 
   // If `true`, enable position increments in queries constructed from a `query_string` search.
-  bool enable_position_increments = 9;
+  optional bool enable_position_increments = 9;
 
-  bool escape = 10;
+  optional bool escape = 10;
 
   repeated string fields = 11;
 
-  Fuzziness fuzziness = 12;
+  optional Fuzziness fuzziness = 12;
 
   // Maximum number of terms to which the query expands for fuzzy matching.
-  int32 fuzzy_max_expansions = 13;
+  optional int32 fuzzy_max_expansions = 13;
 
   // Number of beginning characters left unchanged for fuzzy matching.
-  int32 fuzzy_prefix_length = 14;
+  optional int32 fuzzy_prefix_length = 14;
 
-  MultiTermQueryRewrite fuzzy_rewrite = 15;
+  optional string fuzzy_rewrite = 15;
 
   // If `true`, edits for fuzzy matching include transpositions of two adjacent characters (for example, `ab` to `ba`).
-  bool fuzzy_transpositions = 16;
+  optional bool fuzzy_transpositions = 16;
 
   // If `true`, format-based errors, such as providing a text value for a numeric field, are ignored.
-  bool lenient = 17;
+  optional bool lenient = 17;
 
   // Maximum number of automaton states required for the query.
-  int32 max_determinized_states = 18;
+  optional int32 max_determinized_states = 18;
 
-  MinimumShouldMatch minimum_should_match = 19;
+  optional MinimumShouldMatch minimum_should_match = 19;
 
   // Maximum number of positions allowed between matching tokens for phrases.
-  int32 phrase_slop = 20;
+  optional int32 phrase_slop = 20;
 
   // Query string you wish to parse and use for search.
   string query = 21;
 
   // Analyzer used to convert quoted text in the query string into tokens. For quoted text, this parameter overrides the analyzer specified in the `analyzer` parameter.
-  string quote_analyzer = 22;
+  optional string quote_analyzer = 22;
 
   // Suffix appended to quoted text in the query string. You can use this suffix to use a different analysis method for exact matches.
-  string quote_field_suffix = 23;
+  optional string quote_field_suffix = 23;
 
-  MultiTermQueryRewrite rewrite = 24;
+  optional string rewrite = 24;
 
   // How to combine the queries generated from the individual search terms in the resulting `dis_max` query.
-  float tie_breaker = 25;
+  optional float tie_breaker = 25;
 
-  string time_zone = 26;
+  optional string time_zone = 26;
 
-  TextQueryType type = 27;
+  optional TextQueryType type = 27;
 }
 
 enum TextQueryType {
@@ -1976,50 +1973,44 @@ message IdsQuery {
 }
 
 message IntervalsFuzzy {
-
   // Analyzer used to normalize the term.
-  string analyzer = 1;
+  optional string analyzer = 1;
 
-  Fuzziness fuzziness = 2;
+  optional Fuzziness fuzziness = 2;
 
   // Number of beginning characters left unchanged when creating expansions.
-  int32 prefix_length = 3;
+  optional int32 prefix_length = 3;
 
   // The term to match.
   string term = 4;
 
   // Indicates whether edits include transpositions of two adjacent characters (for example, `ab` to `ba`).
-  bool transpositions = 5;
+  optional bool transpositions = 5;
 
-  // Path to field or array of paths. Some API's support wildcards in the path to select multiple fields.
-  string use_field = 6;
-
+  // The path to a field or an array of paths. Some APIs support wildcards in the path, which allows you to select multiple fields.
+  optional string use_field = 6;
 }
 
 message IntervalsPrefix {
-
   // Analyzer used to analyze the `prefix`.
-  string analyzer = 1;
+  optional string analyzer = 1;
 
   // Beginning characters of terms you wish to find in the top-level field.
   string prefix = 2;
 
-  // Path to field or array of paths. Some API's support wildcards in the path to select multiple fields.
-  string use_field = 3;
-
+  // The path to a field or an array of paths. Some APIs support wildcards in the path, which allows you to select multiple fields.
+  optional string use_field = 3;
 }
 
 message IntervalsWildcard {
-
   // Analyzer used to analyze the `pattern`. Defaults to the top-level field's analyzer.
-  string analyzer = 1;
+  optional string analyzer = 1;
 
   // Wildcard pattern used to find matching terms.
   string pattern = 2;
 
-  // Path to field or array of paths. Some API's support wildcards in the path to select multiple fields.
-  string use_field = 3;
-
+  // The path to a field or an array of paths. Some APIs support wildcards in the path, which allows you to select multiple fields.
+  optional string use_field = 3;
 }
 
 message MatchAllQuery {
