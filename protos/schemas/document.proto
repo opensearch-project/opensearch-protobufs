@@ -31,9 +31,7 @@ message BulkRequest {
   optional bool require_alias = 7;
   // [optional] Custom value used to route operations to a specific shard.
   optional string routing = 8;
-  // [optional] Period each action waits for the following operations: automatic index creation, dynamic mapping updates, waiting for active shards.
-  // pattern: ^([0-9\.]+)(?:d|h|m|s|ms|micros|nanos)$
-  // Defaults to 1m (one minute). This guarantees OpenSearch waits for at least the timeout before failing. The actual wait time could be longer, particularly when multiple waits occur.
+  // [optional] Period each action waits for the following operations: automatic index creation, dynamic mapping updates, waiting for active shards. pattern: ^([0-9\.]+)(?:d|h|m|s|ms|micros|nanos)$. Defaults to 1m (one minute). This guarantees OpenSearch waits for at least the timeout before failing. The actual wait time could be longer, particularly when multiple waits occur.
   optional string timeout = 9;
   // [deprecated] The default document type for documents that don't specify a type. Default is _doc. We highly recommend ignoring this parameter and using a type of _doc for all indexes.
   optional string type = 10;
@@ -42,6 +40,7 @@ message BulkRequest {
   // [required] The request body contains create, delete, index, and update actions and their associated source data
   repeated BulkRequestBody bulk_request_body = 12;
   // [optional] Global parameters
+  // TODO not supported in server
   optional GlobalParams global_params = 13;
 }
 
@@ -72,7 +71,6 @@ message UpdateAction {
   // [optional] When `false` disables the setting `result` in the response to `noop` if no change to the document occurred.
   optional bool detect_noop = 1;
   // [optional] A partial update to an existing document.
-  // todo: generated proto is byte.
   optional bytes doc = 2;
   // [optional] When `true`, uses the contents of `doc` as the value of `upsert`.
   optional bool doc_as_upsert = 3;
@@ -183,7 +181,6 @@ message DeleteOperation {
 
 }
 
-// todo: Proposal Spec this name
 message BulkResponse {
   // [required] If true, one or more of the operations in the bulk request did not complete successfully.
   bool errors = 1;
@@ -209,7 +206,6 @@ message ResponseItem {
   // [required] Name of the index associated with the operation. If the operation targeted a data stream, this is the backing index into which the document was written.
   string x_index = 1;
   // [required] HTTP status code returned for the operation.
-  // TODO: use grpc status code instead
   int32 status = 2;
   // [optional] The document type.
   optional string x_type = 3;

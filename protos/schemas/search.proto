@@ -13,9 +13,7 @@ option go_package = "github.com/opensearch-project/opensearch-protobufs/go/opens
 import "google/protobuf/struct.proto";
 import "protos/schemas/common.proto";
 
-
-// The Search API operation to perform a search across all indices in the cluster.
-// The Search API operation to perform a search or index search
+// The Search API operation to perform a search across all indices in the cluster or index search
 message SearchRequest {
   // [optional] A list of indices to search for documents. If not provided, the default value will be to search through all indexes.
   repeated string index = 1;
@@ -68,10 +66,6 @@ message SearchRequest {
   // [optional] Period to keep the search context open.
   optional string scroll = 25;
   // [optional] Whether OpenSearch should use global term and document frequencies when calculating relevance scores. Default is SEARCH_TYPE_QUERY_THEN_FETCH.
-  // TODO remove these fields from spec?
-  // do not allow 'query_and_fetch' or 'dfs_query_and_fetch' search types
-  // from the REST layer. these modes are an internal optimization and should
-  // not be specified explicitly by the user.
   optional SearchType search_type = 26;
   // [optional] Fields OpenSearch can use to look for similar terms.
   optional string suggest_field = 27;
@@ -91,8 +85,6 @@ message SearchRequest {
 }
 
 message SearchRequestBody {
-  // [optional] In the optional aggs parameter, you can define any number of aggregations. Each aggregation is defined by its name and one of the types of aggregations that OpenSearch supports.
-  map<string, AggregationContainer> aggregations = 1;
 
   // [optional] The collapse parameter groups search results by a particular field value. This returns only the top document within each group, which helps reduce redundancy by eliminating duplicates.
   optional FieldCollapse collapse = 2;
@@ -118,9 +110,6 @@ message SearchRequestBody {
   // [optional] The fields that OpenSearch should return using their docvalue forms. Specify a format to return results in a certain format, such as date and time.
   repeated FieldAndFormat docvalue_fields = 9;
 
-  // TODO not supported yet
-  // RankContainer rank = 10;
-
   // [optional] Specify a score threshold to return only documents above the threshold.
   optional float min_score = 11;
 
@@ -131,11 +120,9 @@ message SearchRequestBody {
   optional bool profile = 13;
 
   // [optional] Customizable sequence of processing stages applied to search queries.
-  // TODO add to spec
   optional string search_pipeline = 14;
 
   // [optional] Enables or disables verbose mode for the search pipeline.
-  // TODO add to spec
   optional bool verbose_pipeline = 15;
 
   // [optional] The DSL query to use in the request.
@@ -165,9 +152,6 @@ message SearchRequestBody {
   // [optional] The fields to search for in the request. Specify a format to return results in a certain format, such as date and time.
   repeated FieldAndFormat fields = 24;
 
-  // [optional] The suggest feature suggests similar looking terms based on a provided text by using a suggester. The suggest request part is defined alongside the query part in a _search request. If the query part is left out, only suggestions are returned.
-  optional Suggester suggest = 25;
-
   // [optional] The maximum number of documents OpenSearch should process before terminating the request. If a query reaches this limit, OpenSearch terminates the query early. OpenSearch collects documents before sorting. Use with caution. OpenSearch applies this parameter to each shard handling the request. When possible, let OpenSearch perform early termination automatically. Avoid specifying this parameter for requests that target data streams with backing indices across multiple data tiers. If set to `0` (default), the query does not terminate early. Default is 0.
   optional int32 terminate_after = 26;
 
@@ -178,7 +162,6 @@ message SearchRequestBody {
   optional bool track_scores = 28;
 
   // [optional] Whether to return scores with named queries. Default is false.
-  // TODO add to spec
   optional bool include_named_queries_score = 29;
 
   // [optional] Whether to include the document version in the response.
@@ -197,7 +180,6 @@ message SearchRequestBody {
   repeated string stats = 34;
 
   // [optional]
-  // TODO add to spec (since 2.14)
   map<string, DerivedField> derived = 35;
 }
 
@@ -267,12 +249,6 @@ message SearchResponse {
 
   // [optional] If the query was terminated early, the terminated_early flag will be set to true in the response
   optional bool terminated_early = 13;
-  // [optional]
-  // todo: not supported yet
-  // map<string, SuggestArray> suggest = 14;
-
-  // [optional] Aggregation results
-  map<string, Aggregate> aggregations = 15;
 }
 
 message ProcessorExecutionDetail {
@@ -423,7 +399,6 @@ message HitsMetadataHitsInner {
   repeated FieldValue sort = 20;
 
   // [optional] Contains metadata values for the documents.
-  // TODO: No field named "meta_fields" in the spec. Needs adaptor_unnest.
   optional ObjectMap meta_fields = 21;
 }
 
@@ -437,20 +412,6 @@ message ClusterStatistics {
 
   // [required] Total number of shards that require querying, including unallocated shards.
   int32 total = 3;
-
-
-  // TODO these fields dont exist in SearchResponse.Clusters class
-  // [required] Number of shards currently executing the search operation
-//  int32 running = 4;
-//
-//  // [required] The number of shards that returned partial results.
-//  int32 partial = 5;
-//
-//  // [required] Number of shards that failed to execute the request. Note that shards that are not allocated will be considered neither successful nor failed. Having failed+successful less than total is thus an indication that some of the shards were not allocated.
-//  int32 failed = 6;
-//
-//  // [optional] Shows metadata about the search on each cluster.
-//  map<string, ClusterDetails> details = 7;
 
 }
 
@@ -506,13 +467,6 @@ message SlicedScroll {
 
   // [required] The maximum number of slices
   int32 max = 3;
-
-}
-
-message Suggester {
-
-  // [optional] Global suggest text, to avoid repetition when the same text is used in several suggesters
-  optional string text = 1;
 
 }
 
@@ -829,419 +783,4 @@ message NestedIdentity {
   // [optional] Inner nested object.
   optional NestedIdentity x_nested = 3;
 
-}
-
-message AggregationContainer {
-  // [optional] The custom metadata attached to a resource.
-  optional ObjectMap meta = 1;
-
-  oneof aggregation {
-    // AdjacencyMatrixAggregation adjacency_matrix = 2;
-
-    // AutoDateHistogramAggregation auto_date_histogram = 3;
-
-    // AverageAggregation avg = 4;
-
-    // AverageBucketAggregation avg_bucket = 5;
-
-    // BoxplotAggregation boxplot = 6;
-
-    // BucketScriptAggregation bucket_script = 7;
-
-    // BucketSelectorAggregation bucket_selector = 8;
-
-    // BucketSortAggregation bucket_sort = 9;
-
-    // [optional] cardinality aggregation
-    CardinalityAggregation cardinality = 10;
-
-    // ChildrenAggregation children = 11;
-
-    // CompositeAggregation composite = 12;
-
-    // CumulativeCardinalityAggregation cumulative_cardinality = 13;
-
-    // CumulativeSumAggregation cumulative_sum = 14;
-
-    // DateHistogramAggregation date_histogram = 15;
-
-    // DateRangeAggregation date_range = 16;
-
-    // DerivativeAggregation derivative = 17;
-
-    // DiversifiedSamplerAggregation diversified_sampler = 18;
-
-    // ExtendedStatsAggregation extended_stats = 19;
-
-    // ExtendedStatsBucketAggregation extended_stats_bucket = 20;
-
-    // [optional] filter query which limits matching documents for the aggregations and its sub aggregations
-    QueryContainer filter = 21;
-
-    // FiltersAggregation filters = 22;
-
-    // GeoBoundsAggregation geo_bounds = 23;
-
-    // GeoCentroidAggregation geo_centroid = 24;
-
-    // GeoDistanceAggregation geo_distance = 25;
-
-    // GeoHashGridAggregation geohash_grid = 26;
-
-    // GeoTileGridAggregation geotile_grid = 27;
-
-    // GlobalAggregation global = 28;
-
-    // HistogramAggregation histogram = 29;
-
-    // IpRangeAggregation ip_range = 30;
-
-    // MatrixStatsAggregation matrix_stats = 31;
-
-    // MaxAggregation max = 32;
-
-    // MaxBucketAggregation max_bucket = 33;
-
-    // MedianAbsoluteDeviationAggregation median_absolute_deviation = 34;
-
-    // MinAggregation min = 35;
-
-    // MinBucketAggregation min_bucket = 36;
-
-    // [optional] missing aggregation
-    MissingAggregation missing = 37;
-
-    // MovingAverageAggregation moving_avg = 38;
-
-    // MovingPercentilesAggregation moving_percentiles = 39;
-
-    // MovingFunctionAggregation moving_fn = 40;
-
-    // MultiTermsAggregation multi_terms = 41;
-
-    // NestedAggregation nested = 42;
-
-    // NormalizeAggregation normalize = 43;
-
-    // ParentAggregation parent = 44;
-
-    // PercentileRanksAggregation percentile_ranks = 45;
-
-    // PercentilesAggregation percentiles = 46;
-
-    // PercentilesBucketAggregation percentiles_bucket = 47;
-
-    // RangeAggregation range = 48;
-
-    // RareTermsAggregation rare_terms = 49;
-
-    // RateAggregation rate = 50;
-
-    // ReverseNestedAggregation reverse_nested = 51;
-
-    // SamplerAggregation sampler = 52;
-
-    // ScriptedMetricAggregation scripted_metric = 53;
-
-    // SerialDifferencingAggregation serial_diff = 54;
-
-    // SignificantTermsAggregation significant_terms = 55;
-
-    // SignificantTextAggregation significant_text = 56;
-
-    // StatsAggregation stats = 57;
-
-    // StatsBucketAggregation stats_bucket = 58;
-
-    // SumAggregation sum = 59;
-
-    // SumBucketAggregation sum_bucket = 60;
-
-    // [optional] terms aggregation
-    TermsAggregation terms = 61;
-
-    // TopHitsAggregation top_hits = 62;
-
-    // TTestAggregation t_test = 63;
-
-    // ValueCountAggregation value_count = 64;
-
-    // WeightedAverageAggregation weighted_avg = 65;
-
-    // VariableWidthHistogramAggregation variable_width_histogram = 66;
-  }
-}
-
-message Aggregate {
-  // optional AdjacencyMatrixAggregate adjacency_matrix = 1;
-
-  // optional AutoDateHistogramAggregate auto_date_histogram = 2;
-
-  // optional AvgAggregate avg = 3;
-
-  // optional BoxPlotAggregate box_plot = 4;
-
-  // optional BucketMetricValueAggregate bucket_metric_value = 5;
-
-  // [optional] cardinality aggregation response
-  optional CardinalityAggregate cardinality = 6;
-
-  // optional ChildrenAggregate children = 7;
-
-  // optional CompositeAggregate composite = 8;
-
-  // optional DateHistogramAggregate date_histogram = 9;
-
-  // optional DateRangeAggregate date_range = 10;
-
-  // optional DerivativeAggregate derivative = 11;
-
-  // optional DoubleTermsAggregate dterms = 12;
-
-  // optional ExtendedStatsAggregate extended_stats = 13;
-
-  // optional ExtendedStatsBucketAggregate extended_stats_bucket = 14;
-
-  // optional FilterAggregate filter = 15;
-
-  // optional FiltersAggregate filters = 16;
-
-  // optional GeoBoundsAggregate geo_bounds = 17;
-
-  // optional GeoCentroidAggregate geo_centroid = 18;
-
-  // optional GeoDistanceAggregate geo_distance = 19;
-
-  // optional GeoHashGridAggregate geohash_grid = 20;
-
-  // optional GeoTileGridAggregate geotile_grid = 21;
-
-  // optional GlobalAggregate global = 22;
-
-  // optional HdrPercentilesAggregate hdr_percentiles = 23;
-
-  // optional HdrPercentileRanksAggregate hdr_percentile_ranks = 24;
-
-  // optional HistogramAggregate histogram = 25;
-
-  // optional IpRangeAggregate ip_range = 26;
-
-  // optional LongRareTermsAggregate lrareterms = 27;
-
-  // optional LongTermsAggregate lterms = 28;
-
-  // optional MatrixStatsAggregate matrix_stats = 29;
-
-  // optional MaxAggregate max = 30;
-
-  // optional MedianAbsoluteDeviationAggregate median_absolute_deviation = 31;
-
-  // optional MinAggregate min = 32;
-
-  // [optional] cardinality aggregation response
-  optional MissingAggregate missing = 33;
-
-  // optional MultiTermsAggregate multi_terms = 34;
-
-  // optional NestedAggregate nested = 35;
-
-  // optional ParentAggregate parent = 36;
-
-  // optional PercentilesBucketAggregate percentiles_bucket = 37;
-
-  // optional RangeAggregate range = 38;
-
-  // optional RateAggregate rate = 39;
-
-  // optional ReverseNestedAggregate reverse_nested = 40;
-
-  // optional SamplerAggregate sampler = 41;
-
-  // optional ScriptedMetricAggregate scripted_metric = 42;
-
-  // optional SignificantLongTermsAggregate siglterms = 43;
-
-  // optional SignificantStringTermsAggregate sigsterms = 44;
-
-  // optional CumulativeCardinalityAggregate simple_long_value = 45;
-
-  // optional SimpleValueAggregate simple_value = 46;
-
-  // optional StatsAggregate stats = 47;
-
-  // optional StatsBucketAggregate stats_bucket = 48;
-
-  // optional StringRareTermsAggregate srareterms = 49;
-
-  // optional StringTermsAggregate sterms = 50;
-
-  // optional SumAggregate sum = 51;
-
-  // optional TDigestPercentilesAggregate tdigest_percentiles = 52;
-
-  // optional TDigestPercentileRanksAggregate tdigest_percentile_ranks = 53;
-
-  // optional TTestAggregate t_test = 54;
-
-  // optional TopHitsAggregate top_hits = 55;
-
-  // optional UnmappedRareTermsAggregate umrareterms = 56;
-
-  // optional UnmappedSignificantTermsAggregate umsigterms = 57;
-
-  // optional UnmappedTermsAggregate umterms = 58;
-
-  // optional ValueCountAggregate value_count = 59;
-
-  // optional VariableWidthHistogramAggregate variable_width_histogram = 60;
-
-  // optional WeightedAvgAggregate weighted_avg = 61;
-}
-
-message CardinalityAggregation {
-  // [optional] The custom metadata attached to a resource.
-  optional ObjectMap meta = 1;
-
-  // [optional] Field for which to calculate cardinality.
-  optional string field = 2;
-
-  // [optional] If set documents missing the field are counted towards the cardinality total.
-  // Note the FieldValue provided here is arbitrary for the purposes of CardinalityAggregation.
-  optional FieldValue missing = 3;
-
-  // [optional] Script to be included in aggregation execution.
-  optional Script script = 4;
-
-  // [optional] A unique count below which counts are expected to be close to accurate. This allows to trade memory for accuracy.
-  optional int32 precision_threshold = 5;
-
-  // [optional] Execution hint to achieve higher performance given specific conditions. Added in OpenSearch 2.19.1.
-  optional CardinalityExecutionMode execution_hint = 6;
-}
-
-message CardinalityAggregate {
-  // [optional] The custom metadata attached to a resource.
-  optional ObjectMap meta = 1;
-
-  // [required] Field cardinality.
-  int64 value = 2;
-}
-
-enum CardinalityExecutionMode {
-  // OpenSearch will determine execution mode automatically when none specified.
-  CARDINALITY_EXECUTION_MODE_UNSPECIFIED = 0;
-  // Cardinality will be calculated by hashing the contents of each field.
-  // Standard approach for high cardinality fields where field contents is not frequently repeated.
-  CARDINALITY_EXECUTION_MODE_DIRECT = 1;
-  // Cardinality will be calculated based on the global ordinals for this field.
-  // More memory efficient for low cardinality fields where global ordinals can be efficiently calculated.
-  CARDINALITY_EXECUTION_MODE_GLOBAL_ORDINALS = 2;
-  // Save memory by using a segmented approach for HLL structures (added in OpenSearch 2.19.1).
-  CARDINALITY_EXECUTION_MODE_SEGMENT_ORDINALS = 3;
-}
-
-message MissingAggregation {
-  // [optional] The custom metadata attached to a resource.
-  optional ObjectMap meta = 1;
-
-  // [optional] Sub-aggregations for this bucket aggregation
-  map<string, AggregationContainer> aggregations = 2;
-
-  // [optional] The path to a field or an array of paths. Some APIs support wildcards in the path, which allows you to select multiple fields.
-  optional string field = 3;
-}
-
-message MissingAggregate {
-  // [optional] The custom metadata attached to a resource.
-  optional ObjectMap meta = 1;
-
-  // [required] Count of documents missing the field.
-  int64 doc_count = 2;
-
-  // [optional] Result of sub aggregations on missing field docs.
-  map<string, Aggregate> aggregations = 3;
-}
-
-message StringMap {
-  map<string, string> string_map = 1;
-}
-
-message TermsAggregation {
-  // The custom metadata attached to a resource.
-  optional ObjectMap meta = 1;
-
-  optional string name = 2;
-
-  // Sub-aggregations for this bucket aggregation
-  map<string, AggregationContainer> aggregations = 3;
-
-  // Sub-aggregations for this bucket aggregation
-  map<string, AggregationContainer> aggs = 4;
-
-  optional TermsAggregationCollectMode collect_mode = 5;
-
-  repeated string exclude = 6;
-
-  optional TermsAggregationExecutionHint execution_hint = 7;
-
-  // The path to a field or an array of paths. Some APIs support wildcards in the path, which allows you to select multiple fields.
-  optional string field = 8;
-
-  optional TermsInclude include = 9;
-
-  // Only return values that are found in more than `min_doc_count` hits.
-  optional int32 min_doc_count = 10;
-
-  optional FieldValue missing = 11;
-
-  // Coerced unmapped fields into the specified type.
-  optional string value_type = 12;
-
-  map<string, SortOrder> order = 13;
-
-  optional Script script = 14;
-
-  // The number of candidate terms produced by each shard. By default, `shard_size` will be automatically estimated based on the number of shards and the `size` parameter.
-  optional int32 shard_size = 15;
-
-  // The minimum number of documents in a bucket on each shard for it to be returned.
-  optional int32 shard_min_doc_count = 16;
-
-  // Set to `true` to return the `doc_count_error_upper_bound`, which is an upper bound to the error on the `doc_count` returned by each shard.
-  optional bool show_term_doc_count_error = 17;
-
-  // The number of buckets returned out of the overall terms list.
-  optional int32 size = 18;
-
-  optional string format = 19;
-}
-
-enum TermsAggregationCollectMode {
-  TERMS_AGGREGATION_COLLECT_MODE_UNSPECIFIED = 0;
-  TERMS_AGGREGATION_COLLECT_MODE_BREADTH_FIRST = 1;
-  TERMS_AGGREGATION_COLLECT_MODE_DEPTH_FIRST = 2;
-}
-
-enum TermsAggregationExecutionHint {
-  TERMS_AGGREGATION_EXECUTION_HINT_UNSPECIFIED = 0;
-  TERMS_AGGREGATION_EXECUTION_HINT_GLOBAL_ORDINALS = 1;
-  TERMS_AGGREGATION_EXECUTION_HINT_GLOBAL_ORDINALS_HASH = 2;
-  TERMS_AGGREGATION_EXECUTION_HINT_GLOBAL_ORDINALS_LOW_CARDINALITY = 3;
-  TERMS_AGGREGATION_EXECUTION_HINT_MAP = 4;
-}
-
-message TermsInclude {
-  oneof terms_include {
-    StringArray string_array = 1;
-
-    TermsPartition partition = 2;
-  }
-}
-
-message TermsPartition {
-  // The number of partitions.
-  int64 num_partitions = 1;
-
-  // The partition number for this request.
-  int64 partition = 2;
 }

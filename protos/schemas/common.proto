@@ -11,7 +11,6 @@ option go_package = "github.com/opensearch-project/opensearch-protobufs/go/opens
 
 import "google/protobuf/struct.proto";
 
-// TODO: not supported yet in server
 message GlobalParams {
   // [optional] Whether to return human-readable values for statistics.
   optional bool human = 1;
