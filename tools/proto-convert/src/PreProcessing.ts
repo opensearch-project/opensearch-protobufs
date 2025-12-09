@@ -8,18 +8,13 @@ import {SchemaModifier} from "./SchemaModifier";
 import {VendorExtensionProcessor} from "./VendorExtensionProcessor";
 import {GlobalParameterConsolidator} from "./GlobalParamWrapper";
 import {OpenSearchVersionExtractor} from "./OpenSearchVersionExtractor";
-import type {OpenAPIV3} from "openapi-types";
 
-let config_filtered_path: string[] | undefined;
-try {
-  const config = read_yaml(path.join(__dirname, 'config','target_api.yaml'));
-  config_filtered_path = config.paths;
-} catch (e) {
-  console.error(e);
-  config_filtered_path = undefined;
-}
-const default_api_to_proto = config_filtered_path ?? ['/_search'];
-const default_api_to_proto_str = default_api_to_proto.join(',');
+// Load config from spec-filter.yaml
+const config = read_yaml<{ paths?: string[]; excluded_schemas?: string[] }>(
+  path.join(__dirname, 'config', 'spec-filter.yaml')
+);
+const target_paths = config.paths ?? ['/_search'];
+const excluded_schemas = new Set(config.excluded_schemas ?? []);
 
 const command = new Command()
   .description('Preprocess an OpenAPI spec by filtering for specific paths and then sanitizing it.')
@@ -28,7 +23,7 @@ const command = new Command()
   .addOption(
     new Option('-p, --filtered_path <paths>', 'the paths to keep (comma-separated, e.g., /_search,)')
       .argParser((val: string) => val.split(',').map(s => s.trim()))
-      .default(default_api_to_proto)
+      .default(target_paths)
   )
   .addOption(new Option('--verbose', 'show merge details').default(false))
   .addOption(new Option('--opensearch-version <version>', 'current OpenSearch version for deprecation removal').default('3.4'))
@@ -51,7 +46,7 @@ const logger = new Logger();
 try {
   logger.info(`PreProcessing ${opts.filtered_path.join(', ')} into ${opts.output} ...`)
   const original_spec = read_yaml(opts.input)
-  const filtered_spec = new Filter().filter_spec(original_spec, opts.filtered_path);
+  const filtered_spec = new Filter(logger, opts.filtered_path, excluded_schemas).filter_spec(original_spec);
   const version_processed_spec = new OpenSearchVersionExtractor(filtered_spec, logger).process(opts.opensearchVersion);
   const sanitized_spec = new Sanitizer().sanitize(version_processed_spec);
   const consolidated_spec = new GlobalParameterConsolidator(sanitized_spec).consolidate();
