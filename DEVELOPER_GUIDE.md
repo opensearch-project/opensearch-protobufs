@@ -75,7 +75,7 @@ dependencies {
 ```
 
 ## Python
-### Generate and install Python Code 
+### Generate and install Python Code
 
 Generate the wheel file with bazel and install the packag with pip:
 ```
@@ -93,7 +93,7 @@ pip install bazel-bin/opensearch_protos-*-py3-none-any.whl
 The [Spec Preprocessing](tools/proto-convert/src/PreProcessing.ts) includes two steps:
 
 1. **Filter**
-    - Filters only the target APIs defined in [target_api.yaml](tools/src/config/target_api.yaml).
+    - Filters only the target APIs defined in [spec-filter.yaml](tools/proto-convert/src/config/spec-filter.yaml).
     - Extract a single API per group from the OpenSearch spec.
 
 2. **Sanitizer**

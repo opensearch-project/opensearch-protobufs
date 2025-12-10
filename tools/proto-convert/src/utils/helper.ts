@@ -4,6 +4,16 @@ import {dirname} from "path";
 import {OpenAPIV3} from "openapi-types";
 import _ from 'lodash';
 
+/**
+ * Extracts schema names from a $ref string.
+ */
+export function getSchemaNames(ref: string): { full: string; short: string } | null {
+  if (!ref.startsWith('#/components/schemas/')) return null;
+  const full = ref.split('/').pop() || '';
+  const short = full.includes('___') ? full.split('___').pop() || full : full;
+  return { full, short };
+}
+
 export function read_yaml<T = Record<string, any>> (file_path: string, exclude_schema: boolean = false): T {
     const doc = parse(readFileSync(file_path, 'utf8'))
     if (typeof doc === 'object' && exclude_schema) delete doc.$schema
@@ -172,9 +182,24 @@ export function remove_unused(spec: OpenAPIV3.Document): void {
         (key) => _.keys((spec?.components as any)?.[key]).map((ref) => `#/components/${key}/${ref}`)
     );
 
-    deleteMatchingKeys(spec, (obj: any) =>
-        obj.$ref !== undefined && !_.includes(remaining, obj.$ref)
-    );
+    // Remove properties where $ref is broken (direct or nested in additionalProperties)
+    deleteMatchingKeys(spec, (obj: any) => {
+        // Case 1: Direct broken $ref
+        if (obj.$ref !== undefined && !_.includes(remaining, obj.$ref)) {
+            return true;
+        }
+        // Case 2: additionalProperties.$ref is broken
+        if (obj.additionalProperties?.$ref !== undefined &&
+            !_.includes(remaining, obj.additionalProperties.$ref)) {
+            return true;
+        }
+        // Case 3: additionalProperties.items.$ref is broken (for array types)
+        if (obj.additionalProperties?.items?.$ref !== undefined &&
+            !_.includes(remaining, obj.additionalProperties.items.$ref)) {
+            return true;
+        }
+        return false;
+    });
 }
 
 /**

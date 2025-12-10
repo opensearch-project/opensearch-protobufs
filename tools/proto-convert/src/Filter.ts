@@ -1,11 +1,14 @@
 import { type OpenAPIV3 } from 'openapi-types'
 import _ from "lodash";
 import Logger from "./utils/logger"
+import { getSchemaNames } from "./utils/helper"
+
 /**
  * Recursively traverses a node and for every $ref that starts with "#/components/",
- * enqueues the reference string if it hasn’t been visited yet.
+ * enqueues the reference string if it hasn't been visited yet.
+ * Skips schemas in the exclusion list.
  */
-function traverse_and_enqueue(node: any, queue: string[],  visited: Set<string>): void {
+function traverse_and_enqueue(node: any, queue: string[], visited: Set<string>, excluded: Set<string>): void {
   for (const key in node) {
     var item = node[key]
 
@@ -14,22 +17,40 @@ function traverse_and_enqueue(node: any, queue: string[],  visited: Set<string>)
       if (ref == null || ref == "" && _.isString(item)){
         ref = item as string;
       }
+
+      // Check exclusion list - if schema is excluded, don't push ref
+      const names = getSchemaNames(ref);
+      if (names && (excluded.has(names.full) || excluded.has(names.short))) {
+        continue;
+      }
+
       queue.push(ref);
       visited.add(ref);
     }
     if (_.isObject(item) || _.isArray(item) || (_.isString(item) && item.startsWith('#/components/'))) {
-      traverse_and_enqueue(item, queue, visited)
+      traverse_and_enqueue(item, queue, visited, excluded)
     }
   }
 }
 
-//Filter an OpenAPI spec so that only the specified path and all its referenced components (via $ref) are included.
+/**
+ * Filters an OpenAPI spec to include only specified paths and their referenced components.
+ * Schemas in the excluded set are skipped.
+ */
 export default class Filter {
   logger: Logger
   protected _spec: Record<string, any>
+  protected targetPaths: string[]
+  protected excludedSchemas: Set<string>
   paths: Record<string, Record<string, OpenAPIV3.PathItemObject>> = {} // namespace -> path -> path_item_object
-  constructor(logger: Logger = new Logger()) {
+
+  constructor(logger: Logger, targetPaths: string[], excludedSchemas: Set<string> = new Set()) {
     this.logger = logger
+    this.targetPaths = targetPaths;
+    this.excludedSchemas = excludedSchemas;
+    if (this.excludedSchemas.size > 0) {
+      this.logger.info(`Loaded ${this.excludedSchemas.size} excluded schemas: ${Array.from(this.excludedSchemas).join(', ')}`);
+    }
     this._spec = {
       openapi: '3.1.0',
       info: {},
@@ -44,9 +65,9 @@ export default class Filter {
   }
 
 
-  filter_spec(spec: Record<string, any>, paths_to_keep: string[]): any {
+  filter_spec(spec: Record<string, any>): any {
     this._spec.info = spec.info;
-    for (const p of paths_to_keep) {
+    for (const p of this.targetPaths) {
       if (spec.paths[p] === undefined) {
         this.logger.error(`Path not found in spec: ${p}`);
         continue;
@@ -58,7 +79,7 @@ export default class Filter {
     const visited: Set<string> = new Set();
 
     // collect all components that are referenced by the paths
-    traverse_and_enqueue(this._spec.paths , queue, visited);
+    traverse_and_enqueue(this._spec.paths, queue, visited, this.excludedSchemas);
     while (queue.length > 0) {
       const ref_str = queue.shift();
       if (ref_str == null || ref_str == "") continue;
@@ -73,7 +94,7 @@ export default class Filter {
       if (this._spec.components[sub_component][key] == null) {
         if (spec.components != null && spec.components[sub_component] != null && spec.components[sub_component][key] != null) {
           this._spec.components[sub_component][key] = spec.components[sub_component][key];
-          traverse_and_enqueue(this._spec.components[sub_component][key], queue, visited);
+          traverse_and_enqueue(this._spec.components[sub_component][key], queue, visited, this.excludedSchemas);
         }
       }
     }

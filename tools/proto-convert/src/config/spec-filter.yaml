@@ -1,0 +1,37 @@
+# Target API paths to include in proto generation
+paths:
+  - /{index}/_bulk
+  - /{index}/_search
+
+# Schemas to exclude from proto generation
+# These schemas and their nested dependencies will not be included
+excluded_schemas:
+  - AggregationContainer
+  - Aggregate
+  - Suggester
+  - Suggest
+  - CommonTermsQuery
+  - CombinedFieldsQuery
+  - DistanceFeatureQuery
+  - GeoPolygonQuery
+  - GeoShapeQuery
+  - HasChildQuery
+  - HasParentQuery
+  - MoreLikeThisQuery
+  - NeuralQuery
+  - ParentIdQuery
+  - PercolateQuery
+  - RankFeatureQuery
+  - SpanContainingQuery
+  - SpanFieldMaskingQuery
+  - SpanFirstQuery
+  - SpanMultiTermQuery
+  - SpanNearQuery
+  - SpanNotQuery
+  - SpanOrQuery
+  - SpanTermQuery
+  - SpanWithinQuery
+  - ObjectMap
+  - TypeQuery
+  - WrapperQuery
+  - XyShapeQuery
