@@ -18,6 +18,7 @@ Inspired from [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 - Removed unused messages ([#319](https://github.com/opensearch-project/opensearch-protobufs/pull/319))
 
 ### Fixed
+- Include LICENSE.txt in Python wheel distribution ([#321](https://github.com/opensearch-project/opensearch-protobufs/pull/321))
 
 ### Security
 - Fixed minimist, resolve and js-yaml version to address security vulnerabilities ([#316](https://github.com/opensearch-project/opensearch-protobufs/pull/316))
