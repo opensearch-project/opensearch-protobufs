@@ -14,6 +14,7 @@ Inspired from [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 - Backward incompatible change for unimplemented query types `ScriptScoreQuery`, `SimpleQueryStringQuery`, `DisMaxQuery`, `IntervalsQuery`, `QueryStringQuery` and `TermsAggregation` ([#324](https://github.com/opensearch-project/opensearch-protobufs/pull/324))
 - Backward compatible change for implemented query types `RegexpQuery`, `WildcardQuery`, `PrefixQuery`, `MultiMatchQuery`, `MatchQuery`, `MatchBoolPrefixQuery`, `FuzzyQuery` and `ErrorCause` ([#325](https://github.com/opensearch-project/opensearch-protobufs/pull/325))
 - Remove unsupported protobufs `Aggregate`, `Suggester` and `AggregationContainer` ([#327](https://github.com/opensearch-project/opensearch-protobufs/pull/327))
+- Consolidate all protobuf schemas into common.proto ([#330](https://github.com/opensearch-project/opensearch-protobufs/pull/330))
 
 ### Removed
 - Removed unused messages ([#319](https://github.com/opensearch-project/opensearch-protobufs/pull/319))

@@ -8,35 +8,35 @@ package(default_visibility = ["//visibility:public"])
 proto_library(
     name = "document_service_proto",
     srcs = ["document_service.proto"],
-    deps = ["//protos/schemas:document_proto"],
+    deps = ["//protos/schemas:common_proto"],
 )
 
 proto_library(
     name = "search_service_proto",
     srcs = ["search_service.proto"],
-    deps = ["//protos/schemas:search_proto"],
+    deps = ["//protos/schemas:common_proto"],
 )
 
 java_grpc_library(
     name = "document_service_java_proto",
     protos = [":document_service_proto"],
-    deps = ["//protos/schemas:document_java_proto"],
+    deps = ["//protos/schemas:common_java_proto"],
 )
 
 java_grpc_library(
     name = "search_service_java_proto",
     protos = [":search_service_proto"],
-    deps = ["//protos/schemas:search_java_proto"],
+    deps = ["//protos/schemas:common_java_proto"],
 )
 
 go_grpc_library(
     name = "document_service_go_proto",
     protos = [":document_service_proto"],
-    deps = ["//protos/schemas:document_go_proto"],
+    deps = ["//protos/schemas:common_go_proto"],
 )
 
 go_grpc_library(
     name = "search_service_go_proto",
     protos = [":search_service_proto"],
-    deps = ["//protos/schemas:search_go_proto"],
+    deps = ["//protos/schemas:common_go_proto"],
 )
