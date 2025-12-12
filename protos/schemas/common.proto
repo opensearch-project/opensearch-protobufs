@@ -308,12 +308,6 @@ message HitsMetadata {
   optional HitsMetadataMaxScore max_score = 3;
 }
 
-enum TotalHitsRelation {
-  TOTAL_HITS_RELATION_UNSPECIFIED = 0;
-  TOTAL_HITS_RELATION_EQ = 1;
-  TOTAL_HITS_RELATION_GTE = 2;
-}
-
 message TotalHits {
 
   // [required] Indicates whether the number of matching documents in the value parameter is accurate or a lower bound.
@@ -434,15 +428,6 @@ message RescoreQuery {
   // [optional] Control the way the scores are combined.
   optional ScoreMode score_mode = 4;
 
-}
-
-enum ScoreMode {
-  SCORE_MODE_UNSPECIFIED = 0;
-  SCORE_MODE_AVG = 1;
-  SCORE_MODE_MAX = 2;
-  SCORE_MODE_MIN = 3;
-  SCORE_MODE_MULTIPLY = 4;
-  SCORE_MODE_TOTAL = 5;
 }
 
 message Rescore {
@@ -854,19 +839,6 @@ message UpdateAction {
   optional SourceConfig x_source = 7;
 }
 
-enum OpType {
-  OP_TYPE_UNSPECIFIED = 0;
-  OP_TYPE_CREATE = 1;
-  OP_TYPE_INDEX = 2;
-}
-
-enum VersionType {
-  VERSION_TYPE_UNSPECIFIED = 0;
-  VERSION_TYPE_EXTERNAL = 1;
-  VERSION_TYPE_EXTERNAL_GTE = 2;
-  VERSION_TYPE_INTERNAL = 3;
-}
-
 message IndexOperation {
   // [optional] The document ID. If no ID is specified, a document ID is automatically generated.
   optional string x_id = 1;
@@ -1021,13 +993,6 @@ message InlineGetDictUserDefined {
   optional bytes x_source = 7;
 }
 
-enum Refresh {
-  REFRESH_UNSPECIFIED = 0;
-  REFRESH_FALSE = 1;
-  REFRESH_TRUE = 2;
-  REFRESH_WAIT_FOR = 3;
-}
-
 message GlobalParams {
   // [optional] Whether to return human-readable values for statistics.
   optional bool human = 1;
@@ -1043,11 +1008,6 @@ message WaitForActiveShards {
     int32 count = 1;
     WaitForActiveShardOptions option = 2;
   }
-}
-enum WaitForActiveShardOptions {
-  WAIT_FOR_ACTIVE_SHARD_OPTIONS_UNSPECIFIED = 0;
-  WAIT_FOR_ACTIVE_SHARD_OPTIONS_ALL = 1;
-  WAIT_FOR_ACTIVE_SHARD_OPTIONS_NULL = 2;
 }
 
 message Script {
@@ -1080,74 +1040,11 @@ message ScriptLanguage {
   }
 }
 
-enum BuiltinScriptLanguage {
-  BUILTIN_SCRIPT_LANGUAGE_UNSPECIFIED = 0;
-  BUILTIN_SCRIPT_LANGUAGE_EXPRESSION = 1;
-  BUILTIN_SCRIPT_LANGUAGE_JAVA = 2;
-  BUILTIN_SCRIPT_LANGUAGE_MUSTACHE = 3;
-  BUILTIN_SCRIPT_LANGUAGE_PAINLESS = 4;
-}
-
-enum ExpandWildcard {
-  EXPAND_WILDCARD_UNSPECIFIED = 0;
-  EXPAND_WILDCARD_ALL = 1;
-  EXPAND_WILDCARD_CLOSED = 2;
-  EXPAND_WILDCARD_HIDDEN = 3;
-  EXPAND_WILDCARD_NONE = 4;
-  EXPAND_WILDCARD_OPEN = 5;
-}
-
-enum SearchType {
-  SEARCH_TYPE_UNSPECIFIED = 0;
-  SEARCH_TYPE_DFS_QUERY_THEN_FETCH = 1;
-  SEARCH_TYPE_QUERY_THEN_FETCH = 2;
-}
-
-enum SuggestMode {
-  SUGGEST_MODE_UNSPECIFIED = 0;
-  // Use suggestions based on the provided terms
-  SUGGEST_MODE_ALWAYS = 1;
-  // Use suggestions for terms not in the index
-  SUGGEST_MODE_MISSING = 2;
-  // Use suggestions that have more occurrences
-  SUGGEST_MODE_POPULAR = 3;
-}
-
 message StoredScriptId {
   // [optional] The parameters that can be passed to the script.
   optional ObjectMap params = 1;
   // [required] The ID of a stored script previously created using the Create Stored Script API.
   string id = 2;
-}
-
-message ObjectMap {
-  map<string, Value> fields = 1;
-
-  message Value {
-    oneof value {
-      NullValue null_value = 1;
-      int32 int32 = 2;
-      int64 int64 = 3;
-      float float = 4;
-      double double = 5;
-      string string = 6;
-      bool bool = 7;
-      ObjectMap object_map = 8;
-      ListValue list_value = 9;
-    }
-  }
-
-  // `ListValue` is a wrapper around a repeated field of values.
-  // The JSON representation for `ListValue` is JSON array.
-  message ListValue {
-    // Repeated field of dynamically typed values.
-    repeated Value value = 1;
-  }
-}
-
-enum NullValue {
-  NULL_VALUE_UNSPECIFIED = 0;
-  NULL_VALUE_NULL = 1;
 }
 
 message GeoLocation {
@@ -1183,15 +1080,6 @@ message GeoHashLocation {
   // [required]
   string geohash = 1;
 
-}
-
-message GeneralNumber {
-  oneof value{
-    int32 int32_value = 1;
-    int64 int64_value = 2;
-    float float_value = 3;
-    double double_value = 4;
-  }
 }
 
 message SourceConfigParam {
@@ -1495,12 +1383,6 @@ message TopRightBottomLeftGeoBounds {
   GeoLocation bottom_left = 2;
 }
 
-enum GeoExecution {
-  GEO_EXECUTION_UNSPECIFIED = 0;
-  GEO_EXECUTION_INDEXED = 1;
-  GEO_EXECUTION_MEMORY = 2;
-}
-
 message GeoDistanceQuery {
   // [required] The distance within which to match the points. This distance is the radius of a circle centered at the specified point. For supported distance units, see Distance units.
   string distance = 1;
@@ -1518,19 +1400,6 @@ message GeoDistanceQuery {
   optional DistanceUnit unit = 7;
   // [optional]
   map<string, GeoLocation> location = 8;
-}
-
-enum DistanceUnit {
-  DISTANCE_UNIT_UNSPECIFIED = 0;
-  DISTANCE_UNIT_CM = 1;
-  DISTANCE_UNIT_FT = 2;
-  DISTANCE_UNIT_IN = 3;
-  DISTANCE_UNIT_KM = 4;
-  DISTANCE_UNIT_M = 5;
-  DISTANCE_UNIT_MI = 6;
-  DISTANCE_UNIT_MM = 7;
-  DISTANCE_UNIT_NMI = 8;
-  DISTANCE_UNIT_YD = 9;
 }
 
 message TermsQuery {
@@ -1562,15 +1431,6 @@ message NestedQuery {
   optional InnerHits inner_hits = 6;
   // [optional] Defines how scores of matching inner documents influence the parent document’s score
   optional ChildScoreMode score_mode = 7;
-}
-
-enum ChildScoreMode {
-  CHILD_SCORE_MODE_UNSPECIFIED = 0;
-  CHILD_SCORE_MODE_AVG = 1;
-  CHILD_SCORE_MODE_MAX = 2;
-  CHILD_SCORE_MODE_MIN = 3;
-  CHILD_SCORE_MODE_NONE = 4;
-  CHILD_SCORE_MODE_SUM = 5;
 }
 
 message InnerHits {
@@ -1638,36 +1498,6 @@ message HighlighterType {
   }
 }
 
-enum BuiltinHighlighterType {
-  BUILTIN_HIGHLIGHTER_TYPE_UNSPECIFIED = 0;
-  BUILTIN_HIGHLIGHTER_TYPE_PLAIN = 1;
-  BUILTIN_HIGHLIGHTER_TYPE_FVH = 2;
-  BUILTIN_HIGHLIGHTER_TYPE_UNIFIED = 3;
-}
-
-enum BoundaryScanner {
-  BOUNDARY_SCANNER_UNSPECIFIED = 0;
-  BOUNDARY_SCANNER_CHARS = 1;
-  BOUNDARY_SCANNER_SENTENCE = 2;
-  BOUNDARY_SCANNER_WORD = 3;
-}
-
-enum HighlighterFragmenter {
-  HIGHLIGHTER_FRAGMENTER_UNSPECIFIED = 0;
-  HIGHLIGHTER_FRAGMENTER_SIMPLE = 1;
-  HIGHLIGHTER_FRAGMENTER_SPAN = 2;
-}
-
-enum HighlighterOrder {
-  HIGHLIGHTER_ORDER_UNSPECIFIED = 0;
-  HIGHLIGHTER_ORDER_SCORE = 1;
-}
-
-enum HighlighterTagsSchema {
-  HIGHLIGHTER_TAGS_SCHEMA_UNSPECIFIED = 0;
-  HIGHLIGHTER_TAGS_SCHEMA_STYLED = 1;
-}
-
 message SortCombinations {
 
   oneof sort_combinations {
@@ -1699,14 +1529,6 @@ message SortOptions {
 
     ScriptSort x_script = 3;
   }
-}
-
-enum HighlighterEncoder {
-  HIGHLIGHTER_ENCODER_UNSPECIFIED = 0;
-  // No encoding
-  HIGHLIGHTER_ENCODER_DEFAULT = 1;
-  // First escape the HTML text and then insert the highlighting tags
-  HIGHLIGHTER_ENCODER_HTML = 2;
 }
 
 message Highlight {
@@ -1870,92 +1692,6 @@ message FieldSort {
   optional FieldSortNumericType numeric_type = 6;
 }
 
-enum FieldSortNumericType {
-  FIELD_SORT_NUMERIC_TYPE_UNSPECIFIED = 0;
-  FIELD_SORT_NUMERIC_TYPE_DATE = 1;
-  FIELD_SORT_NUMERIC_TYPE_DATE_NANOS = 2;
-  FIELD_SORT_NUMERIC_TYPE_DOUBLE = 3;
-  FIELD_SORT_NUMERIC_TYPE_LONG = 4;
-}
-
-enum FieldType {
-  FIELD_TYPE_UNSPECIFIED = 0;
-  FIELD_TYPE_AGGREGATE_METRIC_DOUBLE = 1;
-  FIELD_TYPE_ALIAS = 2;
-  FIELD_TYPE_BINARY = 3;
-  FIELD_TYPE_BOOLEAN = 4;
-  FIELD_TYPE_BYTE = 5;
-  FIELD_TYPE_COMPLETION = 6;
-  FIELD_TYPE_CONSTANT_KEYWORD = 7;
-  FIELD_TYPE_DATE = 8;
-  FIELD_TYPE_DATE_NANOS = 9;
-  FIELD_TYPE_DATE_RANGE = 10;
-  FIELD_TYPE_DOUBLE = 11;
-  FIELD_TYPE_DOUBLE_RANGE = 12;
-  FIELD_TYPE_FLAT_OBJECT = 13;
-  FIELD_TYPE_FLOAT = 14;
-  FIELD_TYPE_FLOAT_RANGE = 15;
-  FIELD_TYPE_GEO_POINT = 16;
-  FIELD_TYPE_GEO_SHAPE = 17;
-  FIELD_TYPE_HALF_FLOAT = 18;
-  FIELD_TYPE_HISTOGRAM = 19;
-  FIELD_TYPE_ICU_COLLATION_KEYWORD = 20;
-  FIELD_TYPE_INTEGER = 21;
-  FIELD_TYPE_INTEGER_RANGE = 22;
-  FIELD_TYPE_IP = 23;
-  FIELD_TYPE_IP_RANGE = 24;
-  FIELD_TYPE_JOIN = 25;
-  FIELD_TYPE_KEYWORD = 26;
-  FIELD_TYPE_KNN_VECTOR = 27;
-  FIELD_TYPE_LONG = 28;
-  FIELD_TYPE_LONG_RANGE = 29;
-  FIELD_TYPE_MATCH_ONLY_TEXT = 30;
-  FIELD_TYPE_MURMUR3 = 31;
-  FIELD_TYPE_NESTED = 32;
-  FIELD_TYPE_OBJECT = 33;
-  FIELD_TYPE_PERCOLATOR = 34;
-  FIELD_TYPE_RANK_FEATURE = 35;
-  FIELD_TYPE_RANK_FEATURES = 36;
-  FIELD_TYPE_SCALED_FLOAT = 37;
-  FIELD_TYPE_SEARCH_AS_YOU_TYPE = 38;
-  FIELD_TYPE_SHORT = 39;
-  FIELD_TYPE_TEXT = 40;
-  FIELD_TYPE_TOKEN_COUNT = 41;
-  FIELD_TYPE_UNSIGNED_LONG = 42;
-  FIELD_TYPE_VERSION = 43;
-  FIELD_TYPE_WILDCARD = 44;
-  FIELD_TYPE_XY_POINT = 45;
-  FIELD_TYPE_XY_SHAPE = 46;
-}
-
-message ScoreSort {
-  // Specifies the sort order (asc or dsc) for the score.
-  optional SortOrder order = 1;
-}
-
-enum SortOrder {
-  SORT_ORDER_UNSPECIFIED = 0;
-  // Sort in ascending order.
-  SORT_ORDER_ASC = 1;
-  // Sort in descending order
-  SORT_ORDER_DESC = 2;
-}
-
-enum SortMode {
-  SORT_MODE_UNSPECIFIED = 0;
-  SORT_MODE_AVG = 1;
-  SORT_MODE_MAX = 2;
-  SORT_MODE_MEDIAN = 3;
-  SORT_MODE_MIN = 4;
-  SORT_MODE_SUM = 5;
-}
-
-enum GeoDistanceType {
-  GEO_DISTANCE_TYPE_UNSPECIFIED = 0;
-  GEO_DISTANCE_TYPE_ARC = 1;
-  GEO_DISTANCE_TYPE_PLANE = 2;
-}
-
 message GeoDistanceSort {
 
   // [optional] Specifies how to handle a field with several geopoints.
@@ -1976,27 +1712,16 @@ message GeoDistanceSort {
   map<string, GeoLocationArray> location = 8;
 }
 
+message ScoreSort {
+  // Specifies the sort order (asc or dsc) for the score.
+  optional SortOrder order = 1;
+}
 
 message GeoLocationArray {
   // The geo points to use for distance calculation.
   repeated GeoLocation geo_location_array = 1;
 
 }
-
-enum GeoValidationMethod {
-  GEO_VALIDATION_METHOD_UNSPECIFIED = 0;
-  GEO_VALIDATION_METHOD_COERCE = 1;
-  GEO_VALIDATION_METHOD_IGNORE_MALFORMED = 2;
-  GEO_VALIDATION_METHOD_STRICT = 3;
-}
-
-enum ScriptSortType {
-  SCRIPT_SORT_TYPE_UNSPECIFIED = 0;
-  SCRIPT_SORT_TYPE_NUMBER = 1;
-  SCRIPT_SORT_TYPE_STRING = 2;
-  SCRIPT_SORT_TYPE_VERSION = 3;
-}
-
 
 message ScriptSort {
   // [required] The script to execute for custom sorting.
@@ -2076,12 +1801,6 @@ message ExistsQuery {
   optional string x_name = 3;
 }
 
-enum Operator {
-  OPERATOR_UNSPECIFIED = 0;
-  OPERATOR_AND = 1;
-  OPERATOR_OR = 2;
-}
-
 message SimpleQueryStringQuery {
 
   // [optional] Floating point number used to decrease or increase the relevance scores of the query. Boost values are relative to the default value of 1.0. A boost value between 0 and 1.0 decreases the relevance score. A value greater than 1.0 increases the relevance score.
@@ -2152,39 +1871,12 @@ message WildcardQuery {
 
 }
 
-enum MultiTermQueryRewrite {
-  MULTI_TERM_QUERY_REWRITE_UNSPECIFIED = 0;
-  MULTI_TERM_QUERY_REWRITE_CONSTANT_SCORE = 1;
-  MULTI_TERM_QUERY_REWRITE_CONSTANT_SCORE_BOOLEAN = 2;
-  MULTI_TERM_QUERY_REWRITE_SCORING_BOOLEAN = 3;
-  MULTI_TERM_QUERY_REWRITE_TOP_TERMS_N = 4;
-  MULTI_TERM_QUERY_REWRITE_TOP_TERMS_BLENDED_FREQS_N = 5;
-  MULTI_TERM_QUERY_REWRITE_TOP_TERMS_BOOST_N = 6;
-}
-
 message SimpleQueryStringFlags {
   oneof simple_query_string_flags {
     SimpleQueryStringFlag single = 1;
 
     string multiple = 2;
   }
-}
-
-enum SimpleQueryStringFlag {
-  SIMPLE_QUERY_STRING_FLAG_UNSPECIFIED = 0;
-  SIMPLE_QUERY_STRING_FLAG_ALL = 1;
-  SIMPLE_QUERY_STRING_FLAG_AND = 2;
-  SIMPLE_QUERY_STRING_FLAG_ESCAPE = 3;
-  SIMPLE_QUERY_STRING_FLAG_FUZZY = 4;
-  SIMPLE_QUERY_STRING_FLAG_NEAR = 5;
-  SIMPLE_QUERY_STRING_FLAG_NONE = 6;
-  SIMPLE_QUERY_STRING_FLAG_NOT = 7;
-  SIMPLE_QUERY_STRING_FLAG_OR = 8;
-  SIMPLE_QUERY_STRING_FLAG_PHRASE = 9;
-  SIMPLE_QUERY_STRING_FLAG_PRECEDENCE = 10;
-  SIMPLE_QUERY_STRING_FLAG_PREFIX = 11;
-  SIMPLE_QUERY_STRING_FLAG_SLOP = 12;
-  SIMPLE_QUERY_STRING_FLAG_WHITESPACE = 13;
 }
 
 message KnnQuery {
@@ -2377,26 +2069,6 @@ message FunctionScoreQuery {
 
 }
 
-enum FunctionBoostMode {
-  FUNCTION_BOOST_MODE_UNSPECIFIED = 0;
-  FUNCTION_BOOST_MODE_AVG = 1;
-  FUNCTION_BOOST_MODE_MAX = 2;
-  FUNCTION_BOOST_MODE_MIN = 3;
-  FUNCTION_BOOST_MODE_MULTIPLY = 4;
-  FUNCTION_BOOST_MODE_REPLACE = 5;
-  FUNCTION_BOOST_MODE_SUM = 6;
-}
-
-enum FunctionScoreMode {
-  FUNCTION_SCORE_MODE_UNSPECIFIED = 0;
-  FUNCTION_SCORE_MODE_AVG = 1;
-  FUNCTION_SCORE_MODE_FIRST = 2;
-  FUNCTION_SCORE_MODE_MAX = 3;
-  FUNCTION_SCORE_MODE_MIN = 4;
-  FUNCTION_SCORE_MODE_MULTIPLY = 5;
-  FUNCTION_SCORE_MODE_SUM = 6;
-}
-
 message IntervalsAllOf {
 
   // An array of rules to combine. All rules must produce a match in a document for the overall source to match.
@@ -2541,14 +2213,6 @@ message NumericDecayPlacement {
   optional double offset = 4;
 }
 
-enum MultiValueMode {
-  MULTI_VALUE_MODE_UNSPECIFIED = 0;
-  MULTI_VALUE_MODE_AVG = 1;
-  MULTI_VALUE_MODE_MAX = 2;
-  MULTI_VALUE_MODE_MIN = 3;
-  MULTI_VALUE_MODE_SUM = 4;
-}
-
 message ScriptScoreFunction {
 
   Script script = 1;
@@ -2611,12 +2275,6 @@ message PrefixQuery {
   optional bool case_insensitive = 6;
   // [optional] Determines how OpenSearch rewrites the query. Default is constant_score.
   optional string rewrite = 7;
-}
-
-enum TermsQueryValueType {
-  TERMS_QUERY_VALUE_TYPE_UNSPECIFIED = 0;
-  TERMS_QUERY_VALUE_TYPE_BITMAP = 1;
-  TERMS_QUERY_VALUE_TYPE_DEFAULT = 2;
 }
 
 message TermsQueryField {
@@ -2790,16 +2448,6 @@ message QueryStringQuery {
   optional TextQueryType type = 27;
 }
 
-enum TextQueryType {
-  TEXT_QUERY_TYPE_UNSPECIFIED = 0;
-  TEXT_QUERY_TYPE_BEST_FIELDS = 1;
-  TEXT_QUERY_TYPE_BOOL_PREFIX = 2;
-  TEXT_QUERY_TYPE_CROSS_FIELDS = 3;
-  TEXT_QUERY_TYPE_MOST_FIELDS = 4;
-  TEXT_QUERY_TYPE_PHRASE = 5;
-  TEXT_QUERY_TYPE_PHRASE_PREFIX = 6;
-}
-
 message RandomScoreFunction {
   // The path to a field or an array of paths. Some APIs support wildcards in the path, which allows you to select multiple fields.
   optional string field = 1;
@@ -2927,13 +2575,6 @@ message DateRangeQueryAllOfTo {
 
     NullValue null_value = 2;
   }
-}
-
-enum RangeRelation {
-  RANGE_RELATION_UNSPECIFIED = 0;
-  RANGE_RELATION_CONTAINS = 1;
-  RANGE_RELATION_INTERSECTS = 2;
-  RANGE_RELATION_WITHIN = 3;
 }
 
 message FuzzyQuery {
@@ -3079,15 +2720,6 @@ message MatchNoneQuery {
   optional string x_name = 2;
 }
 
-
-enum ZeroTermsQuery {
-  ZERO_TERMS_QUERY_UNSPECIFIED = 0;
-  // zero_terms_query specifies whether to match all documents (all).
-  ZERO_TERMS_QUERY_ALL = 1;
-  // zero_terms_query specifies whether to match no documents (none)
-  ZERO_TERMS_QUERY_NONE = 2;
-}
-
 message MatchPhrasePrefixQuery {
   // [required] Specifies the field against which to run a search query
   string field = 1;
@@ -3211,4 +2843,362 @@ enum FieldValueFactorModifier {
   FIELD_VALUE_FACTOR_MODIFIER_RECIPROCAL = 8;
   FIELD_VALUE_FACTOR_MODIFIER_SQRT = 9;
   FIELD_VALUE_FACTOR_MODIFIER_SQUARE = 10;
+}
+
+enum WaitForActiveShardOptions {
+  WAIT_FOR_ACTIVE_SHARD_OPTIONS_UNSPECIFIED = 0;
+  WAIT_FOR_ACTIVE_SHARD_OPTIONS_ALL = 1;
+  WAIT_FOR_ACTIVE_SHARD_OPTIONS_NULL = 2;
+}
+
+enum TotalHitsRelation {
+  TOTAL_HITS_RELATION_UNSPECIFIED = 0;
+  TOTAL_HITS_RELATION_EQ = 1;
+  TOTAL_HITS_RELATION_GTE = 2;
+}
+
+enum ScoreMode {
+  SCORE_MODE_UNSPECIFIED = 0;
+  SCORE_MODE_AVG = 1;
+  SCORE_MODE_MAX = 2;
+  SCORE_MODE_MIN = 3;
+  SCORE_MODE_MULTIPLY = 4;
+  SCORE_MODE_TOTAL = 5;
+}
+
+enum OpType {
+  OP_TYPE_UNSPECIFIED = 0;
+  OP_TYPE_CREATE = 1;
+  OP_TYPE_INDEX = 2;
+}
+
+enum VersionType {
+  VERSION_TYPE_UNSPECIFIED = 0;
+  VERSION_TYPE_EXTERNAL = 1;
+  VERSION_TYPE_EXTERNAL_GTE = 2;
+  VERSION_TYPE_INTERNAL = 3;
+}
+
+enum Refresh {
+  REFRESH_UNSPECIFIED = 0;
+  REFRESH_FALSE = 1;
+  REFRESH_TRUE = 2;
+  REFRESH_WAIT_FOR = 3;
+}
+
+enum BuiltinScriptLanguage {
+  BUILTIN_SCRIPT_LANGUAGE_UNSPECIFIED = 0;
+  BUILTIN_SCRIPT_LANGUAGE_EXPRESSION = 1;
+  BUILTIN_SCRIPT_LANGUAGE_JAVA = 2;
+  BUILTIN_SCRIPT_LANGUAGE_MUSTACHE = 3;
+  BUILTIN_SCRIPT_LANGUAGE_PAINLESS = 4;
+}
+
+enum ExpandWildcard {
+  EXPAND_WILDCARD_UNSPECIFIED = 0;
+  EXPAND_WILDCARD_ALL = 1;
+  EXPAND_WILDCARD_CLOSED = 2;
+  EXPAND_WILDCARD_HIDDEN = 3;
+  EXPAND_WILDCARD_NONE = 4;
+  EXPAND_WILDCARD_OPEN = 5;
+}
+
+enum SearchType {
+  SEARCH_TYPE_UNSPECIFIED = 0;
+  SEARCH_TYPE_DFS_QUERY_THEN_FETCH = 1;
+  SEARCH_TYPE_QUERY_THEN_FETCH = 2;
+}
+
+enum SuggestMode {
+  SUGGEST_MODE_UNSPECIFIED = 0;
+  SUGGEST_MODE_ALWAYS = 1;
+  SUGGEST_MODE_MISSING = 2;
+  SUGGEST_MODE_POPULAR = 3;
+}
+
+enum RangeRelation {
+  RANGE_RELATION_UNSPECIFIED = 0;
+  RANGE_RELATION_CONTAINS = 1;
+  RANGE_RELATION_INTERSECTS = 2;
+  RANGE_RELATION_WITHIN = 3;
+}
+
+enum TextQueryType {
+  TEXT_QUERY_TYPE_UNSPECIFIED = 0;
+  TEXT_QUERY_TYPE_BEST_FIELDS = 1;
+  TEXT_QUERY_TYPE_BOOL_PREFIX = 2;
+  TEXT_QUERY_TYPE_CROSS_FIELDS = 3;
+  TEXT_QUERY_TYPE_MOST_FIELDS = 4;
+  TEXT_QUERY_TYPE_PHRASE = 5;
+  TEXT_QUERY_TYPE_PHRASE_PREFIX = 6;
+}
+
+enum ZeroTermsQuery {
+  ZERO_TERMS_QUERY_UNSPECIFIED = 0;
+  ZERO_TERMS_QUERY_ALL = 1;
+  ZERO_TERMS_QUERY_NONE = 2;
+}
+
+enum TermsQueryValueType {
+  TERMS_QUERY_VALUE_TYPE_UNSPECIFIED = 0;
+  TERMS_QUERY_VALUE_TYPE_BITMAP = 1;
+  TERMS_QUERY_VALUE_TYPE_DEFAULT = 2;
+}
+
+enum MultiValueMode {
+  MULTI_VALUE_MODE_UNSPECIFIED = 0;
+  MULTI_VALUE_MODE_AVG = 1;
+  MULTI_VALUE_MODE_MAX = 2;
+  MULTI_VALUE_MODE_MIN = 3;
+  MULTI_VALUE_MODE_SUM = 4;
+}
+
+enum FunctionBoostMode {
+  FUNCTION_BOOST_MODE_UNSPECIFIED = 0;
+  FUNCTION_BOOST_MODE_AVG = 1;
+  FUNCTION_BOOST_MODE_MAX = 2;
+  FUNCTION_BOOST_MODE_MIN = 3;
+  FUNCTION_BOOST_MODE_MULTIPLY = 4;
+  FUNCTION_BOOST_MODE_REPLACE = 5;
+  FUNCTION_BOOST_MODE_SUM = 6;
+}
+
+enum FunctionScoreMode {
+  FUNCTION_SCORE_MODE_UNSPECIFIED = 0;
+  FUNCTION_SCORE_MODE_AVG = 1;
+  FUNCTION_SCORE_MODE_FIRST = 2;
+  FUNCTION_SCORE_MODE_MAX = 3;
+  FUNCTION_SCORE_MODE_MIN = 4;
+  FUNCTION_SCORE_MODE_MULTIPLY = 5;
+  FUNCTION_SCORE_MODE_SUM = 6;
+}
+
+enum Operator {
+  OPERATOR_UNSPECIFIED = 0;
+  OPERATOR_AND = 1;
+  OPERATOR_OR = 2;
+}
+
+enum MultiTermQueryRewrite {
+  MULTI_TERM_QUERY_REWRITE_UNSPECIFIED = 0;
+  MULTI_TERM_QUERY_REWRITE_CONSTANT_SCORE = 1;
+  MULTI_TERM_QUERY_REWRITE_CONSTANT_SCORE_BOOLEAN = 2;
+  MULTI_TERM_QUERY_REWRITE_SCORING_BOOLEAN = 3;
+  MULTI_TERM_QUERY_REWRITE_TOP_TERMS_N = 4;
+  MULTI_TERM_QUERY_REWRITE_TOP_TERMS_BLENDED_FREQS_N = 5;
+  MULTI_TERM_QUERY_REWRITE_TOP_TERMS_BOOST_N = 6;
+}
+
+enum SimpleQueryStringFlag {
+  SIMPLE_QUERY_STRING_FLAG_UNSPECIFIED = 0;
+  SIMPLE_QUERY_STRING_FLAG_ALL = 1;
+  SIMPLE_QUERY_STRING_FLAG_AND = 2;
+  SIMPLE_QUERY_STRING_FLAG_ESCAPE = 3;
+  SIMPLE_QUERY_STRING_FLAG_FUZZY = 4;
+  SIMPLE_QUERY_STRING_FLAG_NEAR = 5;
+  SIMPLE_QUERY_STRING_FLAG_NONE = 6;
+  SIMPLE_QUERY_STRING_FLAG_NOT = 7;
+  SIMPLE_QUERY_STRING_FLAG_OR = 8;
+  SIMPLE_QUERY_STRING_FLAG_PHRASE = 9;
+  SIMPLE_QUERY_STRING_FLAG_PRECEDENCE = 10;
+  SIMPLE_QUERY_STRING_FLAG_PREFIX = 11;
+  SIMPLE_QUERY_STRING_FLAG_SLOP = 12;
+  SIMPLE_QUERY_STRING_FLAG_WHITESPACE = 13;
+}
+
+enum GeoValidationMethod {
+  GEO_VALIDATION_METHOD_UNSPECIFIED = 0;
+  GEO_VALIDATION_METHOD_COERCE = 1;
+  GEO_VALIDATION_METHOD_IGNORE_MALFORMED = 2;
+  GEO_VALIDATION_METHOD_STRICT = 3;
+}
+
+enum ScriptSortType {
+  SCRIPT_SORT_TYPE_UNSPECIFIED = 0;
+  SCRIPT_SORT_TYPE_NUMBER = 1;
+  SCRIPT_SORT_TYPE_STRING = 2;
+  SCRIPT_SORT_TYPE_VERSION = 3;
+}
+
+enum FieldSortNumericType {
+  FIELD_SORT_NUMERIC_TYPE_UNSPECIFIED = 0;
+  FIELD_SORT_NUMERIC_TYPE_DATE = 1;
+  FIELD_SORT_NUMERIC_TYPE_DATE_NANOS = 2;
+  FIELD_SORT_NUMERIC_TYPE_DOUBLE = 3;
+  FIELD_SORT_NUMERIC_TYPE_LONG = 4;
+}
+
+enum FieldType {
+  FIELD_TYPE_UNSPECIFIED = 0;
+  FIELD_TYPE_AGGREGATE_METRIC_DOUBLE = 1;
+  FIELD_TYPE_ALIAS = 2;
+  FIELD_TYPE_BINARY = 3;
+  FIELD_TYPE_BOOLEAN = 4;
+  FIELD_TYPE_BYTE = 5;
+  FIELD_TYPE_COMPLETION = 6;
+  FIELD_TYPE_CONSTANT_KEYWORD = 7;
+  FIELD_TYPE_DATE = 8;
+  FIELD_TYPE_DATE_NANOS = 9;
+  FIELD_TYPE_DATE_RANGE = 10;
+  FIELD_TYPE_DOUBLE = 11;
+  FIELD_TYPE_DOUBLE_RANGE = 12;
+  FIELD_TYPE_FLAT_OBJECT = 13;
+  FIELD_TYPE_FLOAT = 14;
+  FIELD_TYPE_FLOAT_RANGE = 15;
+  FIELD_TYPE_GEO_POINT = 16;
+  FIELD_TYPE_GEO_SHAPE = 17;
+  FIELD_TYPE_HALF_FLOAT = 18;
+  FIELD_TYPE_HISTOGRAM = 19;
+  FIELD_TYPE_ICU_COLLATION_KEYWORD = 20;
+  FIELD_TYPE_INTEGER = 21;
+  FIELD_TYPE_INTEGER_RANGE = 22;
+  FIELD_TYPE_IP = 23;
+  FIELD_TYPE_IP_RANGE = 24;
+  FIELD_TYPE_JOIN = 25;
+  FIELD_TYPE_KEYWORD = 26;
+  FIELD_TYPE_KNN_VECTOR = 27;
+  FIELD_TYPE_LONG = 28;
+  FIELD_TYPE_LONG_RANGE = 29;
+  FIELD_TYPE_MATCH_ONLY_TEXT = 30;
+  FIELD_TYPE_MURMUR3 = 31;
+  FIELD_TYPE_NESTED = 32;
+  FIELD_TYPE_OBJECT = 33;
+  FIELD_TYPE_PERCOLATOR = 34;
+  FIELD_TYPE_RANK_FEATURE = 35;
+  FIELD_TYPE_RANK_FEATURES = 36;
+  FIELD_TYPE_SCALED_FLOAT = 37;
+  FIELD_TYPE_SEARCH_AS_YOU_TYPE = 38;
+  FIELD_TYPE_SHORT = 39;
+  FIELD_TYPE_TEXT = 40;
+  FIELD_TYPE_TOKEN_COUNT = 41;
+  FIELD_TYPE_UNSIGNED_LONG = 42;
+  FIELD_TYPE_VERSION = 43;
+  FIELD_TYPE_WILDCARD = 44;
+  FIELD_TYPE_XY_POINT = 45;
+  FIELD_TYPE_XY_SHAPE = 46;
+}
+
+enum SortOrder {
+  SORT_ORDER_UNSPECIFIED = 0;
+  SORT_ORDER_ASC = 1;
+  SORT_ORDER_DESC = 2;
+}
+
+enum SortMode {
+  SORT_MODE_UNSPECIFIED = 0;
+  SORT_MODE_AVG = 1;
+  SORT_MODE_MAX = 2;
+  SORT_MODE_MEDIAN = 3;
+  SORT_MODE_MIN = 4;
+  SORT_MODE_SUM = 5;
+}
+
+enum GeoDistanceType {
+  GEO_DISTANCE_TYPE_UNSPECIFIED = 0;
+  GEO_DISTANCE_TYPE_ARC = 1;
+  GEO_DISTANCE_TYPE_PLANE = 2;
+}
+
+enum BuiltinHighlighterType {
+  BUILTIN_HIGHLIGHTER_TYPE_UNSPECIFIED = 0;
+  BUILTIN_HIGHLIGHTER_TYPE_PLAIN = 1;
+  BUILTIN_HIGHLIGHTER_TYPE_FVH = 2;
+  BUILTIN_HIGHLIGHTER_TYPE_UNIFIED = 3;
+}
+
+enum BoundaryScanner {
+  BOUNDARY_SCANNER_UNSPECIFIED = 0;
+  BOUNDARY_SCANNER_CHARS = 1;
+  BOUNDARY_SCANNER_SENTENCE = 2;
+  BOUNDARY_SCANNER_WORD = 3;
+}
+
+enum HighlighterFragmenter {
+  HIGHLIGHTER_FRAGMENTER_UNSPECIFIED = 0;
+  HIGHLIGHTER_FRAGMENTER_SIMPLE = 1;
+  HIGHLIGHTER_FRAGMENTER_SPAN = 2;
+}
+
+enum HighlighterOrder {
+  HIGHLIGHTER_ORDER_UNSPECIFIED = 0;
+  HIGHLIGHTER_ORDER_SCORE = 1;
+}
+
+enum HighlighterTagsSchema {
+  HIGHLIGHTER_TAGS_SCHEMA_UNSPECIFIED = 0;
+  HIGHLIGHTER_TAGS_SCHEMA_STYLED = 1;
+}
+
+enum DistanceUnit {
+  DISTANCE_UNIT_UNSPECIFIED = 0;
+  DISTANCE_UNIT_CM = 1;
+  DISTANCE_UNIT_FT = 2;
+  DISTANCE_UNIT_IN = 3;
+  DISTANCE_UNIT_KM = 4;
+  DISTANCE_UNIT_M = 5;
+  DISTANCE_UNIT_MI = 6;
+  DISTANCE_UNIT_MM = 7;
+  DISTANCE_UNIT_NMI = 8;
+  DISTANCE_UNIT_YD = 9;
+}
+
+enum ChildScoreMode {
+  CHILD_SCORE_MODE_UNSPECIFIED = 0;
+  CHILD_SCORE_MODE_AVG = 1;
+  CHILD_SCORE_MODE_MAX = 2;
+  CHILD_SCORE_MODE_MIN = 3;
+  CHILD_SCORE_MODE_NONE = 4;
+  CHILD_SCORE_MODE_SUM = 5;
+}
+enum HighlighterEncoder {
+  HIGHLIGHTER_ENCODER_UNSPECIFIED = 0;
+  // No encoding
+  HIGHLIGHTER_ENCODER_DEFAULT = 1;
+  // First escape the HTML text and then insert the highlighting tags
+  HIGHLIGHTER_ENCODER_HTML = 2;
+}
+
+enum GeoExecution {
+  GEO_EXECUTION_UNSPECIFIED = 0;
+  GEO_EXECUTION_INDEXED = 1;
+  GEO_EXECUTION_MEMORY = 2;
+}
+
+enum NullValue {
+  NULL_VALUE_UNSPECIFIED = 0;
+  NULL_VALUE_NULL = 1;
+}
+
+message ObjectMap {
+  map<string, Value> fields = 1;
+
+  message Value {
+    oneof value {
+      NullValue null_value = 1;
+      int32 int32 = 2;
+      int64 int64 = 3;
+      float float = 4;
+      double double = 5;
+      string string = 6;
+      bool bool = 7;
+      ObjectMap object_map = 8;
+      ListValue list_value = 9;
+    }
+  }
+
+  // `ListValue` is a wrapper around a repeated field of values.
+  // The JSON representation for `ListValue` is JSON array.
+  message ListValue {
+    // Repeated field of dynamically typed values.
+    repeated Value value = 1;
+  }
+}
+
+message GeneralNumber {
+  oneof value{
+    int32 int32_value = 1;
+    int64 int64_value = 2;
+    float float_value = 3;
+    double double_value = 4;
+  }
 }
