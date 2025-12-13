@@ -15,12 +15,8 @@ opensearch/
     ├── __init__.py                      # Auto-generated: "# OpenSearch Protobufs"
     ├── schemas/
     │   ├── __init__.py                  # Auto-generated: imports all *_pb2.py modules
-    │   ├── common_pb2.py                # Generated protobuf messages
-    │   ├── common_pb2.pyi               # Type hints
-    │   ├── document_pb2.py              # Generated protobuf messages
-    │   ├── document_pb2.pyi             # Type hints
-    │   ├── search_pb2.py                # Generated protobuf messages
-    │   └── search_pb2.pyi               # Type hints
+    │   ├── common_pb2.py                # Generated protobuf messages (all schemas)
+    │   └── common_pb2.pyi               # Type hints
     └── services/
         ├── __init__.py                  # Auto-generated: imports all service modules
         ├── document_service_pb2.py      # Generated protobuf messages
@@ -41,8 +37,6 @@ opensearch/protobufs/__init__.py:
 
 schemas/__init__.py:
     from .common_pb2 import *
-    from .document_pb2 import *
-    from .search_pb2 import *
 
 services/__init__.py:
     from .document_service_pb2 import *

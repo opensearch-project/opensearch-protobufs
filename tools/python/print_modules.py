@@ -8,26 +8,20 @@ print('\n=== Testing old import style (file name dependent) ===')
 from opensearch.protobufs.schemas import common_pb2
 print('✓ Successfully imported common_pb2')
 
-from opensearch.protobufs.schemas import document_pb2
-print('✓ Successfully imported document_pb2')
-
-from opensearch.protobufs.schemas import search_pb2
-print('✓ Successfully imported search_pb2')
-
-print('Common module attributes:', [attr for attr in dir(common_pb2) if not attr.startswith('_')][:5])
-print('Document module attributes:', [attr for attr in dir(document_pb2) if not attr.startswith('_')][:5])
-print('Search module attributes:', [attr for attr in dir(search_pb2) if not attr.startswith('_')][:5])
+print('Common module attributes:', [attr for attr in dir(common_pb2) if not attr.startswith('_')][:10])
 
 print('\n=== Testing new import style (no file name dependency) ===')
 from opensearch.protobufs.schemas import (
     BulkRequest, BulkRequestBody,
-    GlobalParams, Script, ObjectMap
+    GlobalParams, Script, ObjectMap,
+    SearchRequest, SearchResponse
 )
-print('✓ Successfully imported BulkRequest, BulkRequestBody, GlobalParams, Script, ObjectMap')
+print('✓ Successfully imported BulkRequest, BulkRequestBody, GlobalParams, Script, ObjectMap, SearchRequest, SearchResponse')
 
 # Demonstrate usage
 bulk_request = BulkRequest()
 global_params = GlobalParams()
+search_request = SearchRequest()
 print('✓ Successfully created instances without knowing file names')
 
 print('\n=== Services ===')

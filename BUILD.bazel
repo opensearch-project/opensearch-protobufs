@@ -10,8 +10,6 @@ java_library(
     visibility = ["//visibility:public"],
     exports = [
         "//protos/schemas:common_java_proto",
-        "//protos/schemas:document_java_proto",
-        "//protos/schemas:search_java_proto",
         "//protos/services:document_service_java_proto",
         "//protos/services:search_service_java_proto",
     ],
@@ -22,8 +20,6 @@ python_proto_library(
     visibility = ["//visibility:public"],
     protos = [
         "//protos/schemas:common_proto",
-        "//protos/schemas:document_proto",
-        "//protos/schemas:search_proto",
     ],
 )
 
@@ -44,8 +40,6 @@ go_library(
     visibility = ["//visibility:public"],
     deps = [
         "//protos/schemas:common_go_proto",
-        "//protos/schemas:document_go_proto",
-        "//protos/schemas:search_go_proto",
         "//protos/services:document_service_go_proto",
         "//protos/services:search_service_go_proto",
     ],
@@ -64,16 +58,12 @@ genrule(
     name = "generate_pyi_files",
     srcs = [
         "//protos/schemas:common.proto",
-        "//protos/schemas:document.proto",
-        "//protos/schemas:search.proto",
         "//protos/services:document_service.proto",
         "//protos/services:search_service.proto",
         "@com_google_protobuf//:well_known_type_protos",
     ],
     outs = [
         "python_pyi/schemas/common_pb2.pyi",
-        "python_pyi/schemas/document_pb2.pyi",
-        "python_pyi/schemas/search_pb2.pyi",
         "python_pyi/services/document_service_pb2.pyi",
         "python_pyi/services/search_service_pb2.pyi",
     ],
@@ -84,8 +74,6 @@ genrule(
             --proto_path=external/com_google_protobuf/src \
             --pyi_out=$(RULEDIR) \
             protos/schemas/common.proto \
-            protos/schemas/document.proto \
-            protos/schemas/search.proto \
             protos/services/document_service.proto \
             protos/services/search_service.proto
 
@@ -107,10 +95,6 @@ genrule(
     outs = [
         "opensearch/protobufs/schemas/common_pb2.py",
         "opensearch/protobufs/schemas/common_pb2.pyi",
-        "opensearch/protobufs/schemas/document_pb2.py",
-        "opensearch/protobufs/schemas/document_pb2.pyi",
-        "opensearch/protobufs/schemas/search_pb2.py",
-        "opensearch/protobufs/schemas/search_pb2.pyi",
         "opensearch/protobufs/services/document_service_pb2.py",
         "opensearch/protobufs/services/document_service_pb2.pyi",
         "opensearch/protobufs/services/document_service_pb2_grpc.py",
