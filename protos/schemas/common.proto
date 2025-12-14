@@ -4,79 +4,112 @@ This is generated from the spec. DO NOT manually modify.
 syntax = "proto3";
 package org.opensearch.protobufs;
 
-option java_multiple_files = true;
-option java_package = "org.opensearch.protobufs";
-option java_outer_classname = "CommonProto";
-option go_package = "github.com/opensearch-project/opensearch-protobufs/go/opensearchpb";
-
 import "google/protobuf/struct.proto";
+
+option go_package = "github.com/opensearch-project/opensearch-protobufs/go/opensearchpb";
+option java_multiple_files = true;
+option java_outer_classname = "CommonProto";
+option java_package = "org.opensearch.protobufs";
 
 // The Search API operation to perform a search across all indices in the cluster or index search
 message SearchRequest {
+
   // [optional] A list of indices to search for documents. If not provided, the default value will be to search through all indexes.
   repeated string index = 1;
+
   // [optional] Whether to include the _source field in the response.
   optional SourceConfigParam x_source = 2;
+
   // [optional] A list of source fields to exclude from the response. You can also use this parameter to exclude fields from the subset specified in `source_includes` query parameter. If the `source` parameter is `false`, this parameter is ignored.
   repeated string x_source_excludes = 3;
+
   // [optional] A list of source fields to include in the response. If this parameter is specified, only these source fields are returned. You can exclude fields from this subset using the `source_excludes` query parameter. If the `source` parameter is `false`, this parameter is ignored.
   repeated string x_source_includes = 4;
+
   // [optional] Whether to ignore wildcards that don't match any indexes. Default is true.
   optional bool allow_no_indices = 5;
+
   // [optional] Whether to return partial results if the request runs into an error or times out. Default is true.
   optional bool allow_partial_search_results = 6;
+
   // [optional] Whether the update operation should include wildcard and prefix queries in the analysis. Default is false.
   optional bool analyze_wildcard = 7;
+
   // [optional] How many shard results to reduce on a node. Default is 512.
   optional int32 batched_reduce_size = 8;
+
   // [optional] The time after which the search request will be canceled. Request-level parameter takes precedence over cancel_after_time_interval cluster setting. Default is -1.
   optional string cancel_after_time_interval = 9;
+
   // [optional] Whether to minimize round-trips between a node and remote clusters. Default is true.
   optional bool ccs_minimize_roundtrips = 10;
+
   // [optional] Indicates whether the default operator for a string query should be AND or OR. Default is OR.
   optional Operator default_operator = 11;
+
   // [optional] The default field in case a field prefix is not provided in the query string.
   optional string df = 12;
+
   // [optional] The fields that OpenSearch should return using their docvalue forms.
   repeated string docvalue_fields = 13;
+
   // [optional] Specifies the type of index that wildcard expressions can match. Supports list of values. Default is open.
   repeated ExpandWildcard expand_wildcards = 14;
+
   // [optional] Whether to ignore concrete, expanded, or indexes with aliases if indexes are frozen. Default is true.
   optional bool ignore_throttled = 15;
+
   // [optional] Specifies whether to include missing or closed indexes in the response and ignores unavailable shards during the search request. Default is false.
   optional bool ignore_unavailable = 16;
+
   // [optional] Numbers of concurrent shard requests this request should execute on each node. Default is 5.
   optional int32 max_concurrent_shard_requests = 17;
+
   // [optional] Whether to return phase-level took time values in the response. Default is false.
   optional bool phase_took = 18;
+
   // [optional] A prefilter size threshold that triggers a prefilter operation if the request exceeds the threshold. Default is 128 shards.
   optional int32 pre_filter_shard_size = 19;
+
   // [optional] Specifies the shards or nodes on which OpenSearch should perform the search. For valid values see "https://opensearch.org/docs/latest/api-reference/search/#the-preference-query-parameter"
   optional string preference = 20;
+
   // [optional] Query in the Lucene query string syntax using query parameter search.
   optional string q = 21;
+
   // [optional] Specifies whether OpenSearch should use the request cache. Default is whether it's enabled in the index's settings.
   optional bool request_cache = 22;
+
   // [optional] Indicates whether to return hits.total as an integer. Returns an object otherwise. Default is false.
   optional bool total_hits_as_int = 23;
+
   // [optional] Value used to route the update by query operation to a specific shard.
   repeated string routing = 24;
+
   // [optional] Period to keep the search context open.
   optional string scroll = 25;
+
   // [optional] Whether OpenSearch should use global term and document frequencies when calculating relevance scores. Default is SEARCH_TYPE_QUERY_THEN_FETCH.
   optional SearchType search_type = 26;
+
   // [optional] Fields OpenSearch can use to look for similar terms.
   optional string suggest_field = 27;
+
   // [optional] The mode to use when searching. This parameter can only be used when the `suggest_field` and `suggest_text` query string parameters are specified.
   optional SuggestMode suggest_mode = 28;
+
   // [optional] Number of suggestions to return.
   optional int32 suggest_size = 29;
+
   // [optional] The source that suggestions should be based off of.
   optional string suggest_text = 30;
+
   // [optional] Whether returned aggregations and suggested terms should include their types in the response. Default is true.
   optional bool typed_keys = 31;
+
   // [optional] Search Request body
   optional SearchRequestBody search_request_body = 32;
+
   // [optional] Global parameters
   // TODO not supported in server
   optional GlobalParams global_params = 33;
@@ -182,18 +215,25 @@ message SearchRequestBody {
 }
 
 message DerivedField {
+
   // [required]
   string name = 1;
+
   // [required]
   string type = 2;
+
   // [required]
   Script script = 3;
+
   // [optional]
   optional string prefilter_field = 4;
+
   // [optional]
   optional ObjectMap properties = 5;
+
   // [optional]
   optional bool ignore_malformed = 6;
+
   // [optional]
   optional string format = 7;
 }
@@ -203,6 +243,7 @@ message TrackHits {
     bool enabled = 1;
 
     int32 count = 2;
+
   }
 }
 
@@ -250,18 +291,25 @@ message SearchResponse {
 }
 
 message ProcessorExecutionDetail {
+
   // [optional]
   optional string processor_name = 1;
+
   // [optional]
   optional int64 duration_millis = 2;
+
   // [optional]
   optional ObjectMap input_data = 3;
+
   // [optional]
   optional ObjectMap output_data = 4;
+
   // [optional]
   optional string status = 5;
+
   // [optional]
   optional string tag = 6;
+
   // [optional]
   optional string error = 7;
 }
@@ -270,34 +318,43 @@ message PhaseTook {
 
   // [required] Time taken in dfs_pre_query phase.
   int64 dfs_pre_query = 1;
+
   // [required] Time taken in query phase.
   int64 query = 2;
+
   // [required] Time taken in fetch phase.
   int64 fetch = 3;
+
   // [required] Time taken in dfs_query phase.
   int64 dfs_query = 4;
+
   // [required] Time taken in expand phase.
   int64 expand = 5;
+
   // [required] Time taken in can_match phase.
   int64 can_match = 6;
-
 }
 
 message HitsMetadataTotal {
-  oneof hits_metadata_total{
+  oneof hits_metadata_total {
     TotalHits total_hits = 1;
+
     int64 int64 = 2;
+
   }
 }
 
-message HitsMetadataMaxScore{
-  oneof hits_metadata_max_score{
+message HitsMetadataMaxScore {
+  oneof hits_metadata_max_score {
     float float = 1;
+
     NullValue null_value = 2;
+
   }
 }
 
 message HitsMetadata {
+
   // [optional] Metadata about the number of matching documents.
   optional HitsMetadataTotal total = 1;
 
@@ -312,22 +369,23 @@ message TotalHits {
 
   // [required] Indicates whether the number of matching documents in the value parameter is accurate or a lower bound.
   TotalHitsRelation relation = 1;
+
   // [required] Total number of matching documents.
   int64 value = 2;
-
 }
 
 message InnerHitsResult {
 
   // [required] An additional nested hits value.
   HitsMetadata hits = 1;
-
 }
 
 message HitXScore {
   oneof hit_x_score {
     NullValue null_value = 1;
+
     double double = 2;
+
   }
 }
 
@@ -337,6 +395,7 @@ message HitsMetadataHitsInner {
 
   // [optional] Name of the index containing the returned document.
   optional string x_index = 2;
+
   // [optional] Unique identifier for the returned document. This ID is only unique within the returned index.
   optional string x_id = 3;
 
@@ -404,14 +463,12 @@ message ClusterStatistics {
 
   // [required] Total number of shards that require querying, including unallocated shards.
   int32 total = 3;
-
 }
 
 message Profile {
 
   // [required] A search request can be executed against one or more shards in the index, and a search may involve one or more indexes. Thus, the profile.shards array contains profiling information for each shard that was involved in the search.
   repeated ShardProfile shards = 1;
-
 }
 
 message RescoreQuery {
@@ -427,7 +484,6 @@ message RescoreQuery {
 
   // [optional] Control the way the scores are combined.
   optional ScoreMode score_mode = 4;
-
 }
 
 message Rescore {
@@ -437,7 +493,6 @@ message Rescore {
 
   // [optional] The number of docs which will be examined on each shard can be controlled.
   optional int32 window_size = 2;
-
 }
 
 message SlicedScroll {
@@ -450,7 +505,6 @@ message SlicedScroll {
 
   // [required] The maximum number of slices
   int32 max = 3;
-
 }
 
 message ShardProfile {
@@ -466,26 +520,27 @@ message ShardProfile {
 
   // [optional] Fetch timing and debug information.
   optional FetchProfile fetch = 4;
-
 }
 
 message AggregationProfile {
 
   // [required]
   AggregationBreakdown breakdown = 1;
+
   // [required]
   string description = 2;
 
   // [required] Time unit for nanoseconds
   int64 time_in_nanos = 3;
+
   // [required]
   string type = 4;
 
   // [optional]
   optional AggregationProfileDebug debug = 5;
+
   // [optional]
   repeated AggregationProfile children = 6;
-
 }
 
 message AggregationBreakdown {
@@ -525,7 +580,6 @@ message AggregationBreakdown {
 
   // [required] Contains the number of invocations of a reduce.
   int64 reduce_count = 12;
-
 }
 
 message SearchProfile {
@@ -538,16 +592,15 @@ message SearchProfile {
 
   // [required] All Lucene queries are rewritten. A query and its children may be rewritten more than once, until the query stops changing. The rewriting process involves performing optimizations, such as removing redundant clauses or replacing a query path with a more efficient one. After the rewriting process, the original query may change significantly. The rewrite_time field contains the cumulative total rewrite time for the query and all its children, in nanoseconds.
   int64 rewrite_time = 3;
-
 }
 
 message PointInTimeReference {
+
   // [required] ID for the PIT to search. If you provide a pit object, this parameter is required.
   string id = 1;
 
   // [optional] Period of time used to extend the life of the PIT. Units can be `nanos`, `micros`, `ms` (milliseconds), `s` (seconds), `m` (minutes), `h` (hours) and `d` (days). Also accepts \"0\" without a unit and \"-1\" to indicate an unspecified value.
   optional string keep_alive = 2;
-
 }
 
 message Collector {
@@ -563,7 +616,6 @@ message Collector {
 
   // [optional] If a collector has subcollectors (children), this field contains information about the subcollectors.
   repeated Collector children = 4;
-
 }
 
 message QueryProfile {
@@ -582,48 +634,63 @@ message QueryProfile {
 
   // [optional] If a query has subqueries (children), this field contains information about the subqueries.
   repeated QueryProfile children = 5;
-
 }
 
 message QueryBreakdown {
 
   // [required] The advance method is a lower-level version of the next_doc method in Lucene. It also finds the next matching document but necessitates that the calling query perform additional tasks, such as identifying skips. Some queries, such as conjunctions (must clauses in Boolean queries), cannot use next_doc. For those queries, advance is timed.
   int64 advance = 1;
+
   // [required] Contains the number of invocations of the advance method. Different invocations of the same method occur because the method is called on different documents. You can determine the selectivity of a query by comparing counts in different query components.
   int64 advance_count = 2;
+
   // [required] A Scorer iterates over matching documents and generates a score for each document. The build_scorer field contains the amount of time spent generating the Scorer object. This does not include the time spent scoring the documents. The Scorer initialization time depends on the optimization and complexity of a particular query. The build_scorer parameter also includes the amount of time associated with caching, if caching is applicable and enabled for the query.
   int64 build_scorer = 3;
+
   // [required] Build_scorer_count contains the number of invocations of the build_scorer method. Different invocations of the same method occur because the method is called on different documents. You can determine the selectivity of a query by comparing counts in different query components.
   int64 build_scorer_count = 4;
+
   // [required] A Query object in Lucene is immutable. Yet, Lucene should be able to reuse Query objects in multiple IndexSearcher objects. Thus, Query objects need to keep temporary state and statistics associated with the index in which the query is executed. To achieve reuse, every Query object generates a Weight object, which keeps the temporary context (state) associated with the <IndexSearcher, Query> tuple. The create_weight field contains the amount of time spent creating the Weight object.
   int64 create_weight = 5;
+
   // [required] Create_weight_count contains the number of invocations of the create_weight method. Different invocations of the same method occur because the method is called on different documents. You can determine the selectivity of a query by comparing counts in different query components.
   int64 create_weight_count = 6;
+
   // [required] For some queries, document matching is performed in two steps. First, the document is matched approximately. Second, those documents that are approximately matched are examined through a more comprehensive process. For example, a phrase query first checks whether a document contains all terms in the phrase. Next, it verifies that the terms are in order (which is a more expensive process). The match field is non-zero only for those queries that use the two-step verification process.
   int64 match = 7;
+
   // [required] Match_count contains the number of invocations of the match method. Different invocations of the same method occur because the method is called on different documents. You can determine the selectivity of a query by comparing counts in different query components.
   int64 match_count = 8;
+
   // [required] Contains the amount of time required to execute the advanceShallow Lucene method.
   int64 shallow_advance = 9;
+
   // [required] Shallow_advance_count contains the number of invocations of the shallow_advance method. Different invocations of the same method occur because the method is called on different documents. You can determine the selectivity of a query by comparing counts in different query components.
   int64 shallow_advance_count = 10;
+
   // [required] The next_doc Lucene method returns the document ID of the next document that matches the query. This method is a special type of the advance method and is equivalent to advance(docId() + 1). The next_doc method is more convenient for many Lucene queries. The next_doc field contains the amount of time required to determine the next matching document, which varies depending on the query type.
   int64 next_doc = 11;
+
   // [required] Next_doc_count contains the number of invocations of the next_doc method. Different invocations of the same method occur because the method is called on different documents. You can determine the selectivity of a query by comparing counts in different query components.
   int64 next_doc_count = 12;
+
   // [required] Contains the time taken for a Scorer to score a particular document.
   int64 score = 13;
+
   // [required] Score_count contains the number of invocations of the score method. Different invocations of the same method occur because the method is called on different documents. You can determine the selectivity of a query by comparing counts in different query components.
   int64 score_count = 14;
+
   // [required] Contains the amount of time required to execute the getMaxScore Lucene method.
   int64 compute_max_score = 15;
+
   // [required] Compute_max_score_count contains the number of invocations of the compute_max_score method. Different invocations of the same method occur because the method is called on different documents. You can determine the selectivity of a query by comparing counts in different query components.
   int64 compute_max_score_count = 16;
+
   // [required] Contains the amount of time required to execute the setMinCompetitiveScore Lucene method.
   int64 set_min_competitive_score = 17;
+
   // [required] Set_min_competitive_score_count contains the number of invocations of the set_min_competitive_score method. Different invocations of the same method occur because the method is called on different documents. You can determine the selectivity of a query by comparing counts in different query components.
   int64 set_min_competitive_score_count = 18;
-
 }
 
 message FetchProfileDebug {
@@ -631,7 +698,6 @@ message FetchProfileDebug {
   repeated string stored_fields = 1;
 
   optional int32 fast_path = 2;
-
 }
 
 message FetchProfile {
@@ -648,11 +714,10 @@ message FetchProfile {
   optional FetchProfileDebug debug = 5;
 
   repeated FetchProfile children = 6;
-
 }
 
-
 message FetchProfileBreakdown {
+
   optional int32 load_source = 1;
 
   optional int32 load_source_count = 2;
@@ -717,10 +782,10 @@ message AggregationProfileDebug {
   repeated string deferred_aggregators = 22;
 
   optional string map_reducer = 28;
-
 }
 
 message AggregationProfileDelegateDebug {
+
   optional int32 segments_with_doc_count_field = 1;
 
   optional int32 segments_with_deleted_docs = 2;
@@ -741,18 +806,18 @@ message AggregationProfileDelegateDebugFilter {
   optional string specialized_for = 3;
 
   optional int32 segments_counted_in_constant_time = 4;
-
 }
 
 message Explanation {
 
   // [required] Explains what type of calculation is performed
   string description = 1;
+
   // [optional] Shows any subcalculations performed.
   repeated Explanation details = 2;
+
   // [required] Shows the result of the calculation,
   float value = 3;
-
 }
 
 message NestedIdentity {
@@ -765,45 +830,60 @@ message NestedIdentity {
 
   // [optional] Inner nested object.
   optional NestedIdentity x_nested = 3;
-
 }
 
 // The bulk operation lets you add, update, or delete multiple documents in a single request, index name needs to be specified in `BulkRequestBody`
 message BulkRequest {
+
   // [optional] If not provided here, index will be required in the BulkRequestBody instead
   optional string index = 1;
+
   // [optional] Set `true` or `false` to return the `_source` field or not, or a list of fields to return.
   optional SourceConfigParam x_source = 2;
+
   // [optional] A list of source fields to exclude from the response.
   repeated string x_source_excludes = 3;
+
   // [optional] A list of source fields to include in the response.
   repeated string x_source_includes = 4;
+
   // [optional] ID of the pipeline to use to preprocess incoming documents. If the index has a default ingest pipeline specified, then setting the value to `_none` disables the default ingest pipeline for this request. If a final pipeline is configured it will always run, regardless of the value of this parameter.
   optional string pipeline = 5;
+
   // [optional] The enum of whether to refresh the affected shards after performing the indexing operations. Default is false
   optional Refresh refresh = 6;
+
   // [optional] If `true`, the request's actions must target an index alias. Defaults to false.
   optional bool require_alias = 7;
+
   // [optional] Custom value used to route operations to a specific shard.
   optional string routing = 8;
+
   // [optional] Period each action waits for the following operations: automatic index creation, dynamic mapping updates, waiting for active shards. pattern: ^([0-9\.]+)(?:d|h|m|s|ms|micros|nanos)$. Defaults to 1m (one minute). This guarantees OpenSearch waits for at least the timeout before failing. The actual wait time could be longer, particularly when multiple waits occur.
   optional string timeout = 9;
+
   // [deprecated] The default document type for documents that don't specify a type. Default is _doc. We highly recommend ignoring this parameter and using a type of _doc for all indexes.
   optional string type = 10;
+
   // [optional] The number of active shards that must be available before OpenSearch processes the request. Default is 1 (only the primary shard). Set to all or a positive integer. Values greater than 1 require replicas. For example, if you specify a value of 3, the index must have two replicas distributed across two additional nodes for the operation to succeed.
   optional WaitForActiveShards wait_for_active_shards = 11;
+
   // [required] The request body contains create, delete, index, and update actions and their associated source data
   repeated BulkRequestBody bulk_request_body = 12;
+
   // [optional] Global parameters
   // TODO not supported in server
   optional GlobalParams global_params = 13;
 }
 
 message BulkRequestBody {
+
   // [required]
   OperationContainer operation_container = 1;
+
   // [optional]
   optional UpdateAction update_action = 2;
+
   // [optional]
   optional bytes object = 3;
 }
@@ -813,35 +893,48 @@ message OperationContainer {
   oneof operation_container {
     // Indexes the specified document. If the document exists, replaces the document and increments the version. It must followed with source data to be indexed in `doc` field.
     IndexOperation index = 1;
+
     // Indexes the specified document if it does not already exist. It must followed with the source data to be indexed in `object` field.
     WriteOperation create = 2;
+
     // Performs a partial document update. It must followed with the partial document and update options in in `doc` field.
     UpdateOperation update = 3;
+
     // Removes the specified document from the index.
     DeleteOperation delete = 4;
+
   }
 }
 
 message UpdateAction {
+
   // [optional] When `false` disables the setting `result` in the response to `noop` if no change to the document occurred.
   optional bool detect_noop = 1;
+
   // [optional] A partial update to an existing document.
   optional bytes doc = 2;
+
   // [optional] When `true`, uses the contents of `doc` as the value of `upsert`.
   optional bool doc_as_upsert = 3;
+
   // [optional]
   optional Script script = 4;
+
   // [optional] When `true`, executes the script whether or not the document exists.
   optional bool scripted_upsert = 5;
+
   // [optional] If the document does not already exist, the contents of `upsert` are inserted as a new document. If the document exists, the `script` is executed.
   optional bytes upsert = 6;
+
   // [optional]
   optional SourceConfig x_source = 7;
 }
 
 message IndexOperation {
+
   // [optional] The document ID. If no ID is specified, a document ID is automatically generated.
   optional string x_id = 1;
+
   // [optional] Name of the the data stream, index, or index alias to perform the action on. This parameter is required if index not specified in bulk request.
   optional string x_index = 2;
 
@@ -850,11 +943,13 @@ message IndexOperation {
 
   // [optional] Only perform the operation if the document has this primary term.
   optional int64 if_primary_term = 4;
+
   // [optional] Only perform the operation if the document has this sequence number
   optional int64 if_seq_no = 5;
 
   // [optional] Set to create to only index the document if it does not already exist (put if absent). If a document with the specified `_id` already exists, the indexing operation will fail. Same as using the `<index>/_create` endpoint. Valid values: `index`, `create`. If document id is specified, it defaults to `index`. Otherwise, it defaults to `create`.
   optional OpType op_type = 6;
+
   // [optional] Explicit version number for concurrency control. The specified version must match the current version of the document for the request to succeed.
   optional int64 version = 7;
 
@@ -866,15 +961,16 @@ message IndexOperation {
 
   // [optional] If `true`, the request's actions must target an index alias. Defaults to false.
   optional bool require_alias = 10;
-
 }
 
 message WriteOperation {
+
   // [optional] The routing value for the document.
   optional string routing = 1;
 
   // [optional] The unique identifier for a resource.
   optional string x_id = 2;
+
   // [optional]
   optional string x_index = 3;
 
@@ -886,69 +982,89 @@ message WriteOperation {
 }
 
 message UpdateOperation {
+
   // [required] The document ID.
   optional string x_id = 1;
+
   // [optional] Name of the the data stream, index, or index alias to perform the action on. This parameter is required if index not specified in bulk request.
   optional string x_index = 2;
+
   // [optional] Custom value used to route operations to a specific shard.
   optional string routing = 3;
 
   // [optional] Only perform the operation if the document has this primary term
   optional int64 if_primary_term = 4;
+
   // [optional] Only perform the operation if the document has this sequence number
   optional int64 if_seq_no = 5;
+
   // [optional] If `true`, the request's actions must target an index alias. Defaults to false.
   optional bool require_alias = 6;
+
   // [optional] Specify how many times an update should be retried in the case of a version conflict.
   optional int32 retry_on_conflict = 7;
-
 }
 
 message DeleteOperation {
+
   // [required] The document ID.
   optional string x_id = 1;
+
   // [optional] Name of the the data stream, index, or index alias to perform the action on. This parameter is required if index not specified in bulk request.
   optional string x_index = 2;
+
   // [optional] Custom value used to route operations to a specific shard.
   optional string routing = 3;
 
   // [optional] Only perform the operation if the document has this primary term
   optional int64 if_primary_term = 4;
+
   // [optional] Only perform the operation if the document has this sequence number
   optional int64 if_seq_no = 5;
+
   // [optional] Explicit version number for concurrency control. The specified version must match the current version of the document for the request to succeed.
   optional int64 version = 6;
+
   // [optional] Assigns a specific type to the document.
   optional VersionType version_type = 7;
-
 }
 
 message BulkResponse {
+
   // [required] If true, one or more of the operations in the bulk request did not complete successfully.
   bool errors = 1;
+
   // [required] Contains the result of each operation in the bulk request, in the order they were submitted.
   repeated Item items = 2;
+
   // [required] How long, in milliseconds, it took to process the bulk request.
   int64 took = 3;
+
   // [optional] How long, in milliseconds, it took to process documents through an ingest pipeline
   optional int64 ingest_took = 4;
-
 }
 
 message Item {
   oneof item {
     ResponseItem create = 1;
+
     ResponseItem delete = 2;
+
     ResponseItem index = 3;
+
     ResponseItem update = 4;
+
   }
 }
 
 message ResponseItem {
+
   // [required] Name of the index associated with the operation. If the operation targeted a data stream, this is the backing index into which the document was written.
   string x_index = 1;
+
   // [required] HTTP status code returned for the operation.
   int32 status = 2;
+
   // [optional] The document type.
   optional string x_type = 3;
 
@@ -963,50 +1079,65 @@ message ResponseItem {
 
   // [optional] Result of the operation. Successful values are `created`, `deleted`, and `updated`.
   optional string result = 7;
+
   // [optional] The sequence number assigned to the document for the operation. Sequence numbers are used to ensure an older version of a document doesn't overwrite a newer version
   optional int64 x_seq_no = 8;
+
   // [optional] Contains shard information for the operation. This parameter is only returned for successful operations.
   optional ShardInfo x_shards = 9;
+
   // [optional] The document version associated with the operation. The document version is incremented each time the document is updated. This parameter is only returned for successful actions.
   optional int64 x_version = 10;
+
   // [optional] if `true`, it requires immediate visibility of the document
   optional bool forced_refresh = 11;
+
   // [optional]
   optional InlineGetDictUserDefined get = 12;
 }
 
-
 message InlineGetDictUserDefined {
+
   // [optional]
   optional ObjectMap metadata_fields = 1;
+
   // [optional]
   optional ObjectMap fields = 2;
+
   // [required] Whether the document exists.
   bool found = 3;
+
   // [optional] The sequence number assigned to the document for the operation. Sequence numbers are used to ensure an older version of a document doesn't overwrite a newer version
   optional int64 x_seq_no = 4;
+
   // [optional] The primary term assigned to the document for the operation.
   optional int64 x_primary_term = 5;
+
   // [optional] Custom value used to route operations to a specific shard.
   optional string x_routing = 6;
+
   // [optional] Contains the document's data
   optional bytes x_source = 7;
 }
 
 message GlobalParams {
+
   // [optional] Whether to return human-readable values for statistics.
   optional bool human = 1;
+
   // [optional] Whether to include the stack trace of returned errors.
   optional bool error_trace = 2;
+
   // [optional] A comma-separated list of filters used to filter the response. Use wildcards to match any field or part of a field's name. To exclude fields, use `-`.
   repeated string filter_path = 3;
 }
 
 message WaitForActiveShards {
-
   oneof wait_for_active_shards {
     int32 count = 1;
+
     WaitForActiveShardOptions option = 2;
+
   }
 }
 
@@ -1014,12 +1145,15 @@ message Script {
   oneof script {
     // Defines an inline script to execute as part of a query.
     InlineScript inline = 1;
+
     // References a stored script by its ID for use in a query.
     StoredScriptId stored = 2;
+
   }
 }
 
 message InlineScript {
+
   // [optional] The parameters that can be passed to the script.
   optional ObjectMap params = 1;
 
@@ -1037,12 +1171,15 @@ message ScriptLanguage {
     BuiltinScriptLanguage builtin = 1;
 
     string custom = 2;
+
   }
 }
 
 message StoredScriptId {
+
   // [optional] The parameters that can be passed to the script.
   optional ObjectMap params = 1;
+
   // [required] The ID of a stored script previously created using the Create Stored Script API.
   string id = 2;
 }
@@ -1059,59 +1196,63 @@ message GeoLocation {
 
     // The location specified as a string in `lat,lon` or WKT format.
     string text = 4;
+
   }
 }
 
 message DoubleArray {
+
   // The location specified as an array of `[longitude, latitude]`.
   repeated double double_array = 1;
 }
 
 message LatLonGeoLocation {
+
   // [required] Latitude
   double lat = 1;
 
   // [required] Longitude
   double lon = 2;
-
 }
 
 message GeoHashLocation {
+
   // [required]
   string geohash = 1;
-
 }
 
 message SourceConfigParam {
-
   oneof source_config_param {
     // `true` or `false` to return the `_source` field or not
     bool fetch = 1;
+
     // list of fields to be retrieved from `_source`
     StringArray fields = 2;
-  }
 
+  }
 }
 
-message StringArray{
+message StringArray {
+
   repeated string string_array = 1;
 }
 
 message SourceConfig {
-
-  oneof source_config{
+  oneof source_config {
     // [optional] if the source_config is bool value. true: The entire document source is returned. false: The document source is not returned.
     bool fetch = 1;
 
     // [optional] source_filter type containing a list of source fields to include or exclude.
     SourceFilter filter = 2;
-  }
 
+  }
 }
 
 message SourceFilter {
+
   // [optional] Wildcard (*) patterns are supported as array elements to specify source fields to exclude from the response.
   repeated string excludes = 1;
+
   // [optional] Wildcard (*) patterns are supported as array elements to specify source fields to return.
   repeated string includes = 2;
 }
@@ -1139,7 +1280,9 @@ message ErrorCause {
   // [optional]
   map<string, StringArray> header = 8;
 }
+
 message ShardStatistics {
+
   // [required] Number of shards that failed to execute the request. Note that shards that are not allocated will be considered neither successful nor failed. Having failed+successful less than total is thus an indication that some of the shards were not allocated.
   int32 failed = 1;
 
@@ -1154,10 +1297,10 @@ message ShardStatistics {
 
   // [optional] Number of shards that skipped the request because a lightweight check helped realize that no documents could possibly match on this shard. This typically happens when a search request includes a range filter and the shard only has values that fall outside of that range.
   optional int32 skipped = 5;
-
 }
 
 message ShardInfo {
+
   // [required] Number of shards that failed to execute the request. Note that shards that are not allocated will be considered neither successful nor failed. Having failed+successful less than total is thus an indication that some of the shards were not allocated.
   int32 failed = 1;
 
@@ -1169,7 +1312,6 @@ message ShardInfo {
 
   // [optional] An array of any shard-specific failures that occurred during the search operation.
   repeated ShardFailure failures = 4;
-
 }
 
 message ShardFailure {
@@ -1191,11 +1333,10 @@ message ShardFailure {
 
   // [required]
   bool primary = 6;
-
 }
 
 message QueryContainer {
-  oneof query_container{
+  oneof query_container {
     // A Boolean (bool) query can combine several query clauses into one advanced query. The clauses are combined with Boolean logic to find matching documents returned in the results.
     BoolQuery bool = 1;
 
@@ -1291,43 +1432,57 @@ message QueryContainer {
 
     // To combine relevance scores from multiple queries into one score for a given document.
     HybridQuery hybrid = 32;
+
   }
 }
 
 message HybridQuery {
+
   // [optional] Floating point number used to decrease or increase the relevance scores of the query. Boost values are relative to the default value of 1.0. A boost value between 0 and 1.0 decreases the relevance score. A value greater than 1.0 increases the relevance score.
   optional float boost = 1;
+
   // [optional] The name of the filter.
   optional string x_name = 2;
+
   // [optional] An array of one or more query clauses that are used to match documents. A document must match at least one query clause in order to be returned in the results
   repeated QueryContainer queries = 3;
+
   // [optional]
   optional int32 pagination_depth = 4;
+
   // [optional] Only supported for 3.x. A filter to apply to all the subqueries of the hybrid query.
   optional QueryContainer filter = 5;
 }
 
 message ScriptQuery {
+
   // [required]
   Script script = 1;
+
   // [optional] Floating point number used to decrease or increase the relevance scores of the query. Boost values are relative to the default value of 1.0. A boost value between 0 and 1.0 decreases the relevance score. A value greater than 1.0 increases the relevance score.
   optional float boost = 2;
+
   // [optional] Query name for query tagging.
   optional string x_name = 3;
-
 }
 
 message GeoBoundingBoxQuery {
+
   // [optional] Floating point number used to decrease or increase the relevance scores of the query. Boost values are relative to the default value of 1.0. A boost value between 0 and 1.0 decreases the relevance score. A value greater than 1.0 increases the relevance score.
   optional float boost = 1;
+
   // [optional] The name of the filter.
   optional string x_name = 2;
+
   // [optional]
   optional GeoExecution type = 3;
+
   // [optional] The validation method. Valid values are IGNORE_MALFORMED (accept geopoints with invalid coordinates), COERCE (try to coerce coordinates to valid values), and STRICT (return an error when coordinates are invalid). Default is STRICT.
   optional GeoValidationMethod validation_method = 4;
+
   // [optional] Specifies whether to ignore an unmapped field. If set to true, the query does not return any documents that have an unmapped field. If set to false, an exception is thrown when the field is unmapped. Default is false.
   optional bool ignore_unmapped = 5;
+
   // [optional]
   map<string, GeoBounds> bounding_box = 6;
 }
@@ -1345,15 +1500,18 @@ message GeoBounds {
 
     // The bounds specified using WKT format.
     WktGeoBounds wkt = 4;
+
   }
 }
 
 message WktGeoBounds {
+
   // [required] The WKT string representation of the geographical bounds.
   string wkt = 1;
 }
 
 message CoordsGeoBounds {
+
   // [required] The top boundary latitude.
   double top = 1;
 
@@ -1368,6 +1526,7 @@ message CoordsGeoBounds {
 }
 
 message TopLeftBottomRightGeoBounds {
+
   // [required] The upper-left corner coordinates.
   GeoLocation top_left = 1;
 
@@ -1376,6 +1535,7 @@ message TopLeftBottomRightGeoBounds {
 }
 
 message TopRightBottomLeftGeoBounds {
+
   // [required] The upper-right corner coordinates.
   GeoLocation top_right = 1;
 
@@ -1384,25 +1544,34 @@ message TopRightBottomLeftGeoBounds {
 }
 
 message GeoDistanceQuery {
+
   // [required] The distance within which to match the points. This distance is the radius of a circle centered at the specified point. For supported distance units, see Distance units.
   string distance = 1;
+
   // [optional] Floating point number used to decrease or increase the relevance scores of the query. Boost values are relative to the default value of 1.0. A boost value between 0 and 1.0 decreases the relevance score. A value greater than 1.0 increases the relevance score.
   optional float boost = 2;
+
   // [optional] The name of the filter.
   optional string x_name = 3;
+
   // [optional] Specifies how to calculate the distance. Valid values are arc or plane (faster but inaccurate for long distances or points close to the poles).
   optional GeoDistanceType distance_type = 4;
+
   // [optional] The validation method. Valid values are IGNORE_MALFORMED (accept geopoints with invalid coordinates), COERCE (try to coerce coordinates to valid values), and STRICT (return an error when coordinates are invalid). Default is STRICT.
   optional GeoValidationMethod validation_method = 5;
+
   // [optional] Set to `true` to ignore an unmapped field and not match any documents for this query. Set to `false` to throw an exception if the field is not mapped.
   optional bool ignore_unmapped = 6;
+
   // [optional] The unit of distance measurement.
   optional DistanceUnit unit = 7;
+
   // [optional]
   map<string, GeoLocation> location = 8;
 }
 
 message TermsQuery {
+
   // [optional] Floating point number used to decrease or increase the relevance scores of the query. Boost values are relative to the default value of 1.0. A boost value between 0 and 1.0 decreases the relevance score. A value greater than 1.0 increases the relevance score.
   optional float boost = 1;
 
@@ -1417,18 +1586,25 @@ message TermsQuery {
 }
 
 message NestedQuery {
+
   // [required] The path to a field or an array of paths. Some APIs support wildcards in the path, which allows you to select multiple fields.
   string path = 1;
+
   // [required] The query to run on the nested objects within the specified path.
   QueryContainer query = 2;
+
   // [optional] Floating point number used to decrease or increase the relevance scores of the query. Boost values are relative to the default value of 1.0. A boost value between 0 and 1.0 decreases the relevance score. A value greater than 1.0 increases the relevance score.
   optional float boost = 3;
+
   // [optional] Query name for query tagging.
   optional string x_name = 4;
+
   // [optional] Set to `true` to ignore an unmapped field and not match any documents for this query. Set to `false` to throw an exception if the field is not mapped.
   optional bool ignore_unmapped = 5;
+
   // [optional] If provided, returns the underlying hits that matched the query.
   optional InnerHits inner_hits = 6;
+
   // [optional] Defines how scores of matching inner documents influence the parent document’s score
   optional ChildScoreMode score_mode = 7;
 }
@@ -1482,11 +1658,12 @@ message InnerHits {
 
   // [optional] Whether to include the document version as a match.
   optional bool version = 16;
-
 }
 
 message ScriptField {
+
   Script script = 1;
+
   optional bool ignore_failure = 2;
 }
 
@@ -1495,43 +1672,47 @@ message HighlighterType {
     BuiltinHighlighterType builtin = 1;
 
     string custom = 2;
+
   }
 }
 
 message SortCombinations {
-
   oneof sort_combinations {
     // The path to a field or an array of paths. Some APIs support wildcards in the path, which allows you to select multiple fields.
     string field = 1;
+
     SortOrderMap field_with_direction = 2;
+
     FieldSortMap field_with_order = 3;
+
     SortOptions options = 4;
+
   }
 }
 
 message SortOrderMap {
 
   map<string, SortOrder> sort_order_map = 1;
-
 }
 
 message FieldSortMap {
 
   map<string, FieldSort> field_sort_map = 1;
-
 }
 
 message SortOptions {
-  oneof sort_options{
+  oneof sort_options {
     ScoreSort x_score = 1;
 
     GeoDistanceSort x_geo_distance = 2;
 
     ScriptSort x_script = 3;
+
   }
 }
 
 message Highlight {
+
   // [optional] Specifies the highlighter to use. Default is unified.
   optional HighlighterType type = 1;
 
@@ -1552,6 +1733,7 @@ message Highlight {
 
   // [optional] Specifies how to split text into highlighted fragments. Valid only for the plain highlighter. Default HIGHLIGHTER_FRAGMENTER_SPAN.
   optional HighlighterFragmenter fragmenter = 7;
+
   // [optional]
   optional int32 fragment_offset = 8;
 
@@ -1601,10 +1783,10 @@ message Highlight {
 
   // [required] Specifies the fields to search for text to be highlighted. Supports wildcard expressions. If you use wildcards, only text and keyword fields are highlighted. For example, you can set fields to my_field* to include all text and keyword fields that start with the prefix my_field.
   map<string, HighlightField> fields = 24;
-
 }
 
 message HighlightField {
+
   // [optional] Specifies the highlighter to use. Default is unified.
   optional HighlighterType type = 1;
 
@@ -1644,6 +1826,7 @@ message HighlightField {
 
   // [optional] The maximum number of returned fragments. If number_of_fragments is set to 0, OpenSearch returns the highlighted contents of the entire field. Default is 5.
   optional int32 number_of_fragments = 14;
+
   // [optional]
   optional ObjectMap options = 15;
 
@@ -1661,6 +1844,7 @@ message HighlightField {
 
   // [optional] Specifies whether to highlight only fields that contain a search query match. Default is true. To highlight all fields, set this option to false.
   optional bool require_field_match = 20;
+
   // [optional]
   optional HighlighterTagsSchema tags_schema = 21;
 
@@ -1669,10 +1853,10 @@ message HighlightField {
 
   // [optional] Combines matches from different fields to highlight one field. The most common use case for this functionality is highlighting text that is analyzed in different ways and kept in multi-fields. All fields in the matched_fields list must have the term_vector field set to with_positions_offsets. The field in which the matches are combined is the only loaded field, so it is beneficial to set its store option to yes. Valid only for the fvh highlighter.
   repeated string matched_fields = 23;
-
 }
 
 message FieldSort {
+
   // The value to use when the field is missing.
   optional FieldValue missing = 1;
 
@@ -1696,58 +1880,72 @@ message GeoDistanceSort {
 
   // [optional] Specifies how to handle a field with several geopoints.
   optional SortMode mode = 1;
+
   // [optional] Specifies the method of computing the distance.
   optional GeoDistanceType distance_type = 2;
+
   // [optional] Specifies how to treat an unmapped field. Set ignore_unmapped to true to ignore unmapped fields. Default is false
   optional bool ignore_unmapped = 3;
+
   // [optional]
   optional NestedSortValue nested = 4;
+
   // [optional] Specifies the sort order (asc or dsc) for the score.
   optional SortOrder order = 5;
+
   // [optional] Specifies the units used to compute sort values. Default is meters (m).
   optional DistanceUnit unit = 6;
+
   // [optional]
   optional GeoValidationMethod validation_method = 7;
+
   // [optional]
   map<string, GeoLocationArray> location = 8;
 }
 
 message ScoreSort {
+
   // Specifies the sort order (asc or dsc) for the score.
   optional SortOrder order = 1;
 }
 
 message GeoLocationArray {
+
   // The geo points to use for distance calculation.
   repeated GeoLocation geo_location_array = 1;
-
 }
 
 message ScriptSort {
+
   // [required] The script to execute for custom sorting.
   Script script = 1;
+
   // [optional] Specifies the sort order (asc or dsc) for the score.
   optional SortOrder order = 2;
+
   // [optional] Specifies script sort type.
   optional ScriptSortType type = 3;
+
   // [optional] Specifies what array value should be chosen for sorting the document.
   optional SortMode mode = 4;
+
   // [optional] Supports sorting by fields that are inside one or more nested objects.
   optional NestedSortValue nested = 5;
-
 }
 
 message NestedSortValue {
 
   // [required] Specifies the path to the field on which to sort.
   string path = 1;
+
   // [optional] A filter that the inner objects inside the nested path should match with in order for its field values to be taken into account by sorting. Common case is to repeat the query / filter inside the nested filter or query. By default no filter is active.
   optional QueryContainer filter = 2;
+
   // [optional] The maximum number of children to consider per root document when picking the sort value. Defaults to unlimited.
   optional int32 max_children = 3;
+
   // [optional] Same as top-level nested but applies to another nested path within the current nested object.
   optional NestedSortValue nested = 4;
-
 }
 
 message FieldAndFormat {
@@ -1757,7 +1955,6 @@ message FieldAndFormat {
 
   // [optional] Format in which the values are returned.
   optional string format = 2;
-
 }
 
 message FieldCollapse {
@@ -1770,7 +1967,6 @@ message FieldCollapse {
 
   // [optional] Use to control the maximum number of concurrent searches allowed in this phase.
   optional int32 max_concurrent_group_searches = 3;
-
 }
 
 message ScriptScoreQuery {
@@ -1787,10 +1983,10 @@ message ScriptScoreQuery {
   QueryContainer query = 4;
 
   Script script = 5;
-
 }
 
 message ExistsQuery {
+
   // [required] Name of the field you wish to search.
   string field = 1;
 
@@ -1847,6 +2043,7 @@ message SimpleQueryStringQuery {
 }
 
 message WildcardQuery {
+
   // [required] Specifies the field against which to run a search query
   string field = 1;
 
@@ -1868,7 +2065,6 @@ message WildcardQuery {
   optional string wildcard = 7;
 
   optional string rewrite = 8;
-
 }
 
 message SimpleQueryStringFlags {
@@ -1876,10 +2072,12 @@ message SimpleQueryStringFlags {
     SimpleQueryStringFlag single = 1;
 
     string multiple = 2;
+
   }
 }
 
 message KnnQuery {
+
   // [required] Specifies the vector field against which to run a search query
   string field = 1;
 
@@ -1921,10 +2119,10 @@ message KnnQuery {
 
   // [optional] When true, retrieves scores for all nested field documents within each parent document. Used with nested queries. For more information, see Vector search with nested fields.
   optional bool expand_nested_docs = 11;
-
 }
 
 message RescoreContext {
+
   optional float oversample_factor = 1;
 }
 
@@ -1933,40 +2131,57 @@ message KnnQueryRescore {
     bool enable = 1;
 
     RescoreContext context = 2;
+
   }
 }
 
 message MatchQuery {
+
   // [required] Specifies the field against which to run a search query
   string field = 1;
+
   // [required] The query string to use for search.
   FieldValue query = 2;
+
   // [optional] Floating point number used to decrease or increase the relevance scores of the query. Boost values are relative to the default value of 1.0. A boost value between 0 and 1.0 decreases the relevance score. A value greater than 1.0 increases the relevance score.
   optional float boost = 3;
+
   // [optional] Query name for query tagging.
   optional string x_name = 4;
+
   // [optional] The analyzer used to tokenize the query string text. Default is the index-time analyzer specified for the default_field. If no analyzer is specified for the default_field, the analyzer is the default analyzer for the index.
   optional string analyzer = 5;
+
   // [optional] Specifies whether to create a match phrase query automatically for multi-term synonyms. For example, if you specify ba,batting average as synonyms and search for ba, OpenSearch searches for ba OR "batting average" (if this option is true) or ba OR (batting AND average) (if this option is false).
   optional bool auto_generate_synonyms_phrase_query = 6;
+
   // [optional] The number of character edits (insertions, deletions, substitutions, or transpositions) that it takes to change one word to another when determining whether a term matched a value. For example, the distance between wined and wind is 1. Valid values are non-negative integers or AUTO.
   optional Fuzziness fuzziness = 7;
+
   // [optional] Determines how OpenSearch rewrites the query. Default is constant_score.
   optional MultiTermQueryRewrite fuzzy_rewrite_deprecated = 8 [deprecated = true];
+
   // [optional] Setting fuzzy_transpositions to true (default) adds swaps of adjacent characters to the insert, delete, and substitute operations of the fuzziness option. For example, the distance between wind and wnid is 1 if fuzzy_transpositions is true (swap “n” and “i”) and 2 if it is false (delete “n”, insert “n”). If fuzzy_transpositions is false, rewind and wnid have the same distance (2) from wind, despite the more human-centric opinion that wnid is an obvious typo. The default(true) is a good choice for most use cases.
   optional bool fuzzy_transpositions = 9;
+
   // [optional] Setting lenient to true ignores data type mismatches between the query and the document field. For example, a query string of "8.2" could match a field of type float. Default is false.
   optional bool lenient = 10;
+
   // [optional] The maximum number of terms to which the query can expand. Fuzzy queries “expand to” a number of matching terms that are within the distance specified in fuzziness. Then OpenSearch tries to match those terms. Default is 50.
   optional int32 max_expansions = 11;
+
   // [optional] If the query string contains multiple search terms and you use the or operator, the number of terms that need to match for the document to be considered a match. For example, if minimum_should_match is 2, wind often rising does not match The Wind Rises. If minimum_should_match is 1, it matches.
   optional MinimumShouldMatch minimum_should_match = 12;
+
   // [optional] If the query string contains multiple search terms, whether all terms need to match (AND) or only one term needs to match (OR) for a document to be considered a match. Default is OR.
   optional Operator operator = 13;
+
   // [optional] The number of leading characters that are not considered in fuzziness. Default is 0.
   optional int32 prefix_length = 14;
+
   // [optional] In some cases, the analyzer removes all terms from a query string. For example, the stop analyzer removes all terms from the string an but this. In those cases, zero_terms_query specifies whether to match no documents (none) or all documents (all). Valid values are none and all. Default is none.
   optional ZeroTermsQuery zero_terms_query = 15;
+
   // [optional] Determines how OpenSearch rewrites the query. Default is constant_score.
   optional string fuzzy_rewrite = 16;
 }
@@ -1998,12 +2213,14 @@ message BoolQuery {
   optional bool adjust_pure_negative = 8;
 }
 
-message MinimumShouldMatch{
-  oneof minimum_should_match{
+message MinimumShouldMatch {
+  oneof minimum_should_match {
     // if minimum_should_match is integer type. see "https://opensearch.org/docs/latest/query-dsl/minimum-should-match/#valid-values"
     int32 int32 = 1;
+
     // if minimum_should_match is string type like percentage or combinations. see "https://opensearch.org/docs/latest/query-dsl/minimum-should-match/#valid-values"
     string string = 2;
+
   }
 }
 
@@ -2021,14 +2238,16 @@ message BoostingQuery {
   QueryContainer negative = 4;
 
   QueryContainer positive = 5;
-
 }
 
 message ConstantScoreQuery {
+
   // [required] The filter query that a document must match to be returned in the results.
   QueryContainer filter = 1;
+
   // [optional] Floating point number used to decrease or increase the relevance scores of the query. Boost values are relative to the default value of 1.0. A boost value between 0 and 1.0 decreases the relevance score. A value greater than 1.0 increases the relevance score.
   optional float boost = 2;
+
   // [optional] Query name for query tagging.
   optional string x_name = 3;
 }
@@ -2046,27 +2265,33 @@ message DisMaxQuery {
 
   // Floating point number between 0 and 1.0 used to increase the relevance scores of documents matching multiple query clauses.
   optional float tie_breaker = 4;
-
 }
 
 message FunctionScoreQuery {
+
   // [required] Floating point number used to decrease or increase the relevance scores of the query. Boost values are relative to the default value of 1.0. A boost value between 0 and 1.0 decreases the relevance score. A value greater than 1.0 increases the relevance score.
   optional float boost = 1;
+
   // [optional] Query name for query tagging.
   optional string x_name = 2;
+
   // [optional] how the score computed using all functions is combined with the query score.
   optional FunctionBoostMode boost_mode = 3;
+
   // [optional] One or more functions that compute a new score for each document returned by the query.
   repeated FunctionScoreContainer functions = 4;
+
   // [optional] Restricts the new score to not exceed the provided limit.
   optional float max_boost = 5;
+
   // [optional] Excludes documents that do not meet the provided score threshold.
   optional float min_score = 6;
+
   // [optional]
   optional QueryContainer query = 7;
+
   // [optional] Specifies how the computed scores are combined
   optional FunctionScoreMode score_mode = 8;
-
 }
 
 message IntervalsAllOf {
@@ -2081,10 +2306,10 @@ message IntervalsAllOf {
   optional bool ordered = 3;
 
   optional IntervalsFilter filter = 4;
-
 }
 
 message IntervalsAnyOf {
+
   // An array of rules to match.
   repeated IntervalsContainer intervals = 1;
 
@@ -2092,6 +2317,7 @@ message IntervalsAnyOf {
 }
 
 message IntervalsMatch {
+
   // Analyzer used to analyze terms in the query.
   optional string analyzer = 1;
 
@@ -2111,6 +2337,7 @@ message IntervalsMatch {
 }
 
 message IntervalsQuery {
+
   // [required] Specifies the field against which to run a search query
   string field = 1;
 
@@ -2119,7 +2346,6 @@ message IntervalsQuery {
 
   // [optional] Query name for query tagging.
   optional string x_name = 3;
-
   oneof intervals_query {
     IntervalsAllOf all_of = 4;
 
@@ -2132,44 +2358,50 @@ message IntervalsQuery {
     IntervalsPrefix prefix = 8;
 
     IntervalsWildcard wildcard = 9;
-  }
 
+  }
 }
 
 message FunctionScoreContainer {
+
   // [optional]
   optional QueryContainer filter = 1;
+
   // [optional]  allows you to multiply the score by the provided weight
   optional float weight = 2;
-
   oneof function_score_container {
     // Exponential decay
     DecayFunction exp = 3;
+
     // Normal decay
     DecayFunction gauss = 4;
+
     // Linear decay
     DecayFunction linear = 5;
+
     // Allows you to use a field from a document to influence the score
     FieldValueFactorScoreFunction field_value_factor = 6;
+
     // Generates scores that are uniformly distributed from 0 up to but not including 1
     RandomScoreFunction random_score = 7;
+
     // Allows you to wrap another query and customize the scoring of it optionally with a computation derived from other numeric field values in the doc using a script expression
     ScriptScoreFunction script_score = 8;
+
   }
 }
 
 message DecayFunction {
+
   // [optional] specify for decay calculation contains multiple values
   optional MultiValueMode multi_value_mode = 1;
 
   // [required] Decay functions score a document with a function that decays depending on the distance of a numeric field value of the document from a user given origin
   map<string, DecayPlacement> placement = 2;
-
 }
 
 message DecayPlacement {
   oneof decay_placement {
-
     DateDecayPlacement date_decay_placement = 1;
 
     GeoDecayPlacement geo_decay_placement = 2;
@@ -2180,35 +2412,46 @@ message DecayPlacement {
 }
 
 message DateDecayPlacement {
+
   // [required] Defines the distance from origin + offset at which the computed score will equal decay parameter
   string scale = 1;
+
   // [optional] The decay parameter defines how documents are scored at the distance given at scale
   optional double decay = 2;
+
   // [optional] If an offset is defined, the decay function will only compute the decay function for documents with a distance greater than the defined offset.
   optional string offset = 3;
+
   // [optional] The decay function will only compute the decay function for documents with a distance greater than the defined
   optional string origin = 4;
-
 }
 
 message GeoDecayPlacement {
+
   // [required] Defines the distance from origin + offset at which the computed score will equal decay parameter
   string scale = 1;
+
   // [required] The point of origin used for calculating distance
   GeoLocation origin = 2;
+
   // [optional] The decay parameter defines how documents are scored at the distance given at scale
   optional double decay = 3;
+
   // [optional] The decay function will only compute the decay function for documents with a distance greater than the defined
   optional string offset = 4;
 }
 
 message NumericDecayPlacement {
+
   // [required] Defines the distance from origin + offset at which the computed score will equal decay parameter
   double scale = 1;
+
   // [required] The point of origin used for calculating distance
   double origin = 2;
+
   // [optional] The decay parameter defines how documents are scored at the distance given at scale
   optional double decay = 3;
+
   // [optional] The decay function will only compute the decay function for documents with a distance greater than the defined
   optional double offset = 4;
 }
@@ -2216,7 +2459,6 @@ message NumericDecayPlacement {
 message ScriptScoreFunction {
 
   Script script = 1;
-
 }
 
 message IntervalsFilter {
@@ -2238,12 +2480,11 @@ message IntervalsFilter {
     IntervalsContainer overlapping = 8;
 
     Script script = 9;
-  }
 
+  }
 }
 
 message IntervalsContainer {
-
   oneof intervals_container {
     IntervalsAllOf all_of = 1;
 
@@ -2256,23 +2497,30 @@ message IntervalsContainer {
     IntervalsPrefix prefix = 5;
 
     IntervalsWildcard wildcard = 6;
-  }
 
+  }
 }
 
 message PrefixQuery {
+
   // [required] Specifies the field against which to run a search query
   string field = 1;
+
   // [required] The term to search for in the field specified in <field>.
   string value = 2;
+
   // [optional] Floating point number used to decrease or increase the relevance scores of the query. Boost values are relative to the default value of 1.0. A boost value between 0 and 1.0 decreases the relevance score. A value greater than 1.0 increases the relevance score.
   optional float boost = 3;
+
   // [optional] Query name for query tagging.
   optional string x_name = 4;
+
   // [optional] Determines how OpenSearch rewrites the query. Default is constant_score.
   optional MultiTermQueryRewrite rewrite_deprecated = 5 [deprecated = true];
+
   // [optional] Allows ASCII case insensitive matching of the value with the indexed field values when set to `true`. Default is `false` which means the case sensitivity of matching depends on the underlying field's mapping.
   optional bool case_insensitive = 6;
+
   // [optional] Determines how OpenSearch rewrites the query. Default is constant_score.
   optional string rewrite = 7;
 }
@@ -2282,10 +2530,12 @@ message TermsQueryField {
     FieldValueArray field_value_array = 1;
 
     TermsLookup lookup = 2;
+
   }
 }
 
 message TermsLookup {
+
   string index = 1;
 
   // The unique identifier for a resource.
@@ -2301,10 +2551,12 @@ message TermsLookup {
 }
 
 message FieldValueArray {
+
   repeated FieldValue field_value_array = 1;
 }
 
 message TermsSetQuery {
+
   // [required] Specifies the field against which to run a search query
   string field = 1;
 
@@ -2322,10 +2574,10 @@ message TermsSetQuery {
 
   // [optional] A script that returns the number of matching terms required in order to return a document in the results.
   optional Script minimum_should_match_script = 6;
-
 }
 
 message RegexpQuery {
+
   // [required] Specifies the field against which to run a search query
   string field = 1;
 
@@ -2355,6 +2607,7 @@ message RegexpQuery {
 }
 
 message TermQuery {
+
   // [required] Specifies the field against which to run a search query
   string field = 1;
 
@@ -2371,11 +2624,10 @@ message TermQuery {
   // [optional]
   // Allows ASCII case insensitive matching of the value with the indexed field values when set to `true`. When `false`, the case sensitivity of matching depends on the underlying field's mapping.
   optional bool case_insensitive = 5;
-
 }
 
-
 message QueryStringQuery {
+
   // [optional] Floating point number used to decrease or increase the relevance scores of the query. Boost values are relative to the default value of 1.0. A boost value between 0 and 1.0 decreases the relevance score. A value greater than 1.0 increases the relevance score.
   optional float boost = 1;
 
@@ -2449,16 +2701,15 @@ message QueryStringQuery {
 }
 
 message RandomScoreFunction {
+
   // The path to a field or an array of paths. Some APIs support wildcards in the path, which allows you to select multiple fields.
   optional string field = 1;
 
   optional RandomScoreFunctionSeed seed = 2;
-
 }
 
 message RandomScoreFunctionSeed {
   oneof random_score_function_seed {
-
     int32 int32 = 1;
 
     int64 int64 = 2;
@@ -2473,14 +2724,18 @@ message RangeQuery {
     NumberRangeQuery number_range_query = 1;
 
     DateRangeQuery date_range_query = 2;
+
   }
 }
 
 message NumberRangeQuery {
+
   // [required] Specifies the field against which to run a search query
   string field = 1;
+
   // [optional] Floating point number used to decrease or increase the relevance scores of the query. Boost values are relative to the default value of 1.0. A boost value between 0 and 1.0 decreases the relevance score. A value greater than 1.0 increases the relevance score.
   optional float boost = 2;
+
   // [optional] Query name for query tagging.
   optional string x_name = 3;
 
@@ -2510,8 +2765,8 @@ message NumberRangeQuery {
 
   // [optional] Include the upper bound
   optional bool include_upper = 12;
-
 }
+
 message NumberRangeQueryAllOfFrom {
   oneof number_range_query_all_of_from {
     double double = 1;
@@ -2519,8 +2774,10 @@ message NumberRangeQueryAllOfFrom {
     string string = 2;
 
     NullValue null_value = 3;
+
   }
 }
+
 message NumberRangeQueryAllOfTo {
   oneof number_range_query_all_of_to {
     double double = 1;
@@ -2528,36 +2785,51 @@ message NumberRangeQueryAllOfTo {
     string string = 2;
 
     NullValue null_value = 3;
+
   }
 }
 
 message DateRangeQuery {
+
   // [required] Specifies the field against which to run a search query
   string field = 1;
+
   // [optional] Floating point number used to decrease or increase the relevance scores of the query. Boost values are relative to the default value of 1.0. A boost value between 0 and 1.0 decreases the relevance score. A value greater than 1.0 increases the relevance score.
   optional float boost = 2;
+
   // [optional] Query name for query tagging.
   optional string x_name = 3;
+
   // [optional] Indicates how the range query matches values for range fields
   optional RangeRelation relation = 4;
+
   // [optional] Greater than.
   optional string gt = 5;
+
   // [optional] Greater than or equal to.
   optional string gte = 6;
+
   // [optional] Less than.
   optional string lt = 7;
+
   // [optional] Less than or equal to.
   optional string lte = 8;
+
   // [optional]
   optional DateRangeQueryAllOfFrom from = 9;
+
   // [optional]
   optional DateRangeQueryAllOfTo to = 10;
+
   // [optional] The date format pattern.
   optional string format = 11;
+
   // [optional] The time zone identifier.
   optional string time_zone = 12;
+
   // [optional] Include the lower bound
   optional bool include_lower = 13;
+
   // [optional] Include the upper bound
   optional bool include_upper = 14;
 }
@@ -2567,51 +2839,65 @@ message DateRangeQueryAllOfFrom {
     string string = 1;
 
     NullValue null_value = 2;
+
   }
 }
+
 message DateRangeQueryAllOfTo {
   oneof date_range_query_all_of_to {
     string string = 1;
 
     NullValue null_value = 2;
+
   }
 }
 
 message FuzzyQuery {
+
   // [required] Specifies the field against which to run a search query
   string field = 1;
+
   // [required] Term you wish to find in the provided <field>.
   FieldValue value = 2;
+
   // [optional] Floating point number used to decrease or increase the relevance scores of the query. Boost values are relative to the default value of 1.0. A boost value between 0 and 1.0 decreases the relevance score. A value greater than 1.0 increases the relevance score.
   optional float boost = 3;
+
   // [optional] Query name for query tagging.
   optional string x_name = 4;
+
   // [optional] The maximum number of terms to which the query can expand. Fuzzy queries "expand to" a number of matching terms that are within the distance specified in fuzziness. Then OpenSearch tries to match those terms. Default is 50.
   optional int32 max_expansions = 5;
+
   // [optional] The number of leading characters that are not considered in fuzziness. Default is 0.
   optional int32 prefix_length = 6;
+
   // [optional] Determines how OpenSearch rewrites the query. Default is constant_score.
   optional MultiTermQueryRewrite rewrite_deprecated = 7 [deprecated = true];
+
   // [optional] Specifies whether to allow transpositions of two adjacent characters (ab to ba) as edits. Default is true.
   optional bool transpositions = 8;
+
   // [optional] The number of character edits (insert, delete, substitute) needed to change one word to another when determining whether a term matched a value.
   optional Fuzziness fuzziness = 9;
+
   // [optional] Determines how OpenSearch rewrites the query. Default is constant_score.
   optional string rewrite = 10;
 }
 
-message Fuzziness{
-
-  oneof fuzziness{
+message Fuzziness {
+  oneof fuzziness {
     // AUTO: Generates an edit distance based on the length of the term. Low and high distance arguments may be optionally provided AUTO:[low],[high]. AUTO should generally be the preferred value for fuzziness.
     string string = 1;
+
     // 0,1,2: The maximum allowed Levenshtein Edit Distance (or number of edits)
     int32 int32 = 2;
-  }
 
+  }
 }
 
 message FieldValue {
+
   optional bool bool = 1;
 
   optional GeneralNumber general_number = 2;
@@ -2630,10 +2916,10 @@ message IdsQuery {
   optional string x_name = 2;
 
   repeated string values = 3;
-
 }
 
 message IntervalsFuzzy {
+
   // Analyzer used to normalize the term.
   optional string analyzer = 1;
 
@@ -2653,6 +2939,7 @@ message IntervalsFuzzy {
 }
 
 message IntervalsPrefix {
+
   // Analyzer used to analyze the `prefix`.
   optional string analyzer = 1;
 
@@ -2664,6 +2951,7 @@ message IntervalsPrefix {
 }
 
 message IntervalsWildcard {
+
   // Analyzer used to analyze the `pattern`. Defaults to the top-level field's analyzer.
   optional string analyzer = 1;
 
@@ -2675,6 +2963,7 @@ message IntervalsWildcard {
 }
 
 message MatchAllQuery {
+
   // [optional] Floating point number used to decrease or increase the relevance scores of the query. Boost values are relative to the default value of 1.0. A boost value between 0 and 1.0 decreases the relevance score. A value greater than 1.0 increases the relevance score.
   optional float boost = 1;
 
@@ -2683,30 +2972,43 @@ message MatchAllQuery {
 }
 
 message MatchBoolPrefixQuery {
+
   // [required] Specifies the field against which to run a search query
   string field = 1;
+
   // [required] Terms you wish to find in the provided field. The last term is used in a prefix query.
   string query = 2;
+
   // [optional] Floating point number used to decrease or increase the relevance scores of the query. Boost values are relative to the default value of 1.0. A boost value between 0 and 1.0 decreases the relevance score. A value greater than 1.0 increases the relevance score.
   optional float boost = 3;
+
   // [optional] Query name for query tagging.
   optional string x_name = 4;
+
   // [optional] The analyzer used to tokenize the query string text. Default is the index-time analyzer specified for the default_field. If no analyzer is specified for the default_field, the analyzer is the default analyzer for the index.
   optional string analyzer = 5;
+
   // [optional] The number of character edits (insert, delete, substitute) that it takes to change one word to another when determining whether a term matched a value. For example, the distance between wined and wind is 1. The default, AUTO, chooses a value based on the length of each term and is a good choice for most use cases.
   optional Fuzziness fuzziness = 6;
+
   // [optional] Determines how OpenSearch rewrites the query. Default is constant_score.
   optional MultiTermQueryRewrite fuzzy_rewrite_deprecated = 7 [deprecated = true];
+
   // [optional] Setting fuzzy_transpositions to true (default) adds swaps of adjacent characters to the insert, delete, and substitute operations of the fuzziness option. For example, the distance between wind and wnid is 1 if fuzzy_transpositions is true (swap “n” and “i”) and 2 if it is false (delete “n”, insert “n”). If fuzzy_transpositions is false, rewind and wnid have the same distance (2) from wind, despite the more human-centric opinion that wnid is an obvious typo. The default(true) is a good choice for most use cases.
   optional bool fuzzy_transpositions = 8;
+
   // [optional] The maximum number of terms to which the query can expand. Fuzzy queries “expand to” a number of matching terms that are within the distance specified in fuzziness. Then OpenSearch tries to match those terms. Default is 50.
   optional int32 max_expansions = 9;
+
   // [optional] If the query string contains multiple search terms and you use the or operator, the number of terms that need to match for the document to be considered a match. For example, if minimum_should_match is 2, wind often rising does not match The Wind Rises. If minimum_should_match is 1, it matches.
   optional MinimumShouldMatch minimum_should_match = 10;
+
   // [optional] If the query string contains multiple search terms, whether all terms need to match (and) or only one term needs to match (or) for a document to be considered a match. Default is or.
   optional Operator operator = 11;
+
   // [optional] The number of leading characters that are not considered in fuzziness. Default is 0.
   optional int32 prefix_length = 12;
+
   // [optional] Determines how OpenSearch rewrites the query. Default is constant_score.
   optional string fuzzy_rewrite = 13;
 }
@@ -2721,42 +3023,58 @@ message MatchNoneQuery {
 }
 
 message MatchPhrasePrefixQuery {
+
   // [required] Specifies the field against which to run a search query
   string field = 1;
+
   // [required] The query string to use for search
   string query = 2;
+
   // [optional] Floating point number used to decrease or increase the relevance scores of the query. Boost values are relative to the default value of 1.0. A boost value between 0 and 1.0 decreases the relevance score. A value greater than 1.0 increases the relevance score.
   optional float boost = 3;
+
   // [optional] Query name for query tagging.
   optional string x_name = 4;
+
   // [optional] The analyzer used to tokenize the query string text. Default is the index-time analyzer specified for the default_field. If no analyzer is specified for the default_field, the analyzer is the default analyzer for the index.
   optional string analyzer = 5;
+
   // [optional] The maximum number of terms to which the query can expand. Fuzzy queries “expand to” a number of matching terms that are within the distance specified in fuzziness. Then OpenSearch tries to match those terms. Default is 50.
   optional int32 max_expansions = 6;
+
   // [optional] Controls the degree to which words in a query can be misordered and still be considered a match. From the Lucene documentation: “The number of other words permitted between words in query phrase. For example, to switch the order of two words requires two moves (the first move places the words atop one another), so to permit reorderings of phrases, the slop must be at least two. A value of zero requires an exact match.”
   optional int32 slop = 7;
+
   // [optional] In some cases, the analyzer removes all terms from a query string. For example, the stop analyzer removes all terms from the string an but this. In those cases, zero_terms_query specifies whether to match no documents (none) or all documents (all). Valid values are none and all. Default is none.
   optional ZeroTermsQuery zero_terms_query = 8;
 }
 
 message MatchPhraseQuery {
+
   // [required] Specifies the field against which to run a search query
   string field = 1;
+
   // [required] The query string to use for search.
   string query = 2;
+
   // [optional] Floating point number used to decrease or increase the relevance scores of the query. Boost values are relative to the default value of 1.0. A boost value between 0 and 1.0 decreases the relevance score. A value greater than 1.0 increases the relevance score.
   optional float boost = 3;
+
   // [optional] The name of the query for query tagging.
   optional string x_name = 4;
+
   // [optional] The analyzer used to tokenize the query string text. Default is the index-time analyzer specified for the default_field. If no analyzer is specified for the default_field, the analyzer is the default analyzer for the index.
   optional string analyzer = 5;
+
   // [optional] Controls the degree to which words in a query can be misordered and still be considered a match. From the Lucene documentation: “The number of other words permitted between words in query phrase. For example, to switch the order of two words requires two moves (the first move places the words atop one another), so to permit reorderings of phrases, the slop must be at least two. A value of zero requires an exact match.”
   optional int32 slop = 6;
+
   // [optional] In some cases, the analyzer removes all terms from a query string. For example, the stop analyzer removes all terms from the string an but this. In those cases, zero_terms_query specifies whether to match no documents (none) or all documents (all). Valid values are none and all. Default is none.
   optional ZeroTermsQuery zero_terms_query = 7;
 }
 
 message MultiMatchQuery {
+
   // [required] The query string to use for search.
   string query = 1;
 
@@ -2791,7 +3109,6 @@ message MultiMatchQuery {
   optional int32 max_expansions = 11;
 
   // [optional] If the query string contains multiple search terms and you use the or operator, the number of terms that need to match for the document to be considered a match. For example, if minimum_should_match is 2, wind often rising does not match The Wind Rises. If minimum_should_match is 1, it matches. For details, see Minimum should match.
-
   optional MinimumShouldMatch minimum_should_match = 12;
 
   // [optional] If the query string contains multiple search terms, whether all terms need to match (AND) or only one term needs to match (OR) for a document to be considered a match. Valid values are: 1) OR: The string to be is interpreted as to OR be. 2) AND: The string to be is interpreted as to AND be. Default is OR.
@@ -2811,6 +3128,7 @@ message MultiMatchQuery {
 
   // [optional] In some cases, the analyzer removes all terms from a query string. For example, the stop analyzer removes all terms from the string an but this. In those cases, zero_terms_query specifies whether to match no documents (none) or all documents (all). Valid values are none and all. Default is none.
   optional ZeroTermsQuery zero_terms_query = 18;
+
   // [optional] Determines how OpenSearch rewrites the query. Valid values are constant_score, scoring_boolean, constant_score_boolean, top_terms_N, top_terms_boost_N, and top_terms_blended_freqs_N. If the fuzziness parameter is not 0, the query uses a fuzzy_rewrite method of top_terms_blended_freqs_${max_expansions} by default. Default is constant_score.
   optional string fuzzy_rewrite = 19;
 }
@@ -2828,7 +3146,6 @@ message FieldValueFactorScoreFunction {
 
   // [optional]
   optional FieldValueFactorModifier modifier = 4;
-
 }
 
 enum FieldValueFactorModifier {
@@ -3150,11 +3467,10 @@ enum ChildScoreMode {
   CHILD_SCORE_MODE_NONE = 4;
   CHILD_SCORE_MODE_SUM = 5;
 }
+
 enum HighlighterEncoder {
   HIGHLIGHTER_ENCODER_UNSPECIFIED = 0;
-  // No encoding
   HIGHLIGHTER_ENCODER_DEFAULT = 1;
-  // First escape the HTML text and then insert the highlighting tags
   HIGHLIGHTER_ENCODER_HTML = 2;
 }
 
@@ -3162,11 +3478,6 @@ enum GeoExecution {
   GEO_EXECUTION_UNSPECIFIED = 0;
   GEO_EXECUTION_INDEXED = 1;
   GEO_EXECUTION_MEMORY = 2;
-}
-
-enum NullValue {
-  NULL_VALUE_UNSPECIFIED = 0;
-  NULL_VALUE_NULL = 1;
 }
 
 message ObjectMap {
@@ -3195,10 +3506,15 @@ message ObjectMap {
 }
 
 message GeneralNumber {
-  oneof value{
+  oneof value {
     int32 int32_value = 1;
     int64 int64_value = 2;
     float float_value = 3;
     double double_value = 4;
   }
+}
+
+enum NullValue {
+  NULL_VALUE_UNSPECIFIED = 0;
+  NULL_VALUE_NULL = 1;
 }

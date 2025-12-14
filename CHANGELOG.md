@@ -16,6 +16,7 @@ Inspired from [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 - Remove unsupported protobufs `Aggregate`, `Suggester` and `AggregationContainer` ([#327](https://github.com/opensearch-project/opensearch-protobufs/pull/327))
 - Consolidate all protobuf schemas into common.proto ([#330](https://github.com/opensearch-project/opensearch-protobufs/pull/330))
 - Reorder protobufs - messages top, enums bottom ([#331](https://github.com/opensearch-project/opensearch-protobufs/pull/331))
+- Reformat protobufs - Add lines between fields and messages ([#331](https://github.com/opensearch-project/opensearch-protobufs/pull/332))
 
 ### Removed
 - Removed unused messages ([#319](https://github.com/opensearch-project/opensearch-protobufs/pull/319))
