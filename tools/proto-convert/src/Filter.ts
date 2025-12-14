@@ -1,6 +1,6 @@
 import { type OpenAPIV3 } from 'openapi-types'
 import _ from "lodash";
-import Logger from "./utils/logger"
+import logger from "./utils/logger"
 import { getSchemaNames } from "./utils/helper"
 
 /**
@@ -38,18 +38,18 @@ function traverse_and_enqueue(node: any, queue: string[], visited: Set<string>, 
  * Schemas in the excluded set are skipped.
  */
 export default class Filter {
-  logger: Logger
   protected _spec: Record<string, any>
+  protected sourceSpec: Record<string, any>
   protected targetPaths: string[]
   protected excludedSchemas: Set<string>
   paths: Record<string, Record<string, OpenAPIV3.PathItemObject>> = {} // namespace -> path -> path_item_object
 
-  constructor(logger: Logger, targetPaths: string[], excludedSchemas: Set<string> = new Set()) {
-    this.logger = logger
+  constructor(sourceSpec: Record<string, any>, targetPaths: string[], excludedSchemas: Set<string> = new Set()) {
+    this.sourceSpec = sourceSpec;
     this.targetPaths = targetPaths;
     this.excludedSchemas = excludedSchemas;
     if (this.excludedSchemas.size > 0) {
-      this.logger.info(`Loaded ${this.excludedSchemas.size} excluded schemas: ${Array.from(this.excludedSchemas).join(', ')}`);
+      logger.info(`Loaded ${this.excludedSchemas.size} excluded schemas: ${Array.from(this.excludedSchemas).join(', ')}`);
     }
     this._spec = {
       openapi: '3.1.0',
@@ -65,14 +65,14 @@ export default class Filter {
   }
 
 
-  filter_spec(spec: Record<string, any>): any {
-    this._spec.info = spec.info;
+  filter(): OpenAPIV3.Document {
+    this._spec.info = this.sourceSpec.info;
     for (const p of this.targetPaths) {
-      if (spec.paths[p] === undefined) {
-        this.logger.error(`Path not found in spec: ${p}`);
+      if (this.sourceSpec.paths[p] === undefined) {
+        logger.error(`Path not found in spec: ${p}`);
         continue;
       }
-      this._spec.paths[p] = spec.paths[p];
+      this._spec.paths[p] = this.sourceSpec.paths[p];
     }
     this.filter_by_max_parameters(this._spec.paths as OpenAPIV3.PathsObject);
     const queue: string[] = [];
@@ -92,13 +92,13 @@ export default class Filter {
         this._spec.components[sub_component] = {};
       }
       if (this._spec.components[sub_component][key] == null) {
-        if (spec.components != null && spec.components[sub_component] != null && spec.components[sub_component][key] != null) {
-          this._spec.components[sub_component][key] = spec.components[sub_component][key];
+        if (this.sourceSpec.components != null && this.sourceSpec.components[sub_component] != null && this.sourceSpec.components[sub_component][key] != null) {
+          this._spec.components[sub_component][key] = this.sourceSpec.components[sub_component][key];
           traverse_and_enqueue(this._spec.components[sub_component][key], queue, visited, this.excludedSchemas);
         }
       }
     }
-    return this._spec;
+    return this._spec as OpenAPIV3.Document;
   }
 
   filter_by_max_parameters(paths: OpenAPIV3.PathsObject): void {

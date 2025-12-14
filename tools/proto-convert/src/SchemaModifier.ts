@@ -2,18 +2,16 @@ import type {OpenAPIV3} from "openapi-types";
 import {traverse} from './utils/OpenApiTraverser';
 import isEqual from 'lodash.isequal';
 import {compressMultipleUnderscores, isPrimitiveType, resolveObj, isReferenceObject, isEmptyObjectSchema, is_simple_ref} from './utils/helper';
-import Logger from "./utils/logger";
+import logger from "./utils/logger";
 
 
 const DEFAULT_MAP_KEY = 'field' // default key for simplified additionalProperties
 const DEFAULT_MAP_VALUE = 'value' // default value for simplified additionalProperties
 
 export class SchemaModifier {
-    logger: Logger
     root: OpenAPIV3.Document;
-    constructor(root: OpenAPIV3.Document, logger: Logger = new Logger()) {
+    constructor(root: OpenAPIV3.Document) {
         this.root = root;
-        this.logger = logger;
     }
     public modify(): OpenAPIV3.Document {
         traverse(this.root, {
@@ -256,7 +254,7 @@ export class SchemaModifier {
             }
         } else if (complexObject.type === 'object' && complexObject.properties) {
             if (complexObject.properties[DEFAULT_MAP_KEY]) {
-                this.logger.error("Error: additionalProperties key already exists in the schema "+complexObject);
+                logger.error("Error: additionalProperties key already exists in the schema "+complexObject);
             }
             complexObject.properties[DEFAULT_MAP_KEY] = this.createAdditionalPropertySchema().properties?.[DEFAULT_MAP_KEY] as OpenAPIV3.SchemaObject || {};
         } else if (isPrimitiveType(complexObject)) {
@@ -405,7 +403,7 @@ export class SchemaModifier {
         }
 
         if (schema.properties[propertyName]) {
-            this.logger.warn(`Property '${propertyName}' already exists in schema, skipping additionalProperties conversion`);
+            logger.warn(`Property '${propertyName}' already exists in schema, skipping additionalProperties conversion`);
             return;
         }
 
@@ -437,7 +435,7 @@ export class SchemaModifier {
             delete schema.propertyNames;
         }
 
-        this.logger.info(`Converted additionalProperties to named property '${propertyName}' with type: object`);
+        logger.info(`Converted additionalProperties to named property '${propertyName}' with type: object`);
     }
 
     /**
@@ -473,7 +471,7 @@ export class SchemaModifier {
                 schema.additionalProperties = items.additionalProperties;
                 delete (schema as any).items;
 
-                this.logger.info(`Removed array wrapper from array of maps schema`);
+                logger.info(`Removed array wrapper from array of maps schema`);
             }
         }
     }
@@ -514,7 +512,7 @@ export class SchemaModifier {
         if (Array.isArray(schema.oneOf) && schema.oneOf.length > 0) {
             if (this.isOneOfWithSingleProperties(schema.oneOf)) {
                 this.flattenOneOfToProperties(schema);
-                this.logger.info(`Converted oneOf pattern to minProperties/maxProperties`);
+                logger.info(`Converted oneOf pattern to minProperties/maxProperties`);
             }
         }
     }
@@ -587,10 +585,10 @@ export class SchemaModifier {
                 }
             }
             (schema as any)['x-oneof-schema'] = true;
-            this.logger.info(`Added x-oneof-property to properties and marked schema with x-oneof-schema`);
+            logger.info(`Added x-oneof-property to properties and marked schema with x-oneof-schema`);
         } else if (hasNestedPattern) {
             (schema as any)['x-oneof-schema'] = true;
-            this.logger.info(`Marked parent schema with x-oneof-schema (contains nested oneOf pattern)`);
+            logger.info(`Marked parent schema with x-oneof-schema (contains nested oneOf pattern)`);
         }
     }
 

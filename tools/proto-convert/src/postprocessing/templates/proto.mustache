@@ -1,0 +1,36 @@
+
+{{#commentLines}}
+// {{{.}}}
+{{/commentLines}}
+{{#isMessage}}
+message {{name}} {
+{{#fields}}
+
+{{#commentLines}}
+  // {{{.}}}
+{{/commentLines}}
+  {{#modifier}}{{modifier}} {{/modifier}}{{{type}}} {{name}} = {{number}}{{#hasOptions}} [{{{options}}}]{{/hasOptions}};
+{{/fields}}
+{{#oneofs}}
+{{#commentLines}}
+  // {{{.}}}
+{{/commentLines}}
+  oneof {{name}} {
+{{#fields}}
+{{#commentLines}}
+    // {{{.}}}
+{{/commentLines}}
+    {{{type}}} {{name}} = {{number}}{{#hasOptions}} [{{{options}}}]{{/hasOptions}};
+
+{{/fields}}
+  }
+{{/oneofs}}
+}
+{{/isMessage}}
+{{#isEnum}}
+enum {{name}} {
+{{#values}}
+  {{name}} = {{number}}{{#hasOptions}} [{{{options}}}]{{/hasOptions}};
+{{/values}}
+}
+{{/isEnum}}

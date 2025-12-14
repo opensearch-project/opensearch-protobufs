@@ -1,7 +1,7 @@
 import { OpenAPIV3 } from 'openapi-types';
 import { traverse } from './utils/OpenApiTraverser';
 import { resolveRef, deleteMatchingKeys, remove_unused } from './utils/helper';
-import Logger from './utils/logger';
+import logger from './utils/logger';
 import _ from 'lodash';
 
 /**
@@ -23,11 +23,9 @@ export class VendorExtensionProcessor {
     };
 
     private root: OpenAPIV3.Document;
-    private logger: Logger;
 
-    constructor(root: OpenAPIV3.Document, logger: Logger = new Logger()) {
+    constructor(root: OpenAPIV3.Document) {
         this.root = root;
-        this.logger = logger;
     }
 
     /**
@@ -90,7 +88,7 @@ export class VendorExtensionProcessor {
             const oldName = param.name;
             param.name = newName;
             delete param[VendorExtensionProcessor.PROTOBUF_NAME_EXTENSION];
-            this.logger.info(`Renamed parameter '${oldName}' -> '${newName}' (${VendorExtensionProcessor.PROTOBUF_NAME_EXTENSION})`);
+            logger.info(`Renamed parameter '${oldName}' -> '${newName}' (${VendorExtensionProcessor.PROTOBUF_NAME_EXTENSION})`);
         }
     }
 
@@ -114,7 +112,7 @@ export class VendorExtensionProcessor {
                         delete schema.properties[prop];
                         delete schema.properties[newName][VendorExtensionProcessor.PROTOBUF_NAME_EXTENSION];
 
-                        this.logger.info(`Renamed property '${prop}' -> '${newName}' (${VendorExtensionProcessor.PROTOBUF_NAME_EXTENSION})`);
+                        logger.info(`Renamed property '${prop}' -> '${newName}' (${VendorExtensionProcessor.PROTOBUF_NAME_EXTENSION})`);
                     }
                 }
             }
@@ -133,7 +131,7 @@ export class VendorExtensionProcessor {
                         const oldTitle = subschema.title;
                         subschema.title = titleValue;
                         delete subschema[VendorExtensionProcessor.PROTOBUF_NAME_EXTENSION];
-                        this.logger.info(`Set title for ${key} sub-schema: '${oldTitle}' -> '${titleValue}' (${VendorExtensionProcessor.PROTOBUF_NAME_EXTENSION})`);
+                        logger.info(`Set title for ${key} sub-schema: '${oldTitle}' -> '${titleValue}' (${VendorExtensionProcessor.PROTOBUF_NAME_EXTENSION})`);
                     }
                 }
             }
@@ -180,7 +178,7 @@ export class VendorExtensionProcessor {
             }
 
             delete schema[VendorExtensionProcessor.PROTOBUF_TYPE_EXTENSION];
-            this.logger.info(`Applied ${VendorExtensionProcessor.PROTOBUF_TYPE_EXTENSION}: ${protoType} -> type: ${schema.type}${schema.format ? `, format: ${schema.format}` : ''}`);
+            logger.info(`Applied ${VendorExtensionProcessor.PROTOBUF_TYPE_EXTENSION}: ${protoType} -> type: ${schema.type}${schema.format ? `, format: ${schema.format}` : ''}`);
         }
     }
 

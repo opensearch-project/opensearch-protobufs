@@ -8,10 +8,16 @@ import {traverse} from "./utils/OpenApiTraverser";
  */
 export class Sanitizer {
   private static readonly META_PREFIX = "x";
-  public sanitize(spec: any): any {
-    this.sanitize_ref(spec);
-    this.sanitize_spec_name(spec as OpenAPIV3.Document);
-    return spec;
+  private spec: OpenAPIV3.Document;
+
+  constructor(spec: OpenAPIV3.Document) {
+    this.spec = spec;
+  }
+
+  public sanitize(): OpenAPIV3.Document {
+    this.sanitize_ref(this.spec);
+    this.sanitize_spec_name(this.spec);
+    return this.spec;
   }
 
   sanitize_ref(obj: any): void {

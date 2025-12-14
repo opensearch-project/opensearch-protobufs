@@ -9,6 +9,7 @@ Inspired from [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 - preprocessing - Support maxProperties=1 constraints by marking them as `oneof` for protobuf generation ([#317](https://github.com/opensearch-project/opensearch-protobufs/pull/317))
 - Preprocessing - Support x-protobuf-required to enforce required protobuf field and convert oneOf properties pattern to min/max Properties = 1 ([#318](https://github.com/opensearch-project/opensearch-protobufs/pull/318))
 - Preprocessing - Add schema exclusion list to filter out schemas and their dependencies ([#328](https://github.com/opensearch-project/opensearch-protobufs/pull/328))
+- Postprocessing- Add postprocessing support ([#333](https://github.com/opensearch-project/opensearch-protobufs/pull/333))
 
 ### Changed
 - Backward incompatible change for unimplemented query types `ScriptScoreQuery`, `SimpleQueryStringQuery`, `DisMaxQuery`, `IntervalsQuery`, `QueryStringQuery` and `TermsAggregation` ([#324](https://github.com/opensearch-project/opensearch-protobufs/pull/324))
@@ -16,7 +17,7 @@ Inspired from [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 - Remove unsupported protobufs `Aggregate`, `Suggester` and `AggregationContainer` ([#327](https://github.com/opensearch-project/opensearch-protobufs/pull/327))
 - Consolidate all protobuf schemas into common.proto ([#330](https://github.com/opensearch-project/opensearch-protobufs/pull/330))
 - Reorder protobufs - messages top, enums bottom ([#331](https://github.com/opensearch-project/opensearch-protobufs/pull/331))
-- Reformat protobufs - Add lines between fields and messages ([#331](https://github.com/opensearch-project/opensearch-protobufs/pull/332))
+- Reformat protobufs - Add lines between fields and messages ([#332](https://github.com/opensearch-project/opensearch-protobufs/pull/332))
 
 ### Removed
 - Removed unused messages ([#319](https://github.com/opensearch-project/opensearch-protobufs/pull/319))
