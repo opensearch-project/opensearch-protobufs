@@ -67,8 +67,8 @@ describe('mergeMessage', () => {
         });
     });
 
-    describe('modifier changes (breaking)', () => {
-        it('should error when optional is added', () => {
+    describe('modifier changes (handled gracefully)', () => {
+        it('should handle optional added gracefully', () => {
             const source: ProtoMessage = {
                 name: 'TestMessage',
                 fields: [field('id', 'int32', 1)]
@@ -79,15 +79,20 @@ describe('mergeMessage', () => {
             };
             const errors: string[] = [];
 
-            mergeMessage(source, upcoming, errors);
+            const result = mergeMessage(source, upcoming, errors);
 
-            expect(errors).toHaveLength(1);
-            expect(errors[0]).toContain('MODIFIER CHANGED');
-            expect(errors[0]).toContain('(none)');
-            expect(errors[0]).toContain('optional');
+            expect(errors).toHaveLength(0);
+            expect(result.fields).toHaveLength(2);
+            // Old field deprecated
+            expect(result.fields[0].name).toBe('id');
+            expect(result.fields[0].modifier).toBeUndefined();
+            expect(result.fields[0].options).toContainEqual({ name: 'deprecated', value: 'true' });
+            // New field with optional
+            expect(result.fields[1].name).toBe('id_1');
+            expect(result.fields[1].modifier).toBe('optional');
         });
 
-        it('should error when optional is removed', () => {
+        it('should handle optional removed gracefully', () => {
             const source: ProtoMessage = {
                 name: 'TestMessage',
                 fields: [field('id', 'int32', 1, 'optional')]
@@ -98,15 +103,20 @@ describe('mergeMessage', () => {
             };
             const errors: string[] = [];
 
-            mergeMessage(source, upcoming, errors);
+            const result = mergeMessage(source, upcoming, errors);
 
-            expect(errors).toHaveLength(1);
-            expect(errors[0]).toContain('MODIFIER CHANGED');
-            expect(errors[0]).toContain('optional');
-            expect(errors[0]).toContain('(none)');
+            expect(errors).toHaveLength(0);
+            expect(result.fields).toHaveLength(2);
+            // Old field deprecated
+            expect(result.fields[0].name).toBe('id');
+            expect(result.fields[0].modifier).toBe('optional');
+            expect(result.fields[0].options).toContainEqual({ name: 'deprecated', value: 'true' });
+            // New field without optional
+            expect(result.fields[1].name).toBe('id_1');
+            expect(result.fields[1].modifier).toBeUndefined();
         });
 
-        it('should error when repeated is added', () => {
+        it('should handle repeated added gracefully', () => {
             const source: ProtoMessage = {
                 name: 'TestMessage',
                 fields: [field('items', 'string', 1)]
@@ -117,15 +127,46 @@ describe('mergeMessage', () => {
             };
             const errors: string[] = [];
 
-            mergeMessage(source, upcoming, errors);
+            const result = mergeMessage(source, upcoming, errors);
 
-            expect(errors).toHaveLength(1);
-            expect(errors[0]).toContain('MODIFIER CHANGED');
+            expect(errors).toHaveLength(0);
+            expect(result.fields).toHaveLength(2);
+            // Old field deprecated
+            expect(result.fields[0].name).toBe('items');
+            expect(result.fields[0].modifier).toBeUndefined();
+            expect(result.fields[0].options).toContainEqual({ name: 'deprecated', value: 'true' });
+            // New field with repeated
+            expect(result.fields[1].name).toBe('items_1');
+            expect(result.fields[1].modifier).toBe('repeated');
+        });
+
+        it('should handle repeated removed gracefully', () => {
+            const source: ProtoMessage = {
+                name: 'TestMessage',
+                fields: [field('items', 'string', 1, 'repeated')]
+            };
+            const upcoming: ProtoMessage = {
+                name: 'TestMessage',
+                fields: [field('items', 'string', 1)]
+            };
+            const errors: string[] = [];
+
+            const result = mergeMessage(source, upcoming, errors);
+
+            expect(errors).toHaveLength(0);
+            expect(result.fields).toHaveLength(2);
+            // Old field deprecated
+            expect(result.fields[0].name).toBe('items');
+            expect(result.fields[0].modifier).toBe('repeated');
+            expect(result.fields[0].options).toContainEqual({ name: 'deprecated', value: 'true' });
+            // New field without repeated
+            expect(result.fields[1].name).toBe('items_1');
+            expect(result.fields[1].modifier).toBeUndefined();
         });
     });
 
-    describe('type changes (breaking)', () => {
-        it('should error when type changes', () => {
+    describe('type changes (handled gracefully)', () => {
+        it('should deprecate old field and add new field when type changes', () => {
             const source: ProtoMessage = {
                 name: 'TestMessage',
                 fields: [field('id', 'int32', 1)]
@@ -136,15 +177,21 @@ describe('mergeMessage', () => {
             };
             const errors: string[] = [];
 
-            mergeMessage(source, upcoming, errors);
+            const result = mergeMessage(source, upcoming, errors);
 
-            expect(errors).toHaveLength(1);
-            expect(errors[0]).toContain('TYPE CHANGED');
-            expect(errors[0]).toContain('int32');
-            expect(errors[0]).toContain('int64');
+            expect(errors).toHaveLength(0);
+            expect(result.fields).toHaveLength(2);
+            // Old field should be deprecated
+            expect(result.fields[0].name).toBe('id');
+            expect(result.fields[0].type).toBe('int32');
+            expect(result.fields[0].options).toContainEqual({ name: 'deprecated', value: 'true' });
+            // New field with updated type (version 1)
+            expect(result.fields[1].name).toBe('id_1');
+            expect(result.fields[1].type).toBe('int64');
+            expect(result.fields[1].number).toBe(2);
         });
 
-        it('should error when message type changes', () => {
+        it('should handle message type changes gracefully', () => {
             const source: ProtoMessage = {
                 name: 'TestMessage',
                 fields: [field('data', 'OldType', 1)]
@@ -155,12 +202,17 @@ describe('mergeMessage', () => {
             };
             const errors: string[] = [];
 
-            mergeMessage(source, upcoming, errors);
+            const result = mergeMessage(source, upcoming, errors);
 
-            expect(errors).toHaveLength(1);
-            expect(errors[0]).toContain('TYPE CHANGED');
-            expect(errors[0]).toContain('OldType');
-            expect(errors[0]).toContain('NewType');
+            expect(errors).toHaveLength(0);
+            expect(result.fields).toHaveLength(2);
+            // Old field deprecated
+            expect(result.fields[0].name).toBe('data');
+            expect(result.fields[0].type).toBe('OldType');
+            expect(result.fields[0].options).toContainEqual({ name: 'deprecated', value: 'true' });
+            // New field (version 1)
+            expect(result.fields[1].name).toBe('data_1');
+            expect(result.fields[1].type).toBe('NewType');
         });
     });
 
@@ -367,7 +419,7 @@ describe('mergeMessage', () => {
             expect(newField!.type).toBe('double');
         });
 
-        it('should error on type change in oneof field', () => {
+        it('should handle type change in oneof field gracefully', () => {
             const source: ProtoMessage = {
                 name: 'TestMessage',
                 fields: [],
@@ -386,10 +438,17 @@ describe('mergeMessage', () => {
             };
             const errors: string[] = [];
 
-            mergeMessage(source, upcoming, errors);
+            const result = mergeMessage(source, upcoming, errors);
 
-            expect(errors).toHaveLength(1);
-            expect(errors[0]).toContain('TYPE CHANGED');
+            expect(errors).toHaveLength(0);
+            expect(result.oneofs![0].fields).toHaveLength(2);
+            // Old field deprecated
+            expect(result.oneofs![0].fields[0].name).toBe('val');
+            expect(result.oneofs![0].fields[0].type).toBe('string');
+            expect(result.oneofs![0].fields[0].options).toContainEqual({ name: 'deprecated', value: 'true' });
+            // New field with updated type (version 1)
+            expect(result.oneofs![0].fields[1].name).toBe('val_1');
+            expect(result.oneofs![0].fields[1].type).toBe('bytes');
         });
 
         it('should use global max field number across regular and oneof fields', () => {
@@ -423,13 +482,14 @@ describe('mergeMessage', () => {
             const newOneofField = result.oneofs![0].fields.find(f => f.name === 'new_oneof_val');
             const newRegularField = result.fields.find(f => f.name === 'new_field');
 
-            expect(newOneofField!.number).toBe(6);
-            expect(newRegularField!.number).toBe(7);
+            // Regular fields processed first, then oneofs
+            expect(newRegularField!.number).toBe(6);
+            expect(newOneofField!.number).toBe(7);
         });
     });
 
-    describe('multiple errors', () => {
-        it('should collect multiple errors', () => {
+    describe('multiple changes', () => {
+        it('should handle multiple type/modifier changes gracefully', () => {
             const source: ProtoMessage = {
                 name: 'TestMessage',
                 fields: [
@@ -440,17 +500,83 @@ describe('mergeMessage', () => {
             const upcoming: ProtoMessage = {
                 name: 'TestMessage',
                 fields: [
-                    field('field1', 'int64', 1),
-                    field('field2', 'string', 2, 'repeated')
+                    field('field1', 'int64', 1),          // type + modifier change
+                    field('field2', 'string', 2, 'repeated')  // modifier change
                 ]
             };
             const errors: string[] = [];
 
-            mergeMessage(source, upcoming, errors);
+            const result = mergeMessage(source, upcoming, errors);
 
-            expect(errors.length).toBeGreaterThanOrEqual(2);
-            expect(errors.some(e => e.includes('field1'))).toBe(true);
-            expect(errors.some(e => e.includes('field2'))).toBe(true);
+            expect(errors).toHaveLength(0);
+            // 2 original fields deprecated + 2 new versioned fields = 4 total
+            expect(result.fields).toHaveLength(4);
+
+            // New fields are added at the end
+            // Order: field1 [deprecated], field2 [deprecated], field1_1, field2_1
+            expect(result.fields[0].name).toBe('field1');
+            expect(result.fields[0].options).toContainEqual({ name: 'deprecated', value: 'true' });
+
+            expect(result.fields[1].name).toBe('field2');
+            expect(result.fields[1].options).toContainEqual({ name: 'deprecated', value: 'true' });
+
+            expect(result.fields[2].name).toBe('field1_1');
+            expect(result.fields[2].type).toBe('int64');
+
+            expect(result.fields[3].name).toBe('field2_1');
+            expect(result.fields[3].modifier).toBe('repeated');
+        });
+
+        it('should handle versioned field with deprecated predecessor and type change', () => {
+            // Source has:
+            //   bool test_name = 1 [deprecated = true]   <- already deprecated
+            //   string test_name_1 = 2                   <- active versioned field
+            // Upcoming has:
+            //   int32 test_name = 1                      <- type changed again
+            // Expected:
+            //   bool test_name = 1 [deprecated = true]   <- kept as-is
+            //   string test_name_1 = 2 [deprecated = true] <- deprecated (type mismatch)
+            //   int32 test_name_2 = 3                    <- new version
+
+            const source: ProtoMessage = {
+                name: 'TestMessage',
+                fields: [
+                    {
+                        name: 'test_name',
+                        type: 'bool',
+                        number: 1,
+                        options: [{ name: 'deprecated', value: 'true' }]
+                    },
+                    field('test_name_1', 'string', 2)
+                ]
+            };
+            const upcoming: ProtoMessage = {
+                name: 'TestMessage',
+                fields: [field('test_name', 'int32', 1)]
+            };
+            const errors: string[] = [];
+
+            const result = mergeMessage(source, upcoming, errors);
+
+            expect(errors).toHaveLength(0);
+            expect(result.fields).toHaveLength(3);
+
+            // First field: kept as-is (already deprecated)
+            expect(result.fields[0].name).toBe('test_name');
+            expect(result.fields[0].type).toBe('bool');
+            expect(result.fields[0].number).toBe(1);
+            expect(result.fields[0].options).toContainEqual({ name: 'deprecated', value: 'true' });
+
+            // Second field: deprecated because type doesn't match upcoming
+            expect(result.fields[1].name).toBe('test_name_1');
+            expect(result.fields[1].type).toBe('string');
+            expect(result.fields[1].number).toBe(2);
+            expect(result.fields[1].options).toContainEqual({ name: 'deprecated', value: 'true' });
+
+            // Third field: new versioned field
+            expect(result.fields[2].name).toBe('test_name_2');
+            expect(result.fields[2].type).toBe('int32');
+            expect(result.fields[2].number).toBe(3);
         });
     });
 });

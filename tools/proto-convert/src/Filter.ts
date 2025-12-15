@@ -38,20 +38,20 @@ function traverse_and_enqueue(node: any, queue: string[], visited: Set<string>, 
  * Schemas in the excluded set are skipped.
  */
 export default class Filter {
-  protected _spec: Record<string, any>
-  protected sourceSpec: Record<string, any>
+  protected input: Record<string, any>
+  protected output: Record<string, any>
   protected targetPaths: string[]
   protected excludedSchemas: Set<string>
   paths: Record<string, Record<string, OpenAPIV3.PathItemObject>> = {} // namespace -> path -> path_item_object
 
-  constructor(sourceSpec: Record<string, any>, targetPaths: string[], excludedSchemas: Set<string> = new Set()) {
-    this.sourceSpec = sourceSpec;
+  constructor(input: Record<string, any>, targetPaths: string[], excludedSchemas: Set<string> = new Set()) {
+    this.input = input;
     this.targetPaths = targetPaths;
     this.excludedSchemas = excludedSchemas;
     if (this.excludedSchemas.size > 0) {
       logger.info(`Loaded ${this.excludedSchemas.size} excluded schemas: ${Array.from(this.excludedSchemas).join(', ')}`);
     }
-    this._spec = {
+    this.output = {
       openapi: '3.1.0',
       info: {},
       paths: {},
@@ -66,20 +66,20 @@ export default class Filter {
 
 
   filter(): OpenAPIV3.Document {
-    this._spec.info = this.sourceSpec.info;
+    this.output.info = this.input.info;
     for (const p of this.targetPaths) {
-      if (this.sourceSpec.paths[p] === undefined) {
+      if (this.input.paths[p] === undefined) {
         logger.error(`Path not found in spec: ${p}`);
         continue;
       }
-      this._spec.paths[p] = this.sourceSpec.paths[p];
+      this.output.paths[p] = this.input.paths[p];
     }
-    this.filter_by_max_parameters(this._spec.paths as OpenAPIV3.PathsObject);
+    this.filter_by_max_parameters(this.output.paths as OpenAPIV3.PathsObject);
     const queue: string[] = [];
     const visited: Set<string> = new Set();
 
     // collect all components that are referenced by the paths
-    traverse_and_enqueue(this._spec.paths, queue, visited, this.excludedSchemas);
+    traverse_and_enqueue(this.output.paths, queue, visited, this.excludedSchemas);
     while (queue.length > 0) {
       const ref_str = queue.shift();
       if (ref_str == null || ref_str == "") continue;
@@ -88,17 +88,17 @@ export default class Filter {
       const sub_component = parts[2];
       const key = parts[3];
 
-      if (this._spec.components[sub_component as keyof typeof this._spec.components] == null) {
-        this._spec.components[sub_component] = {};
+      if (this.output.components[sub_component as keyof typeof this.output.components] == null) {
+        this.output.components[sub_component] = {};
       }
-      if (this._spec.components[sub_component][key] == null) {
-        if (this.sourceSpec.components != null && this.sourceSpec.components[sub_component] != null && this.sourceSpec.components[sub_component][key] != null) {
-          this._spec.components[sub_component][key] = this.sourceSpec.components[sub_component][key];
-          traverse_and_enqueue(this._spec.components[sub_component][key], queue, visited, this.excludedSchemas);
+      if (this.output.components[sub_component][key] == null) {
+        if (this.input.components != null && this.input.components[sub_component] != null && this.input.components[sub_component][key] != null) {
+          this.output.components[sub_component][key] = this.input.components[sub_component][key];
+          traverse_and_enqueue(this.output.components[sub_component][key], queue, visited, this.excludedSchemas);
         }
       }
     }
-    return this._spec as OpenAPIV3.Document;
+    return this.output as OpenAPIV3.Document;
   }
 
   filter_by_max_parameters(paths: OpenAPIV3.PathsObject): void {
@@ -160,6 +160,6 @@ export default class Filter {
         new_paths[max_path] = { ...new_paths[max_path], head: max_path_item.head };
       }
     }
-    this._spec.paths = new_paths;
+    this.output.paths = new_paths;
   }
 }

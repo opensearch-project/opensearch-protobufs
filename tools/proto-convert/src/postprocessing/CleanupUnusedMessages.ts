@@ -1,10 +1,7 @@
 /**
- * Cleanup Unused Messages Script
  *
  * Given root protobuf messages, removes all messages NOT referenced
  * (directly or indirectly) by any root message.
- *
- * Uses parser + writer for reliable handling of nested structures.
  */
 
 import { existsSync, readFileSync, writeFileSync } from 'fs';
@@ -143,7 +140,6 @@ if (require.main === module) {
         process.exit(1);
     }
 
-    // Parse the proto file
     const parsed = parseProtoFile(opts.input);
 
     // Verify root messages exist

@@ -1,7 +1,5 @@
 /**
  * Internal types for proto processing.
- * These types provide a simplified, template-ready representation
- * of protobuf messages and enums.
  */
 
 export interface FieldOption {

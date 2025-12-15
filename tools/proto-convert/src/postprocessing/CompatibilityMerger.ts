@@ -1,11 +1,6 @@
 /**
  * Merger module: Compare and merge messages/enums for backward compatibility.
  *
- * Rules:
- * - If modifier changed (optional added/removed) → ERROR
- * - If type changed → ERROR
- * - If field only in source but not upcoming → mark [deprecated = true]
- * - If field only in upcoming but not source → add at end with new field number
  */
 
 import {
@@ -17,16 +12,45 @@ import {
 } from './types';
 
 /**
+ * Extract base name
+ */
+function getBaseName(fieldName: string): string {
+    const match = fieldName.match(/^(.+?)_(\d+)$/);
+    return match ? match[1] : fieldName;
+}
+
+/**
+ * Get the current version suffix from field name
+ */
+function getFieldVersion(fieldName: string): number {
+    const match = fieldName.match(/_(\d+)$/);
+    return match ? parseInt(match[1], 10) : 0;
+}
+
+/**
+ * Check if a field is already deprecated.
+ */
+function isDeprecated(field: ProtoField): boolean {
+    return field.options?.some(opt => opt.name === 'deprecated' && opt.value === 'true') ?? false;
+}
+
+/**
+ * Check if two fields are compatible (same type and modifier).
+ */
+function fieldsMatch(a: ProtoField, b: ProtoField): boolean {
+    return a.type === b.type && (a.modifier || '') === (b.modifier || '');
+}
+
+/**
  * Merge a source message with an upcoming message.
- * Errors are pushed to the errors array.
+ * Errors are pushed to the errors array (currently unused but kept for future).
  */
 export function mergeMessage(
     sourceMsg: ProtoMessage,
     upcomingMsg: ProtoMessage,
-    errors: string[]
+    _errors: string[]
 ): ProtoMessage {
-    const sourceFieldMap = new Map(sourceMsg.fields.map(f => [f.name, f]));
-    const upcomingFieldMap = new Map(upcomingMsg.fields.map(f => [f.name, f]));
+    const upcomingByName = new Map(upcomingMsg.fields.map(f => [f.name, f]));
 
     let maxFieldNumber = 0;
     const mergedFields: ProtoField[] = [];
@@ -34,18 +58,33 @@ export function mergeMessage(
     for (const sourceField of sourceMsg.fields) {
         maxFieldNumber = Math.max(maxFieldNumber, sourceField.number);
 
-        const upcomingField = upcomingFieldMap.get(sourceField.name);
+        // Skip deprecated fields
+        if (isDeprecated(sourceField)) {
+            mergedFields.push(sourceField);
+            continue;
+        }
+
+        const baseName = getBaseName(sourceField.name);
+        const upcomingField = upcomingByName.get(baseName);
 
         if (upcomingField) {
-            checkFieldCompatibility(sourceMsg.name, sourceField, upcomingField, errors);
+            upcomingByName.delete(baseName);
+            if (fieldsMatch(sourceField, upcomingField)) {
             mergedFields.push(sourceField);
+            } else {
+                mergedFields.push(markDeprecated(sourceMsg.name, sourceField));
+                const currentVersion = getFieldVersion(sourceField.name);
+                const newName = `${baseName}_${currentVersion + 1}`;
+                upcomingByName.set(newName, { ...upcomingField, name: newName });
+            }
         } else {
             mergedFields.push(markDeprecated(sourceMsg.name, sourceField));
         }
     }
 
-    // Merge oneofs
     let mergedOneofs: ProtoOneof[] | undefined;
+    const oneofMaps: Map<string, Map<string, ProtoField>> = new Map();
+
     if (sourceMsg.oneofs) {
         const upcomingOneofMap = new Map(
             (upcomingMsg.oneofs || []).map(o => [o.name, o])
@@ -53,9 +92,8 @@ export function mergeMessage(
 
         mergedOneofs = [];
         for (const sourceOneof of sourceMsg.oneofs) {
-            const sourceOneofFieldMap = new Map(sourceOneof.fields.map(f => [f.name, f]));
             const upcomingOneof = upcomingOneofMap.get(sourceOneof.name);
-            const upcomingOneofFieldMap = new Map(
+            const upcomingOneofByName = new Map(
                 (upcomingOneof?.fields || []).map(f => [f.name, f])
             );
 
@@ -63,26 +101,27 @@ export function mergeMessage(
 
             for (const sourceField of sourceOneof.fields) {
                 maxFieldNumber = Math.max(maxFieldNumber, sourceField.number);
-
-                const upcomingField = upcomingOneofFieldMap.get(sourceField.name);
-                if (upcomingField) {
-                    checkFieldCompatibility(sourceMsg.name, sourceField, upcomingField, errors);
+                // Skip deprecated fields
+                if (isDeprecated(sourceField)) {
                     mergedOneofFields.push(sourceField);
+                    continue;
+                }
+
+                const baseName = getBaseName(sourceField.name);
+                const upcomingField = upcomingOneofByName.get(baseName);
+
+                if (upcomingField) {
+                    upcomingOneofByName.delete(baseName);
+                    if (fieldsMatch(sourceField, upcomingField)) {
+                    mergedOneofFields.push(sourceField);
+                    } else {
+                        mergedOneofFields.push(markDeprecated(sourceMsg.name, sourceField));
+                        const currentVersion = getFieldVersion(sourceField.name);
+                        const newName = `${baseName}_${currentVersion + 1}`;
+                        upcomingOneofByName.set(newName, { ...upcomingField, name: newName });
+                    }
                 } else {
                     mergedOneofFields.push(markDeprecated(sourceMsg.name, sourceField));
-                }
-            }
-
-            // Add new oneof fields from upcoming
-            if (upcomingOneof) {
-                for (const upcomingField of upcomingOneof.fields) {
-                    if (!sourceOneofFieldMap.has(upcomingField.name)) {
-                        maxFieldNumber++;
-                        mergedOneofFields.push({
-                            ...upcomingField,
-                            number: maxFieldNumber
-                        });
-                    }
                 }
             }
 
@@ -90,17 +129,26 @@ export function mergeMessage(
                 ...sourceOneof,
                 fields: mergedOneofFields
             });
+            oneofMaps.set(sourceOneof.name, upcomingOneofByName);
         }
     }
 
-    // Fields only in upcoming - add at the end with new field numbers
-    for (const [, upcomingField] of upcomingFieldMap) {
-        if (!sourceFieldMap.has(upcomingField.name)) {
+    // Assign field max number to remaining fields.
+    for (const field of upcomingByName.values()) {
+        maxFieldNumber++;
+        mergedFields.push({ ...field, number: maxFieldNumber });
+    }
+
+    // Assign field max number to remaining oneof fields.
+    if (mergedOneofs) {
+        for (const oneof of mergedOneofs) {
+            const remaining = oneofMaps.get(oneof.name);
+            if (remaining) {
+                for (const field of remaining.values()) {
             maxFieldNumber++;
-            mergedFields.push({
-                ...upcomingField,
-                number: maxFieldNumber
-            });
+                    oneof.fields.push({ ...field, number: maxFieldNumber });
+                }
+            }
         }
     }
 
@@ -109,34 +157,6 @@ export function mergeMessage(
         fields: mergedFields,
         oneofs: mergedOneofs
     };
-}
-
-/**
- * Check field compatibility between source and upcoming.
- */
-function checkFieldCompatibility(
-    msgName: string,
-    sourceField: ProtoField,
-    upcomingField: ProtoField,
-    errors: string[]
-): void {
-    // Check if modifier changed
-    const sourceModifier = sourceField.modifier || '';
-    const upcomingModifier = upcomingField.modifier || '';
-    if (sourceModifier !== upcomingModifier) {
-        errors.push(
-            `${msgName}.${sourceField.name}: MODIFIER CHANGED - ` +
-            `"${sourceModifier || '(none)'}" → "${upcomingModifier || '(none)'}"`
-        );
-    }
-
-    // TODO: add support for type change
-    if (sourceField.type !== upcomingField.type) {
-        errors.push(
-            `${msgName}.${sourceField.name}: TYPE CHANGED - ` +
-            `"${sourceField.type}" → "${upcomingField.type}"`
-        );
-    }
 }
 
 /**
