@@ -1,6 +1,5 @@
 /**
  * Merger module: Compare and merge messages/enums for backward compatibility.
- *
  */
 
 import {
@@ -8,8 +7,11 @@ import {
     ProtoMessage,
     ProtoEnum,
     ProtoEnumValue,
-    ProtoOneof
+    ProtoOneof,
+    Annotation
 } from './types';
+
+const DEPRECATED: Annotation = { name: 'deprecated', value: 'true' };
 
 /**
  * Extract base name
@@ -27,61 +29,114 @@ function getFieldVersion(fieldName: string): number {
     return match ? parseInt(match[1], 10) : 0;
 }
 
+/** Type with annotations array */
+type HasAnnotations = { annotations?: Annotation[] };
+
 /**
- * Check if a field is already deprecated.
+ * Check if an item is already deprecated.
  */
-function isDeprecated(field: ProtoField): boolean {
-    return field.options?.some(opt => opt.name === 'deprecated' && opt.value === 'true') ?? false;
+function isDeprecated(item: HasAnnotations): boolean {
+    return item.annotations?.some(a =>
+        a.name === DEPRECATED.name && a.value === DEPRECATED.value
+    ) ?? false;
 }
 
 /**
- * Check if two fields are compatible (same type and modifier).
+ * Add deprecated annotation to an item if not already deprecated.
+ */
+function addDeprecated<T extends HasAnnotations>(item: T): T {
+    if (isDeprecated(item)) {
+        return item;
+    }
+    return {
+        ...item,
+        annotations: [...(item.annotations || []), DEPRECATED]
+    };
+}
+
+/**
+ * Check if optional added or removed. If so, push error and return true
+ */
+function hasOptionalError(
+    source: ProtoField,
+    upcoming: ProtoField,
+    msgName: string,
+    errors: string[]
+): boolean {
+    const sourceOptional = source.modifier === 'optional';
+    const upcomingOptional = upcoming.modifier === 'optional';
+
+    if (sourceOptional !== upcomingOptional) {
+        const change = sourceOptional ? 'removed' : 'added';
+        errors.push(`${msgName}.${source.name}: optional ${change}`);
+        return true;
+    }
+    return false;
+}
+
+/**
+ * Check if two fields are compatible (same type and compatible modifiers).
  */
 function fieldsMatch(a: ProtoField, b: ProtoField): boolean {
     return a.type === b.type && (a.modifier || '') === (b.modifier || '');
 }
 
 /**
+ * Merge a source field with upcoming map.
+ */
+function mergeField(
+    sourceField: ProtoField,
+    upcomingMap: Map<string, ProtoField>,
+    msgName: string,
+    errors: string[]
+): ProtoField {
+    if (isDeprecated(sourceField)) {
+        return sourceField;
+    }
+
+    const baseName = getBaseName(sourceField.name);
+    const upcomingField = upcomingMap.get(baseName);
+
+    if (upcomingField) {
+        upcomingMap.delete(baseName);
+
+        if (hasOptionalError(sourceField, upcomingField, msgName, errors)) {
+            return sourceField;
+        }
+
+        if (fieldsMatch(sourceField, upcomingField)) {
+            return sourceField;
+        } else {
+            // Type or repeated change - deprecate and version
+            const newName = `${baseName}_${getFieldVersion(sourceField.name) + 1}`;
+            upcomingMap.set(newName, { ...upcomingField, name: newName });
+            return addDeprecated(sourceField);
+        }
+    } else {
+        return addDeprecated(sourceField);
+    }
+}
+
+/**
  * Merge a source message with an upcoming message.
- * Errors are pushed to the errors array (currently unused but kept for future).
  */
 export function mergeMessage(
     sourceMsg: ProtoMessage,
     upcomingMsg: ProtoMessage,
-    _errors: string[]
+    errors: string[]
 ): ProtoMessage {
     const upcomingByName = new Map(upcomingMsg.fields.map(f => [f.name, f]));
 
     let maxFieldNumber = 0;
     const mergedFields: ProtoField[] = [];
 
+    // Process regular fields
     for (const sourceField of sourceMsg.fields) {
         maxFieldNumber = Math.max(maxFieldNumber, sourceField.number);
-
-        // Skip deprecated fields
-        if (isDeprecated(sourceField)) {
-            mergedFields.push(sourceField);
-            continue;
-        }
-
-        const baseName = getBaseName(sourceField.name);
-        const upcomingField = upcomingByName.get(baseName);
-
-        if (upcomingField) {
-            upcomingByName.delete(baseName);
-            if (fieldsMatch(sourceField, upcomingField)) {
-            mergedFields.push(sourceField);
-            } else {
-                mergedFields.push(markDeprecated(sourceMsg.name, sourceField));
-                const currentVersion = getFieldVersion(sourceField.name);
-                const newName = `${baseName}_${currentVersion + 1}`;
-                upcomingByName.set(newName, { ...upcomingField, name: newName });
-            }
-        } else {
-            mergedFields.push(markDeprecated(sourceMsg.name, sourceField));
-        }
+        mergedFields.push(mergeField(sourceField, upcomingByName, sourceMsg.name, errors));
     }
 
+    // Process oneofs
     let mergedOneofs: ProtoOneof[] | undefined;
     const oneofMaps: Map<string, Map<string, ProtoField>> = new Map();
 
@@ -98,45 +153,19 @@ export function mergeMessage(
             );
 
             const mergedOneofFields: ProtoField[] = [];
-
             for (const sourceField of sourceOneof.fields) {
                 maxFieldNumber = Math.max(maxFieldNumber, sourceField.number);
-                // Skip deprecated fields
-                if (isDeprecated(sourceField)) {
-                    mergedOneofFields.push(sourceField);
-                    continue;
-                }
-
-                const baseName = getBaseName(sourceField.name);
-                const upcomingField = upcomingOneofByName.get(baseName);
-
-                if (upcomingField) {
-                    upcomingOneofByName.delete(baseName);
-                    if (fieldsMatch(sourceField, upcomingField)) {
-                    mergedOneofFields.push(sourceField);
-                    } else {
-                        mergedOneofFields.push(markDeprecated(sourceMsg.name, sourceField));
-                        const currentVersion = getFieldVersion(sourceField.name);
-                        const newName = `${baseName}_${currentVersion + 1}`;
-                        upcomingOneofByName.set(newName, { ...upcomingField, name: newName });
-                    }
-                } else {
-                    mergedOneofFields.push(markDeprecated(sourceMsg.name, sourceField));
-                }
+                mergedOneofFields.push(mergeField(sourceField, upcomingOneofByName, sourceMsg.name, errors));
             }
 
-            mergedOneofs.push({
-                ...sourceOneof,
-                fields: mergedOneofFields
-            });
+            mergedOneofs.push({ ...sourceOneof, fields: mergedOneofFields });
             oneofMaps.set(sourceOneof.name, upcomingOneofByName);
         }
     }
 
     // Assign field max number to remaining fields.
     for (const field of upcomingByName.values()) {
-        maxFieldNumber++;
-        mergedFields.push({ ...field, number: maxFieldNumber });
+        mergedFields.push({ ...field, number: ++maxFieldNumber });
     }
 
     // Assign field max number to remaining oneof fields.
@@ -145,8 +174,7 @@ export function mergeMessage(
             const remaining = oneofMaps.get(oneof.name);
             if (remaining) {
                 for (const field of remaining.values()) {
-            maxFieldNumber++;
-                    oneof.fields.push({ ...field, number: maxFieldNumber });
+                    oneof.fields.push({ ...field, number: ++maxFieldNumber });
                 }
             }
         }
@@ -160,30 +188,11 @@ export function mergeMessage(
 }
 
 /**
- * Mark a field as deprecated if not already.
- */
-function markDeprecated(msgName: string, field: ProtoField): ProtoField {
-    const isAlreadyDeprecated = field.options?.some(
-        opt => opt.name === 'deprecated' && opt.value === 'true'
-    );
-
-    if (!isAlreadyDeprecated) {
-        return {
-            ...field,
-            options: [...(field.options || []), { name: 'deprecated', value: 'true' }]
-        };
-    }
-    return field;
-}
-
-/**
  * Merge a source enum with an upcoming enum.
- * Errors are pushed to the errors array.
  */
 export function mergeEnum(
     sourceEnum: ProtoEnum,
-    upcomingEnum: ProtoEnum,
-    errors: string[]
+    upcomingEnum: ProtoEnum
 ): ProtoEnum {
     const sourceValueMap = new Map(sourceEnum.values.map(v => [v.name, v]));
     const upcomingValueMap = new Map(upcomingEnum.values.map(v => [v.name, v]));
@@ -199,27 +208,15 @@ export function mergeEnum(
         if (upcomingValue) {
             mergedValues.push(sourceValue);
         } else {
-            const isAlreadyDeprecated = sourceValue.options?.some(
-                opt => opt.name === 'deprecated' && opt.value === 'true'
-            );
-
-            if (!isAlreadyDeprecated) {
-                mergedValues.push({
-                    ...sourceValue,
-                    options: [...(sourceValue.options || []), { name: 'deprecated', value: 'true' }]
-                });
-            } else {
-                mergedValues.push(sourceValue);
-            }
+            mergedValues.push(addDeprecated(sourceValue));
         }
     }
 
     for (const [valueName, upcomingValue] of upcomingValueMap) {
         if (!sourceValueMap.has(valueName)) {
-            maxValueNumber++;
             mergedValues.push({
                 ...upcomingValue,
-                number: maxValueNumber
+                number: ++maxValueNumber
             });
         }
     }

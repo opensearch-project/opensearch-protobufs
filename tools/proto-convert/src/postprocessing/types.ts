@@ -2,7 +2,7 @@
  * Internal types for proto processing.
  */
 
-export interface FieldOption {
+export interface Annotation {
     name: string;
     value: string;
 }
@@ -13,7 +13,7 @@ export interface ProtoField {
     number: number;
     modifier?: string;  // 'optional' | 'repeated'
     comment?: string;
-    options?: FieldOption[];
+    annotations?: Annotation[];
 }
 
 export interface ProtoOneof {
@@ -26,7 +26,7 @@ export interface ProtoEnumValue {
     name: string;
     number: number;
     comment?: string;
-    options?: FieldOption[];
+    annotations?: Annotation[];
 }
 
 export interface ProtoEnum {

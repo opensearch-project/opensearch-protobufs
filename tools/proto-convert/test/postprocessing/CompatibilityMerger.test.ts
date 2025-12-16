@@ -67,8 +67,8 @@ describe('mergeMessage', () => {
         });
     });
 
-    describe('modifier changes (handled gracefully)', () => {
-        it('should handle optional added gracefully', () => {
+    describe('optional changes (error)', () => {
+        it('should error when optional is added', () => {
             const source: ProtoMessage = {
                 name: 'TestMessage',
                 fields: [field('id', 'int32', 1)]
@@ -81,18 +81,14 @@ describe('mergeMessage', () => {
 
             const result = mergeMessage(source, upcoming, errors);
 
-            expect(errors).toHaveLength(0);
-            expect(result.fields).toHaveLength(2);
-            // Old field deprecated
+            expect(errors).toHaveLength(1);
+            expect(errors[0]).toContain('optional added');
+            // Field unchanged (not deprecated)
+            expect(result.fields).toHaveLength(1);
             expect(result.fields[0].name).toBe('id');
-            expect(result.fields[0].modifier).toBeUndefined();
-            expect(result.fields[0].options).toContainEqual({ name: 'deprecated', value: 'true' });
-            // New field with optional
-            expect(result.fields[1].name).toBe('id_1');
-            expect(result.fields[1].modifier).toBe('optional');
         });
 
-        it('should handle optional removed gracefully', () => {
+        it('should error when optional is removed', () => {
             const source: ProtoMessage = {
                 name: 'TestMessage',
                 fields: [field('id', 'int32', 1, 'optional')]
@@ -105,17 +101,15 @@ describe('mergeMessage', () => {
 
             const result = mergeMessage(source, upcoming, errors);
 
-            expect(errors).toHaveLength(0);
-            expect(result.fields).toHaveLength(2);
-            // Old field deprecated
+            expect(errors).toHaveLength(1);
+            expect(errors[0]).toContain('optional removed');
+            // Field unchanged (not deprecated)
+            expect(result.fields).toHaveLength(1);
             expect(result.fields[0].name).toBe('id');
-            expect(result.fields[0].modifier).toBe('optional');
-            expect(result.fields[0].options).toContainEqual({ name: 'deprecated', value: 'true' });
-            // New field without optional
-            expect(result.fields[1].name).toBe('id_1');
-            expect(result.fields[1].modifier).toBeUndefined();
         });
+    });
 
+    describe('repeated changes (handled gracefully)', () => {
         it('should handle repeated added gracefully', () => {
             const source: ProtoMessage = {
                 name: 'TestMessage',
@@ -134,7 +128,7 @@ describe('mergeMessage', () => {
             // Old field deprecated
             expect(result.fields[0].name).toBe('items');
             expect(result.fields[0].modifier).toBeUndefined();
-            expect(result.fields[0].options).toContainEqual({ name: 'deprecated', value: 'true' });
+            expect(result.fields[0].annotations).toContainEqual({ name: 'deprecated', value: 'true' });
             // New field with repeated
             expect(result.fields[1].name).toBe('items_1');
             expect(result.fields[1].modifier).toBe('repeated');
@@ -158,7 +152,7 @@ describe('mergeMessage', () => {
             // Old field deprecated
             expect(result.fields[0].name).toBe('items');
             expect(result.fields[0].modifier).toBe('repeated');
-            expect(result.fields[0].options).toContainEqual({ name: 'deprecated', value: 'true' });
+            expect(result.fields[0].annotations).toContainEqual({ name: 'deprecated', value: 'true' });
             // New field without repeated
             expect(result.fields[1].name).toBe('items_1');
             expect(result.fields[1].modifier).toBeUndefined();
@@ -184,7 +178,7 @@ describe('mergeMessage', () => {
             // Old field should be deprecated
             expect(result.fields[0].name).toBe('id');
             expect(result.fields[0].type).toBe('int32');
-            expect(result.fields[0].options).toContainEqual({ name: 'deprecated', value: 'true' });
+            expect(result.fields[0].annotations).toContainEqual({ name: 'deprecated', value: 'true' });
             // New field with updated type (version 1)
             expect(result.fields[1].name).toBe('id_1');
             expect(result.fields[1].type).toBe('int64');
@@ -209,7 +203,7 @@ describe('mergeMessage', () => {
             // Old field deprecated
             expect(result.fields[0].name).toBe('data');
             expect(result.fields[0].type).toBe('OldType');
-            expect(result.fields[0].options).toContainEqual({ name: 'deprecated', value: 'true' });
+            expect(result.fields[0].annotations).toContainEqual({ name: 'deprecated', value: 'true' });
             // New field (version 1)
             expect(result.fields[1].name).toBe('data_1');
             expect(result.fields[1].type).toBe('NewType');
@@ -238,7 +232,7 @@ describe('mergeMessage', () => {
 
             const deprecatedField = result.fields.find(f => f.name === 'old_field');
             expect(deprecatedField).toBeDefined();
-            expect(deprecatedField!.options).toContainEqual({ name: 'deprecated', value: 'true' });
+            expect(deprecatedField!.annotations).toContainEqual({ name: 'deprecated', value: 'true' });
         });
 
         it('should not double-deprecate already deprecated fields', () => {
@@ -248,7 +242,7 @@ describe('mergeMessage', () => {
                     name: 'old_field',
                     type: 'string',
                     number: 1,
-                    options: [{ name: 'deprecated', value: 'true' }]
+                    annotations: [{ name: 'deprecated', value: 'true' }]
                 }]
             };
             const upcoming: ProtoMessage = {
@@ -260,7 +254,7 @@ describe('mergeMessage', () => {
             const result = mergeMessage(source, upcoming, errors);
 
             const deprecatedField = result.fields[0];
-            const deprecatedOptions = deprecatedField.options?.filter(
+            const deprecatedOptions = deprecatedField.annotations?.filter(
                 o => o.name === 'deprecated' && o.value === 'true'
             );
             expect(deprecatedOptions).toHaveLength(1);
@@ -383,7 +377,7 @@ describe('mergeMessage', () => {
             expect(errors).toHaveLength(0);
             const removedField = result.oneofs![0].fields.find(f => f.name === 'removed_val');
             expect(removedField).toBeDefined();
-            expect(removedField!.options).toContainEqual({ name: 'deprecated', value: 'true' });
+            expect(removedField!.annotations).toContainEqual({ name: 'deprecated', value: 'true' });
         });
 
         it('should add new oneof fields with incremented numbers', () => {
@@ -445,7 +439,7 @@ describe('mergeMessage', () => {
             // Old field deprecated
             expect(result.oneofs![0].fields[0].name).toBe('val');
             expect(result.oneofs![0].fields[0].type).toBe('string');
-            expect(result.oneofs![0].fields[0].options).toContainEqual({ name: 'deprecated', value: 'true' });
+            expect(result.oneofs![0].fields[0].annotations).toContainEqual({ name: 'deprecated', value: 'true' });
             // New field with updated type (version 1)
             expect(result.oneofs![0].fields[1].name).toBe('val_1');
             expect(result.oneofs![0].fields[1].type).toBe('bytes');
@@ -489,19 +483,19 @@ describe('mergeMessage', () => {
     });
 
     describe('multiple changes', () => {
-        it('should handle multiple type/modifier changes gracefully', () => {
+        it('should handle multiple type/repeated changes gracefully', () => {
             const source: ProtoMessage = {
                 name: 'TestMessage',
                 fields: [
-                    field('field1', 'int32', 1, 'optional'),
+                    field('field1', 'int32', 1),
                     field('field2', 'string', 2)
                 ]
             };
             const upcoming: ProtoMessage = {
                 name: 'TestMessage',
                 fields: [
-                    field('field1', 'int64', 1),          // type + modifier change
-                    field('field2', 'string', 2, 'repeated')  // modifier change
+                    field('field1', 'int64', 1),              // type change
+                    field('field2', 'string', 2, 'repeated')  // repeated added
                 ]
             };
             const errors: string[] = [];
@@ -515,10 +509,10 @@ describe('mergeMessage', () => {
             // New fields are added at the end
             // Order: field1 [deprecated], field2 [deprecated], field1_1, field2_1
             expect(result.fields[0].name).toBe('field1');
-            expect(result.fields[0].options).toContainEqual({ name: 'deprecated', value: 'true' });
+            expect(result.fields[0].annotations).toContainEqual({ name: 'deprecated', value: 'true' });
 
             expect(result.fields[1].name).toBe('field2');
-            expect(result.fields[1].options).toContainEqual({ name: 'deprecated', value: 'true' });
+            expect(result.fields[1].annotations).toContainEqual({ name: 'deprecated', value: 'true' });
 
             expect(result.fields[2].name).toBe('field1_1');
             expect(result.fields[2].type).toBe('int64');
@@ -545,7 +539,7 @@ describe('mergeMessage', () => {
                         name: 'test_name',
                         type: 'bool',
                         number: 1,
-                        options: [{ name: 'deprecated', value: 'true' }]
+                        annotations: [{ name: 'deprecated', value: 'true' }]
                     },
                     field('test_name_1', 'string', 2)
                 ]
@@ -565,13 +559,13 @@ describe('mergeMessage', () => {
             expect(result.fields[0].name).toBe('test_name');
             expect(result.fields[0].type).toBe('bool');
             expect(result.fields[0].number).toBe(1);
-            expect(result.fields[0].options).toContainEqual({ name: 'deprecated', value: 'true' });
+            expect(result.fields[0].annotations).toContainEqual({ name: 'deprecated', value: 'true' });
 
             // Second field: deprecated because type doesn't match upcoming
             expect(result.fields[1].name).toBe('test_name_1');
             expect(result.fields[1].type).toBe('string');
             expect(result.fields[1].number).toBe(2);
-            expect(result.fields[1].options).toContainEqual({ name: 'deprecated', value: 'true' });
+            expect(result.fields[1].annotations).toContainEqual({ name: 'deprecated', value: 'true' });
 
             // Third field: new versioned field
             expect(result.fields[2].name).toBe('test_name_2');
@@ -607,7 +601,7 @@ describe('mergeEnum', () => {
             };
             const errors: string[] = [];
 
-            const result = mergeEnum(source, upcoming, errors);
+            const result = mergeEnum(source, upcoming);
 
             expect(errors).toHaveLength(0);
             expect(result.values).toHaveLength(3);
@@ -630,7 +624,7 @@ describe('mergeEnum', () => {
             };
             const errors: string[] = [];
 
-            const result = mergeEnum(source, upcoming, errors);
+            const result = mergeEnum(source, upcoming);
 
             expect(result.values[1].number).toBe(1);
         });
@@ -651,14 +645,14 @@ describe('mergeEnum', () => {
             };
             const errors: string[] = [];
 
-            const result = mergeEnum(source, upcoming, errors);
+            const result = mergeEnum(source, upcoming);
 
             expect(errors).toHaveLength(0);
             expect(result.values).toHaveLength(2);
 
             const deprecatedValue = result.values.find(v => v.name === 'STATUS_OLD');
             expect(deprecatedValue).toBeDefined();
-            expect(deprecatedValue!.options).toContainEqual({ name: 'deprecated', value: 'true' });
+            expect(deprecatedValue!.annotations).toContainEqual({ name: 'deprecated', value: 'true' });
         });
 
         it('should not double-deprecate already deprecated values', () => {
@@ -667,7 +661,7 @@ describe('mergeEnum', () => {
                 values: [{
                     name: 'STATUS_OLD',
                     number: 1,
-                    options: [{ name: 'deprecated', value: 'true' }]
+                    annotations: [{ name: 'deprecated', value: 'true' }]
                 }]
             };
             const upcoming: ProtoEnum = {
@@ -676,9 +670,9 @@ describe('mergeEnum', () => {
             };
             const errors: string[] = [];
 
-            const result = mergeEnum(source, upcoming, errors);
+            const result = mergeEnum(source, upcoming);
 
-            const deprecatedOptions = result.values[0].options?.filter(
+            const deprecatedOptions = result.values[0].annotations?.filter(
                 o => o.name === 'deprecated' && o.value === 'true'
             );
             expect(deprecatedOptions).toHaveLength(1);
@@ -704,7 +698,7 @@ describe('mergeEnum', () => {
             };
             const errors: string[] = [];
 
-            const result = mergeEnum(source, upcoming, errors);
+            const result = mergeEnum(source, upcoming);
 
             expect(errors).toHaveLength(0);
             expect(result.values).toHaveLength(3);
@@ -729,7 +723,7 @@ describe('mergeEnum', () => {
             };
             const errors: string[] = [];
 
-            const result = mergeEnum(source, upcoming, errors);
+            const result = mergeEnum(source, upcoming);
 
             expect(result.values).toHaveLength(3);
             const new1 = result.values.find(v => v.name === 'STATUS_NEW1');
@@ -759,14 +753,14 @@ describe('mergeEnum', () => {
             };
             const errors: string[] = [];
 
-            const result = mergeEnum(source, upcoming, errors);
+            const result = mergeEnum(source, upcoming);
 
             expect(errors).toHaveLength(0);
             expect(result.values).toHaveLength(4);
 
             // Old value deprecated
             const oldValue = result.values.find(v => v.name === 'STATUS_OLD');
-            expect(oldValue!.options).toContainEqual({ name: 'deprecated', value: 'true' });
+            expect(oldValue!.annotations).toContainEqual({ name: 'deprecated', value: 'true' });
             expect(oldValue!.number).toBe(1);
 
             // New value added

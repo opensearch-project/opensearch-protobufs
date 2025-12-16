@@ -9,7 +9,7 @@ message {{name}} {
 {{#commentLines}}
   // {{{.}}}
 {{/commentLines}}
-  {{#modifier}}{{modifier}} {{/modifier}}{{{type}}} {{name}} = {{number}}{{#hasOptions}} [{{{options}}}]{{/hasOptions}};
+  {{#modifier}}{{modifier}} {{/modifier}}{{{type}}} {{name}} = {{number}}{{#hasAnnotations}} [{{{annotations}}}]{{/hasAnnotations}};
 {{/fields}}
 {{#oneofs}}
 {{#commentLines}}
@@ -20,7 +20,7 @@ message {{name}} {
 {{#commentLines}}
     // {{{.}}}
 {{/commentLines}}
-    {{{type}}} {{name}} = {{number}}{{#hasOptions}} [{{{options}}}]{{/hasOptions}};
+    {{{type}}} {{name}} = {{number}}{{#hasAnnotations}} [{{{annotations}}}]{{/hasAnnotations}};
 
 {{/fields}}
   }
@@ -30,7 +30,7 @@ message {{name}} {
 {{#isEnum}}
 enum {{name}} {
 {{#values}}
-  {{name}} = {{number}}{{#hasOptions}} [{{{options}}}]{{/hasOptions}};
+  {{name}} = {{number}}{{#hasAnnotations}} [{{{annotations}}}]{{/hasAnnotations}};
 {{/values}}
 }
 {{/isEnum}}

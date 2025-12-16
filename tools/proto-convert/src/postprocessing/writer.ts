@@ -28,8 +28,8 @@ export function prepareMessageData(msg: ProtoMessage): object {
         fields: msg.fields.map(f => ({
             ...f,
             commentLines: splitComment(f.comment),
-            hasOptions: f.options && f.options.length > 0,
-            options: f.options?.map(o => `${o.name} = ${o.value}`).join(', ')
+            hasAnnotations: f.annotations && f.annotations.length > 0,
+            annotations: f.annotations?.map(a => `${a.name} = ${a.value}`).join(', ')
         })),
         oneofs: msg.oneofs?.map(oneof => ({
             name: oneof.name,
@@ -37,8 +37,8 @@ export function prepareMessageData(msg: ProtoMessage): object {
             fields: oneof.fields.map(f => ({
                 ...f,
                 commentLines: splitComment(f.comment),
-                hasOptions: f.options && f.options.length > 0,
-                options: f.options?.map(o => `${o.name} = ${o.value}`).join(', ')
+                hasAnnotations: f.annotations && f.annotations.length > 0,
+                annotations: f.annotations?.map(a => `${a.name} = ${a.value}`).join(', ')
             }))
         }))
     };
@@ -54,8 +54,8 @@ export function prepareEnumData(protoEnum: ProtoEnum): object {
         commentLines: splitComment(protoEnum.comment),
         values: protoEnum.values.map(v => ({
             ...v,
-            hasOptions: v.options && v.options.length > 0,
-            options: v.options?.map(o => `${o.name} = ${o.value}`).join(', ')
+            hasAnnotations: v.annotations && v.annotations.length > 0,
+            annotations: v.annotations?.map(a => `${a.name} = ${a.value}`).join(', ')
         }))
     };
 }

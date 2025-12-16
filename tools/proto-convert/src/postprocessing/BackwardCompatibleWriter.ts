@@ -111,7 +111,7 @@ export class BackwardCompatibleWriter {
             const incomingEnum = this.incomingEnumMap.get(existingEnum.name);
 
             if (incomingEnum) {
-                const mergedEnum = mergeEnum(existingEnum, incomingEnum, this.errors);
+                const mergedEnum = mergeEnum(existingEnum, incomingEnum);
                 outputParts.push(generateEnum(mergedEnum));
                 this.incomingEnumMap.delete(existingEnum.name);
             } else {

@@ -11,7 +11,7 @@ import {
     ProtoEnumValue,
     ProtoOneof,
     ParsedProtoFile,
-    FieldOption
+    Annotation
 } from './types';
 
 /**
@@ -34,11 +34,11 @@ export function convertField(field: Field): ProtoField {
         }
     }
 
-    const options: FieldOption[] = [];
+    const annotations: Annotation[] = [];
     if (field.options) {
         for (const [key, value] of Object.entries(field.options)) {
             if (key === 'proto3_optional') continue;
-            options.push({ name: key, value: String(value) });
+            annotations.push({ name: key, value: String(value) });
         }
     }
 
@@ -48,7 +48,7 @@ export function convertField(field: Field): ProtoField {
         number: field.id,
         modifier,
         comment: field.comment || undefined,
-        options: options.length > 0 ? options : undefined
+        annotations: annotations.length > 0 ? annotations : undefined
     };
 }
 
@@ -66,7 +66,7 @@ export function convertEnum(enumDef: Enum): ProtoEnum {
 
         const valuesOptions = (enumDef as any).valuesOptions;
         if (valuesOptions && valuesOptions[name]) {
-            value.options = Object.entries(valuesOptions[name]).map(([k, v]) => ({
+            value.annotations = Object.entries(valuesOptions[name]).map(([k, v]) => ({
                 name: k,
                 value: String(v)
             }));
@@ -112,7 +112,7 @@ export function convertMessage(msgDef: Type): ProtoMessage {
                     type: field.type,
                     number: field.id,
                     comment: field.comment || undefined,
-                    options: field.options
+                    annotations: field.options
                         ? Object.entries(field.options).map(([k, v]) => ({ name: k, value: String(v) }))
                         : undefined
                 });

@@ -49,7 +49,7 @@ describe('generateMessage', () => {
                     name: 'old_field',
                     type: 'string',
                     number: 1,
-                    options: [{ name: 'deprecated', value: 'true' }]
+                    annotations: [{ name: 'deprecated', value: 'true' }]
                 }
             ]
         };
@@ -135,7 +135,7 @@ describe('generateEnum', () => {
                 {
                     name: 'STATUS_OLD',
                     number: 1,
-                    options: [{ name: 'deprecated', value: 'true' }]
+                    annotations: [{ name: 'deprecated', value: 'true' }]
                 }
             ]
         };
