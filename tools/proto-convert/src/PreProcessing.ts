@@ -2,7 +2,7 @@ import { Command, Option } from '@commander-js/extra-typings';
 import { read_yaml, write_yaml } from './utils/helper';
 import Filter from './Filter';
 import { Sanitizer } from './Sanitizer';
-import Logger from './utils/logger';
+import logger from './utils/logger';
 import * as path from 'path';
 import {SchemaModifier} from "./SchemaModifier";
 import {VendorExtensionProcessor} from "./VendorExtensionProcessor";
@@ -41,17 +41,15 @@ type PreprocessingOpts = {
 
 const opts = command.opts() as PreprocessingOpts;
 
-const logger = new Logger();
-
 try {
   logger.info(`PreProcessing ${opts.filtered_path.join(', ')} into ${opts.output} ...`)
   const original_spec = read_yaml(opts.input)
-  const filtered_spec = new Filter(logger, opts.filtered_path, excluded_schemas).filter_spec(original_spec);
-  const version_processed_spec = new OpenSearchVersionExtractor(filtered_spec, logger).process(opts.opensearchVersion);
-  const sanitized_spec = new Sanitizer().sanitize(version_processed_spec);
+  const filtered_spec = new Filter(original_spec, opts.filtered_path, excluded_schemas).filter();
+  const version_processed_spec = new OpenSearchVersionExtractor(filtered_spec).process(opts.opensearchVersion);
+  const sanitized_spec = new Sanitizer(version_processed_spec).sanitize();
   const consolidated_spec = new GlobalParameterConsolidator(sanitized_spec).consolidate();
-  const vendor_processed_spec = new VendorExtensionProcessor(consolidated_spec, logger).process();
-  const schema_modified_spec = new SchemaModifier(vendor_processed_spec, logger).modify();
+  const vendor_processed_spec = new VendorExtensionProcessor(consolidated_spec).process();
+  const schema_modified_spec = new SchemaModifier(vendor_processed_spec).modify();
   write_yaml(opts.output, schema_modified_spec);
 
 } catch (err) {

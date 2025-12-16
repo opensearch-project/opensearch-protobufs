@@ -1,6 +1,6 @@
 import _ from 'lodash';
 import * as semver from 'semver';
-import Logger from './utils/logger';
+import logger from './utils/logger';
 import { deleteMatchingKeys, remove_unused } from './utils/helper';
 import type { OpenAPIV3 } from 'openapi-types';
 
@@ -10,13 +10,11 @@ import type { OpenAPIV3 } from 'openapi-types';
  * x-version-removed: Removes fields if removed version <= target version.
  */
 export class OpenSearchVersionExtractor {
-  private _logger: Logger;
   private _spec: OpenAPIV3.Document;
   private _target_version: string;
 
-  constructor(spec: OpenAPIV3.Document, logger: Logger) {
+  constructor(spec: OpenAPIV3.Document) {
     this._spec = spec;
-    this._logger = logger;
     this._target_version = '';
   }
 
@@ -24,12 +22,12 @@ export class OpenSearchVersionExtractor {
   process(currentVersion: string): OpenAPIV3.Document {
     const coerced = semver.coerce(currentVersion);
     this._target_version = coerced?.toString() || currentVersion;
-    this._logger.info(`Processing version constraints for OpenSearch ${this._target_version} ...`);
+    logger.info(`Processing version constraints for OpenSearch ${this._target_version} ...`);
 
     deleteMatchingKeys(this._spec, this.#exclude_per_semver.bind(this));
     remove_unused(this._spec);
 
-    this._logger.info('Version processing complete');
+    logger.info('Version processing complete');
     return this._spec;
   }
 

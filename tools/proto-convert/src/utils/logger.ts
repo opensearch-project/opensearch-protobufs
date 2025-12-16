@@ -1,4 +1,4 @@
-export default class Logger {
+export class Logger {
     info(message: string): void {
         console.log(`[INFO] ${message}`);
     }
@@ -11,3 +11,6 @@ export default class Logger {
         console.error(`[ERROR] ${message}`);
     }
 }
+
+const logger = new Logger();
+export default logger;

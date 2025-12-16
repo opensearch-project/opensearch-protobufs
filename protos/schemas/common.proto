@@ -1,5 +1,5 @@
 /**
-This is generated from the spec. DO NOT manually modify.
+    This is generated from the spec. DO NOT manually modify.
 */
 syntax = "proto3";
 package org.opensearch.protobufs;

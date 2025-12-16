@@ -121,12 +121,12 @@ jobs:
         run: |
           java -jar cloned-repo/modules/openapi-generator-cli/target/openapi-generator-cli.jar generate -c tools/proto-convert/src/config/protobuf-generator-config.yaml
 
-      #      - name: Post Process Protobuf
-      #        run: npm run postprocessing
-
       - name: Reformat proto files
         run: |
-         buf format -w protos/generated
+          buf format -w protos/generated
+
+      - name: Post Process Protobuf
+        run: npm run postprocessing
 
       - name: Configure Git User
         run: |

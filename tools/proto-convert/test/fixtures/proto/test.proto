@@ -1,0 +1,131 @@
+syntax = "proto3";
+
+package test;
+
+
+// The main search request message
+message SearchRequest {
+  // Query string to search
+  string query = 1;
+  // Maximum results to return
+  optional int32 limit = 2;
+  // Pagination offset
+  int32 offset = 3;
+  // Search options
+  SearchOptions options = 4;
+  // List of fields to return
+  repeated string fields = 5;
+}
+
+// The main search response message
+message SearchResponse {
+  // List of matching results
+  repeated SearchResult results = 1;
+  // Total count of matches
+  int64 total_count = 2;
+  // Response metadata
+  ResponseMetadata metadata = 3;
+}
+
+// Options for search behavior
+message SearchOptions {
+  // Enable fuzzy matching
+  bool fuzzy = 1;
+  // Boost factor for relevance
+  optional float boost = 2;
+  // Sort order
+  SortOrder sort_order = 3;
+  // Filter settings
+  FilterSettings filter = 4;
+}
+
+// Individual search result
+message SearchResult {
+  // Unique document ID
+  string id = 1;
+  // Relevance score
+  float score = 2;
+  // Document content
+  map<string, string> content = 3;
+  // Highlight snippets
+  repeated Highlight highlights = 4;
+}
+
+// Response metadata
+message ResponseMetadata {
+  // Time taken in milliseconds
+  int64 took_ms = 1;
+  // Whether results were cached
+  bool cached = 2;
+}
+
+// Filter settings with oneof
+message FilterSettings {
+  // Filter name
+  string name = 1;
+  // Filter value - can be different types
+  oneof value {
+    string string_value = 2;
+    int32 int_value = 3;
+    bool bool_value = 4;
+    RangeFilter range_value = 5;
+  }
+}
+
+// Range filter for numeric values
+message RangeFilter {
+  // Minimum value (inclusive)
+  optional double min = 1;
+  // Maximum value (inclusive)
+  optional double max = 2;
+}
+
+// Text highlight snippet
+message Highlight {
+  // Field name
+  string field = 1;
+  // Highlighted text fragments
+  repeated string fragments = 2;
+}
+
+// ==================== ENUMS ====================
+
+// Sort order enumeration
+enum SortOrder {
+  SORT_ORDER_UNSPECIFIED = 0;
+  SORT_ORDER_ASC = 1;
+  SORT_ORDER_DESC = 2;
+}
+
+// Status enumeration
+enum Status {
+  STATUS_UNSPECIFIED = 0;
+  STATUS_ACTIVE = 1;
+  STATUS_INACTIVE = 2;
+}
+
+// ==================== UNUSED (for cleanup testing) ====================
+
+// This message is not referenced by any root
+message UnusedMessage {
+  string data = 1;
+  optional int32 count = 2;
+  UnusedChild child = 3;
+}
+
+// Child of unused message (also unreachable)
+message UnusedChild {
+  string name = 1;
+}
+
+// Another standalone unused message
+message AnotherUnused {
+  repeated string items = 1;
+  map<string, int32> counts = 2;
+}
+
+// Unused enum
+enum UnusedEnum {
+  UNUSED_UNSPECIFIED = 0;
+  UNUSED_VALUE = 1;
+}

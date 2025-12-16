@@ -6,8 +6,10 @@
   "license": "Apache-2.0",
   "scripts": {
     "preprocessing": "ts-node tools/proto-convert/src/PreProcessing.ts",
-    "postprocessing": "ts-node tools/proto-convert/src/PostProcessing.ts",
-    "test": "npx jest --testMatch='**/*.test.ts --no-watchman'"
+    "backward-compat": "ts-node tools/proto-convert/src/postprocessing/BackwardCompatibleWriter.ts",
+    "cleanup-common": "ts-node tools/proto-convert/src/postprocessing/CleanupUnusedMessages.ts -i protos/schemas/common.proto",
+    "postprocessing": "npm run backward-compat && npm run cleanup-common",
+    "test": "npx jest --testMatch='**/*.test.ts' --no-watchman"
   },
   "dependencies": {
     "@apidevtools/swagger-parser": "^12.1.0",
@@ -45,6 +47,7 @@
     "json-schema-to-typescript": "^15.0.4",
     "lodash": "^4.17.21",
     "lodash.isequal": "^4.5.0",
+    "mustache": "^4.2.0",
     "protobufjs": "^6.11.4",
     "qs": "^6.12.1",
     "semver": "^7.6.0",
@@ -58,8 +61,10 @@
   "devDependencies": {
     "@types/jest": "^29.5.14",
     "@types/lodash.isequal": "^4.5.8",
+    "@types/mustache": "^4.2.6",
     "@types/semver": "^7.7.1",
     "jest": "^29.7.0",
+    "proto-parser": "^0.0.9",
     "ts-jest": "^29.3.0",
     "typescript": "^5.8.2"
   },
