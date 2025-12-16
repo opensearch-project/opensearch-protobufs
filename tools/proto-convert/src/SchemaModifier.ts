@@ -19,7 +19,8 @@ export class SchemaModifier {
                 this.deduplicateEnumValue(schema)
                 this.handleAdditionalPropertiesUndefined(schema)
                 this.convertNullTypeToNullValue(schema)
-                this.collapseOrMergeOneOfArray(schema)
+                this.deduplicateOneOfWithArrayType(schema)
+                this.collapseSingleItemComposite(schema);
                 this.removeArrayOfMapWrapper(schema)
             },
             onSchema: (schema, schemaName) => {
@@ -29,7 +30,8 @@ export class SchemaModifier {
                 this.handleAdditionalPropertiesUndefined(schema)
                 this.convertNullTypeToNullValue(schema)
                 this.handleOneOfConst(schema, schemaName)
-                this.collapseOrMergeOneOfArray(schema)
+                this.deduplicateOneOfWithArrayType(schema)
+                this.collapseSingleItemComposite(schema);
                 this.collapseOneOfObjectPropContainsTitleSchema(schema)
                 this.removeArrayOfMapWrapper(schema)
                 this.convertOneOfToMinMaxProperties(schema)
@@ -100,7 +102,7 @@ export class SchemaModifier {
     // Simplify schemas with `oneOf` by aggregating items.
     // If there are only two `oneOf` items and one matches an array schema, remove oneOf type and set type to array.
     // If there are more than two `oneOf` items and one matches an array schema, remove that item from `oneOf`.
-    collapseOrMergeOneOfArray(schema: OpenAPIV3.SchemaObject): void{
+    deduplicateOneOfWithArrayType(schema: OpenAPIV3.SchemaObject): void{
         if (!('$ref' in schema) && Array.isArray(schema.oneOf)) {
             const oneOfs = schema.oneOf;
 
@@ -122,15 +124,24 @@ export class SchemaModifier {
                     oneOfs.splice(deleteIndx, 1);
                 }
             }
-            this.collapseSingleItemOneOf(schema);
         }
     }
 
-    collapseSingleItemOneOf(schema: OpenAPIV3.SchemaObject): void {
+    /**
+     * Collapses single-item composite schemas (oneOf, allOf, anyOf) by replacing
+     * the composite with its single child schema.
+     * Example: { oneOf: [{ type: 'string' }] } -> { type: 'string' }
+     */
+    collapseSingleItemComposite(schema: OpenAPIV3.SchemaObject): void {
         if (Array.isArray(schema.oneOf) && schema.oneOf.length === 1) {
-            const [singleOneOf] = schema.oneOf as OpenAPIV3.SchemaObject[];
-            Object.assign(schema, singleOneOf);
+            Object.assign(schema, schema.oneOf[0]);
             delete schema.oneOf;
+        } else if (Array.isArray(schema.allOf) && schema.allOf.length === 1) {
+            Object.assign(schema, schema.allOf[0]);
+            delete schema.allOf;
+        } else if (Array.isArray(schema.anyOf) && schema.anyOf.length === 1) {
+            Object.assign(schema, schema.anyOf[0]);
+            delete schema.anyOf;
         }
     }
 
