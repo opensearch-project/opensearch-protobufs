@@ -1,0 +1,95 @@
+name: Cleanup release
+
+# Runs after publish-release workflow completes successfully
+# Can also be triggered manually for testing
+
+on:
+  # Triggered when publish-release workflow completes
+  workflow_run:
+    workflows: ["Release drafter"]
+    types:
+      - completed
+  workflow_dispatch:
+    inputs:
+      release_tag:
+        description: 'Release tag to simulate (e.g., 1.0.0) - used for release notes filename'
+        required: true
+        type: string
+
+jobs:
+  cleanup-release:
+    name: Cleanup release
+    runs-on: ubuntu-latest
+    if: ${{ github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success' }}
+    permissions:
+      contents: write
+      pull-requests: write
+    env:
+      RELEASE_TAG: ${{ inputs.release_tag || github.event.workflow_run.head_branch }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+
+      - name: Increment Version
+        id: version
+        uses: nguyenvukhang/semver-increment@v1
+        with:
+          increment: minor
+          version-file: version.properties
+          version-regex: '^version=(.*)'
+
+      - name: Create release notes from current CHANGELOG
+        run: |
+          mkdir -p release-notes
+          RELEASE_NOTES_FILE="release-notes/opensearch-protobufs.release-notes-${{ env.RELEASE_TAG }}.md"
+
+          # Create header
+          echo "# OpenSearch Protobufs ${{ env.RELEASE_TAG }} Release Notes" > "$RELEASE_NOTES_FILE"
+          echo "" >> "$RELEASE_NOTES_FILE"
+
+          # Copy changelog content (everything after the [Unreleased] header)
+          sed -n '/^## \[Unreleased\]/,/^## \[/{ /^## \[Unreleased\]/d; /^## \[/d; p; }' CHANGELOG.md >> "$RELEASE_NOTES_FILE"
+
+          echo "Created $RELEASE_NOTES_FILE"
+
+      - name: Reset CHANGELOG for next iteration
+        run: |
+          cat > CHANGELOG.md << 'EOF'
+          # CHANGELOG
+
+          Inspired from [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
+
+          ## [Unreleased]
+          ### Added
+
+          ### Changed
+
+          ### Removed
+
+          ### Fixed
+
+          ### Security
+          EOF
+
+      - name: Create Pull Request
+        uses: peter-evans/create-pull-request@v7
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          commit-message: "Cleanup release ${{ env.RELEASE_TAG }}, prepare ${{ steps.version.outputs.version }}"
+          signoff: true
+          branch: cleanup-release/${{ env.RELEASE_TAG }}
+          base: main
+          delete-branch: true
+          title: "Cleanup release ${{ env.RELEASE_TAG }}"
+          body: |
+            Release ${{ env.RELEASE_TAG }} has been drafted.
+
+            This PR prepares for the next development iteration (${{ steps.version.outputs.version }}).
+
+            ### Changes:
+            - Created release notes from CHANGELOG: `release-notes/opensearch-protobufs.release-notes-${{ env.RELEASE_TAG }}.md`
+            - Reset `CHANGELOG.md` for next iteration
+            - Bumped `version.properties` to `${{ steps.version.outputs.version }}`
