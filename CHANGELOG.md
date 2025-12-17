@@ -12,6 +12,7 @@ Inspired from [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 - Postprocessing- Add postprocessing support ([#333](https://github.com/opensearch-project/opensearch-protobufs/pull/333))
 - Preprocessing - Collapses single-item composite schemas (oneOf, allOf, anyOf) by replacing the composite with its single child schema. ([#334](https://github.com/opensearch-project/opensearch-protobufs/pull/334))
 - Add cleanup-release github workflow ([#338](https://github.com/opensearch-project/opensearch-protobufs/pull/338))
+- Expand GeneralNumber to support unsigned integer types ([#339](https://github.com/opensearch-project/opensearch-protobufs/pull/339))
 
 ### Changed
 - Backward incompatible change for unimplemented query types `ScriptScoreQuery`, `SimpleQueryStringQuery`, `DisMaxQuery`, `IntervalsQuery`, `QueryStringQuery` and `TermsAggregation` ([#324](https://github.com/opensearch-project/opensearch-protobufs/pull/324))
