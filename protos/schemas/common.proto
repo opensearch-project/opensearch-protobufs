@@ -3194,6 +3194,7 @@ enum VersionType {
   VERSION_TYPE_EXTERNAL = 1;
   VERSION_TYPE_EXTERNAL_GTE = 2;
   VERSION_TYPE_INTERNAL = 3;
+  VERSION_TYPE_FORCE = 4;
 }
 
 enum Refresh {
@@ -3393,6 +3394,7 @@ enum FieldType {
   FIELD_TYPE_WILDCARD = 44;
   FIELD_TYPE_XY_POINT = 45;
   FIELD_TYPE_XY_SHAPE = 46;
+  FIELD_TYPE_SEMANTIC = 47;
 }
 
 enum SortOrder {
@@ -3444,6 +3446,7 @@ enum HighlighterOrder {
 enum HighlighterTagsSchema {
   HIGHLIGHTER_TAGS_SCHEMA_UNSPECIFIED = 0;
   HIGHLIGHTER_TAGS_SCHEMA_STYLED = 1;
+  HIGHLIGHTER_TAGS_SCHEMA_DEFAULT = 2;
 }
 
 enum DistanceUnit {
@@ -3511,6 +3514,7 @@ message GeneralNumber {
     int64 int64_value = 2;
     float float_value = 3;
     double double_value = 4;
+    uint64 uint64_value = 5;
   }
 }
 
