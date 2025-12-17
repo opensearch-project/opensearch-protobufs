@@ -95,9 +95,9 @@ components:
       properties:
         id:
           type: integer
-        underscore_name:
+        x_name:
           type: string
-        underscore_type:
+        x_type:
           type: string
           enum:
             - dog
@@ -110,7 +110,7 @@ components:
       properties:
         isTrained:
           type: boolean
-        underscore_breed:
+        x_breed:
           type: string
     Cat:
       type: object
@@ -136,11 +136,11 @@ components:
           required:
             - canFly
           properties:
-            underscore_canFly:
+            x_canFly:
               type: boolean
         - type: object
           required:
             - canTalk
           properties:
-            underscore_canTalk:
+            x_canTalk:
               type: boolean
