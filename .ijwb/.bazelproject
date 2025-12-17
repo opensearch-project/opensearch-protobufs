@@ -1,8 +1,0 @@
-targets:
-    @//your/targets/here/...:all
-
-bazel_binary: /home/user/opensearch-protobufs/tools/bazel
-
-allow_manual_targets_sync: false
-
-derive_targets_from_directories: false
