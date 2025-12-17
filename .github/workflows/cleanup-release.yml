@@ -45,9 +45,10 @@ jobs:
         run: |
           mkdir -p release-notes
           RELEASE_NOTES_FILE="release-notes/opensearch-protobufs.release-notes-${{ env.RELEASE_TAG }}.md"
+          RELEASE_DATE=$(date +%Y-%m-%d)
 
-          # Create header
-          echo "# OpenSearch Protobufs ${{ env.RELEASE_TAG }} Release Notes" > "$RELEASE_NOTES_FILE"
+          # Create header with version and date
+          echo "## Version ${{ env.RELEASE_TAG }} ($RELEASE_DATE) Release Notes" > "$RELEASE_NOTES_FILE"
           echo "" >> "$RELEASE_NOTES_FILE"
 
           # Copy changelog content (everything after the [Unreleased] header)
