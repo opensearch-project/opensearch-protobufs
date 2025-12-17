@@ -21,6 +21,7 @@ Inspired from [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 - Consolidate all protobuf schemas into common.proto ([#330](https://github.com/opensearch-project/opensearch-protobufs/pull/330))
 - Reorder protobufs - messages top, enums bottom ([#331](https://github.com/opensearch-project/opensearch-protobufs/pull/331))
 - Reformat protobufs - Add lines between fields and messages ([#332](https://github.com/opensearch-project/opensearch-protobufs/pull/332))
+- Bump up next release version ([#343](https://github.com/opensearch-project/opensearch-protobufs/pull/343))
 
 ### Removed
 - Removed unused messages ([#319](https://github.com/opensearch-project/opensearch-protobufs/pull/319))
