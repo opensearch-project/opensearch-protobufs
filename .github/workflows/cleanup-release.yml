@@ -85,11 +85,5 @@ jobs:
           delete-branch: true
           title: "Cleanup release ${{ env.RELEASE_TAG }}"
           body: |
-            Release ${{ env.RELEASE_TAG }} has been drafted.
-
-            This PR prepares for the next development iteration (${{ steps.version.outputs.version }}).
-
-            ### Changes:
-            - Created release notes from CHANGELOG: `release-notes/opensearch-protobufs.release-notes-${{ env.RELEASE_TAG }}.md`
-            - Reset `CHANGELOG.md` for next iteration
-            - Bumped `version.properties` to `${{ steps.version.outputs.version }}`
+            ### Description
+            Clean up changelog and bump up version.properties after ${{ env.RELEASE_TAG }} release.
