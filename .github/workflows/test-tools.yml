@@ -1,0 +1,39 @@
+name: Test Tools
+
+on:
+  push:
+    branches: ['**']
+    paths:
+      - '.github/workflows/test*.yml'
+      - 'package*.json'
+      - 'tools/**'
+  pull_request:
+    branches: ['**']
+    paths:
+      - '.github/workflows/test*.yml'
+      - 'package*.json'
+      - 'tools/**'
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repo
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '20'
+
+      - name: Install Dependencies
+        run: npm ci
+
+      - name: Run Tests
+        run: npm test -- --coverage
+
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v5
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          fail_ci_if_error: false

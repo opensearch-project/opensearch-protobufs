@@ -9,7 +9,7 @@
     "backward-compat": "ts-node tools/proto-convert/src/postprocessing/BackwardCompatibleWriter.ts",
     "cleanup-common": "ts-node tools/proto-convert/src/postprocessing/CleanupUnusedMessages.ts -i protos/schemas/common.proto",
     "postprocessing": "npm run backward-compat && npm run cleanup-common",
-    "test": "npx jest --testMatch='**/*.test.ts' --no-watchman"
+    "test": "npx jest --no-watchman"
   },
   "dependencies": {
     "@apidevtools/swagger-parser": "^12.1.0",
