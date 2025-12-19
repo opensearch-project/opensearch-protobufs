@@ -4,23 +4,12 @@
  * (directly or indirectly) by any root message.
  */
 
-import { existsSync, readFileSync, writeFileSync } from 'fs';
-import { join } from 'path';
+import { existsSync } from 'fs';
 import { Command, Option } from '@commander-js/extra-typings';
 import { parseProtoFile } from './parser';
-import { generateMessage, generateEnum } from './writer';
+import { writeProtoFile, CUSTOM_MESSAGE_NAMES, CUSTOM_ENUM_NAMES } from './writer';
 import { ProtoMessage, ProtoEnum } from './types';
 import logger from '../utils/logger';
-
-const TEMPLATE_DIR = join(__dirname, '../config/protobuf-schema-template');
-
-// Load fixed header and custom messages from templates
-const PROTO_HEADER = readFileSync(join(TEMPLATE_DIR, 'partial_header.mustache'), 'utf-8');
-const CUSTOM_MESSAGES = readFileSync(join(TEMPLATE_DIR, 'custom_message.mustache'), 'utf-8');
-
-// Custom messages/enums defined in template - always included at end
-const CUSTOM_MESSAGE_NAMES = new Set(['ObjectMap', 'GeneralNumber']);
-const CUSTOM_ENUM_NAMES = new Set(['NullValue']);
 
 export function isBuiltInType(type: string): boolean {
     const builtIns = new Set([
@@ -131,45 +120,30 @@ export function extractRootsFromServices(servicePath: string): string[] {
     return Array.from(roots);
 }
 
-// ==================== CLI ====================
+export type CleanupOptions = {
+    input: string;
+    output?: string;
+    service?: string;
+    roots?: string[];
+};
 
-if (require.main === module) {
-    const command = new Command()
-        .description('Remove unused messages and enums from a proto file.')
-        .addOption(new Option('-i, --input <path>', 'input proto file').default('protos/generated/models/aggregated_models.proto'))
-        .addOption(new Option('-o, --output <path>', 'output proto file (defaults to input)'))
-        .addOption(new Option('-s, --service <path>', 'service proto file to auto-detect roots')
-            .default('protos/generated/services/default_service.proto'))
-        .addOption(new Option('-r, --roots <names>', 'root message names (comma-separated, overrides --service)')
-            .argParser((val: string) => val.split(',').map(s => s.trim())))
-        .allowExcessArguments(false)
-        .parse();
-
-    type CleanupOpts = {
-        input: string;
-        output?: string;
-        service: string;
-        roots?: string[];
-    };
-
-    const opts = command.opts() as CleanupOpts;
-
+/**
+ * Clean up unused messages and enums from a proto file.
+ * Returns the number of removed messages and enums.
+ */
+export function cleanupUnusedMessages(opts: CleanupOptions): { removedMessages: number; removedEnums: number } {
     if (!existsSync(opts.input)) {
-        logger.error(`Input file not found: ${opts.input}`);
-        process.exit(1);
+        throw new Error(`Input file not found: ${opts.input}`);
     }
 
-    // Get roots: from --roots if provided, otherwise from service file
+    // Get roots
     let roots: string[];
     if (opts.roots && opts.roots.length > 0) {
         roots = opts.roots;
-        logger.info(`Using manually specified roots: ${roots.join(', ')}`);
-    } else if (existsSync(opts.service)) {
+    } else if (opts.service && existsSync(opts.service)) {
         roots = extractRootsFromServices(opts.service);
-        logger.info(`Auto-detected roots from ${opts.service}: ${roots.join(', ')}`);
     } else {
-        logger.error(`Service file not found: ${opts.service}. Specify --roots manually.`);
-        process.exit(1);
+        throw new Error(`Service file not found: ${opts.service}. Specify roots manually.`);
     }
 
     const parsed = parseProtoFile(opts.input);
@@ -178,8 +152,7 @@ if (require.main === module) {
     const messageNames = new Set(parsed.messages.map(m => m.name));
     for (const rootMsg of roots) {
         if (!messageNames.has(rootMsg)) {
-            logger.error(`Root message not found: ${rootMsg}`);
-            process.exit(1);
+            throw new Error(`Root message not found: ${rootMsg}`);
         }
     }
 
@@ -193,39 +166,35 @@ if (require.main === module) {
     const removedMessages = parsed.messages.length - keptMessages.length;
     const removedEnums = parsed.enums.length - keptEnums.length;
 
-    if (removedMessages === 0 && removedEnums === 0) {
-        logger.info('No unused messages or enums found.');
-        process.exit(0);
-    }
-
-    logger.info(`Removing ${removedMessages} unused messages, ${removedEnums} unused enums.`);
-
-    // Generate output
-    const outputParts: string[] = [];
-
-    // Use fixed header from template
-    outputParts.push(PROTO_HEADER.trim());
-
-    // Generate messages (excluding custom ones - they're added from template)
-    for (const msg of keptMessages) {
-        if (!CUSTOM_MESSAGE_NAMES.has(msg.name)) {
-            outputParts.push(generateMessage(msg));
-        }
-    }
-
-    // Generate enums (excluding custom ones)
-    for (const e of keptEnums) {
-        if (!CUSTOM_ENUM_NAMES.has(e.name)) {
-            outputParts.push(generateEnum(e));
-        }
-    }
-
-    // Append custom messages from template
-    outputParts.push('');
-    outputParts.push(CUSTOM_MESSAGES.trim());
-
+    // Write output
     const outputPath = opts.output || opts.input;
-    writeFileSync(outputPath, outputParts.join('\n'));
+    writeProtoFile(keptMessages, keptEnums, outputPath);
 
-    logger.info(`Updated: ${outputPath}`);
+    return { removedMessages, removedEnums };
+}
+
+// ==================== CLI ====================
+/* istanbul ignore next -- CLI entry point */
+
+if (require.main === module) {
+    const command = new Command()
+        .description('Remove unused messages and enums from a proto file.')
+        .addOption(new Option('-i, --input <path>', 'input proto file').default('protos/generated/models/aggregated_models.proto'))
+        .addOption(new Option('-o, --output <path>', 'output proto file (defaults to input)'))
+        .addOption(new Option('-s, --service <path>', 'service proto file to auto-detect roots')
+            .default('protos/generated/services/default_service.proto'))
+        .addOption(new Option('-r, --roots <names>', 'root message names (comma-separated, overrides --service)')
+            .argParser((val: string) => val.split(',').map(s => s.trim())))
+        .allowExcessArguments(false)
+        .parse();
+
+    const opts = command.opts() as CleanupOptions;
+
+    try {
+        const { removedMessages, removedEnums } = cleanupUnusedMessages(opts);
+        logger.info(`Removed ${removedMessages} messages, ${removedEnums} enums. Updated: ${opts.output || opts.input}`);
+    } catch (error) {
+        logger.error((error as Error).message);
+        process.exit(1);
+    }
 }

@@ -1,0 +1,23 @@
+syntax = "proto3";
+
+package test;
+
+message SearchRequest {
+  string query = 1;
+  int32 limit = 2;
+}
+
+message LegacyMessage {
+  string data = 1;
+}
+
+enum SortOrder {
+  SORT_ORDER_UNSPECIFIED = 0;
+  SORT_ORDER_ASC = 1;
+  SORT_ORDER_DESC = 2;
+}
+
+enum LegacyEnum {
+  LEGACY_UNSPECIFIED = 0;
+  LEGACY_VALUE = 1;
+}

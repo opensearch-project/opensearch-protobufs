@@ -12,13 +12,6 @@ option java_multiple_files = true;
 option java_outer_classname = "CommonProto";
 option java_package = "org.opensearch.protobufs";
 
-service DefaultService {
-  rpc Bulk (BulkRequest) returns (BulkResponse);
-
-  rpc Search (SearchRequest) returns (SearchResponse);
-
-}
-
 message BulkRequest {
   repeated BulkRequestBody bulk_request_body = 1;
 

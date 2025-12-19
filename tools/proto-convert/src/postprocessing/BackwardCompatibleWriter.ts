@@ -1,5 +1,4 @@
-import { existsSync, readFileSync, writeFileSync } from 'fs';
-import { join } from 'path';
+import { existsSync } from 'fs';
 import { Command, Option } from '@commander-js/extra-typings';
 import {
     ProtoMessage,
@@ -8,38 +7,8 @@ import {
 } from './types';
 import { parseProtoFile } from './parser';
 import { mergeMessage, mergeEnum } from './CompatibilityMerger';
-import { generateMessage, generateEnum } from './writer';
+import { writeProtoFile, CUSTOM_MESSAGE_NAMES, CUSTOM_ENUM_NAMES } from './writer';
 import logger from '../utils/logger';
-
-const TEMPLATE_DIR = join(__dirname, '../config/protobuf-schema-template');
-
-// Load fixed header and custom messages from templates
-const PROTO_HEADER = readFileSync(join(TEMPLATE_DIR, 'partial_header.mustache'), 'utf-8');
-const CUSTOM_MESSAGES = readFileSync(join(TEMPLATE_DIR, 'custom_message.mustache'), 'utf-8');
-
-// ==================== CLI ====================
-
-const command = new Command()
-    .description('Merge incoming proto files into existing proto while maintaining backward compatibility.')
-    .addOption(new Option('-e, --existing <path>', 'existing proto file (source of truth)').default('protos/schemas/common.proto'))
-    .addOption(new Option('-i, --incoming <paths>', 'incoming proto files (comma-separated)')
-        .argParser((val: string) => val.split(',').map(s => s.trim()))
-        .default(['protos/generated/models/aggregated_models.proto', 'protos/generated/services/default_service.proto']))
-    .addOption(new Option('-o, --output <path>', 'output proto file').default('protos/schemas/common.proto'))
-    .allowExcessArguments(false)
-    .parse();
-
-type BackwardCompatOpts = {
-    existing: string;
-    incoming: string[];
-    output: string;
-};
-
-const opts = command.opts() as BackwardCompatOpts;
-
-// Messages defined in custom_message.mustache - skip and use template instead
-const CUSTOM_MESSAGE_NAMES = new Set(['ObjectMap', 'GeneralNumber']);
-const CUSTOM_ENUM_NAMES = new Set(['NullValue']);
 
 export class BackwardCompatibleWriter {
     private existingMessages: ProtoMessage[];
@@ -78,12 +47,10 @@ export class BackwardCompatibleWriter {
     }
 
     process(): void {
-        const outputParts: string[] = [];
+        const finalMessages: ProtoMessage[] = [];
+        const finalEnums: ProtoEnum[] = [];
 
-        // Use fixed header from template
-        outputParts.push(PROTO_HEADER.trim());
-
-        // Process messages
+        // Process existing messages (merge with incoming if present)
         for (const existingMsg of this.existingMessages) {
             if (CUSTOM_MESSAGE_NAMES.has(existingMsg.name)) {
                 this.incomingMessageMap.delete(existingMsg.name);
@@ -91,17 +58,15 @@ export class BackwardCompatibleWriter {
             }
 
             const incomingMsg = this.incomingMessageMap.get(existingMsg.name);
-
             if (incomingMsg) {
-                const mergedMsg = mergeMessage(existingMsg, incomingMsg, this.errors);
-                outputParts.push(generateMessage(mergedMsg));
+                finalMessages.push(mergeMessage(existingMsg, incomingMsg, this.errors));
                 this.incomingMessageMap.delete(existingMsg.name);
             } else {
-                outputParts.push(generateMessage(existingMsg));
+                finalMessages.push(existingMsg);
             }
         }
 
-        // Process enums
+        // Process existing enums (merge with incoming if present)
         for (const existingEnum of this.existingEnums) {
             if (CUSTOM_ENUM_NAMES.has(existingEnum.name)) {
                 this.incomingEnumMap.delete(existingEnum.name);
@@ -109,31 +74,27 @@ export class BackwardCompatibleWriter {
             }
 
             const incomingEnum = this.incomingEnumMap.get(existingEnum.name);
-
             if (incomingEnum) {
-                const mergedEnum = mergeEnum(existingEnum, incomingEnum);
-                outputParts.push(generateEnum(mergedEnum));
+                finalEnums.push(mergeEnum(existingEnum, incomingEnum));
                 this.incomingEnumMap.delete(existingEnum.name);
             } else {
-                outputParts.push(generateEnum(existingEnum));
+                finalEnums.push(existingEnum);
             }
         }
 
-        // Append new messages from incoming proto files
+        // Add new messages from incoming (not in existing)
         for (const [, msg] of this.incomingMessageMap) {
-            outputParts.push('');
-            outputParts.push(generateMessage(msg));
+            if (!CUSTOM_MESSAGE_NAMES.has(msg.name)) {
+                finalMessages.push(msg);
+            }
         }
 
-        // Append new enums from incoming proto files
+        // Add new enums from incoming (not in existing)
         for (const [, protoEnum] of this.incomingEnumMap) {
-            outputParts.push('');
-            outputParts.push(generateEnum(protoEnum));
+            if (!CUSTOM_ENUM_NAMES.has(protoEnum.name)) {
+                finalEnums.push(protoEnum);
+            }
         }
-
-        // Append custom messages from template (ObjectMap, GeneralNumber, NullValue)
-        outputParts.push('');
-        outputParts.push(CUSTOM_MESSAGES.trim());
 
         // Check for errors before writing
         if (this.errors.length > 0) {
@@ -146,36 +107,56 @@ export class BackwardCompatibleWriter {
             );
         }
 
-        writeFileSync(this.outputPath, outputParts.join('\n'));
+        // Write output using shared function
+        writeProtoFile(finalMessages, finalEnums, this.outputPath);
         logger.info(`Updated: ${this.outputPath}`);
     }
 }
 
-// ==================== RUN ====================
+// ==================== CLI ====================
 
-if (!existsSync(opts.existing)) {
-    logger.error(`Existing file not found: ${opts.existing}`);
-    process.exit(1);
-}
+/* istanbul ignore next -- CLI entry point */
+if (require.main === module) {
+    const command = new Command()
+        .description('Merge incoming proto files into existing proto while maintaining backward compatibility.')
+        .addOption(new Option('-e, --existing <path>', 'existing proto file (source of truth)').default('protos/schemas/common.proto'))
+        .addOption(new Option('-i, --incoming <paths>', 'incoming proto files (comma-separated)')
+            .argParser((val: string) => val.split(',').map(s => s.trim()))
+            .default(['protos/generated/models/aggregated_models.proto', 'protos/generated/services/default_service.proto']))
+        .addOption(new Option('-o, --output <path>', 'output proto file').default('protos/schemas/common.proto'))
+        .allowExcessArguments(false)
+        .parse();
 
-const existingIncoming = opts.incoming.filter(p => existsSync(p));
-if (existingIncoming.length === 0) {
-    logger.error(`No incoming proto files found.`);
-    process.exit(1);
-}
+    type BackwardCompatOpts = {
+        existing: string;
+        incoming: string[];
+        output: string;
+    };
 
-try {
-    const writer = new BackwardCompatibleWriter(
-        opts.existing,
-        opts.incoming,
-        opts.output
-    );
-    writer.process();
-} catch (error) {
-    if (error instanceof BackwardCompatibilityError) {
+    const opts = command.opts() as BackwardCompatOpts;
+
+    if (!existsSync(opts.existing)) {
+        logger.error(`Existing file not found: ${opts.existing}`);
         process.exit(1);
     }
-    throw error;
-}
 
-export { BackwardCompatibilityError };
+    const existingIncoming = opts.incoming.filter(p => existsSync(p));
+    if (existingIncoming.length === 0) {
+        logger.error(`No incoming proto files found.`);
+        process.exit(1);
+    }
+
+    try {
+        const writer = new BackwardCompatibleWriter(
+            opts.existing,
+            opts.incoming,
+            opts.output
+        );
+        writer.process();
+    } catch (error) {
+        if (error instanceof BackwardCompatibilityError) {
+            process.exit(1);
+        }
+        throw error;
+    }
+}

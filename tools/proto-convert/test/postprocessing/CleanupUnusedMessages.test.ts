@@ -3,18 +3,31 @@
  */
 
 import * as path from 'path';
+import * as fs from 'fs';
+import * as os from 'os';
 import { parseProtoFile } from '../../src/postprocessing/parser';
 import {
     isBuiltInType,
     findReachableTypes,
     filterMessages,
     filterEnums,
-    extractRootsFromServices
+    extractRootsFromServices,
+    cleanupUnusedMessages,
+    CleanupOptions
 } from '../../src/postprocessing/CleanupUnusedMessages';
 import { ProtoMessage, ProtoEnum } from '../../src/postprocessing/types';
 
 const TEST_PROTO = path.join(__dirname, '../fixtures/proto/test.proto');
 const TEST_SERVICE_PROTO = path.join(__dirname, '../fixtures/proto/test_service.proto');
+
+// Proto content for tests
+const PROTO_SERVICE_WITH_ROOTS = `
+syntax = "proto3";
+package test;
+
+message SearchRequest { string query = 1; }
+message SearchResponse { string result = 1; }
+`;
 
 describe('CleanupUnusedMessages', () => {
     const parsed = parseProtoFile(TEST_PROTO);
@@ -265,5 +278,121 @@ describe('isBuiltInType', () => {
     it('should return false for map types', () => {
         expect(isBuiltInType('map<string, string>')).toBe(false);
         expect(isBuiltInType('map<int32, CustomType>')).toBe(false);
+    });
+});
+
+describe('cleanupUnusedMessages', () => {
+    let tempDir: string;
+    let outputPath: string;
+
+    beforeEach(() => {
+        tempDir = fs.mkdtempSync(path.join(os.tmpdir(), 'cleanup-test-'));
+        outputPath = path.join(tempDir, 'output.proto');
+    });
+
+    afterEach(() => {
+        if (fs.existsSync(tempDir)) {
+            fs.rmSync(tempDir, { recursive: true });
+        }
+    });
+
+    it('should cleanup unused messages with manual roots', () => {
+        const opts: CleanupOptions = {
+            input: TEST_PROTO,
+            output: outputPath,
+            roots: ['SearchRequest', 'SearchResponse']
+        };
+
+        const result = cleanupUnusedMessages(opts);
+
+        expect(result.removedMessages).toBeGreaterThan(0);
+        expect(fs.existsSync(outputPath)).toBe(true);
+
+        const output = parseProtoFile(outputPath);
+        const messageNames = output.messages.map(m => m.name);
+
+        expect(messageNames).toContain('SearchRequest');
+        expect(messageNames).toContain('SearchResponse');
+        expect(messageNames).not.toContain('UnusedMessage');
+    });
+
+    it('should cleanup unused messages with service file', () => {
+        const testService = path.join(tempDir, 'test_service.proto');
+        fs.writeFileSync(testService, PROTO_SERVICE_WITH_ROOTS);
+
+        const opts: CleanupOptions = {
+            input: TEST_PROTO,
+            output: outputPath,
+            service: testService
+        };
+
+        const result = cleanupUnusedMessages(opts);
+
+        expect(fs.existsSync(outputPath)).toBe(true);
+        expect(result.removedMessages).toBeGreaterThanOrEqual(0);
+    });
+
+    it('should throw error if input file not found', () => {
+        const opts: CleanupOptions = {
+            input: '/non/existent/path.proto',
+            output: outputPath,
+            roots: ['SomeMessage']
+        };
+
+        expect(() => cleanupUnusedMessages(opts)).toThrow('Input file not found');
+    });
+
+    it('should throw error if service file not found and no roots specified', () => {
+        const opts: CleanupOptions = {
+            input: TEST_PROTO,
+            output: outputPath,
+            service: '/non/existent/service.proto'
+        };
+
+        expect(() => cleanupUnusedMessages(opts)).toThrow('Service file not found');
+    });
+
+    it('should throw error if root message not found', () => {
+        const opts: CleanupOptions = {
+            input: TEST_PROTO,
+            output: outputPath,
+            roots: ['NonExistentMessage']
+        };
+
+        expect(() => cleanupUnusedMessages(opts)).toThrow('Root message not found');
+    });
+
+    it('should write to input file if no output specified', () => {
+        // Copy test proto to temp location
+        const tempInput = path.join(tempDir, 'input.proto');
+        fs.copyFileSync(TEST_PROTO, tempInput);
+
+        const opts: CleanupOptions = {
+            input: tempInput,
+            roots: ['SearchRequest', 'SearchResponse']
+        };
+
+        cleanupUnusedMessages(opts);
+
+        // Should have written to input file
+        expect(fs.existsSync(tempInput)).toBe(true);
+
+        const output = parseProtoFile(tempInput);
+        expect(output.messages.map(m => m.name)).not.toContain('UnusedMessage');
+    });
+
+    it('should return count of removed messages and enums', () => {
+        const opts: CleanupOptions = {
+            input: TEST_PROTO,
+            output: outputPath,
+            roots: ['SearchRequest', 'SearchResponse']
+        };
+
+        const result = cleanupUnusedMessages(opts);
+
+        expect(typeof result.removedMessages).toBe('number');
+        expect(typeof result.removedEnums).toBe('number');
+        expect(result.removedMessages).toBeGreaterThanOrEqual(0);
+        expect(result.removedEnums).toBeGreaterThanOrEqual(0);
     });
 });
