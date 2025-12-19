@@ -42,9 +42,23 @@ export interface ProtoMessage {
     oneofs?: ProtoOneof[];
 }
 
+export interface ProtoRpc {
+    name: string;
+    requestType: string;
+    responseType: string;
+    comment?: string;
+}
+
+export interface ProtoService {
+    name: string;
+    comment?: string;
+    rpcs: ProtoRpc[];
+}
+
 export interface ParsedProtoFile {
     messages: ProtoMessage[];
     enums: ProtoEnum[];
+    services: ProtoService[];
 }
 
 export class BackwardCompatibilityError extends Error {

@@ -114,23 +114,42 @@ export function filterEnums(
     );
 }
 
+/**
+ * Extract root message names from service definitions (all request/response types).
+ */
+export function extractRootsFromServices(servicePath: string): string[] {
+    const parsed = parseProtoFile(servicePath);
+    const roots = new Set<string>();
+
+    for (const service of parsed.services) {
+        for (const rpc of service.rpcs) {
+            roots.add(rpc.requestType);
+            roots.add(rpc.responseType);
+        }
+    }
+
+    return Array.from(roots);
+}
+
 // ==================== CLI ====================
 
 if (require.main === module) {
     const command = new Command()
         .description('Remove unused messages and enums from a proto file.')
-        .addOption(new Option('-i, --input <path>', 'input proto file').default('protos/schemas/common.proto'))
+        .addOption(new Option('-i, --input <path>', 'input proto file').default('protos/generated/models/aggregated_models.proto'))
         .addOption(new Option('-o, --output <path>', 'output proto file (defaults to input)'))
-        .addOption(new Option('-r, --roots <names>', 'root message names (comma-separated)')
-            .argParser((val: string) => val.split(',').map(s => s.trim()))
-            .default(['SearchRequest', 'SearchResponse', 'BulkRequest', 'BulkResponse']))
+        .addOption(new Option('-s, --service <path>', 'service proto file to auto-detect roots')
+            .default('protos/generated/services/default_service.proto'))
+        .addOption(new Option('-r, --roots <names>', 'root message names (comma-separated, overrides --service)')
+            .argParser((val: string) => val.split(',').map(s => s.trim())))
         .allowExcessArguments(false)
         .parse();
 
     type CleanupOpts = {
         input: string;
         output?: string;
-        roots: string[];
+        service: string;
+        roots?: string[];
     };
 
     const opts = command.opts() as CleanupOpts;
@@ -140,11 +159,24 @@ if (require.main === module) {
         process.exit(1);
     }
 
+    // Get roots: from --roots if provided, otherwise from service file
+    let roots: string[];
+    if (opts.roots && opts.roots.length > 0) {
+        roots = opts.roots;
+        logger.info(`Using manually specified roots: ${roots.join(', ')}`);
+    } else if (existsSync(opts.service)) {
+        roots = extractRootsFromServices(opts.service);
+        logger.info(`Auto-detected roots from ${opts.service}: ${roots.join(', ')}`);
+    } else {
+        logger.error(`Service file not found: ${opts.service}. Specify --roots manually.`);
+        process.exit(1);
+    }
+
     const parsed = parseProtoFile(opts.input);
 
     // Verify root messages exist
     const messageNames = new Set(parsed.messages.map(m => m.name));
-    for (const rootMsg of opts.roots) {
+    for (const rootMsg of roots) {
         if (!messageNames.has(rootMsg)) {
             logger.error(`Root message not found: ${rootMsg}`);
             process.exit(1);
@@ -152,7 +184,7 @@ if (require.main === module) {
     }
 
     // Find reachable types
-    const reachable = findReachableTypes(opts.roots, parsed.messages);
+    const reachable = findReachableTypes(roots, parsed.messages);
 
     // Filter to keep only reachable
     const keptMessages = filterMessages(parsed.messages, reachable);

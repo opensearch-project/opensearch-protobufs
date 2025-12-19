@@ -3,13 +3,15 @@
  */
 
 import { readFileSync } from 'fs';
-import { parse, Field, Enum, Type, Namespace, NamespaceBase } from 'protobufjs';
+import { parse, Field, Enum, Type, Namespace, NamespaceBase, Service, Method } from 'protobufjs';
 import {
     ProtoField,
     ProtoMessage,
     ProtoEnum,
     ProtoEnumValue,
     ProtoOneof,
+    ProtoService,
+    ProtoRpc,
     ParsedProtoFile,
     Annotation
 } from './types';
@@ -158,6 +160,28 @@ export function convertMessage(msgDef: Type): ProtoMessage {
 }
 
 /**
+ * Convert a protobufjs Service to internal ProtoService type.
+ */
+export function convertService(serviceDef: Service): ProtoService {
+    const rpcs: ProtoRpc[] = [];
+
+    for (const method of serviceDef.methodsArray) {
+        rpcs.push({
+            name: method.name,
+            requestType: method.requestType,
+            responseType: method.responseType,
+            comment: method.comment || undefined
+        });
+    }
+
+    return {
+        name: serviceDef.name,
+        comment: serviceDef.comment || undefined,
+        rpcs
+    };
+}
+
+/**
  * Parse a .proto file and return internal types.
  */
 export function parseProtoFile(filePath: string): ParsedProtoFile {
@@ -166,6 +190,7 @@ export function parseProtoFile(filePath: string): ParsedProtoFile {
 
     const messages: ProtoMessage[] = [];
     const enums: ProtoEnum[] = [];
+    const services: ProtoService[] = [];
 
     function traverse(ns: NamespaceBase) {
         if (ns.nestedArray) {
@@ -174,6 +199,8 @@ export function parseProtoFile(filePath: string): ParsedProtoFile {
                     messages.push(convertMessage(nested));
                 } else if (nested instanceof Enum) {
                     enums.push(convertEnum(nested));
+                } else if (nested instanceof Service) {
+                    services.push(convertService(nested));
                 } else if (nested instanceof Namespace) {
                     traverse(nested);
                 }
@@ -183,5 +210,5 @@ export function parseProtoFile(filePath: string): ParsedProtoFile {
 
     traverse(parsed.root);
 
-    return { messages, enums };
+    return { messages, enums, services };
 }
