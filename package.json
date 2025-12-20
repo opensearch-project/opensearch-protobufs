@@ -9,6 +9,7 @@
     "backward-compat": "ts-node tools/proto-convert/src/postprocessing/BackwardCompatibleWriter.ts",
     "cleanup-unused": "ts-node tools/proto-convert/src/postprocessing/CleanupUnusedMessages.ts -i protos/schemas/common.proto",
     "postprocessing": "npm run backward-compat && npm run cleanup-unused",
+    "postprocessing:dry-run": "npm run backward-compat -- --dry-run",
     "test": "npx jest --no-watchman"
   },
   "dependencies": {
