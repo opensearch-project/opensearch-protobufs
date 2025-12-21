@@ -7,8 +7,8 @@
   "scripts": {
     "preprocessing": "ts-node tools/proto-convert/src/PreProcessing.ts",
     "backward-compat": "ts-node tools/proto-convert/src/postprocessing/BackwardCompatibleWriter.ts",
-    "cleanup-common": "ts-node tools/proto-convert/src/postprocessing/CleanupUnusedMessages.ts -i protos/schemas/common.proto",
-    "postprocessing": "npm run backward-compat && npm run cleanup-common",
+    "cleanup-unused": "ts-node tools/proto-convert/src/postprocessing/CleanupUnusedMessages.ts -i protos/schemas/common.proto",
+    "postprocessing": "npm run backward-compat && npm run cleanup-unused",
     "test": "npx jest --no-watchman"
   },
   "dependencies": {

@@ -1,0 +1,25 @@
+syntax = "proto3";
+
+package test;
+
+// Test service for extractRootsFromServices
+service TestService {
+  rpc Search (SearchRequest) returns (SearchResponse);
+  rpc GetDocument (GetDocumentRequest) returns (GetDocumentResponse);
+}
+
+message SearchRequest {
+  string query = 1;
+}
+
+message SearchResponse {
+  repeated string results = 1;
+}
+
+message GetDocumentRequest {
+  string id = 1;
+}
+
+message GetDocumentResponse {
+  string content = 1;
+}

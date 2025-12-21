@@ -1,0 +1,25 @@
+syntax = "proto3";
+
+package test;
+
+message SearchRequest {
+  string query = 1;
+  int32 limit = 2;
+  optional bool fuzzy = 3;
+}
+
+message NewMessage {
+  string value = 1;
+}
+
+enum SortOrder {
+  SORT_ORDER_UNSPECIFIED = 0;
+  SORT_ORDER_ASC = 1;
+  SORT_ORDER_DESC = 2;
+  SORT_ORDER_RELEVANCE = 3;
+}
+
+enum NewEnum {
+  NEW_UNSPECIFIED = 0;
+  NEW_VALUE = 1;
+}

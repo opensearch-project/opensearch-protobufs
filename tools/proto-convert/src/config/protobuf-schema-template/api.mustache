@@ -6,6 +6,18 @@ import "{{{.}}}.proto";
 {{/import}}
 {{/imports}}
 
+service {{classname}} {
+{{#operations}}
+{{#operation}}
+  {{#description}}
+  // {{{.}}}
+  {{/description}}
+  rpc {{operationId}} ({{#hasParams}}{{operationId}}Request{{/hasParams}}{{^hasParams}}google.protobuf.Empty{{/hasParams}}) returns ({{#vendorExtensions.x-grpc-response}}{{.}}{{/vendorExtensions.x-grpc-response}}{{^vendorExtensions.x-grpc-response}}{{operationId}}Response{{/vendorExtensions.x-grpc-response}});
+
+{{/operation}}
+{{/operations}}
+}
+
 {{#operations}}
 {{#operation}}
 {{#hasParams}}
