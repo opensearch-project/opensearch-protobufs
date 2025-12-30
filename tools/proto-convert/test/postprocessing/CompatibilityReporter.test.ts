@@ -238,7 +238,7 @@ describe('CompatibilityReporter', () => {
             expect(md).toContain('Deprecated:');
         });
 
-        it('should format type_changed field', () => {
+        it('should format type_changed as two rows (deprecated + added)', () => {
             reporter.addFieldChange({
                 messageName: 'TestMessage',
                 changeType: 'TYPE CHANGED',
@@ -249,9 +249,10 @@ describe('CompatibilityReporter', () => {
             });
 
             const md = reporter.toMarkdown();
-            expect(md).toContain('**TYPE CHANGED**');
-            expect(md).toContain('versioned as');
-            expect(md).toContain('field_1');
+            // Old field is deprecated
+            expect(md).toContain('| field | **DEPRECATED** | `string field` |');
+            // New versioned field is added
+            expect(md).toContain('| field_1 | **ADDED** | `int32 field` |');
         });
 
         it('should format optional_change with breaking warning', () => {

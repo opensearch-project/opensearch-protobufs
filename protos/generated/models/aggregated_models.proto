@@ -2556,6 +2556,8 @@ message SortOptions {
     GeoDistanceSort x_geo_distance = 2;
 
     ScriptSort x_script = 3;
+
+    string abc = 4;
   }
 }
 enum SortOrder {
@@ -2602,10 +2604,11 @@ enum SuggestMode {
   SUGGEST_MODE_ALWAYS = 1;
   SUGGEST_MODE_MISSING = 2;
   SUGGEST_MODE_POPULAR = 3;
+  SUGGEST_ABC = 4;
 }
 message TermQuery {
   // Floating point number used to decrease or increase the relevance scores of the query. Boost values are relative to the default value of 1.0. A boost value between 0 and 1.0 decreases the relevance score. A value greater than 1.0 increases the relevance score.
-  optional float boost = 1;
+  optional bool boost = 1;
 
   optional string x_name = 2;
 
@@ -2688,7 +2691,11 @@ message TopRightBottomLeftGeoBounds {
   GeoLocation top_right = 1;
 
   // The lower-left corner coordinates.
-  GeoLocation bottom_left = 2;
+  GeoLABC bottom_left = 2;
+}
+
+message GeoLABC {
+  string abc = 1;
 }
 message TotalHits {
   TotalHitsRelation relation = 1;

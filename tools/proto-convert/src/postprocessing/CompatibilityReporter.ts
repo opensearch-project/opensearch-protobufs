@@ -22,8 +22,8 @@ export interface FieldChange {
     existingType?: string;
     incomingType?: string;
     versionedName?: string;
-    existingLocation?: string;  // 'regular' or oneof name
-    incomingLocation?: string;  // 'regular' or oneof name
+    existingLocation?: string;
+    incomingLocation?: string;
 }
 
 export interface EnumValueChange {
@@ -112,13 +112,22 @@ export class CompatibilityReporter {
 
     private formatMessageChanges(byMessage: Map<string, FieldChange[]>): string {
         const tables = Array.from(byMessage.entries()).map(([msgName, changes]) => {
-            const rows = changes.map(c =>
-                `| ${c.fieldName} | **${c.changeType}** | ${this.formatFieldDetails(c)} |`
-            ).join('\n');
+            const rows = changes.flatMap(c => this.formatChangeRows(c)).join('\n');
             return `#### ${msgName}\n\n| Field | Change | Details |\n|-------|--------|---------|
 ${rows}`;
         });
         return `### Message Changes\n\n${tables.join('\n\n')}`;
+    }
+
+    private formatChangeRows(c: FieldChange): string[] {
+        if (c.changeType === 'TYPE CHANGED') {
+            // Split into two rows: deprecated old field + added new versioned field
+            return [
+                `| ${c.fieldName} | **DEPRECATED** | \`${c.existingType}\` |`,
+                `| ${c.versionedName} | **ADDED** | \`${c.incomingType}\` |`
+            ];
+        }
+        return [`| ${c.fieldName} | **${c.changeType}** | ${this.formatFieldDetails(c)} |`];
     }
 
     private formatEnumChanges(byEnum: Map<string, EnumValueChange[]>): string {
@@ -137,8 +146,6 @@ ${rows}`;
                 return `New field: \`${c.incomingType}\``;
             case 'REMOVED':
                 return `Deprecated: \`${c.existingType}\``;
-            case 'TYPE CHANGED':
-                return `\`${c.existingType}\` → \`${c.incomingType}\` (versioned as \`${c.versionedName}\`)`;
             case 'OPTIONAL CHANGE':
                 return `⚠️ Breaking: \`${c.existingType}\` → \`${c.incomingType}\``;
             case 'ONEOF CHANGE':
