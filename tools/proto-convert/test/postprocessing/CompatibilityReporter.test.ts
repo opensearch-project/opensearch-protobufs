@@ -219,10 +219,10 @@ describe('CompatibilityReporter', () => {
             const md = reporter.toMarkdown();
             expect(md).toContain('## Merge Report');
             expect(md).toContain('### Message Changes');
-            expect(md).toContain('#### TestMessage');
-            expect(md).toContain('newField');
-            expect(md).toContain('**ADDED**');
-            expect(md).toContain('New field:');
+            expect(md).toContain('| Message | Change | Field | Details |');
+            expect(md).toContain('➕ **ADDED**');
+            expect(md).toContain('`string newField`');
+            expect(md).toContain('New field added at the end of');
         });
 
         it('should format removed field change', () => {
@@ -234,8 +234,9 @@ describe('CompatibilityReporter', () => {
             });
 
             const md = reporter.toMarkdown();
-            expect(md).toContain('**REMOVED**');
-            expect(md).toContain('Deprecated:');
+            expect(md).toContain('🗑️ **REMOVED**');
+            expect(md).toContain('`int32 oldField`');
+            expect(md).toContain('Field marked as deprecated');
         });
 
         it('should format type_changed as two rows (deprecated + added)', () => {
@@ -249,13 +250,15 @@ describe('CompatibilityReporter', () => {
             });
 
             const md = reporter.toMarkdown();
-            // Old field is deprecated
-            expect(md).toContain('| field | **DEPRECATED** | `string field` |');
-            // New versioned field is added
-            expect(md).toContain('| field_1 | **ADDED** | `int32 field` |');
+            expect(md).toContain('🗑️ **DEPRECATED**');
+            expect(md).toContain('`string field`');
+            expect(md).toContain('Field marked as deprecated');
+            expect(md).toContain('➕ **ADDED**');
+            expect(md).toContain('`int32 field_1`');
+            expect(md).toContain('New field added at the end of');
         });
 
-        it('should format optional_change with breaking warning', () => {
+        it('should format optional_change with warning icon', () => {
             reporter.addFieldChange({
                 messageName: 'TestMessage',
                 changeType: 'OPTIONAL CHANGE',
@@ -265,11 +268,12 @@ describe('CompatibilityReporter', () => {
             });
 
             const md = reporter.toMarkdown();
-            expect(md).toContain('**OPTIONAL CHANGE**');
-            expect(md).toContain('⚠️ Breaking');
+            expect(md).toContain('🚨 **BREAKING**');
+            expect(md).toContain('`string field` → `optional string field`');
+            expect(md).toContain('This will cause breaking change to Protobuf');
         });
 
-        it('should format oneof_change with breaking warning', () => {
+        it('should format oneof_change with breaking icon', () => {
             reporter.addFieldChange({
                 messageName: 'TestMessage',
                 changeType: 'ONEOF CHANGE',
@@ -279,9 +283,9 @@ describe('CompatibilityReporter', () => {
             });
 
             const md = reporter.toMarkdown();
-            expect(md).toContain('**ONEOF CHANGE**');
-            expect(md).toContain('⚠️ Breaking');
-            expect(md).toContain('moved from');
+            expect(md).toContain('🚨 **BREAKING**');
+            expect(md).toContain('Moved from');
+            expect(md).toContain('This will cause breaking change to Protobuf');
         });
 
         it('should format enum changes', () => {
@@ -298,14 +302,14 @@ describe('CompatibilityReporter', () => {
 
             const md = reporter.toMarkdown();
             expect(md).toContain('### Enum Changes');
-            expect(md).toContain('#### Status');
-            expect(md).toContain('PENDING');
-            expect(md).toContain('**ADDED**');
-            expect(md).toContain('OBSOLETE');
-            expect(md).toContain('**REMOVED**');
+            expect(md).toContain('| Enum | Change | Value | Details |');
+            expect(md).toContain('➕ **ADDED**');
+            expect(md).toContain('`PENDING`');
+            expect(md).toContain('🗑️ **REMOVED**');
+            expect(md).toContain('`OBSOLETE`');
         });
 
-        it('should group changes by message name', () => {
+        it('should include message name in each row', () => {
             reporter.addFieldChange({
                 messageName: 'MessageA',
                 changeType: 'ADDED',
@@ -326,12 +330,9 @@ describe('CompatibilityReporter', () => {
             });
 
             const md = reporter.toMarkdown();
-            expect(md).toContain('#### MessageA');
-            expect(md).toContain('#### MessageB');
-            // MessageA should have 2 entries
-            const messageASection = md.split('#### MessageA')[1].split('#### MessageB')[0];
-            expect(messageASection).toContain('field1');
-            expect(messageASection).toContain('field3');
+            expect(md).toContain('| MessageA | ➕ **ADDED** |');
+            expect(md).toContain('| MessageB | ➕ **ADDED** |');
+            expect(md).toContain('| MessageA | 🗑️ **REMOVED** |');
         });
     });
 });

@@ -111,47 +111,75 @@ export class CompatibilityReporter {
     }
 
     private formatMessageChanges(byMessage: Map<string, FieldChange[]>): string {
-        const tables = Array.from(byMessage.entries()).map(([msgName, changes]) => {
-            const rows = changes.flatMap(c => this.formatChangeRows(c)).join('\n');
-            return `#### ${msgName}\n\n| Field | Change | Details |\n|-------|--------|---------|
-${rows}`;
-        });
-        return `### Message Changes\n\n${tables.join('\n\n')}`;
+        const rows = Array.from(byMessage.entries())
+            .flatMap(([, changes]) => changes.flatMap(c => this.formatChangeRows(c)))
+            .join('\n');
+        return `### Message Changes\n\n| Message | Change | Field | Details |\n|---------|--------|-------|--------|\n${rows}`;
     }
 
     private formatChangeRows(c: FieldChange): string[] {
         if (c.changeType === 'TYPE CHANGED') {
-            // Split into two rows: deprecated old field + added new versioned field
+            const versionedField = c.incomingType?.replace(c.fieldName, c.versionedName || c.fieldName);
             return [
-                `| ${c.fieldName} | **DEPRECATED** | \`${c.existingType}\` |`,
-                `| ${c.versionedName} | **ADDED** | \`${c.incomingType}\` |`
+                `| ${c.messageName} | 🗑️ **DEPRECATED** | \`${c.existingType}\` | Field marked as deprecated (not removed, still available for backward compatibility) |`,
+                `| ${c.messageName} | ➕ **ADDED** | \`${versionedField}\` | New field added at the end of \`${c.messageName}\` |`
             ];
         }
-        return [`| ${c.fieldName} | **${c.changeType}** | ${this.formatFieldDetails(c)} |`];
+        const { field, details } = this.formatFieldAndDetails(c);
+        return [`| ${c.messageName} | ${this.formatChangeType(c.changeType)} | ${field} | ${details} |`];
+    }
+
+    private formatChangeType(changeType: ChangeType | 'ADDED' | 'REMOVED'): string {
+        switch (changeType) {
+            case 'ADDED':
+                return '➕ **ADDED**';
+            case 'REMOVED':
+                return '🗑️ **REMOVED**';
+            case 'OPTIONAL CHANGE':
+                return '🚨 **BREAKING**';
+            case 'ONEOF CHANGE':
+                return '🚨 **BREAKING**';
+            default:
+                return `**${changeType}**`;
+        }
     }
 
     private formatEnumChanges(byEnum: Map<string, EnumValueChange[]>): string {
-        const tables = Array.from(byEnum.entries()).map(([enumName, changes]) => {
-            const rows = changes.map(c =>
-                `| ${c.valueName} | **${c.changeType}** |`
-            ).join('\n');
-            return `#### ${enumName}\n\n| Value | Change |\n|-------|--------|\n${rows}`;
-        });
-        return `### Enum Changes\n\n${tables.join('\n\n')}`;
+        const rows = Array.from(byEnum.entries())
+            .flatMap(([, changes]) => changes.map(c => {
+                const details = c.changeType === 'ADDED'
+                    ? `New value added at the end of \`${c.enumName}\``
+                    : 'Value marked as deprecated (not removed, still available for backward compatibility)';
+                return `| ${c.enumName} | ${this.formatChangeType(c.changeType)} | \`${c.valueName}\` | ${details} |`;
+            }))
+            .join('\n');
+        return `### Enum Changes\n\n| Enum | Change | Value | Details |\n|------|--------|-------|--------|\n${rows}`;
     }
 
-    private formatFieldDetails(c: FieldChange): string {
+    private formatFieldAndDetails(c: FieldChange): { field: string; details: string } {
         switch (c.changeType) {
             case 'ADDED':
-                return `New field: \`${c.incomingType}\``;
+                return {
+                    field: `\`${c.incomingType}\``,
+                    details: `New field added at the end of \`${c.messageName}\``
+                };
             case 'REMOVED':
-                return `Deprecated: \`${c.existingType}\``;
+                return {
+                    field: `\`${c.existingType}\``,
+                    details: 'Field marked as deprecated (not removed, still available for backward compatibility)'
+                };
             case 'OPTIONAL CHANGE':
-                return `⚠️ Breaking: \`${c.existingType}\` → \`${c.incomingType}\``;
+                return {
+                    field: `\`${c.existingType}\` → \`${c.incomingType}\``,
+                    details: '⚠️ This will cause breaking change to Protobuf'
+                };
             case 'ONEOF CHANGE':
-                return `⚠️ Breaking: moved from \`${c.existingLocation}\` to \`${c.incomingLocation}\``;
+                return {
+                    field: `\`${c.fieldName}\``,
+                    details: `Moved from \`${c.existingLocation}\` to \`${c.incomingLocation}\` - ⚠️ This will cause breaking change to Protobuf`
+                };
             default:
-                return '';
+                return { field: '', details: '' };
         }
     }
 
