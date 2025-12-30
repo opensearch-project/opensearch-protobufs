@@ -94,8 +94,8 @@ function mergeField(
                     messageName: msgName,
                     changeType: 'OPTIONAL CHANGE',
                     fieldName: sourceField.name,
-                    existingType: formatField(sourceField),
-                    incomingType: formatField(upcomingField)
+                    existingType: formatField({ ...sourceField, number: sourceField.number }),
+                    incomingType: formatField({ ...upcomingField, number: sourceField.number })
                 });
                 return { ...upcomingField, name: sourceField.name, number: sourceField.number };
             } else {
@@ -106,7 +106,7 @@ function mergeField(
                     messageName: msgName,
                     changeType: 'TYPE CHANGED',
                     fieldName: sourceField.name,
-                    existingType: formatField(sourceField),
+                    existingType: formatField({ ...sourceField, number: sourceField.number, deprecated: true }),
                     incomingType: formatField(upcomingField),
                     versionedName: newName
                 });
@@ -118,7 +118,7 @@ function mergeField(
             messageName: msgName,
             changeType: 'REMOVED',
             fieldName: sourceField.name,
-            existingType: formatField(sourceField)
+            existingType: formatField({ ...sourceField, number: sourceField.number, deprecated: true })
         });
         return addDeprecated(sourceField);
     }
@@ -196,15 +196,16 @@ export function mergeMessage(
 
     // Assign field max number to remaining fields.
     for (const field of upcomingByName.values()) {
+        const fieldNumber = ++maxFieldNumber;
         if (!isVersionedName(field.name)) {
             reporter?.addFieldChange({
                 messageName: sourceMsg.name,
                 changeType: 'ADDED',
                 fieldName: field.name,
-                incomingType: formatField(field)
+                incomingType: formatField({ ...field, number: fieldNumber })
             });
         }
-        mergedFields.push({ ...field, number: ++maxFieldNumber });
+        mergedFields.push({ ...field, number: fieldNumber });
     }
 
     // Assign field max number to remaining oneof fields.
@@ -213,15 +214,16 @@ export function mergeMessage(
             const remaining = oneofMaps.get(oneof.name);
             if (remaining) {
                 for (const field of remaining.values()) {
+                    const fieldNumber = ++maxFieldNumber;
                     if (!isVersionedName(field.name)) {
                         reporter?.addFieldChange({
                             messageName: sourceMsg.name,
                             changeType: 'ADDED',
                             fieldName: `${oneof.name}.${field.name}`,
-                            incomingType: formatField(field)
+                            incomingType: formatField({ ...field, number: fieldNumber })
                         });
                     }
-                    oneof.fields.push({ ...field, number: ++maxFieldNumber });
+                    oneof.fields.push({ ...field, number: fieldNumber });
                 }
             }
         }

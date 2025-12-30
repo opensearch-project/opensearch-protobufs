@@ -10,9 +10,11 @@ import { tmpdir } from 'os';
 export type ChangeType = 'ADDED' | 'REMOVED' | 'TYPE CHANGED' | 'OPTIONAL CHANGE' | 'ONEOF CHANGE';
 
 /** Format a field for report display */
-export function formatField(f: { name: string; type: string; modifier?: string }): string {
+export function formatField(f: { name: string; type: string; modifier?: string; number?: number; deprecated?: boolean }): string {
     const mod = f.modifier ? `${f.modifier} ` : '';
-    return `${mod}${f.type} ${f.name}`;
+    const num = f.number !== undefined ? ` = ${f.number}` : '';
+    const dep = f.deprecated ? ' [deprecated = true]' : '';
+    return `${mod}${f.type} ${f.name}${num}${dep}`;
 }
 
 export interface FieldChange {
@@ -22,6 +24,7 @@ export interface FieldChange {
     existingType?: string;
     incomingType?: string;
     versionedName?: string;
+    versionedNumber?: number;
     existingLocation?: string;
     incomingLocation?: string;
 }
@@ -96,7 +99,18 @@ export class CompatibilityReporter {
             sections.push(this.formatEnumChanges(byEnum));
         }
 
+        // Add legend
+        sections.push(this.formatLegend());
+
         return sections.join('\n');
+    }
+
+    private formatLegend(): string {
+        return `### Legend
+
+- 🗑️ **DEPRECATED** - Field/value annotated as deprecated in protobufs and will be officially removed in the next major OpenSearch release
+- ➕ **ADDED** - New field/value added at the end of the message/enum
+- 🚨 **BREAKING** - This change will cause breaking change to Protobuf`;
     }
 
     private groupBy<T, K>(items: T[], keyFn: (item: T) => K): Map<K, T[]> {
@@ -114,19 +128,33 @@ export class CompatibilityReporter {
         const rows = Array.from(byMessage.entries())
             .flatMap(([, changes]) => changes.flatMap(c => this.formatChangeRows(c)))
             .join('\n');
-        return `### Message Changes\n\n| Message | Change | Field | Details |\n|---------|--------|-------|--------|\n${rows}`;
+        return `### Message Changes\n\n| Message | Change | Field |\n|---------|--------|-------|\n${rows}`;
     }
 
     private formatChangeRows(c: FieldChange): string[] {
         if (c.changeType === 'TYPE CHANGED') {
             const versionedField = c.incomingType?.replace(c.fieldName, c.versionedName || c.fieldName);
             return [
-                `| ${c.messageName} | 🗑️ **DEPRECATED** | \`${c.existingType}\` | Field marked as deprecated (not removed, still available for backward compatibility) |`,
-                `| ${c.messageName} | ➕ **ADDED** | \`${versionedField}\` | New field added at the end of \`${c.messageName}\` |`
+                `| ${c.messageName} | 🗑️ **DEPRECATED** | \`${c.existingType}\` |`,
+                `| ${c.messageName} | ➕ **ADDED** | \`${versionedField}\` |`
             ];
         }
-        const { field, details } = this.formatFieldAndDetails(c);
-        return [`| ${c.messageName} | ${this.formatChangeType(c.changeType)} | ${field} | ${details} |`];
+        return [`| ${c.messageName} | ${this.formatChangeType(c.changeType)} | ${this.formatField(c)} |`];
+    }
+
+    private formatField(c: FieldChange): string {
+        switch (c.changeType) {
+            case 'ADDED':
+                return `\`${c.incomingType}\``;
+            case 'REMOVED':
+                return `\`${c.existingType}\``;
+            case 'OPTIONAL CHANGE':
+                return `\`${c.existingType}\` → \`${c.incomingType}\``;
+            case 'ONEOF CHANGE':
+                return `\`${c.fieldName}\` (moved from \`${c.existingLocation}\` to \`${c.incomingLocation}\`)`;
+            default:
+                return '';
+        }
     }
 
     private formatChangeType(changeType: ChangeType | 'ADDED' | 'REMOVED'): string {
@@ -146,41 +174,11 @@ export class CompatibilityReporter {
 
     private formatEnumChanges(byEnum: Map<string, EnumValueChange[]>): string {
         const rows = Array.from(byEnum.entries())
-            .flatMap(([, changes]) => changes.map(c => {
-                const details = c.changeType === 'ADDED'
-                    ? `New value added at the end of \`${c.enumName}\``
-                    : 'Value marked as deprecated (not removed, still available for backward compatibility)';
-                return `| ${c.enumName} | ${this.formatChangeType(c.changeType)} | \`${c.valueName}\` | ${details} |`;
-            }))
+            .flatMap(([, changes]) => changes.map(c =>
+                `| ${c.enumName} | ${this.formatChangeType(c.changeType)} | \`${c.valueName}\` |`
+            ))
             .join('\n');
-        return `### Enum Changes\n\n| Enum | Change | Value | Details |\n|------|--------|-------|--------|\n${rows}`;
-    }
-
-    private formatFieldAndDetails(c: FieldChange): { field: string; details: string } {
-        switch (c.changeType) {
-            case 'ADDED':
-                return {
-                    field: `\`${c.incomingType}\``,
-                    details: `New field added at the end of \`${c.messageName}\``
-                };
-            case 'REMOVED':
-                return {
-                    field: `\`${c.existingType}\``,
-                    details: 'Field marked as deprecated (not removed, still available for backward compatibility)'
-                };
-            case 'OPTIONAL CHANGE':
-                return {
-                    field: `\`${c.existingType}\` → \`${c.incomingType}\``,
-                    details: '⚠️ This will cause breaking change to Protobuf'
-                };
-            case 'ONEOF CHANGE':
-                return {
-                    field: `\`${c.fieldName}\``,
-                    details: `Moved from \`${c.existingLocation}\` to \`${c.incomingLocation}\` - ⚠️ This will cause breaking change to Protobuf`
-                };
-            default:
-                return { field: '', details: '' };
-        }
+        return `### Enum Changes\n\n| Enum | Change | Value |\n|------|--------|-------|\n${rows}`;
     }
 
     clear(): void {

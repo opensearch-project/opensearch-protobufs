@@ -20,6 +20,19 @@ describe('formatField', () => {
     it('should format field with repeated modifier', () => {
         expect(formatField({ name: 'items', type: 'Item', modifier: 'repeated' })).toBe('repeated Item items');
     });
+
+    it('should format field with field number', () => {
+        expect(formatField({ name: 'id', type: 'int32', number: 5 })).toBe('int32 id = 5');
+    });
+
+    it('should format field with deprecated annotation', () => {
+        expect(formatField({ name: 'old', type: 'string', deprecated: true })).toBe('string old [deprecated = true]');
+    });
+
+    it('should format field with all properties', () => {
+        expect(formatField({ name: 'field', type: 'string', modifier: 'optional', number: 3, deprecated: true }))
+            .toBe('optional string field = 3 [deprecated = true]');
+    });
 });
 
 describe('CompatibilityReporter', () => {
@@ -219,10 +232,10 @@ describe('CompatibilityReporter', () => {
             const md = reporter.toMarkdown();
             expect(md).toContain('## Merge Report');
             expect(md).toContain('### Message Changes');
-            expect(md).toContain('| Message | Change | Field | Details |');
+            expect(md).toContain('| Message | Change | Field |');
             expect(md).toContain('➕ **ADDED**');
             expect(md).toContain('`string newField`');
-            expect(md).toContain('New field added at the end of');
+            expect(md).toContain('### Legend');
         });
 
         it('should format removed field change', () => {
@@ -236,7 +249,6 @@ describe('CompatibilityReporter', () => {
             const md = reporter.toMarkdown();
             expect(md).toContain('🗑️ **REMOVED**');
             expect(md).toContain('`int32 oldField`');
-            expect(md).toContain('Field marked as deprecated');
         });
 
         it('should format type_changed as two rows (deprecated + added)', () => {
@@ -252,10 +264,8 @@ describe('CompatibilityReporter', () => {
             const md = reporter.toMarkdown();
             expect(md).toContain('🗑️ **DEPRECATED**');
             expect(md).toContain('`string field`');
-            expect(md).toContain('Field marked as deprecated');
             expect(md).toContain('➕ **ADDED**');
             expect(md).toContain('`int32 field_1`');
-            expect(md).toContain('New field added at the end of');
         });
 
         it('should format optional_change with warning icon', () => {
@@ -270,7 +280,6 @@ describe('CompatibilityReporter', () => {
             const md = reporter.toMarkdown();
             expect(md).toContain('🚨 **BREAKING**');
             expect(md).toContain('`string field` → `optional string field`');
-            expect(md).toContain('This will cause breaking change to Protobuf');
         });
 
         it('should format oneof_change with breaking icon', () => {
@@ -284,8 +293,7 @@ describe('CompatibilityReporter', () => {
 
             const md = reporter.toMarkdown();
             expect(md).toContain('🚨 **BREAKING**');
-            expect(md).toContain('Moved from');
-            expect(md).toContain('This will cause breaking change to Protobuf');
+            expect(md).toContain('moved from');
         });
 
         it('should format enum changes', () => {
@@ -302,7 +310,7 @@ describe('CompatibilityReporter', () => {
 
             const md = reporter.toMarkdown();
             expect(md).toContain('### Enum Changes');
-            expect(md).toContain('| Enum | Change | Value | Details |');
+            expect(md).toContain('| Enum | Change | Value |');
             expect(md).toContain('➕ **ADDED**');
             expect(md).toContain('`PENDING`');
             expect(md).toContain('🗑️ **REMOVED**');
