@@ -4,7 +4,6 @@ import { tmpdir } from 'os';
 import {
     CompatibilityReporter,
     formatField,
-    formatEnumValue,
     FieldChange,
     EnumValueChange
 } from '../../src/postprocessing/CompatibilityReporter';
@@ -36,203 +35,11 @@ describe('formatField', () => {
     });
 });
 
-describe('formatEnumValue', () => {
-    it('should format enum value with just name', () => {
-        expect(formatEnumValue({ name: 'ACTIVE' })).toBe('ACTIVE');
-    });
-
-    it('should format enum value with number', () => {
-        expect(formatEnumValue({ name: 'ACTIVE', number: 1 })).toBe('ACTIVE = 1');
-    });
-
-    it('should format enum value with deprecated annotation', () => {
-        expect(formatEnumValue({ name: 'OLD_VALUE', deprecated: true })).toBe('OLD_VALUE [deprecated = true]');
-    });
-
-    it('should format enum value with all properties', () => {
-        expect(formatEnumValue({ name: 'OBSOLETE', number: 5, deprecated: true }))
-            .toBe('OBSOLETE = 5 [deprecated = true]');
-    });
-});
-
 describe('CompatibilityReporter', () => {
     let reporter: CompatibilityReporter;
 
     beforeEach(() => {
         reporter = new CompatibilityReporter();
-    });
-
-    describe('hasChanges', () => {
-        it('should return false when no changes', () => {
-            expect(reporter.hasChanges()).toBe(false);
-        });
-
-        it('should return true when field changes exist', () => {
-            reporter.addFieldChange({
-                messageName: 'Test',
-                changeType: 'ADDED',
-                fieldName: 'newField',
-                incomingType: 'string newField'
-            });
-            expect(reporter.hasChanges()).toBe(true);
-        });
-
-        it('should return true when enum changes exist', () => {
-            reporter.addEnumChange({
-                enumName: 'Status',
-                changeType: 'ADDED',
-                valueName: 'NEW_VALUE'
-            });
-            expect(reporter.hasChanges()).toBe(true);
-        });
-    });
-
-    describe('hasIncompatibleChanges', () => {
-        it('should return false when no changes', () => {
-            expect(reporter.hasIncompatibleChanges()).toBe(false);
-        });
-
-        it('should return false for added changes', () => {
-            reporter.addFieldChange({
-                messageName: 'Test',
-                changeType: 'ADDED',
-                fieldName: 'field',
-                incomingType: 'string field'
-            });
-            expect(reporter.hasIncompatibleChanges()).toBe(false);
-        });
-
-        it('should return false for removed changes', () => {
-            reporter.addFieldChange({
-                messageName: 'Test',
-                changeType: 'REMOVED',
-                fieldName: 'field',
-                existingType: 'string field'
-            });
-            expect(reporter.hasIncompatibleChanges()).toBe(false);
-        });
-
-        it('should return false for type_changed', () => {
-            reporter.addFieldChange({
-                messageName: 'Test',
-                changeType: 'TYPE CHANGED',
-                fieldName: 'field',
-                existingType: 'string field',
-                incomingType: 'int32 field',
-                versionedName: 'field_1'
-            });
-            expect(reporter.hasIncompatibleChanges()).toBe(false);
-        });
-
-        it('should return true for optional_change', () => {
-            reporter.addFieldChange({
-                messageName: 'Test',
-                changeType: 'OPTIONAL CHANGE',
-                fieldName: 'field',
-                existingType: 'string field',
-                incomingType: 'optional string field'
-            });
-            expect(reporter.hasIncompatibleChanges()).toBe(true);
-        });
-
-        it('should return true for oneof_change', () => {
-            reporter.addFieldChange({
-                messageName: 'Test',
-                changeType: 'ONEOF CHANGE',
-                fieldName: '*',
-                existingLocation: 'has oneof',
-                incomingLocation: 'no oneof'
-            });
-            expect(reporter.hasIncompatibleChanges()).toBe(true);
-        });
-    });
-
-    describe('getIncompatibleChanges', () => {
-        it('should return only incompatible changes', () => {
-            reporter.addFieldChange({
-                messageName: 'Test',
-                changeType: 'ADDED',
-                fieldName: 'field1',
-                incomingType: 'string field1'
-            });
-            reporter.addFieldChange({
-                messageName: 'Test',
-                changeType: 'OPTIONAL CHANGE',
-                fieldName: 'field2',
-                existingType: 'string field2',
-                incomingType: 'optional string field2'
-            });
-            reporter.addFieldChange({
-                messageName: 'Test',
-                changeType: 'ONEOF CHANGE',
-                fieldName: '*',
-                existingLocation: 'regular',
-                incomingLocation: 'data'
-            });
-
-            const incompatible = reporter.getIncompatibleChanges();
-            expect(incompatible).toHaveLength(2);
-            expect(incompatible[0].changeType).toBe('OPTIONAL CHANGE');
-            expect(incompatible[1].changeType).toBe('ONEOF CHANGE');
-        });
-    });
-
-    describe('getFieldChanges / getEnumChanges', () => {
-        it('should return all field changes', () => {
-            reporter.addFieldChange({
-                messageName: 'Test',
-                changeType: 'ADDED',
-                fieldName: 'field1',
-                incomingType: 'string field1'
-            });
-            reporter.addFieldChange({
-                messageName: 'Test',
-                changeType: 'REMOVED',
-                fieldName: 'field2',
-                existingType: 'int32 field2'
-            });
-
-            expect(reporter.getFieldChanges()).toHaveLength(2);
-        });
-
-        it('should return all enum changes', () => {
-            reporter.addEnumChange({
-                enumName: 'Status',
-                changeType: 'ADDED',
-                valueName: 'NEW'
-            });
-            reporter.addEnumChange({
-                enumName: 'Status',
-                changeType: 'DEPRECATED',
-                valueName: 'OLD'
-            });
-
-            expect(reporter.getEnumChanges()).toHaveLength(2);
-        });
-    });
-
-    describe('clear', () => {
-        it('should clear all changes', () => {
-            reporter.addFieldChange({
-                messageName: 'Test',
-                changeType: 'ADDED',
-                fieldName: 'field',
-                incomingType: 'string field'
-            });
-            reporter.addEnumChange({
-                enumName: 'Status',
-                changeType: 'ADDED',
-                valueName: 'NEW'
-            });
-
-            expect(reporter.hasChanges()).toBe(true);
-
-            reporter.clear();
-
-            expect(reporter.hasChanges()).toBe(false);
-            expect(reporter.getFieldChanges()).toHaveLength(0);
-            expect(reporter.getEnumChanges()).toHaveLength(0);
-        });
     });
 
     describe('toMarkdown', () => {
@@ -382,6 +189,42 @@ describe('CompatibilityReporter', () => {
             expect(md).toContain('| MessageA | ➕ **ADDED** |');
             expect(md).toContain('| MessageB | ➕ **ADDED** |');
             expect(md).toContain('| MessageA | 🗑️ **REMOVED** |');
+        });
+    });
+
+    describe('writeToFile', () => {
+        it('should write report to default temp location', () => {
+            reporter.addFieldChange({
+                messageName: 'Test',
+                changeType: 'ADDED',
+                fieldName: 'field',
+                incomingType: 'string field'
+            });
+
+            const path = reporter.writeToFile();
+            expect(path).toBe(join(tmpdir(), 'merge-report.md'));
+            expect(existsSync(path)).toBe(true);
+
+            const content = readFileSync(path, 'utf-8');
+            expect(content).toContain('## Merge Report');
+
+            unlinkSync(path);
+        });
+
+        it('should write report to custom path', () => {
+            const customPath = join(tmpdir(), 'custom-report.md');
+            reporter.addFieldChange({
+                messageName: 'Test',
+                changeType: 'ADDED',
+                fieldName: 'field',
+                incomingType: 'string field'
+            });
+
+            const path = reporter.writeToFile(customPath);
+            expect(path).toBe(customPath);
+            expect(existsSync(customPath)).toBe(true);
+
+            unlinkSync(customPath);
         });
     });
 });

@@ -36,13 +36,6 @@ export interface EnumValueChange {
     valueNumber?: number;
 }
 
-/** Format an enum value for report display */
-export function formatEnumValue(v: { name: string; number?: number; deprecated?: boolean }): string {
-    const num = v.number !== undefined ? ` = ${v.number}` : '';
-    const dep = v.deprecated ? ' [deprecated = true]' : '';
-    return `${v.name}${num}${dep}`;
-}
-
 export class CompatibilityReporter {
     private fieldChanges: FieldChange[] = [];
     private enumChanges: EnumValueChange[] = [];
@@ -68,34 +61,20 @@ export class CompatibilityReporter {
         }
     }
 
-    hasChanges(): boolean {
+    private hasChanges(): boolean {
         return this.fieldChanges.length > 0 || this.enumChanges.length > 0;
     }
 
-    /**
-     * Check if there are any backward incompatible changes (optional or oneof changes).
-     */
+    /** Check if there are any backward incompatible changes. */
     hasIncompatibleChanges(): boolean {
         return this.fieldChanges.some(c =>
             c.changeType === 'OPTIONAL CHANGE' || c.changeType === 'ONEOF CHANGE'
         );
     }
 
-    /**
-     * Get list of backward incompatible changes.
-     */
-    getIncompatibleChanges(): FieldChange[] {
-        return this.fieldChanges.filter(c =>
-            c.changeType === 'OPTIONAL CHANGE' || c.changeType === 'ONEOF CHANGE'
-        );
-    }
-
+    /** Get all field changes (for testing). */
     getFieldChanges(): FieldChange[] {
         return this.fieldChanges;
-    }
-
-    getEnumChanges(): EnumValueChange[] {
-        return this.enumChanges;
     }
 
     /**
@@ -200,11 +179,17 @@ export class CompatibilityReporter {
         }
     }
 
+    private formatEnumValue(v: { name: string; number?: number; deprecated?: boolean }): string {
+        const num = v.number !== undefined ? ` = ${v.number}` : '';
+        const dep = v.deprecated ? ' [deprecated = true]' : '';
+        return `${v.name}${num}${dep}`;
+    }
+
     private formatEnumChanges(byEnum: Map<string, EnumValueChange[]>): string {
         const rows = Array.from(byEnum.entries())
             .flatMap(([, changes]) => changes.map(c => {
                 const isDeprecated = c.changeType === 'DEPRECATED';
-                const formattedValue = formatEnumValue({
+                const formattedValue = this.formatEnumValue({
                     name: c.valueName,
                     number: c.valueNumber,
                     deprecated: isDeprecated
@@ -214,11 +199,6 @@ export class CompatibilityReporter {
             }))
             .join('\n');
         return `### Enum Changes\n\n| Enum | Change | Value |\n|------|--------|-------|\n${rows}`;
-    }
-
-    clear(): void {
-        this.fieldChanges = [];
-        this.enumChanges = [];
     }
 
     /**

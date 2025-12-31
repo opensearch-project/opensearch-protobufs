@@ -27,7 +27,7 @@ function getBaseName(fieldName: string): string {
  */
 function getFieldVersion(fieldName: string): number {
     const match = fieldName.match(/_(\d+)$/);
-    return match ? parseInt(match[1], 10) : 0;
+    return match ? parseInt(match[1], 10) : 1;
 }
 
 /** Type with annotations array */
