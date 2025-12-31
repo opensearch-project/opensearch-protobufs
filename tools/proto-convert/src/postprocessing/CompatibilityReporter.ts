@@ -33,6 +33,15 @@ export interface EnumValueChange {
     enumName: string;
     changeType: 'ADDED' | 'REMOVED';
     valueName: string;
+    valueNumber?: number;
+    deprecated?: boolean;
+}
+
+/** Format an enum value for report display */
+export function formatEnumValue(v: { name: string; number?: number; deprecated?: boolean }): string {
+    const num = v.number !== undefined ? ` = ${v.number}` : '';
+    const dep = v.deprecated ? ' [deprecated = true]' : '';
+    return `${v.name}${num}${dep}`;
 }
 
 export class CompatibilityReporter {
@@ -45,6 +54,19 @@ export class CompatibilityReporter {
 
     addEnumChange(change: EnumValueChange): void {
         this.enumChanges.push(change);
+    }
+
+    /**
+     * Update the versioned field number for a TYPE CHANGED entry.
+     * Called when the versioned field gets its final number assigned.
+     */
+    updateVersionedNumber(versionedName: string, number: number): void {
+        for (const change of this.fieldChanges) {
+            if (change.changeType === 'TYPE CHANGED' && change.versionedName === versionedName) {
+                change.versionedNumber = number;
+                break;
+            }
+        }
     }
 
     hasChanges(): boolean {
@@ -133,7 +155,14 @@ export class CompatibilityReporter {
 
     private formatChangeRows(c: FieldChange): string[] {
         if (c.changeType === 'TYPE CHANGED') {
-            const versionedField = c.incomingType?.replace(c.fieldName, c.versionedName || c.fieldName);
+            // Replace field name with versioned name and strip any wrong number
+            let versionedField = c.incomingType?.replace(c.fieldName, c.versionedName || c.fieldName) || '';
+            // Remove any existing field number (e.g., " = 1")
+            versionedField = versionedField.replace(/ = \d+/, '');
+            // Add the correct versioned number if available
+            if (c.versionedNumber !== undefined) {
+                versionedField += ` = ${c.versionedNumber}`;
+            }
             return [
                 `| ${c.messageName} | 🗑️ **DEPRECATED** | \`${c.existingType}\` |`,
                 `| ${c.messageName} | ➕ **ADDED** | \`${versionedField}\` |`
@@ -174,9 +203,14 @@ export class CompatibilityReporter {
 
     private formatEnumChanges(byEnum: Map<string, EnumValueChange[]>): string {
         const rows = Array.from(byEnum.entries())
-            .flatMap(([, changes]) => changes.map(c =>
-                `| ${c.enumName} | ${this.formatChangeType(c.changeType)} | \`${c.valueName}\` |`
-            ))
+            .flatMap(([, changes]) => changes.map(c => {
+                const formattedValue = formatEnumValue({
+                    name: c.valueName,
+                    number: c.valueNumber,
+                    deprecated: c.deprecated
+                });
+                return `| ${c.enumName} | ${this.formatChangeType(c.changeType)} | \`${formattedValue}\` |`;
+            }))
             .join('\n');
         return `### Enum Changes\n\n| Enum | Change | Value |\n|------|--------|-------|\n${rows}`;
     }

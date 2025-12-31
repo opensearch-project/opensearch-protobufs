@@ -4,6 +4,7 @@ import { tmpdir } from 'os';
 import {
     CompatibilityReporter,
     formatField,
+    formatEnumValue,
     FieldChange,
     EnumValueChange
 } from '../../src/postprocessing/CompatibilityReporter';
@@ -32,6 +33,25 @@ describe('formatField', () => {
     it('should format field with all properties', () => {
         expect(formatField({ name: 'field', type: 'string', modifier: 'optional', number: 3, deprecated: true }))
             .toBe('optional string field = 3 [deprecated = true]');
+    });
+});
+
+describe('formatEnumValue', () => {
+    it('should format enum value with just name', () => {
+        expect(formatEnumValue({ name: 'ACTIVE' })).toBe('ACTIVE');
+    });
+
+    it('should format enum value with number', () => {
+        expect(formatEnumValue({ name: 'ACTIVE', number: 1 })).toBe('ACTIVE = 1');
+    });
+
+    it('should format enum value with deprecated annotation', () => {
+        expect(formatEnumValue({ name: 'OLD_VALUE', deprecated: true })).toBe('OLD_VALUE [deprecated = true]');
+    });
+
+    it('should format enum value with all properties', () => {
+        expect(formatEnumValue({ name: 'OBSOLETE', number: 5, deprecated: true }))
+            .toBe('OBSOLETE = 5 [deprecated = true]');
     });
 });
 
@@ -268,6 +288,25 @@ describe('CompatibilityReporter', () => {
             expect(md).toContain('`int32 field_1`');
         });
 
+        it('should show correct versioned number after updateVersionedNumber', () => {
+            reporter.addFieldChange({
+                messageName: 'TestMessage',
+                changeType: 'TYPE CHANGED',
+                fieldName: 'boost',
+                existingType: 'optional float boost = 5 [deprecated = true]',
+                incomingType: 'optional bool boost = 3',  // Wrong number from incoming spec
+                versionedName: 'boost_1'
+            });
+
+            // Simulate the versioned field getting its real number assigned later
+            reporter.updateVersionedNumber('boost_1', 10);
+
+            const md = reporter.toMarkdown();
+            expect(md).toContain('`optional float boost = 5 [deprecated = true]`');
+            expect(md).toContain('`optional bool boost_1 = 10`');  // Correct number
+            expect(md).not.toContain('boost_1 = 3');  // Wrong number should be stripped
+        });
+
         it('should format optional_change with warning icon', () => {
             reporter.addFieldChange({
                 messageName: 'TestMessage',
@@ -300,21 +339,24 @@ describe('CompatibilityReporter', () => {
             reporter.addEnumChange({
                 enumName: 'Status',
                 changeType: 'ADDED',
-                valueName: 'PENDING'
+                valueName: 'PENDING',
+                valueNumber: 5
             });
             reporter.addEnumChange({
                 enumName: 'Status',
                 changeType: 'REMOVED',
-                valueName: 'OBSOLETE'
+                valueName: 'OBSOLETE',
+                valueNumber: 2,
+                deprecated: true
             });
 
             const md = reporter.toMarkdown();
             expect(md).toContain('### Enum Changes');
             expect(md).toContain('| Enum | Change | Value |');
             expect(md).toContain('➕ **ADDED**');
-            expect(md).toContain('`PENDING`');
+            expect(md).toContain('`PENDING = 5`');
             expect(md).toContain('🗑️ **REMOVED**');
-            expect(md).toContain('`OBSOLETE`');
+            expect(md).toContain('`OBSOLETE = 2 [deprecated = true]`');
         });
 
         it('should include message name in each row', () => {

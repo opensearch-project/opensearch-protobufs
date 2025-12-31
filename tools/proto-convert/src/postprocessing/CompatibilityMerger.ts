@@ -197,7 +197,9 @@ export function mergeMessage(
     // Assign field max number to remaining fields.
     for (const field of upcomingByName.values()) {
         const fieldNumber = ++maxFieldNumber;
-        if (!isVersionedName(field.name)) {
+        if (isVersionedName(field.name)) {
+            reporter?.updateVersionedNumber(field.name, fieldNumber);
+        } else {
             reporter?.addFieldChange({
                 messageName: sourceMsg.name,
                 changeType: 'ADDED',
@@ -215,7 +217,9 @@ export function mergeMessage(
             if (remaining) {
                 for (const field of remaining.values()) {
                     const fieldNumber = ++maxFieldNumber;
-                    if (!isVersionedName(field.name)) {
+                    if (isVersionedName(field.name)) {
+                        reporter?.updateVersionedNumber(field.name, fieldNumber);
+                    } else {
                         reporter?.addFieldChange({
                             messageName: sourceMsg.name,
                             changeType: 'ADDED',
@@ -261,7 +265,9 @@ export function mergeEnum(
             reporter?.addEnumChange({
                 enumName: sourceEnum.name,
                 changeType: 'REMOVED',
-                valueName: sourceValue.name
+                valueName: sourceValue.name,
+                valueNumber: sourceValue.number,
+                deprecated: true
             });
             mergedValues.push(addDeprecated(sourceValue));
         }
@@ -269,14 +275,16 @@ export function mergeEnum(
 
     for (const [valueName, upcomingValue] of upcomingValueMap) {
         if (!sourceValueMap.has(valueName)) {
+            const valueNumber = ++maxValueNumber;
             reporter?.addEnumChange({
                 enumName: sourceEnum.name,
                 changeType: 'ADDED',
-                valueName: valueName
+                valueName: valueName,
+                valueNumber: valueNumber
             });
             mergedValues.push({
                 ...upcomingValue,
-                number: ++maxValueNumber
+                number: valueNumber
             });
         }
     }
