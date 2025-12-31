@@ -159,7 +159,7 @@ export function cleanupUnusedMessages(opts: CleanupOptions): { removedMessages: 
     // Find reachable types
     const reachable = findReachableTypes(roots, parsed.messages);
 
-    // Filter to keep only reachable
+    // Filter to keep only reachable messages and enums
     const keptMessages = filterMessages(parsed.messages, reachable);
     const keptEnums = filterEnums(parsed.enums, reachable);
 

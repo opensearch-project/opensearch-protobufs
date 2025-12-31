@@ -4,7 +4,7 @@
  */
 
 import * as path from 'path';
-import { parseProtoFile } from '../../src/postprocessing/parser';
+import { parseProtoFile, extractEnumValueAnnotations } from '../../src/postprocessing/parser';
 
 const TEST_PROTO = path.join(__dirname, '../fixtures/proto/test.proto');
 
@@ -95,5 +95,67 @@ describe('parseProtoFile', () => {
         // Oneof comment
         const filterMsg = result.messages.find(m => m.name === 'FilterSettings');
         expect(filterMsg!.oneofs![0].comment).toBe('Filter value - can be different types');
+    });
+
+    it('should parse enum value annotations', () => {
+        const statusEnum = result.enums.find(e => e.name === 'Status');
+        expect(statusEnum).toBeDefined();
+
+        // Regular values should not have annotations
+        const activeValue = statusEnum!.values.find(v => v.name === 'STATUS_ACTIVE');
+        expect(activeValue!.annotations).toBeUndefined();
+
+        // Deprecated value should have annotation
+        const deprecatedValue = statusEnum!.values.find(v => v.name === 'STATUS_DEPRECATED');
+        expect(deprecatedValue).toBeDefined();
+        expect(deprecatedValue!.annotations).toContainEqual({ name: 'deprecated', value: 'true' });
+    });
+});
+
+describe('extractEnumValueAnnotations', () => {
+
+    it('should extract multiple annotations from enum values', () => {
+        const content = `
+        enum MultiAnnotation {
+        VALUE_A = 0 [deprecated = true, custom = value];
+        }
+        `;
+        const result = extractEnumValueAnnotations(content);
+
+        expect(result.has('MultiAnnotation')).toBe(true);
+        const annotations = result.get('MultiAnnotation')!.get('VALUE_A')!;
+
+        expect(annotations).toHaveLength(2);
+        expect(annotations).toContainEqual({ name: 'deprecated', value: 'true' });
+        expect(annotations).toContainEqual({ name: 'custom', value: 'value' });
+    });
+
+    it('should handle multiple enums', () => {
+        const content = `
+            enum EnumA {
+            A_VALUE = 0 [deprecated = true];
+            }
+            enum EnumB {
+            B_VALUE = 1 [deprecated = true];
+            }
+        `;
+        const result = extractEnumValueAnnotations(content);
+
+        expect(result.has('EnumA')).toBe(true);
+        expect(result.has('EnumB')).toBe(true);
+        expect(result.get('EnumA')!.has('A_VALUE')).toBe(true);
+        expect(result.get('EnumB')!.has('B_VALUE')).toBe(true);
+    });
+
+    it('should return empty map when no annotations exist', () => {
+        const content = `
+        enum NoAnnotations {
+        VALUE_A = 0;
+        VALUE_B = 1;
+        }
+        `;
+        const result = extractEnumValueAnnotations(content);
+
+        expect(result.size).toBe(0);
     });
 });

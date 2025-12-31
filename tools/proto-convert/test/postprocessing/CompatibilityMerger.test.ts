@@ -741,6 +741,28 @@ describe('mergeEnum', () => {
             );
             expect(deprecatedOptions).toHaveLength(1);
         });
+
+        it('should not report already deprecated values', () => {
+            const source: ProtoEnum = {
+                name: 'Status',
+                values: [{
+                    name: 'STATUS_OLD',
+                    number: 1,
+                    annotations: [{ name: 'deprecated', value: 'true' }]
+                }]
+            };
+            const upcoming: ProtoEnum = {
+                name: 'Status',
+                values: []
+            };
+
+            const reporter = new CompatibilityReporter();
+            mergeEnum(source, upcoming, reporter);
+
+            // Reporter should have no enum changes since value was already deprecated
+            const markdown = reporter.toMarkdown();
+            expect(markdown).toContain('No changes detected');
+        });
     });
 
     describe('new values', () => {
