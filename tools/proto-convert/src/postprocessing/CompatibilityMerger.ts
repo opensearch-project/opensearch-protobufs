@@ -264,10 +264,9 @@ export function mergeEnum(
         } else {
             reporter?.addEnumChange({
                 enumName: sourceEnum.name,
-                changeType: 'REMOVED',
+                changeType: 'DEPRECATED',
                 valueName: sourceValue.name,
-                valueNumber: sourceValue.number,
-                deprecated: true
+                valueNumber: sourceValue.number
             });
             mergedValues.push(addDeprecated(sourceValue));
         }

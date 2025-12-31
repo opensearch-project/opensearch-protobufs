@@ -31,10 +31,9 @@ export interface FieldChange {
 
 export interface EnumValueChange {
     enumName: string;
-    changeType: 'ADDED' | 'REMOVED';
+    changeType: 'ADDED' | 'DEPRECATED';
     valueName: string;
     valueNumber?: number;
-    deprecated?: boolean;
 }
 
 /** Format an enum value for report display */
@@ -204,12 +203,14 @@ export class CompatibilityReporter {
     private formatEnumChanges(byEnum: Map<string, EnumValueChange[]>): string {
         const rows = Array.from(byEnum.entries())
             .flatMap(([, changes]) => changes.map(c => {
+                const isDeprecated = c.changeType === 'DEPRECATED';
                 const formattedValue = formatEnumValue({
                     name: c.valueName,
                     number: c.valueNumber,
-                    deprecated: c.deprecated
+                    deprecated: isDeprecated
                 });
-                return `| ${c.enumName} | ${this.formatChangeType(c.changeType)} | \`${formattedValue}\` |`;
+                const icon = isDeprecated ? '🗑️ **DEPRECATED**' : '➕ **ADDED**';
+                return `| ${c.enumName} | ${icon} | \`${formattedValue}\` |`;
             }))
             .join('\n');
         return `### Enum Changes\n\n| Enum | Change | Value |\n|------|--------|-------|\n${rows}`;

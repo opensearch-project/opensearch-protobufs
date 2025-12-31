@@ -203,7 +203,7 @@ describe('CompatibilityReporter', () => {
             });
             reporter.addEnumChange({
                 enumName: 'Status',
-                changeType: 'REMOVED',
+                changeType: 'DEPRECATED',
                 valueName: 'OLD'
             });
 
@@ -339,23 +339,22 @@ describe('CompatibilityReporter', () => {
             reporter.addEnumChange({
                 enumName: 'Status',
                 changeType: 'ADDED',
-                valueName: 'PENDING',
+                valueName: 'NEW_VALUE',
                 valueNumber: 5
             });
             reporter.addEnumChange({
                 enumName: 'Status',
-                changeType: 'REMOVED',
+                changeType: 'DEPRECATED',
                 valueName: 'OBSOLETE',
-                valueNumber: 2,
-                deprecated: true
+                valueNumber: 2
             });
 
             const md = reporter.toMarkdown();
             expect(md).toContain('### Enum Changes');
             expect(md).toContain('| Enum | Change | Value |');
             expect(md).toContain('➕ **ADDED**');
-            expect(md).toContain('`PENDING = 5`');
-            expect(md).toContain('🗑️ **REMOVED**');
+            expect(md).toContain('`NEW_VALUE = 5`');
+            expect(md).toContain('🗑️ **DEPRECATED**');
             expect(md).toContain('`OBSOLETE = 2 [deprecated = true]`');
         });
 
