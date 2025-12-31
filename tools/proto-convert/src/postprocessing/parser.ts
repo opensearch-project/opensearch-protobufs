@@ -55,9 +55,58 @@ export function convertField(field: Field): ProtoField {
 }
 
 /**
+ * Extract enum value annotations from raw proto file content.
+
+ */
+export function extractEnumValueAnnotations(content: string): Map<string, Map<string, Annotation[]>> {
+    const result = new Map<string, Map<string, Annotation[]>>();
+
+    // Match enum blocks
+    const enumRegex = /enum\s+(\w+)\s*\{([^}]+)\}/g;
+    let enumMatch;
+
+    while ((enumMatch = enumRegex.exec(content)) !== null) {
+        const enumName = enumMatch[1];
+        const enumBody = enumMatch[2];
+        const valueAnnotations = new Map<string, Annotation[]>();
+
+        // Match enum values with options: VALUE_NAME = 123 [option = value, ...];
+        const valueRegex = /(\w+)\s*=\s*\d+\s*\[([^\]]+)\]/g;
+        let valueMatch;
+
+        while ((valueMatch = valueRegex.exec(enumBody)) !== null) {
+            const valueName = valueMatch[1];
+            const optionsStr = valueMatch[2];
+            const annotations: Annotation[] = [];
+
+            // Parse options like "deprecated = true, custom = value"
+            const optionParts = optionsStr.split(',');
+            for (const part of optionParts) {
+                const eqIndex = part.indexOf('=');
+                if (eqIndex > 0) {
+                    const name = part.substring(0, eqIndex).trim();
+                    const value = part.substring(eqIndex + 1).trim();
+                    annotations.push({ name, value });
+                }
+            }
+
+            if (annotations.length > 0) {
+                valueAnnotations.set(valueName, annotations);
+            }
+        }
+
+        if (valueAnnotations.size > 0) {
+            result.set(enumName, valueAnnotations);
+        }
+    }
+
+    return result;
+}
+
+/**
  * Convert a protobufjs Enum to internal ProtoEnum type.
  */
-export function convertEnum(enumDef: Enum): ProtoEnum {
+export function convertEnum(enumDef: Enum, valueAnnotations?: Map<string, Annotation[]>): ProtoEnum {
     const values: ProtoEnumValue[] = [];
 
     for (const [name, number] of Object.entries(enumDef.values)) {
@@ -66,12 +115,9 @@ export function convertEnum(enumDef: Enum): ProtoEnum {
             number: number as number
         };
 
-        const valuesOptions = (enumDef as any).valuesOptions;
-        if (valuesOptions && valuesOptions[name]) {
-            value.annotations = Object.entries(valuesOptions[name]).map(([k, v]) => ({
-                name: k,
-                value: String(v)
-            }));
+        // Get annotations from raw file parsing (protobufjs doesn't parse these)
+        if (valueAnnotations && valueAnnotations.has(name)) {
+            value.annotations = valueAnnotations.get(name);
         }
 
         values.push(value);
@@ -188,6 +234,9 @@ export function parseProtoFile(filePath: string): ParsedProtoFile {
     const content = readFileSync(filePath, 'utf8');
     const parsed = parse(content, { keepCase: true, alternateCommentMode: true });
 
+    // Extract enum value annotations from raw content (protobufjs doesn't parse these)
+    const enumValueAnnotations = extractEnumValueAnnotations(content);
+
     const messages: ProtoMessage[] = [];
     const enums: ProtoEnum[] = [];
     const services: ProtoService[] = [];
@@ -198,7 +247,8 @@ export function parseProtoFile(filePath: string): ParsedProtoFile {
                 if (nested instanceof Type) {
                     messages.push(convertMessage(nested));
                 } else if (nested instanceof Enum) {
-                    enums.push(convertEnum(nested));
+                    const annotations = enumValueAnnotations.get(nested.name);
+                    enums.push(convertEnum(nested, annotations));
                 } else if (nested instanceof Service) {
                     services.push(convertService(nested));
                 } else if (nested instanceof Namespace) {

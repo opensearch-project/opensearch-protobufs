@@ -257,6 +257,11 @@ export function mergeEnum(
     for (const sourceValue of sourceEnum.values) {
         maxValueNumber = Math.max(maxValueNumber, sourceValue.number);
 
+        if (isDeprecated(sourceValue)) {
+            mergedValues.push(sourceValue);
+            continue;
+        }
+
         const upcomingValue = upcomingValueMap.get(sourceValue.name);
 
         if (upcomingValue) {
