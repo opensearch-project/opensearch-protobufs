@@ -1,18 +1,27 @@
 /**
-   This is generated from the spec. DO NOT manually modify.
+    This is generated from the spec. DO NOT manually modify.
 */
 syntax = "proto3";
 package org.opensearch.protobufs;
 
 import "google/protobuf/struct.proto";
-import "models/aggregated_models.proto";
 
 option go_package = "github.com/opensearch-project/opensearch-protobufs/go/opensearchpb";
 option java_multiple_files = true;
 option java_outer_classname = "CommonProto";
 option java_package = "org.opensearch.protobufs";
 
+import "models/aggregated_models.proto";
+
+service DefaultService {
+  rpc Bulk (BulkRequest) returns (BulkResponse);
+
+  rpc Search (SearchRequest) returns (SearchResponse);
+
+}
+
 message BulkRequest {
+
   repeated BulkRequestBody bulk_request_body = 1;
 
   // `true` or `false` to return the `_source` field or not, or a list of fields to return.
@@ -50,9 +59,11 @@ message BulkRequest {
 
   // Global query parameters
   optional GlobalParams global_params = 13;
+
 }
 
 message SearchRequest {
+
   // Indicates which source fields are returned for matching documents. These fields are returned in the `hits._source` property of the search response. Valid values are: `true` to return the entire document source; `false` to not return the document source; `<string>` to return the source fields that are specified as a comma-separated list (supports wildcard (`*`) patterns).
   optional SourceConfigParam x_source = 1;
 
@@ -150,4 +161,6 @@ message SearchRequest {
   optional GlobalParams global_params = 32;
 
   optional SearchRequestBody search_request_body = 33;
+
 }
+
