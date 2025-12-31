@@ -6,7 +6,6 @@ import * as path from 'path';
 import * as fs from 'fs';
 import * as os from 'os';
 import { BackwardCompatibleWriter } from '../../src/postprocessing/BackwardCompatibleWriter';
-import { BackwardCompatibilityError } from '../../src/postprocessing/types';
 import { parseProtoFile } from '../../src/postprocessing/parser';
 
 const FIXTURES_DIR = path.join(__dirname, '../fixtures/proto');
@@ -210,18 +209,47 @@ describe('BackwardCompatibleWriter', () => {
         });
     });
 
-    describe('error handling', () => {
-        it('should throw BackwardCompatibilityError on optional change (added)', () => {
-            const badIncoming = path.join(tempDir, 'bad_incoming.proto');
-            fs.writeFileSync(badIncoming, PROTO_OPTIONAL_ADDED);
+    describe('change reporting', () => {
+        it('should report optional change as incompatible but still write', () => {
+            const optionalIncoming = path.join(tempDir, 'optional_incoming.proto');
+            fs.writeFileSync(optionalIncoming, PROTO_OPTIONAL_ADDED);
 
             const writer = new BackwardCompatibleWriter(
                 EXISTING_PROTO,
-                [badIncoming],
+                [optionalIncoming],
                 outputPath
             );
 
-            expect(() => writer.process()).toThrow(BackwardCompatibilityError);
+            // Should NOT throw - writes even with incompatible changes
+            writer.process();
+
+            // Report should have the change recorded as optional_change (incompatible)
+            const reporter = writer.getReporter();
+            expect(reporter.hasIncompatibleChanges()).toBe(true);
+            const optionalChanges = reporter.getFieldChanges().filter(c => c.changeType === 'OPTIONAL CHANGE');
+            expect(optionalChanges.length).toBeGreaterThan(0);
+
+            // Output file should still be written
+            expect(fs.existsSync(outputPath)).toBe(true);
+        });
+
+        it('should report optional change in dry-run mode without writing', () => {
+            const optionalIncoming = path.join(tempDir, 'optional_incoming.proto');
+            fs.writeFileSync(optionalIncoming, PROTO_OPTIONAL_ADDED);
+
+            const writer = new BackwardCompatibleWriter(
+                EXISTING_PROTO,
+                [optionalIncoming],
+                outputPath
+            );
+
+            // Should not throw in dry-run mode
+            writer.process(true);
+
+            const reporter = writer.getReporter();
+            expect(reporter.hasIncompatibleChanges()).toBe(true);
+            const optionalChanges = reporter.getFieldChanges().filter(c => c.changeType === 'OPTIONAL CHANGE');
+            expect(optionalChanges.length).toBeGreaterThan(0);
         });
 
         it('should handle type change by deprecating old field', () => {

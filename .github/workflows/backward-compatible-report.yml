@@ -1,22 +1,40 @@
-name: Auto Proto Convert
+name: Backward Compatible Report
 
 on:
+  workflow_call:
+    inputs:
+      opensearch_version:
+        description: 'OpenSearch version. Leave empty to fetch latest.'
+        required: false
+        type: string
+      spec_artifact_name:
+        description: 'Name of the uploaded artifact containing opensearch-openapi.yaml'
+        required: false
+        type: string
+        default: 'openapi-spec'
+    outputs:
+      report:
+        description: 'The compatibility report in markdown format'
+        value: ${{ jobs.generate-report.outputs.report }}
+
   workflow_dispatch:
     inputs:
       opensearch_version:
         description: 'OpenSearch version. Leave empty to fetch latest.'
         required: false
         type: string
-  repository_dispatch:
-    types: [spec-updated]
 
 jobs:
-  auto-proto-convert:
+  generate-report:
     runs-on: ubuntu-latest
-    if: github.repository == 'opensearch-project/opensearch-protobufs'
+    outputs:
+      report: ${{ steps.merge_report.outputs.report }}
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
+        with:
+          repository: ${{ github.repository_owner }}/opensearch-protobufs
+          ref: main
 
       - name: Setup Node.js
         uses: actions/setup-node@v3
@@ -29,32 +47,12 @@ jobs:
           distribution: temurin
           java-version: 17
 
-      - name: Download Release Assets
-        uses: robinraju/release-downloader@v1
+      - name: Download OpenAPI spec artifact
+        if: ${{ inputs.spec_artifact_name != '' }}
+        uses: actions/download-artifact@v4
         with:
-         repository: 'opensearch-project/opensearch-api-specification'
-         latest: true
-         fileName: 'opensearch-openapi.yaml'
-         tag: 'main-latest'
-         preRelease: true
-
-      - name: Get Latest Commit ID
-        id: get_commit
-        uses: actions/github-script@v6
-        with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          script: |
-            const owner = "opensearch-project";
-            const repo = "opensearch-api-specification";
-            const commits = await github.rest.repos.listCommits({
-              owner,
-              repo,
-              sha: "main",
-              per_page: 1
-            });
-            const latestCommit = commits.data[0].sha;
-            core.setOutput("latest_commit", latestCommit);
-            console.log("Latest commit: " + latestCommit);
+          name: ${{ inputs.spec_artifact_name }}
+          path: .
 
       - name: Get Latest OpenSearch Core Version
         id: get_opensearch_version
@@ -93,7 +91,7 @@ jobs:
                 core.setOutput("version", version);
                 console.log("Fetched OpenSearch version from source: " + version);
               } else {
-                core.setFailed("Could not find opensearch version in gradle/libs.versions.toml");
+                core.setFailed("Could not find opensearch version in version.properties");
               }
             } catch (error) {
               core.setFailed("Could not fetch OpenSearch version: " + error.message);
@@ -119,54 +117,17 @@ jobs:
         run: |
           java -jar cloned-repo/modules/openapi-generator-cli/target/openapi-generator-cli.jar generate -c tools/proto-convert/src/config/protobuf-generator-config.yaml
 
-      - name: Post Process Protobuf
+      - name: Post Process Protobuf (dry-run for report)
         id: merge_report
         run: |
-          npm run postprocessing
+          npm run postprocessing:dry-run
           REPORT_PATH="/tmp/merge-report.md"
-          if [ -f "$REPORT_PATH" ]; then
-            REPORT=$(cat "$REPORT_PATH")
-            echo "report<<EOF" >> $GITHUB_OUTPUT
-            echo "$REPORT" >> $GITHUB_OUTPUT
-            echo "EOF" >> $GITHUB_OUTPUT
-          else
-            echo "report=No changes detected." >> $GITHUB_OUTPUT
-          fi
 
-      - name: Configure Git User
-        run: |
-          git config --global user.name "github-actions[bot]"
-          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          echo "=== Compatibility Report ==="
+          cat "$REPORT_PATH"
+          echo "============================="
 
-      - name: Check for changes
-        id: check_changes
-        run: |
-          if [ -z "$(git status --porcelain)" ]; then
-            echo "No changes detected."
-            echo "changed=false" >> $GITHUB_OUTPUT
-          else
-            echo "Changes detected."
-            echo "changed=true" >> $GITHUB_OUTPUT
-          fi
-
-      - name: Create Pull Request if changes exist
-        if: steps.check_changes.outputs.changed == 'true'
-        uses: peter-evans/create-pull-request@v7
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          branch: auto-pr-branch
-          commit-message: "Protobuf schema change detected"
-          title: "[Automated PR]: Update generated protobuf schema (OpenSearch: ${{ steps.get_opensearch_version.outputs.version }}, spec commit: ${{ steps.get_commit.outputs.latest_commit }})"
-          signoff: true
-          base: main
-          delete-branch: true
-          labels: skip-changelog
-          body: |
-            This pull request was automatically generated by GitHub Actions.
-
-            **OpenSearch Version**: ${{ steps.get_opensearch_version.outputs.version }}
-            **API Spec Commit**: ${{ steps.get_commit.outputs.latest_commit }}
-
-            ---
-
-            ${{ steps.merge_report.outputs.report }}
+          REPORT=$(cat "$REPORT_PATH")
+          echo "report<<EOF" >> $GITHUB_OUTPUT
+          echo "$REPORT" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT

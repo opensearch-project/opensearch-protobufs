@@ -10,6 +10,7 @@ import {
     ProtoOneof,
     Annotation
 } from './types';
+import { CompatibilityReporter, formatField } from './CompatibilityReporter';
 
 const DEPRECATED: Annotation = { name: 'deprecated', value: 'true' };
 
@@ -26,7 +27,7 @@ function getBaseName(fieldName: string): string {
  */
 function getFieldVersion(fieldName: string): number {
     const match = fieldName.match(/_(\d+)$/);
-    return match ? parseInt(match[1], 10) : 0;
+    return match ? parseInt(match[1], 10) : 1;
 }
 
 /** Type with annotations array */
@@ -55,26 +56,6 @@ function addDeprecated<T extends HasAnnotations>(item: T): T {
 }
 
 /**
- * Check if optional added or removed. If so, push error and return true
- */
-function hasOptionalError(
-    source: ProtoField,
-    upcoming: ProtoField,
-    msgName: string,
-    errors: string[]
-): boolean {
-    const sourceOptional = source.modifier === 'optional';
-    const upcomingOptional = upcoming.modifier === 'optional';
-
-    if (sourceOptional !== upcomingOptional) {
-        const change = sourceOptional ? 'removed' : 'added';
-        errors.push(`${msgName}.${source.name}: optional ${change}`);
-        return true;
-    }
-    return false;
-}
-
-/**
  * Check if two fields are compatible (same type and compatible modifiers).
  */
 function fieldsMatch(a: ProtoField, b: ProtoField): boolean {
@@ -88,7 +69,7 @@ function mergeField(
     sourceField: ProtoField,
     upcomingMap: Map<string, ProtoField>,
     msgName: string,
-    errors: string[]
+    reporter?: CompatibilityReporter
 ): ProtoField {
     if (isDeprecated(sourceField)) {
         return sourceField;
@@ -100,21 +81,57 @@ function mergeField(
     if (upcomingField) {
         upcomingMap.delete(baseName);
 
-        if (hasOptionalError(sourceField, upcomingField, msgName, errors)) {
-            return sourceField;
-        }
-
         if (fieldsMatch(sourceField, upcomingField)) {
             return sourceField;
         } else {
-            // Type or repeated change - deprecate and version
-            const newName = `${baseName}_${getFieldVersion(sourceField.name) + 1}`;
-            upcomingMap.set(newName, { ...upcomingField, name: newName });
-            return addDeprecated(sourceField);
+            const sameType = sourceField.type === upcomingField.type;
+            const sourceOptional = sourceField.modifier === 'optional';
+            const upcomingOptional = upcomingField.modifier === 'optional';
+            const isOptionalChange = sameType && (sourceOptional !== upcomingOptional);
+
+            if (isOptionalChange) {
+                reporter?.addFieldChange({
+                    messageName: msgName,
+                    changeType: 'OPTIONAL CHANGE',
+                    fieldName: sourceField.name,
+                    existingType: formatField({ ...sourceField, number: sourceField.number }),
+                    incomingType: formatField({ ...upcomingField, number: sourceField.number })
+                });
+                return { ...upcomingField, name: sourceField.name, number: sourceField.number };
+            } else {
+                const newName = `${baseName}_${getFieldVersion(sourceField.name) + 1}`;
+                upcomingMap.set(newName, { ...upcomingField, name: newName });
+
+                reporter?.addFieldChange({
+                    messageName: msgName,
+                    changeType: 'TYPE CHANGED',
+                    fieldName: sourceField.name,
+                    existingType: formatField({ ...sourceField, number: sourceField.number, deprecated: true }),
+                    incomingType: formatField(upcomingField),
+                    versionedName: newName
+                });
+                return addDeprecated(sourceField);
+            }
         }
     } else {
+        reporter?.addFieldChange({
+            messageName: msgName,
+            changeType: 'REMOVED',
+            fieldName: sourceField.name,
+            existingType: formatField({ ...sourceField, number: sourceField.number, deprecated: true })
+        });
         return addDeprecated(sourceField);
     }
+}
+
+/** Check if field name is a versioned name (ends with _N where N is a number) */
+function isVersionedName(name: string): boolean {
+    return /_\d+$/.test(name);
+}
+
+/** Check if message has any oneof with fields */
+function hasOneof(msg: ProtoMessage): boolean {
+    return (msg.oneofs?.some(o => o.fields.length > 0)) ?? false;
 }
 
 /**
@@ -123,8 +140,22 @@ function mergeField(
 export function mergeMessage(
     sourceMsg: ProtoMessage,
     upcomingMsg: ProtoMessage,
-    errors: string[]
+    reporter?: CompatibilityReporter
 ): ProtoMessage {
+    // Check for oneof structure change (one has oneof, other doesn't)
+    const sourceHasOneof = hasOneof(sourceMsg);
+    const upcomingHasOneof = hasOneof(upcomingMsg);
+
+    if (sourceHasOneof !== upcomingHasOneof) {
+        reporter?.addFieldChange({
+            messageName: sourceMsg.name,
+            changeType: 'ONEOF CHANGE',
+            fieldName: '*',
+            existingLocation: sourceHasOneof ? 'has oneof' : 'no oneof',
+            incomingLocation: upcomingHasOneof ? 'has oneof' : 'no oneof'
+        });
+    }
+
     const upcomingByName = new Map(upcomingMsg.fields.map(f => [f.name, f]));
 
     let maxFieldNumber = 0;
@@ -133,7 +164,7 @@ export function mergeMessage(
     // Process regular fields
     for (const sourceField of sourceMsg.fields) {
         maxFieldNumber = Math.max(maxFieldNumber, sourceField.number);
-        mergedFields.push(mergeField(sourceField, upcomingByName, sourceMsg.name, errors));
+        mergedFields.push(mergeField(sourceField, upcomingByName, sourceMsg.name, reporter));
     }
 
     // Process oneofs
@@ -155,7 +186,7 @@ export function mergeMessage(
             const mergedOneofFields: ProtoField[] = [];
             for (const sourceField of sourceOneof.fields) {
                 maxFieldNumber = Math.max(maxFieldNumber, sourceField.number);
-                mergedOneofFields.push(mergeField(sourceField, upcomingOneofByName, sourceMsg.name, errors));
+                mergedOneofFields.push(mergeField(sourceField, upcomingOneofByName, sourceMsg.name, reporter));
             }
 
             mergedOneofs.push({ ...sourceOneof, fields: mergedOneofFields });
@@ -165,7 +196,18 @@ export function mergeMessage(
 
     // Assign field max number to remaining fields.
     for (const field of upcomingByName.values()) {
-        mergedFields.push({ ...field, number: ++maxFieldNumber });
+        const fieldNumber = ++maxFieldNumber;
+        if (isVersionedName(field.name)) {
+            reporter?.updateVersionedNumber(field.name, fieldNumber);
+        } else {
+            reporter?.addFieldChange({
+                messageName: sourceMsg.name,
+                changeType: 'ADDED',
+                fieldName: field.name,
+                incomingType: formatField({ ...field, number: fieldNumber })
+            });
+        }
+        mergedFields.push({ ...field, number: fieldNumber });
     }
 
     // Assign field max number to remaining oneof fields.
@@ -174,7 +216,18 @@ export function mergeMessage(
             const remaining = oneofMaps.get(oneof.name);
             if (remaining) {
                 for (const field of remaining.values()) {
-                    oneof.fields.push({ ...field, number: ++maxFieldNumber });
+                    const fieldNumber = ++maxFieldNumber;
+                    if (isVersionedName(field.name)) {
+                        reporter?.updateVersionedNumber(field.name, fieldNumber);
+                    } else {
+                        reporter?.addFieldChange({
+                            messageName: sourceMsg.name,
+                            changeType: 'ADDED',
+                            fieldName: `${oneof.name}.${field.name}`,
+                            incomingType: formatField({ ...field, number: fieldNumber })
+                        });
+                    }
+                    oneof.fields.push({ ...field, number: fieldNumber });
                 }
             }
         }
@@ -192,7 +245,8 @@ export function mergeMessage(
  */
 export function mergeEnum(
     sourceEnum: ProtoEnum,
-    upcomingEnum: ProtoEnum
+    upcomingEnum: ProtoEnum,
+    reporter?: CompatibilityReporter
 ): ProtoEnum {
     const sourceValueMap = new Map(sourceEnum.values.map(v => [v.name, v]));
     const upcomingValueMap = new Map(upcomingEnum.values.map(v => [v.name, v]));
@@ -208,15 +262,28 @@ export function mergeEnum(
         if (upcomingValue) {
             mergedValues.push(sourceValue);
         } else {
+            reporter?.addEnumChange({
+                enumName: sourceEnum.name,
+                changeType: 'DEPRECATED',
+                valueName: sourceValue.name,
+                valueNumber: sourceValue.number
+            });
             mergedValues.push(addDeprecated(sourceValue));
         }
     }
 
     for (const [valueName, upcomingValue] of upcomingValueMap) {
         if (!sourceValueMap.has(valueName)) {
+            const valueNumber = ++maxValueNumber;
+            reporter?.addEnumChange({
+                enumName: sourceEnum.name,
+                changeType: 'ADDED',
+                valueName: valueName,
+                valueNumber: valueNumber
+            });
             mergedValues.push({
                 ...upcomingValue,
-                number: ++maxValueNumber
+                number: valueNumber
             });
         }
     }

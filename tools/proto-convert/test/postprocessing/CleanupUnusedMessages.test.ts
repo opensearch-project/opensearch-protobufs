@@ -33,17 +33,17 @@ describe('CleanupUnusedMessages', () => {
     const parsed = parseProtoFile(TEST_PROTO);
 
     describe('findReachableTypes', () => {
-        it('should identify reachable messages from roots', () => {
-            const reachable = findReachableTypes(['SearchRequest', 'SearchResponse'], parsed.messages);
+    it('should identify reachable messages from roots', () => {
+        const reachable = findReachableTypes(['SearchRequest', 'SearchResponse'], parsed.messages);
 
-            // Root messages are reachable
-            expect(reachable.has('SearchRequest')).toBe(true);
-            expect(reachable.has('SearchResponse')).toBe(true);
+        // Root messages are reachable
+        expect(reachable.has('SearchRequest')).toBe(true);
+        expect(reachable.has('SearchResponse')).toBe(true);
 
-            // Direct references are reachable
-            expect(reachable.has('SearchOptions')).toBe(true);
-            expect(reachable.has('SearchResult')).toBe(true);
-        });
+        // Direct references are reachable
+        expect(reachable.has('SearchOptions')).toBe(true);
+        expect(reachable.has('SearchResult')).toBe(true);
+    });
 
         it('should follow transitive references', () => {
             const reachable = findReachableTypes(['SearchRequest'], parsed.messages);
@@ -160,16 +160,16 @@ describe('CleanupUnusedMessages', () => {
     });
 
     describe('filterMessages', () => {
-        it('should filter messages to keep only reachable ones', () => {
-            const reachable = findReachableTypes(['SearchRequest', 'SearchResponse'], parsed.messages);
-            const kept = filterMessages(parsed.messages, reachable);
+    it('should filter messages to keep only reachable ones', () => {
+        const reachable = findReachableTypes(['SearchRequest', 'SearchResponse'], parsed.messages);
+        const kept = filterMessages(parsed.messages, reachable);
 
-            const keptNames = kept.map(m => m.name);
-            expect(keptNames).toContain('SearchRequest');
-            expect(keptNames).toContain('SearchResponse');
-            expect(keptNames).not.toContain('UnusedMessage');
-            expect(keptNames).not.toContain('AnotherUnused');
-        });
+        const keptNames = kept.map(m => m.name);
+        expect(keptNames).toContain('SearchRequest');
+        expect(keptNames).toContain('SearchResponse');
+        expect(keptNames).not.toContain('UnusedMessage');
+        expect(keptNames).not.toContain('AnotherUnused');
+    });
 
         it('should always keep custom message names (ObjectMap, GeneralNumber)', () => {
             const messages: ProtoMessage[] = [
@@ -189,14 +189,14 @@ describe('CleanupUnusedMessages', () => {
     });
 
     describe('filterEnums', () => {
-        it('should filter enums to keep only referenced ones', () => {
-            const reachable = findReachableTypes(['SearchRequest', 'SearchResponse'], parsed.messages);
-            const kept = filterEnums(parsed.enums, reachable);
+    it('should filter enums to keep only referenced ones', () => {
+        const reachable = findReachableTypes(['SearchRequest', 'SearchResponse'], parsed.messages);
+        const kept = filterEnums(parsed.enums, reachable);
 
-            const keptNames = kept.map(e => e.name);
-            // SortOrder is referenced by SearchOptions
-            expect(keptNames).toContain('SortOrder');
-            expect(keptNames).not.toContain('UnusedEnum');
+        const keptNames = kept.map(e => e.name);
+        // SortOrder is referenced by SearchOptions
+        expect(keptNames).toContain('SortOrder');
+        expect(keptNames).not.toContain('UnusedEnum');
         });
 
         it('should always keep custom enum names (NullValue)', () => {
