@@ -85,14 +85,14 @@ describe('CompatibilityReporter', () => {
                 fieldName: 'field',
                 existingType: 'string field',
                 incomingType: 'int32 field',
-                versionedName: 'field_1'
+                versionedName: 'field_2'
             });
 
             const md = reporter.toMarkdown();
             expect(md).toContain('🗑️ **DEPRECATED**');
             expect(md).toContain('`string field`');
             expect(md).toContain('➕ **ADDED**');
-            expect(md).toContain('`int32 field_1`');
+            expect(md).toContain('`int32 field_2`');
         });
 
         it('should show correct versioned number after updateVersionedNumber', () => {
@@ -102,16 +102,16 @@ describe('CompatibilityReporter', () => {
                 fieldName: 'boost',
                 existingType: 'optional float boost = 5 [deprecated = true]',
                 incomingType: 'optional bool boost = 3',  // Wrong number from incoming spec
-                versionedName: 'boost_1'
+                versionedName: 'boost_2'
             });
 
             // Simulate the versioned field getting its real number assigned later
-            reporter.updateVersionedNumber('boost_1', 10);
+            reporter.updateVersionedNumber('boost_2', 10);
 
             const md = reporter.toMarkdown();
             expect(md).toContain('`optional float boost = 5 [deprecated = true]`');
-            expect(md).toContain('`optional bool boost_1 = 10`');  // Correct number
-            expect(md).not.toContain('boost_1 = 3');  // Wrong number should be stripped
+            expect(md).toContain('`optional bool boost_2 = 10`');  // Correct number
+            expect(md).not.toContain('boost_2 = 3');  // Wrong number should be stripped
         });
 
         it('should format optional_change with warning icon', () => {

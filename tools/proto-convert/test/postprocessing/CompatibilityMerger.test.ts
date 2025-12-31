@@ -132,7 +132,7 @@ describe('mergeMessage', () => {
             expect(result.fields[0].modifier).toBeUndefined();
             expect(result.fields[0].annotations).toContainEqual({ name: 'deprecated', value: 'true' });
             // New field with repeated
-            expect(result.fields[1].name).toBe('items_1');
+            expect(result.fields[1].name).toBe('items_2');
             expect(result.fields[1].modifier).toBe('repeated');
         });
 
@@ -154,7 +154,7 @@ describe('mergeMessage', () => {
             expect(result.fields[0].modifier).toBe('repeated');
             expect(result.fields[0].annotations).toContainEqual({ name: 'deprecated', value: 'true' });
             // New field without repeated
-            expect(result.fields[1].name).toBe('items_1');
+            expect(result.fields[1].name).toBe('items_2');
             expect(result.fields[1].modifier).toBeUndefined();
         });
     });
@@ -177,8 +177,8 @@ describe('mergeMessage', () => {
             expect(result.fields[0].name).toBe('id');
             expect(result.fields[0].type).toBe('int32');
             expect(result.fields[0].annotations).toContainEqual({ name: 'deprecated', value: 'true' });
-            // New field with updated type (version 1)
-            expect(result.fields[1].name).toBe('id_1');
+            // New field with updated type (version 2)
+            expect(result.fields[1].name).toBe('id_2');
             expect(result.fields[1].type).toBe('int64');
             expect(result.fields[1].number).toBe(2);
         });
@@ -200,8 +200,8 @@ describe('mergeMessage', () => {
             expect(result.fields[0].name).toBe('data');
             expect(result.fields[0].type).toBe('OldType');
             expect(result.fields[0].annotations).toContainEqual({ name: 'deprecated', value: 'true' });
-            // New field (version 1)
-            expect(result.fields[1].name).toBe('data_1');
+            // New field (version 2)
+            expect(result.fields[1].name).toBe('data_2');
             expect(result.fields[1].type).toBe('NewType');
         });
     });
@@ -422,8 +422,8 @@ describe('mergeMessage', () => {
             expect(result.oneofs![0].fields[0].name).toBe('val');
             expect(result.oneofs![0].fields[0].type).toBe('string');
             expect(result.oneofs![0].fields[0].annotations).toContainEqual({ name: 'deprecated', value: 'true' });
-            // New field with updated type (version 1)
-            expect(result.oneofs![0].fields[1].name).toBe('val_1');
+            // New field with updated type (version 2)
+            expect(result.oneofs![0].fields[1].name).toBe('val_2');
             expect(result.oneofs![0].fields[1].type).toBe('bytes');
         });
 
@@ -579,30 +579,30 @@ describe('mergeMessage', () => {
             expect(result.fields).toHaveLength(4);
 
             // New fields are added at the end
-            // Order: field1 [deprecated], field2 [deprecated], field1_1, field2_1
+            // Order: field1 [deprecated], field2 [deprecated], field1_2, field2_2
             expect(result.fields[0].name).toBe('field1');
             expect(result.fields[0].annotations).toContainEqual({ name: 'deprecated', value: 'true' });
 
             expect(result.fields[1].name).toBe('field2');
             expect(result.fields[1].annotations).toContainEqual({ name: 'deprecated', value: 'true' });
 
-            expect(result.fields[2].name).toBe('field1_1');
+            expect(result.fields[2].name).toBe('field1_2');
             expect(result.fields[2].type).toBe('int64');
 
-            expect(result.fields[3].name).toBe('field2_1');
+            expect(result.fields[3].name).toBe('field2_2');
             expect(result.fields[3].modifier).toBe('repeated');
         });
 
         it('should handle versioned field with deprecated predecessor and type change', () => {
             // Source has:
             //   bool test_name = 1 [deprecated = true]   <- already deprecated
-            //   string test_name_1 = 2                   <- active versioned field
+            //   string test_name_2 = 2                   <- active versioned field
             // Upcoming has:
             //   int32 test_name = 1                      <- type changed again
             // Expected:
             //   bool test_name = 1 [deprecated = true]   <- kept as-is
-            //   string test_name_1 = 2 [deprecated = true] <- deprecated (type mismatch)
-            //   int32 test_name_2 = 3                    <- new version
+            //   string test_name_2 = 2 [deprecated = true] <- deprecated (type mismatch)
+            //   int32 test_name_3 = 3                    <- new version
 
             const source: ProtoMessage = {
                 name: 'TestMessage',
@@ -613,7 +613,7 @@ describe('mergeMessage', () => {
                         number: 1,
                         annotations: [{ name: 'deprecated', value: 'true' }]
                     },
-                    field('test_name_1', 'string', 2)
+                    field('test_name_2', 'string', 2)
                 ]
             };
             const upcoming: ProtoMessage = {
@@ -632,13 +632,13 @@ describe('mergeMessage', () => {
             expect(result.fields[0].annotations).toContainEqual({ name: 'deprecated', value: 'true' });
 
             // Second field: deprecated because type doesn't match upcoming
-            expect(result.fields[1].name).toBe('test_name_1');
+            expect(result.fields[1].name).toBe('test_name_2');
             expect(result.fields[1].type).toBe('string');
             expect(result.fields[1].number).toBe(2);
             expect(result.fields[1].annotations).toContainEqual({ name: 'deprecated', value: 'true' });
 
             // Third field: new versioned field
-            expect(result.fields[2].name).toBe('test_name_2');
+            expect(result.fields[2].name).toBe('test_name_3');
             expect(result.fields[2].type).toBe('int32');
             expect(result.fields[2].number).toBe(3);
         });
