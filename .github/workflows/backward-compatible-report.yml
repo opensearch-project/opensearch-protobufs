@@ -117,6 +117,17 @@ jobs:
         run: |
           java -jar cloned-repo/modules/openapi-generator-cli/target/openapi-generator-cli.jar generate -c tools/proto-convert/src/config/protobuf-generator-config.yaml
 
+      - name: Check for auto-pr-branch and use its protos if exists
+        run: |
+          # Check if auto-pr-branch exists
+          if git ls-remote --exit-code --heads origin auto-pr-branch > /dev/null 2>&1; then
+            echo "Found auto-pr-branch, using its proto files for comparison"
+            git fetch origin auto-pr-branch
+            git checkout origin/auto-pr-branch -- protos/schemas/
+          else
+            echo "auto-pr-branch not found, using main branch proto files"
+          fi
+
       - name: Post Process Protobuf (dry-run for report)
         id: merge_report
         run: |
