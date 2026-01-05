@@ -12,6 +12,8 @@ Inspired from [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 - Fix enum value annotations not being preserved ([#353](https://github.com/opensearch-project/opensearch-protobufs/pull/353))
 - Preserve comments on versioned fields and Rename "REMOVED" to "DEPRECATED" in reports ([#355](https://github.com/opensearch-project/opensearch-protobufs/pull/355))
 - Updates the backward compatibility report workflow to compare against the latest proto files ([#356](https://github.com/opensearch-project/opensearch-protobufs/pull/356))
+- Speed up the proto conversion workflow by using a pre-built openapi-generator-cli.jar ([#357](https://github.com/opensearch-project/opensearch-protobufs/pull/357))
+
 ### Removed
 
 ### Fixed

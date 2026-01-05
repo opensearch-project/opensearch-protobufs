@@ -588,10 +588,6 @@ export class SchemaModifier {
                     const prop = schema.properties[propName] as any;
                     if (prop && typeof prop === 'object') {
                         prop['x-oneof-property'] = true;
-
-                        if ('$ref' in prop) {
-                            this.markReferencedSchemaAsOneof(prop.$ref);
-                        }
                     }
                 }
             }
