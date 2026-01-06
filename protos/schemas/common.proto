@@ -1192,7 +1192,7 @@ message GeoLocation {
     // The location specified using a geohash value.
     GeoHashLocation geohash = 2;
 
-    DoubleArray double_array = 3;
+    DoubleArray coords = 3;
 
     // The location specified as a string in `lat,lon` or WKT format.
     string text = 4;
@@ -2527,7 +2527,7 @@ message PrefixQuery {
 
 message TermsQueryField {
   oneof terms_query_field {
-    FieldValueArray field_value_array = 1;
+    FieldValueArray value = 1;
 
     TermsLookup lookup = 2;
 
