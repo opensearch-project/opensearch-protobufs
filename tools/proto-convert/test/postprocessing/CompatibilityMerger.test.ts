@@ -204,6 +204,29 @@ describe('mergeMessage', () => {
             expect(result.fields[1].name).toBe('data_2');
             expect(result.fields[1].type).toBe('NewType');
         });
+
+        it('should preserve comment on versioned field when type changes', () => {
+            const source: ProtoMessage = {
+                name: 'TestMessage',
+                fields: [{
+                    name: 'data',
+                    type: 'string',
+                    number: 1,
+                    comment: 'This is a field description'
+                }]
+            };
+            const upcoming: ProtoMessage = {
+                name: 'TestMessage',
+                fields: [field('data', 'int32', 1)]
+            };
+
+            const result = mergeMessage(source, upcoming);
+
+            // New versioned field should have the source comment
+            const versionedField = result.fields.find(f => f.name === 'data_2');
+            expect(versionedField).toBeDefined();
+            expect(versionedField!.comment).toBe('This is a field description');
+        });
     });
 
     describe('deprecated fields', () => {
