@@ -100,7 +100,7 @@ function mergeField(
                 return { ...upcomingField, name: sourceField.name, number: sourceField.number };
             } else {
                 const newName = `${baseName}_${getFieldVersion(sourceField.name) + 1}`;
-                upcomingMap.set(newName, { ...upcomingField, name: newName });
+                upcomingMap.set(newName, { ...upcomingField, name: newName, comment: sourceField.comment });
 
                 reporter?.addFieldChange({
                     messageName: msgName,
@@ -116,7 +116,7 @@ function mergeField(
     } else {
         reporter?.addFieldChange({
             messageName: msgName,
-            changeType: 'REMOVED',
+            changeType: 'DEPRECATED',
             fieldName: sourceField.name,
             existingType: formatField({ ...sourceField, number: sourceField.number, deprecated: true })
         });

@@ -7,7 +7,7 @@ import { tmpdir } from 'os';
  * Tracks: added, removed, type_changed, optional_change, oneof_change.
  */
 
-export type ChangeType = 'ADDED' | 'REMOVED' | 'TYPE CHANGED' | 'OPTIONAL CHANGE' | 'ONEOF CHANGE';
+export type ChangeType = 'ADDED' | 'DEPRECATED' | 'TYPE CHANGED' | 'OPTIONAL CHANGE' | 'ONEOF CHANGE';
 
 /** Format a field for report display */
 export function formatField(f: { name: string; type: string; modifier?: string; number?: number; deprecated?: boolean }): string {
@@ -153,7 +153,7 @@ export class CompatibilityReporter {
         switch (c.changeType) {
             case 'ADDED':
                 return `\`${c.incomingType}\``;
-            case 'REMOVED':
+            case 'DEPRECATED':
                 return `\`${c.existingType}\``;
             case 'OPTIONAL CHANGE':
                 return `\`${c.existingType}\` → \`${c.incomingType}\``;
@@ -164,12 +164,12 @@ export class CompatibilityReporter {
         }
     }
 
-    private formatChangeType(changeType: ChangeType | 'ADDED' | 'REMOVED'): string {
+    private formatChangeType(changeType: ChangeType | 'ADDED' | 'DEPRECATED'): string {
         switch (changeType) {
             case 'ADDED':
                 return '➕ **ADDED**';
-            case 'REMOVED':
-                return '🗑️ **REMOVED**';
+            case 'DEPRECATED':
+                return '🗑️ **DEPRECATED**';
             case 'OPTIONAL CHANGE':
                 return '🚨 **BREAKING**';
             case 'ONEOF CHANGE':

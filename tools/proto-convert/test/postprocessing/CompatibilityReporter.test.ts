@@ -68,13 +68,13 @@ describe('CompatibilityReporter', () => {
         it('should format removed field change', () => {
             reporter.addFieldChange({
                 messageName: 'TestMessage',
-                changeType: 'REMOVED',
+                changeType: 'DEPRECATED',
                 fieldName: 'oldField',
                 existingType: 'int32 oldField'
             });
 
             const md = reporter.toMarkdown();
-            expect(md).toContain('🗑️ **REMOVED**');
+            expect(md).toContain('🗑️ **DEPRECATED**');
             expect(md).toContain('`int32 oldField`');
         });
 
@@ -180,7 +180,7 @@ describe('CompatibilityReporter', () => {
             });
             reporter.addFieldChange({
                 messageName: 'MessageA',
-                changeType: 'REMOVED',
+                changeType: 'DEPRECATED',
                 fieldName: 'field3',
                 existingType: 'bool field3'
             });
@@ -188,7 +188,7 @@ describe('CompatibilityReporter', () => {
             const md = reporter.toMarkdown();
             expect(md).toContain('| MessageA | ➕ **ADDED** |');
             expect(md).toContain('| MessageB | ➕ **ADDED** |');
-            expect(md).toContain('| MessageA | 🗑️ **REMOVED** |');
+            expect(md).toContain('| MessageA | 🗑️ **DEPRECATED** |');
         });
     });
 
