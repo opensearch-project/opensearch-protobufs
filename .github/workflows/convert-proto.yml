@@ -13,7 +13,7 @@ on:
 jobs:
   auto-proto-convert:
     runs-on: ubuntu-latest
-    #if: github.repository == 'opensearch-project/opensearch-protobufs'
+    if: github.repository == 'opensearch-project/opensearch-protobufs'
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
