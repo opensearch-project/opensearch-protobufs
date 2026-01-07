@@ -272,7 +272,7 @@ message SearchResponse {
   optional ClusterStatistics x_clusters = 7;
 
   // [optional] Retrieved specific fields in the search response
-  optional ObjectMap fields = 8;
+  optional ObjectMap fields = 8 [deprecated = true];
 
   // [optional] The number of times that the coordinating node aggregates results from batches of shard responses
   optional int32 num_reduce_phases = 9;
@@ -415,7 +415,7 @@ message HitsMetadataHitsInner {
   map<string, InnerHitsResult> inner_hits = 8;
 
   // [optional] List of matched query names used in the search request.
-  repeated string matched_queries = 9;
+  repeated string matched_queries = 9 [deprecated = true];
 
   // [optional] Defines from what inner nested object this inner hit came from
   optional NestedIdentity x_nested = 10;
@@ -451,6 +451,9 @@ message HitsMetadataHitsInner {
 
   // [optional] Contains metadata values for the documents.
   optional ObjectMap meta_fields = 21;
+
+  // [optional] List of matched query names used in the search request.
+  optional HitMatchedQueries matched_queries_2 = 22;
 }
 
 message ClusterStatistics {
@@ -3148,6 +3151,21 @@ message FieldValueFactorScoreFunction {
   optional FieldValueFactorModifier modifier = 4;
 }
 
+message DoubleMap {
+
+  // A map of matched query names to their scores (when `include_named_queries_score` is true).
+  map<string, double> double_map = 1;
+}
+
+message HitMatchedQueries {
+  oneof hit_matched_queries {
+    StringArray names = 1;
+
+    DoubleMap scores = 2;
+
+  }
+}
+
 enum FieldValueFactorModifier {
   FIELD_VALUE_FACTOR_MODIFIER_UNSPECIFIED = 0;
   FIELD_VALUE_FACTOR_MODIFIER_LN = 1;
@@ -3194,7 +3212,7 @@ enum VersionType {
   VERSION_TYPE_EXTERNAL = 1;
   VERSION_TYPE_EXTERNAL_GTE = 2;
   VERSION_TYPE_INTERNAL = 3;
-  VERSION_TYPE_FORCE = 4;
+  VERSION_TYPE_FORCE = 4 [deprecated = true];
 }
 
 enum Refresh {
