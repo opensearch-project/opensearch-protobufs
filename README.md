@@ -45,7 +45,7 @@ To generate Protobuf definitions from the latest OpenSearch API specification, f
    npm run postprocessing
    ```
 
-After these steps, you will find the generated Protobuf service definitions (for example, in `generated/services/default_service.proto`). You can reference these to see how gRPC RPCs are defined and refference them to add new rpc service to service files.
+After these steps, you will find the generated Protobuf definitions in the `generated/` directory. Note that service files need be manually created. You can use `generated/services/default_service.proto` as a reference for defining gRPC service definitions.
 
 ### Additional Notes
 
