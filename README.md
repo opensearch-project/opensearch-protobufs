@@ -6,47 +6,6 @@ The [opensearch-api-specification repo](https://github.com/opensearch-project/op
 
 This repository will also include a variety of tooling and CI, linters and validators, and generated code, which is described in more detail below.
 
-## Quick Start
-
-### Build Protobuf Libraries
-
-Generate protobuf libraries for your preferred language:
-
-```bash
-# Java
-bazel build //:java_protos_all
-
-# Python
-bazel build //:python_protos_all
-
-# Go
-bazel build //:go_protos_all
-
-# All languages
-bazel build //:java_protos_all //:python_protos_all //:go_protos_all
-```
-
-### Docker Build Options
-
-Use Docker to build and test protobuf libraries:
-
-```bash
-# Java
-docker build --target build-bazel-java .
-docker build --target package-bazel-java .
-docker build --target test-bazel-java .
-
-# Python
-docker build --target build-bazel-python .
-docker build --target package-bazel-python .
-docker build --target test-bazel-python .
-
-# Go
-docker build --target build-bazel-go .
-docker build --target package-bazel-go .
-docker build --target test-bazel-go .
-```
-
 ## Releases
 
 Each OpenSearch Protobufs release includes:
