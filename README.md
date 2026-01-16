@@ -8,6 +8,57 @@ This repository will also include a variety of tooling and CI, linters and valid
 
 ## Quick Start
 
+## Protobuf Conversion Guide
+
+To generate Protobuf definitions from the latest OpenSearch API specification, follow these steps. All commands are intended to be run from the project root directory.
+
+1. **Download the latest OpenSearch API Specification**
+
+
+   ```bash
+   curl -L -o opensearch-openapi.yaml \
+     https://github.com/opensearch-project/opensearch-api-specification/releases/download/main-latest/opensearch-openapi.yaml
+   ```
+
+2. **Run Preprocessing**
+
+   ```bash
+   npm ci && npm run preprocessing
+   ```
+
+3. **Download OpenAPI Generator CLI**
+
+   ```bash
+   curl -L -f -o openapi-generator-cli.jar \
+     https://github.com/opensearch-project/opensearch-protobufs/releases/download/openapi-generator-tool/openapi-generator-cli.jar
+   ```
+
+4. **Convert to Protobuf**
+
+   ```bash
+   java -jar openapi-generator-cli.jar generate -c tools/proto-convert/src/config/protobuf-generator-config.yaml
+   ```
+
+5. **Run Postprocessing**
+
+   ```bash
+   npm run postprocessing
+   ```
+
+After these steps, you will find the generated Protobuf service definitions (for example, in `generated/services/default_service.proto`). You can reference these to see how gRPC RPCs are defined and refference them to add new rpc service to service files.
+
+### Additional Notes
+
+- **For Search/Bulk Requests:**
+  Protobufs for search and bulk operations are already provided in the repository. Some schemas are excluded from generation because they lack proper gRPC support. The exclusion list is defined in [`spec-filter.yaml`](tools/proto-convert/src/config/spec-filter.yaml) under the `excluded_schemas` section.
+
+- **For Other Requests:**
+  For other APIs, you can generate their Protobuf definitions locally. Review the generated files to ensure they meet your requirements. If they do, submit a Pull Request (PR) to the `opensearch-protobufs` repository to add the new API path to [`spec-filter.yaml`](tools/proto-convert/src/config/spec-filter.yaml), and request a maintainer to merge PR and execute the workflow that will automatically generate and incorporate the Protobufs.
+
+**Note:** Make sure you are running all commands from the project root folder.
+
+
+
 ### Build Protobuf Libraries
 
 Generate protobuf libraries for your preferred language:
