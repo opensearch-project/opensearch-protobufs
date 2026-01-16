@@ -105,6 +105,11 @@ pip install bazel-bin/opensearch_protos-*-py3-none-any.whl
 
 To generate Protobuf definitions from the latest OpenSearch API specification, follow these steps. All commands are intended to be run from the project root directory.
 
+## Prerequisites
+
+- **Node.js** >= v22
+- **Java** >= 17
+
 1. **Download the latest OpenSearch API Specification**
 
 
