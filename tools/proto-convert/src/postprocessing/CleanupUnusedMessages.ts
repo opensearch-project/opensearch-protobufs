@@ -11,6 +11,8 @@ import { writeProtoFile, CUSTOM_MESSAGE_NAMES, CUSTOM_ENUM_NAMES } from './write
 import { ProtoMessage, ProtoEnum } from './types';
 import logger from '../utils/logger';
 
+const GOOGLE_PROTOBUF_PREFIX = 'google.protobuf.';
+
 export function isBuiltInType(type: string): boolean {
     const builtIns = new Set([
         'double', 'float', 'int32', 'int64', 'uint32', 'uint64',
@@ -18,6 +20,13 @@ export function isBuiltInType(type: string): boolean {
         'bool', 'string', 'bytes'
     ]);
     return builtIns.has(type);
+}
+
+/**
+ * Check if a type is Google protobuf type.
+ */
+export function isWellKnownType(type: string): boolean {
+    return type.startsWith(GOOGLE_PROTOBUF_PREFIX);
 }
 
 /**
@@ -148,10 +157,10 @@ export function cleanupUnusedMessages(opts: CleanupOptions): { removedMessages: 
 
     const parsed = parseProtoFile(opts.input);
 
-    // Verify root messages exist
+    // Verify root messages exist (skip well-known types like google.protobuf.*)
     const messageNames = new Set(parsed.messages.map(m => m.name));
     for (const rootMsg of roots) {
-        if (!messageNames.has(rootMsg)) {
+        if (!isWellKnownType(rootMsg) && !messageNames.has(rootMsg)) {
             throw new Error(`Root message not found: ${rootMsg}`);
         }
     }

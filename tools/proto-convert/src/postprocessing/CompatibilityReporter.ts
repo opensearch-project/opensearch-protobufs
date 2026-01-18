@@ -7,7 +7,7 @@ import { tmpdir } from 'os';
  * Tracks: added, removed, type_changed, optional_change, oneof_change.
  */
 
-export type ChangeType = 'ADDED' | 'DEPRECATED' | 'TYPE CHANGED' | 'OPTIONAL CHANGE' | 'ONEOF CHANGE';
+export type ChangeType = 'ADDED' | 'DEPRECATED' | 'TYPE CHANGED' | 'OPTIONAL CHANGE' | 'ONEOF CHANGE' | 'RENAMED';
 
 /** Format a field for report display */
 export function formatField(f: { name: string; type: string; modifier?: string; number?: number; deprecated?: boolean }): string {
@@ -110,6 +110,7 @@ export class CompatibilityReporter {
 
 - 🗑️ **DEPRECATED** - Field/value annotated as deprecated in protobufs and will be officially removed in the next major OpenSearch release
 - ➕ **ADDED** - New field/value added at the end of the message/enum
+- ✏️ **RENAMED** - Field renamed in-place 
 - 🚨 **BREAKING** - This change will cause breaking change to Protobuf`;
     }
 
@@ -159,6 +160,8 @@ export class CompatibilityReporter {
                 return `\`${c.existingType}\` → \`${c.incomingType}\``;
             case 'ONEOF CHANGE':
                 return `\`${c.fieldName}\` (moved from \`${c.existingLocation}\` to \`${c.incomingLocation}\`)`;
+            case 'RENAMED':
+                return `\`${c.fieldName}\` ${c.incomingType}`;
             default:
                 return '';
         }
@@ -174,6 +177,8 @@ export class CompatibilityReporter {
                 return '🚨 **BREAKING**';
             case 'ONEOF CHANGE':
                 return '🚨 **BREAKING**';
+            case 'RENAMED':
+                return '✏️ **RENAMED**';
             default:
                 return `**${changeType}**`;
         }
