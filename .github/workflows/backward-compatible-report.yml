@@ -102,14 +102,12 @@ jobs:
           OPENSEARCH_VERSION: ${{ steps.get_opensearch_version.outputs.version }}
         run: npm ci && npm run preprocessing -- --opensearch-version "$OPENSEARCH_VERSION"
 
-      - name: Download openapi-generator JAR
-        run: |
-          curl -L -f -o openapi-generator-cli.jar \
-            https://github.com/opensearch-project/opensearch-protobufs/releases/download/openapi-generator-tool/openapi-generator-cli.jar
-
       - name: Convert protobuf
+        env:
+          OPENAPI_GENERATOR_VERSION: 7.19.0
         run: |
-          java -jar openapi-generator-cli.jar generate -c tools/proto-convert/src/config/protobuf-generator-config.yaml
+          npx --yes @openapitools/openapi-generator-cli generate \
+            -c tools/proto-convert/src/config/protobuf-generator-config.yaml
 
       - name: Check for auto-pr-branch and use its protos if exists
         run: |

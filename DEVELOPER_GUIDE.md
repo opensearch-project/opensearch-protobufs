@@ -124,20 +124,15 @@ To generate Protobuf definitions from the latest OpenSearch API specification, f
    npm ci && npm run preprocessing
    ```
 
-3. **Download OpenAPI Generator CLI**
+3. **Generate Protobuf**
 
    ```bash
-   curl -L -f -o openapi-generator-cli.jar \
-     https://github.com/opensearch-project/opensearch-protobufs/releases/download/openapi-generator-tool/openapi-generator-cli.jar
+  export OPENAPI_GENERATOR_VERSION=7.19.0
+  npx @openapitools/openapi-generator-cli generate \
+    -c tools/proto-convert/src/config/protobuf-generator-config.yaml
    ```
 
-4. **Convert to Protobuf**
-
-   ```bash
-   java -jar openapi-generator-cli.jar generate -c tools/proto-convert/src/config/protobuf-generator-config.yaml
-   ```
-
-5. **Run Postprocessing**
+4. **Run Postprocessing**
 
    ```bash
    npm run postprocessing
