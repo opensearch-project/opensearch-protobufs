@@ -190,6 +190,193 @@ describe('CompatibilityReporter', () => {
             expect(md).toContain('| MessageB | ➕ **ADDED** |');
             expect(md).toContain('| MessageA | 🗑️ **DEPRECATED** |');
         });
+
+        it('should format renamed field change', () => {
+            reporter.addFieldChange({
+                messageName: 'TestMessage',
+                changeType: 'RENAMED',
+                fieldName: 'variant.old_name',
+                incomingType: '→ variant.new_name'
+            });
+
+            const md = reporter.toMarkdown();
+            expect(md).toContain('✏️ **RENAMED**');
+            expect(md).toContain('`variant.old_name` → variant.new_name');
+        });
+
+        it('should format enum change without number', () => {
+            reporter.addEnumChange({
+                enumName: 'Status',
+                changeType: 'ADDED',
+                valueName: 'NEW_VALUE'
+            });
+
+            const md = reporter.toMarkdown();
+            expect(md).toContain('`NEW_VALUE`');
+            expect(md).not.toContain('NEW_VALUE =');
+        });
+
+        it('should handle type changed without versioned number', () => {
+            reporter.addFieldChange({
+                messageName: 'TestMessage',
+                changeType: 'TYPE CHANGED',
+                fieldName: 'field',
+                existingType: 'string field = 1',
+                incomingType: 'int32 field',
+                versionedName: 'field_2'
+            });
+
+            const md = reporter.toMarkdown();
+            expect(md).toContain('`int32 field_2`');
+            expect(md).not.toContain('field_2 =');
+        });
+    });
+
+    describe('hasIncompatibleChanges', () => {
+        it('should return false when no changes', () => {
+            expect(reporter.hasIncompatibleChanges()).toBe(false);
+        });
+
+        it('should return false for ADDED changes only', () => {
+            reporter.addFieldChange({
+                messageName: 'Test',
+                changeType: 'ADDED',
+                fieldName: 'field',
+                incomingType: 'string field'
+            });
+            expect(reporter.hasIncompatibleChanges()).toBe(false);
+        });
+
+        it('should return false for DEPRECATED changes only', () => {
+            reporter.addFieldChange({
+                messageName: 'Test',
+                changeType: 'DEPRECATED',
+                fieldName: 'field',
+                existingType: 'string field'
+            });
+            expect(reporter.hasIncompatibleChanges()).toBe(false);
+        });
+
+        it('should return false for TYPE CHANGED', () => {
+            reporter.addFieldChange({
+                messageName: 'Test',
+                changeType: 'TYPE CHANGED',
+                fieldName: 'field',
+                existingType: 'string field',
+                incomingType: 'int32 field'
+            });
+            expect(reporter.hasIncompatibleChanges()).toBe(false);
+        });
+
+        it('should return false for RENAMED changes', () => {
+            reporter.addFieldChange({
+                messageName: 'Test',
+                changeType: 'RENAMED',
+                fieldName: 'old_name',
+                incomingType: '→ new_name'
+            });
+            expect(reporter.hasIncompatibleChanges()).toBe(false);
+        });
+
+        it('should return true for OPTIONAL CHANGE', () => {
+            reporter.addFieldChange({
+                messageName: 'Test',
+                changeType: 'OPTIONAL CHANGE',
+                fieldName: 'field',
+                existingType: 'string field',
+                incomingType: 'optional string field'
+            });
+            expect(reporter.hasIncompatibleChanges()).toBe(true);
+        });
+
+        it('should return true for ONEOF CHANGE', () => {
+            reporter.addFieldChange({
+                messageName: 'Test',
+                changeType: 'ONEOF CHANGE',
+                fieldName: '*',
+                existingLocation: 'has oneof',
+                incomingLocation: 'no oneof'
+            });
+            expect(reporter.hasIncompatibleChanges()).toBe(true);
+        });
+
+        it('should return true when mixed with incompatible changes', () => {
+            reporter.addFieldChange({
+                messageName: 'Test',
+                changeType: 'ADDED',
+                fieldName: 'field1',
+                incomingType: 'string field1'
+            });
+            reporter.addFieldChange({
+                messageName: 'Test',
+                changeType: 'OPTIONAL CHANGE',
+                fieldName: 'field2',
+                existingType: 'string field2',
+                incomingType: 'optional string field2'
+            });
+            expect(reporter.hasIncompatibleChanges()).toBe(true);
+        });
+    });
+
+    describe('getFieldChanges', () => {
+        it('should return empty array when no changes', () => {
+            expect(reporter.getFieldChanges()).toEqual([]);
+        });
+
+        it('should return all field changes', () => {
+            reporter.addFieldChange({
+                messageName: 'Test1',
+                changeType: 'ADDED',
+                fieldName: 'field1',
+                incomingType: 'string field1'
+            });
+            reporter.addFieldChange({
+                messageName: 'Test2',
+                changeType: 'DEPRECATED',
+                fieldName: 'field2',
+                existingType: 'int32 field2'
+            });
+
+            const changes = reporter.getFieldChanges();
+            expect(changes).toHaveLength(2);
+            expect(changes[0].messageName).toBe('Test1');
+            expect(changes[0].changeType).toBe('ADDED');
+            expect(changes[1].messageName).toBe('Test2');
+            expect(changes[1].changeType).toBe('DEPRECATED');
+        });
+    });
+
+    describe('updateVersionedNumber', () => {
+        it('should not fail when no matching versioned name found', () => {
+            reporter.addFieldChange({
+                messageName: 'Test',
+                changeType: 'TYPE CHANGED',
+                fieldName: 'field',
+                existingType: 'string field',
+                incomingType: 'int32 field',
+                versionedName: 'field_2'
+            });
+
+            // Should not throw
+            reporter.updateVersionedNumber('nonexistent_3', 10);
+
+            const changes = reporter.getFieldChanges();
+            expect(changes[0].versionedNumber).toBeUndefined();
+        });
+
+        it('should only update TYPE CHANGED entries', () => {
+            reporter.addFieldChange({
+                messageName: 'Test',
+                changeType: 'ADDED',
+                fieldName: 'field_2',
+                incomingType: 'string field_2'
+            });
+
+            reporter.updateVersionedNumber('field_2', 10);
+
+            const changes = reporter.getFieldChanges();
+            expect(changes[0].versionedNumber).toBeUndefined();
+        });
     });
 
     describe('writeToFile', () => {

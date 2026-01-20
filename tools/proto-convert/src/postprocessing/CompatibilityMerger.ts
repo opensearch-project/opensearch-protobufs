@@ -129,6 +129,26 @@ function isVersionedName(name: string): boolean {
     return /_\d+$/.test(name);
 }
 
+/**
+ * Convert a name to snake_case variable name format.
+ */
+function toVarName(name: string): string {
+    name = name.replace(/^_+/, '');
+
+    return name
+        .replace(/([A-Z]+)([A-Z][a-z])/g, '$1_$2')
+        .replace(/([a-z0-9])([A-Z])/g, '$1_$2')
+        .replace(/(\d)([A-Za-z])/g, '$1_$2')
+        .toLowerCase();
+}
+
+/**
+ * Check if field name is the formatted (snake_case) version of the type name.
+ */
+function isFormattedName(fieldName: string, typeName: string): boolean {
+    return fieldName === toVarName(typeName);
+}
+
 /** Check if message has any oneof with fields */
 function hasOneof(msg: ProtoMessage): boolean {
     return (msg.oneofs?.some(o => o.fields.length > 0)) ?? false;
@@ -179,13 +199,52 @@ export function mergeMessage(
         mergedOneofs = [];
         for (const sourceOneof of sourceMsg.oneofs) {
             const upcomingOneof = upcomingOneofMap.get(sourceOneof.name);
+            const upcomingFields = upcomingOneof?.fields || [];
             const upcomingOneofByName = new Map(
-                (upcomingOneof?.fields || []).map(f => [f.name, f])
+                upcomingFields.map(f => [f.name, f])
             );
+
+            const sourceTypes = sourceOneof.fields.map(f => f.type);
+            const allTypesUnique = new Set(sourceTypes).size === sourceTypes.length;
+
+            // Build type-based map if types are unique
+            const upcomingByType = allTypesUnique
+                ? new Map(upcomingFields.map(f => [f.type, f]))
+                : new Map<string, ProtoField>();
 
             const mergedOneofFields: ProtoField[] = [];
             for (const sourceField of sourceOneof.fields) {
                 maxFieldNumber = Math.max(maxFieldNumber, sourceField.number);
+
+                // Name match
+                if (upcomingOneofByName.has(getBaseName(sourceField.name))) {
+                    mergedOneofFields.push(mergeField(sourceField, upcomingOneofByName, sourceMsg.name, reporter));
+                    continue;
+                }
+
+                // Type match with formatted name
+                if (allTypesUnique && upcomingByType.has(sourceField.type) && isFormattedName(sourceField.name, sourceField.type)) {
+                    const upcomingField = upcomingByType.get(sourceField.type)!;
+
+                    mergedOneofFields.push({
+                        ...upcomingField,
+                        number: sourceField.number,
+                        comment: sourceField.comment || upcomingField.comment
+                    });
+
+                    upcomingOneofByName.delete(upcomingField.name);
+                    upcomingByType.delete(sourceField.type);
+
+                    reporter?.addFieldChange({
+                        messageName: sourceMsg.name,
+                        changeType: 'RENAMED',
+                        fieldName: `${sourceOneof.name}.${sourceField.name}`,
+                        incomingType: `→ ${sourceOneof.name}.${upcomingField.name}`
+                    });
+                    continue;
+                }
+
+                // Try 3: No match - deprecate
                 mergedOneofFields.push(mergeField(sourceField, upcomingOneofByName, sourceMsg.name, reporter));
             }
 

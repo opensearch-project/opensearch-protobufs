@@ -483,6 +483,104 @@ describe('mergeMessage', () => {
             expect(newRegularField!.number).toBe(6);
             expect(newOneofField!.number).toBe(7);
         });
+
+        it('should rename oneof field in-place when type is unique and name is formatted from type', () => {
+            const source: ProtoMessage = {
+                name: 'TestMessage',
+                fields: [],
+                oneofs: [{
+                    name: 'variant',
+                    fields: [
+                        field('terms_aggregation', 'TermsAggregation', 1),
+                        field('avg_aggregation', 'AvgAggregation', 2)
+                    ]
+                }]
+            };
+            const upcoming: ProtoMessage = {
+                name: 'TestMessage',
+                fields: [],
+                oneofs: [{
+                    name: 'variant',
+                    fields: [
+                        field('terms', 'TermsAggregation', 1),
+                        field('average', 'AvgAggregation', 2)
+                    ]
+                }]
+            };
+
+            const result = mergeMessage(source, upcoming);
+
+            expect(result.oneofs![0].fields).toHaveLength(2);
+            expect(result.oneofs![0].fields[0].name).toBe('terms');
+            expect(result.oneofs![0].fields[0].type).toBe('TermsAggregation');
+            expect(result.oneofs![0].fields[0].number).toBe(1);
+            expect(result.oneofs![0].fields[1].name).toBe('average');
+            expect(result.oneofs![0].fields[1].type).toBe('AvgAggregation');
+            expect(result.oneofs![0].fields[1].number).toBe(2);
+        });
+
+        it('should not rename in-place when source name is not formatted from type', () => {
+            const source: ProtoMessage = {
+                name: 'TestMessage',
+                fields: [],
+                oneofs: [{
+                    name: 'variant',
+                    fields: [
+                        field('my_custom_name', 'TermsAggregation', 1)
+                    ]
+                }]
+            };
+            const upcoming: ProtoMessage = {
+                name: 'TestMessage',
+                fields: [],
+                oneofs: [{
+                    name: 'variant',
+                    fields: [
+                        field('terms', 'TermsAggregation', 1)
+                    ]
+                }]
+            };
+
+            const result = mergeMessage(source, upcoming);
+
+            expect(result.oneofs![0].fields).toHaveLength(2);
+            expect(result.oneofs![0].fields[0].name).toBe('my_custom_name');
+            expect(result.oneofs![0].fields[0].annotations).toContainEqual({ name: 'deprecated', value: 'true' });
+            expect(result.oneofs![0].fields[1].name).toBe('terms');
+        });
+
+        it('should not rename in-place when types are not unique', () => {
+            const source: ProtoMessage = {
+                name: 'TestMessage',
+                fields: [],
+                oneofs: [{
+                    name: 'variant',
+                    fields: [
+                        field('first_string', 'string', 1),
+                        field('second_string', 'string', 2)
+                    ]
+                }]
+            };
+            const upcoming: ProtoMessage = {
+                name: 'TestMessage',
+                fields: [],
+                oneofs: [{
+                    name: 'variant',
+                    fields: [
+                        field('renamed_first', 'string', 1),
+                        field('renamed_second', 'string', 2)
+                    ]
+                }]
+            };
+
+            const result = mergeMessage(source, upcoming);
+
+            expect(result.oneofs![0].fields).toHaveLength(4);
+            expect(result.oneofs![0].fields[0].name).toBe('first_string');
+            expect(result.oneofs![0].fields[0].annotations).toContainEqual({ name: 'deprecated', value: 'true' });
+            expect(result.oneofs![0].fields[1].name).toBe('second_string');
+            expect(result.oneofs![0].fields[1].annotations).toContainEqual({ name: 'deprecated', value: 'true' });
+        });
     });
 
     describe('oneof structure changes (breaking)', () => {
