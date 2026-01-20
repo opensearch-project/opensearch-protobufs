@@ -130,21 +130,23 @@ function isVersionedName(name: string): boolean {
 }
 
 /**
- * Convert PascalCase/camelCase type name to snake_case.
- * e.g., "TermsAggregation" -> "terms_aggregation"
+ * Convert a name to snake_case variable name format.
  */
-function toSnakeCase(typeName: string): string {
-    return typeName
-        .replace(/([A-Z])/g, '_$1')
-        .toLowerCase()
-        .replace(/^_/, '');
+function toVarName(name: string): string {
+    name = name.replace(/^_+/, '');
+
+    return name
+        .replace(/([A-Z]+)([A-Z][a-z])/g, '$1_$2')
+        .replace(/([a-z0-9])([A-Z])/g, '$1_$2')
+        .replace(/(\d)([A-Za-z])/g, '$1_$2')
+        .toLowerCase();
 }
 
 /**
  * Check if field name is the formatted (snake_case) version of the type name.
  */
 function isFormattedName(fieldName: string, typeName: string): boolean {
-    return fieldName === toSnakeCase(typeName);
+    return fieldName === toVarName(typeName);
 }
 
 /** Check if message has any oneof with fields */
