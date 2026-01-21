@@ -1343,14 +1343,8 @@ message QueryContainer {
     // A Boolean (bool) query can combine several query clauses into one advanced query. The clauses are combined with Boolean logic to find matching documents returned in the results.
     BoolQuery bool = 1;
 
-    // A boosting query returns documents that match a positive query. Among those documents, the ones that also match the negative query are scored lower in relevance (their relevance score is multiplied by the negative boosting factor).
-    BoostingQuery boosting = 2;
-
     // A constant_score query wraps a filter query and assigns all documents in the results a relevance score equal to the value of the boost parameter.
     ConstantScoreQuery constant_score = 3;
-
-    // A disjunction max (dis_max) query returns any document that matches one or more query clauses. For documents that match multiple query clauses, the relevance score is set to the highest relevance score from all matching query clauses.
-    DisMaxQuery dis_max = 4;
 
     // Use a function_score query if you need to alter the relevance scores of documents returned in the results. A function_score query defines a query and one or more functions that can be applied to all results or subsets of the results to recalculate their relevance scores.
     FunctionScoreQuery function_score = 5;
@@ -1400,15 +1394,6 @@ message QueryContainer {
     // A multi-match operation functions similarly to the match operation. You can use a multi_match query to search multiple fields.
     MultiMatchQuery multi_match = 20;
 
-    // A query_string query parses the query string based on the query string syntax. It provides for creating powerful yet concise queries that can incorporate wildcards and search multiple fields.
-    QueryStringQuery query_string = 21;
-
-    // Use the simple_query_string type to specify multiple arguments delineated by regular expressions directly in the query string. Simple query string has a less strict syntax than query string because it discards any invalid portions of the string and does not return errors for invalid syntax.
-    SimpleQueryStringQuery simple_query_string = 22;
-
-    // Returns documents based on the order and proximity of matching terms.
-    IntervalsQuery intervals = 23;
-
     // Knn query is to search for the k-nearest neighbors to a query point across an index of vectors. To determine the neighbors, you can specify the space (the distance function) you want to use to measure the distance between points.
     KnnQuery knn = 24;
 
@@ -1417,9 +1402,6 @@ message QueryContainer {
 
     // This is the inverse of the match_all query, which matches no documents.
     MatchNoneQuery match_none = 26;
-
-    // Use a script_score query to customize the score calculation by using a script. For an expensive scoring function, you can use a script_score query to calculate the score only for the returned documents that have been filtered.
-    ScriptScoreQuery script_score = 27;
 
     // The nested query acts as a wrapper for other queries to search nested fields. The nested field objects are searched as though they were indexed as separate documents. If an object matches the search, the nested query returns the parent document at the root level.
     NestedQuery nested = 28;
