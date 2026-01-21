@@ -70,3 +70,4 @@ Thumbs.db
 protos/generated
 /cloned-repo
 opensearch-openapi.yaml
+openapitools.json
