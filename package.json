@@ -46,7 +46,7 @@
     "globals": "^15.0.0",
     "json-diff-ts": "^4.0.1",
     "json-schema-to-typescript": "^15.0.4",
-    "lodash": "^4.17.21",
+    "lodash": "^4.17.23",
     "lodash.isequal": "^4.5.0",
     "mustache": "^4.2.0",
     "protobufjs": "^6.11.4",
