@@ -13,6 +13,7 @@ Inspired from [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 ### Removed
 
 ### Fixed
+- Fix KnnQuery protos ([#151](https://github.com/opensearch-project/opensearch-protobufs/pull/151))
 
 ### Security
 - Upgrade dependencies to address security vulnerabilities ([#368](https://github.com/opensearch-project/opensearch-protobufs/pull/368))
