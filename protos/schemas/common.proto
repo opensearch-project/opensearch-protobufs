@@ -1954,22 +1954,6 @@ message FieldCollapse {
   optional int32 max_concurrent_group_searches = 3;
 }
 
-message ScriptScoreQuery {
-
-  // [optional] Floating point number used to decrease or increase the relevance scores of the query. Boost values are relative to the default value of 1.0. A boost value between 0 and 1.0 decreases the relevance score. A value greater than 1.0 increases the relevance score.
-  optional float boost = 1;
-
-  // [optional] Query name for query tagging.
-  optional string x_name = 2;
-
-  // Documents with a score lower than this floating point number are excluded from the search results.
-  optional float min_score = 3;
-
-  QueryContainer query = 4;
-
-  Script script = 5;
-}
-
 message ExistsQuery {
 
   // [required] Name of the field you wish to search.
@@ -1980,51 +1964,6 @@ message ExistsQuery {
 
   // [optional] Query name for query tagging.
   optional string x_name = 3;
-}
-
-message SimpleQueryStringQuery {
-
-  // [optional] Floating point number used to decrease or increase the relevance scores of the query. Boost values are relative to the default value of 1.0. A boost value between 0 and 1.0 decreases the relevance score. A value greater than 1.0 increases the relevance score.
-  optional float boost = 1;
-
-  // [optional] Query name for query tagging.
-  optional string x_name = 2;
-
-  // Analyzer used to convert text in the query string into tokens.
-  optional string analyzer = 3;
-
-  // If `true`, the query attempts to analyze wildcard terms in the query string.
-  optional bool analyze_wildcard = 4;
-
-  // If `true`, the parser creates a `match_phrase` query for each multi-position token.
-  optional bool auto_generate_synonyms_phrase_query = 5;
-
-  optional Operator default_operator = 6;
-
-  // Array of fields you wish to search. Accepts wildcard expressions. You also can boost relevance scores for matches to particular fields using a caret (`^`) notation. Defaults to the `index.query.default_field index` setting, which has a default value of `*`.
-  repeated string fields = 7;
-
-  optional SimpleQueryStringFlags flags = 8;
-
-  // Maximum number of terms to which the query expands for fuzzy matching.
-  optional int32 fuzzy_max_expansions = 9;
-
-  // Number of beginning characters left unchanged for fuzzy matching.
-  optional int32 fuzzy_prefix_length = 10;
-
-  // If `true`, edits for fuzzy matching include transpositions of two adjacent characters (for example, `ab` to `ba`).
-  optional bool fuzzy_transpositions = 11;
-
-  // If `true`, format-based errors, such as providing a text value for a numeric field, are ignored.
-  optional bool lenient = 12;
-
-  optional MinimumShouldMatch minimum_should_match = 13;
-
-  // Query string in the simple query string syntax you wish to parse and use for search.
-  string query = 14;
-
-  // Suffix appended to quoted text in the query string.
-  optional string quote_field_suffix = 15;
 }
 
 message WildcardQuery {
@@ -2050,15 +1989,6 @@ message WildcardQuery {
   optional string wildcard = 7;
 
   optional string rewrite = 8;
-}
-
-message SimpleQueryStringFlags {
-  oneof simple_query_string_flags {
-    SimpleQueryStringFlag single = 1;
-
-    string multiple = 2;
-
-  }
 }
 
 message KnnQuery {
@@ -2209,22 +2139,6 @@ message MinimumShouldMatch {
   }
 }
 
-message BoostingQuery {
-
-  // [optional] Floating point number used to decrease or increase the relevance scores of the query. Boost values are relative to the default value of 1.0. A boost value between 0 and 1.0 decreases the relevance score. A value greater than 1.0 increases the relevance score.
-  optional float boost = 1;
-
-  // [optional] Query name for query tagging.
-  optional string x_name = 2;
-
-  // Floating point number between 0 and 1.0 used to decrease the relevance scores of documents matching the `negative` query.
-  float negative_boost = 3;
-
-  QueryContainer negative = 4;
-
-  QueryContainer positive = 5;
-}
-
 message ConstantScoreQuery {
 
   // [required] The filter query that a document must match to be returned in the results.
@@ -2235,21 +2149,6 @@ message ConstantScoreQuery {
 
   // [optional] Query name for query tagging.
   optional string x_name = 3;
-}
-
-message DisMaxQuery {
-
-  // [optional] Floating point number used to decrease or increase the relevance scores of the query. Boost values are relative to the default value of 1.0. A boost value between 0 and 1.0 decreases the relevance score. A value greater than 1.0 increases the relevance score.
-  optional float boost = 1;
-
-  // [optional] Query name for query tagging.
-  optional string x_name = 2;
-
-  // One or more query clauses. Returned documents must match one or more of these queries. If a document matches multiple queries, OpenSearch uses the highest relevance score.
-  repeated QueryContainer queries = 3;
-
-  // Floating point number between 0 and 1.0 used to increase the relevance scores of documents matching multiple query clauses.
-  optional float tie_breaker = 4;
 }
 
 message FunctionScoreQuery {
@@ -2277,74 +2176,6 @@ message FunctionScoreQuery {
 
   // [optional] Specifies how the computed scores are combined
   optional FunctionScoreMode score_mode = 8;
-}
-
-message IntervalsAllOf {
-
-  // An array of rules to combine. All rules must produce a match in a document for the overall source to match.
-  repeated IntervalsContainer intervals = 1;
-
-  // Maximum number of positions between the matching terms. Intervals produced by the rules further apart than this are not considered matches.
-  optional int32 max_gaps = 2;
-
-  // If `true`, intervals produced by the rules should appear in the order in which they are specified.
-  optional bool ordered = 3;
-
-  optional IntervalsFilter filter = 4;
-}
-
-message IntervalsAnyOf {
-
-  // An array of rules to match.
-  repeated IntervalsContainer intervals = 1;
-
-  optional IntervalsFilter filter = 2;
-}
-
-message IntervalsMatch {
-
-  // Analyzer used to analyze terms in the query.
-  optional string analyzer = 1;
-
-  // Maximum number of positions between the matching terms. Terms further apart than this are not considered matches.
-  optional int32 max_gaps = 2;
-
-  // If `true`, matching terms must appear in their specified order.
-  optional bool ordered = 3;
-
-  // Text you wish to find in the provided field.
-  string query = 4;
-
-  // The path to a field or an array of paths. Some APIs support wildcards in the path, which allows you to select multiple fields.
-  optional string use_field = 5;
-
-  optional IntervalsFilter filter = 6;
-}
-
-message IntervalsQuery {
-
-  // [required] Specifies the field against which to run a search query
-  string field = 1;
-
-  // [optional] Floating point number used to decrease or increase the relevance scores of the query. Boost values are relative to the default value of 1.0. A boost value between 0 and 1.0 decreases the relevance score. A value greater than 1.0 increases the relevance score.
-  optional float boost = 2;
-
-  // [optional] Query name for query tagging.
-  optional string x_name = 3;
-  oneof intervals_query {
-    IntervalsAllOf all_of = 4;
-
-    IntervalsAnyOf any_of = 5;
-
-    IntervalsFuzzy fuzzy = 6;
-
-    IntervalsMatch match = 7;
-
-    IntervalsPrefix prefix = 8;
-
-    IntervalsWildcard wildcard = 9;
-
-  }
 }
 
 message FunctionScoreContainer {
@@ -2444,46 +2275,6 @@ message NumericDecayPlacement {
 message ScriptScoreFunction {
 
   Script script = 1;
-}
-
-message IntervalsFilter {
-  oneof intervals_filter {
-    IntervalsContainer after = 1;
-
-    IntervalsContainer before = 2;
-
-    IntervalsContainer contained_by = 3;
-
-    IntervalsContainer containing = 4;
-
-    IntervalsContainer not_contained_by = 5;
-
-    IntervalsContainer not_containing = 6;
-
-    IntervalsContainer not_overlapping = 7;
-
-    IntervalsContainer overlapping = 8;
-
-    Script script = 9;
-
-  }
-}
-
-message IntervalsContainer {
-  oneof intervals_container {
-    IntervalsAllOf all_of = 1;
-
-    IntervalsAnyOf any_of = 2;
-
-    IntervalsFuzzy fuzzy = 3;
-
-    IntervalsMatch match = 4;
-
-    IntervalsPrefix prefix = 5;
-
-    IntervalsWildcard wildcard = 6;
-
-  }
 }
 
 message PrefixQuery {
@@ -2609,80 +2400,6 @@ message TermQuery {
   // [optional]
   // Allows ASCII case insensitive matching of the value with the indexed field values when set to `true`. When `false`, the case sensitivity of matching depends on the underlying field's mapping.
   optional bool case_insensitive = 5;
-}
-
-message QueryStringQuery {
-
-  // [optional] Floating point number used to decrease or increase the relevance scores of the query. Boost values are relative to the default value of 1.0. A boost value between 0 and 1.0 decreases the relevance score. A value greater than 1.0 increases the relevance score.
-  optional float boost = 1;
-
-  // [optional] Query name for query tagging.
-  optional string x_name = 2;
-
-  optional bool allow_leading_wildcard = 3;
-
-  // Analyzer used to convert text in the query string into tokens.
-  optional string analyzer = 4;
-
-  // If `true`, the query attempts to analyze wildcard terms in the query string.
-  optional bool analyze_wildcard = 5;
-
-  // If `true`, match phrase queries are automatically created for multi-term synonyms.
-  optional bool auto_generate_synonyms_phrase_query = 6;
-
-  // Path to field or array of paths. Some API's support wildcards in the path to select multiple fields.
-  optional string default_field = 7;
-
-  optional Operator default_operator = 8;
-
-  // If `true`, enable position increments in queries constructed from a `query_string` search.
-  optional bool enable_position_increments = 9;
-
-  optional bool escape = 10;
-
-  repeated string fields = 11;
-
-  optional Fuzziness fuzziness = 12;
-
-  // Maximum number of terms to which the query expands for fuzzy matching.
-  optional int32 fuzzy_max_expansions = 13;
-
-  // Number of beginning characters left unchanged for fuzzy matching.
-  optional int32 fuzzy_prefix_length = 14;
-
-  optional string fuzzy_rewrite = 15;
-
-  // If `true`, edits for fuzzy matching include transpositions of two adjacent characters (for example, `ab` to `ba`).
-  optional bool fuzzy_transpositions = 16;
-
-  // If `true`, format-based errors, such as providing a text value for a numeric field, are ignored.
-  optional bool lenient = 17;
-
-  // Maximum number of automaton states required for the query.
-  optional int32 max_determinized_states = 18;
-
-  optional MinimumShouldMatch minimum_should_match = 19;
-
-  // Maximum number of positions allowed between matching tokens for phrases.
-  optional int32 phrase_slop = 20;
-
-  // Query string you wish to parse and use for search.
-  string query = 21;
-
-  // Analyzer used to convert quoted text in the query string into tokens. For quoted text, this parameter overrides the analyzer specified in the `analyzer` parameter.
-  optional string quote_analyzer = 22;
-
-  // Suffix appended to quoted text in the query string. You can use this suffix to use a different analysis method for exact matches.
-  optional string quote_field_suffix = 23;
-
-  optional string rewrite = 24;
-
-  // How to combine the queries generated from the individual search terms in the resulting `dis_max` query.
-  optional float tie_breaker = 25;
-
-  optional string time_zone = 26;
-
-  optional TextQueryType type = 27;
 }
 
 message RandomScoreFunction {
@@ -2901,50 +2618,6 @@ message IdsQuery {
   optional string x_name = 2;
 
   repeated string values = 3;
-}
-
-message IntervalsFuzzy {
-
-  // Analyzer used to normalize the term.
-  optional string analyzer = 1;
-
-  optional Fuzziness fuzziness = 2;
-
-  // Number of beginning characters left unchanged when creating expansions.
-  optional int32 prefix_length = 3;
-
-  // The term to match.
-  string term = 4;
-
-  // Indicates whether edits include transpositions of two adjacent characters (for example, `ab` to `ba`).
-  optional bool transpositions = 5;
-
-  // The path to a field or an array of paths. Some APIs support wildcards in the path, which allows you to select multiple fields.
-  optional string use_field = 6;
-}
-
-message IntervalsPrefix {
-
-  // Analyzer used to analyze the `prefix`.
-  optional string analyzer = 1;
-
-  // Beginning characters of terms you wish to find in the top-level field.
-  string prefix = 2;
-
-  // The path to a field or an array of paths. Some APIs support wildcards in the path, which allows you to select multiple fields.
-  optional string use_field = 3;
-}
-
-message IntervalsWildcard {
-
-  // Analyzer used to analyze the `pattern`. Defaults to the top-level field's analyzer.
-  optional string analyzer = 1;
-
-  // Wildcard pattern used to find matching terms.
-  string pattern = 2;
-
-  // The path to a field or an array of paths. Some APIs support wildcards in the path, which allows you to select multiple fields.
-  optional string use_field = 3;
 }
 
 message MatchAllQuery {
@@ -3305,23 +2978,6 @@ enum MultiTermQueryRewrite {
   MULTI_TERM_QUERY_REWRITE_TOP_TERMS_N = 4;
   MULTI_TERM_QUERY_REWRITE_TOP_TERMS_BLENDED_FREQS_N = 5;
   MULTI_TERM_QUERY_REWRITE_TOP_TERMS_BOOST_N = 6;
-}
-
-enum SimpleQueryStringFlag {
-  SIMPLE_QUERY_STRING_FLAG_UNSPECIFIED = 0;
-  SIMPLE_QUERY_STRING_FLAG_ALL = 1;
-  SIMPLE_QUERY_STRING_FLAG_AND = 2;
-  SIMPLE_QUERY_STRING_FLAG_ESCAPE = 3;
-  SIMPLE_QUERY_STRING_FLAG_FUZZY = 4;
-  SIMPLE_QUERY_STRING_FLAG_NEAR = 5;
-  SIMPLE_QUERY_STRING_FLAG_NONE = 6;
-  SIMPLE_QUERY_STRING_FLAG_NOT = 7;
-  SIMPLE_QUERY_STRING_FLAG_OR = 8;
-  SIMPLE_QUERY_STRING_FLAG_PHRASE = 9;
-  SIMPLE_QUERY_STRING_FLAG_PRECEDENCE = 10;
-  SIMPLE_QUERY_STRING_FLAG_PREFIX = 11;
-  SIMPLE_QUERY_STRING_FLAG_SLOP = 12;
-  SIMPLE_QUERY_STRING_FLAG_WHITESPACE = 13;
 }
 
 enum GeoValidationMethod {
