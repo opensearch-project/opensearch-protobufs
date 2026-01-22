@@ -10,6 +10,12 @@ excluded_schemas:
   - Aggregate
   - Suggester
   - Suggest
+  - BoostingQuery
+  - DisMaxQuery
+  - QueryStringQuery
+  - SimpleQueryStringQuery
+  - IntervalsQuery
+  - ScriptScoreQuery
   - CommonTermsQuery
   - CombinedFieldsQuery
   - DistanceFeatureQuery

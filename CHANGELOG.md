@@ -11,6 +11,7 @@ Inspired from [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 ### Changed
 
 ### Removed
+- Manual remove `BoostingQuery`, `DisMaxQuery`, `QueryStringQuery`, `SimpleQueryStringQuery`, `IntervalsQuery` and `ScriptScoreQuery` ([#367](https://github.com/opensearch-project/opensearch-protobufs/pull/367))
 
 ### Fixed
 
