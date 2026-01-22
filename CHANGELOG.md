@@ -15,3 +15,4 @@ Inspired from [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 ### Fixed
 
 ### Security
+- Upgrade dependencies to address security vulnerabilities ([#368](https://github.com/opensearch-project/opensearch-protobufs/pull/368))
