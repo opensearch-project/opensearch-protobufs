@@ -1,6 +1,7 @@
 # Compatibility Matrix
 
-This table shows the compatibility between protobuf client versions (rows) and OpenSearch server versions (columns). Use this to determine which protobuf version works with your OpenSearch cluster.
+This table shows the compatibility between protobuf client versions (rows) and OpenSearch server versions (columns). Use this to determine which protobuf version works with your OpenSearch cluster. When multiple protobuf versions are compatible with the same OpenSearch version, we recommend using the latest protobuf version, as earlier versions may be missing newer fields.
+
 - **OK**: Compatible
 - **-**: Not compatible
 

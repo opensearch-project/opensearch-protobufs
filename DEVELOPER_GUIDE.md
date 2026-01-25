@@ -158,3 +158,7 @@ All generated files are excluded from version control via the `.gitignore` file.
 - Generated files (generated/)
 - Compiled class files (*.class)
 - Package files (*.jar)
+
+# Maintaining Compatibility Matrix
+
+When a new OpenSearch version is released, update the [COMPATIBILITY.md](COMPATIBILITY.md) by adding a new column for that version and marking compatibility with existing protobuf versions.
