@@ -1,7 +1,17 @@
 # Target API paths to include in proto generation
+# Format:
+#   path:
+#     x-operation-group:    # optional, list of operation groups to include
+#       - group1
+#       - group2
+# If x-operation-group is not specified, all operations on that path are included
 paths:
-  - /{index}/_bulk
-  - /{index}/_search
+  /{index}/_bulk:
+    x-operation-group:
+    - bulk
+  /{index}/_search:
+    x-operation-group:
+    - search
 
 # Schemas to exclude from proto generation
 # These schemas and their nested dependencies will not be included

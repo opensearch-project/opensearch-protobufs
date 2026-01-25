@@ -198,6 +198,10 @@ export function remove_unused(spec: OpenAPIV3.Document): void {
             !_.includes(remaining, obj.additionalProperties.items.$ref)) {
             return true;
         }
+        // Case 4: Object has empty properties (properties: {})
+        if (obj.properties && _.isObject(obj.properties) && _.isEmpty(obj.properties) && obj.type !== 'object') {
+            return true;
+        }
         return false;
     });
 }
@@ -211,4 +215,22 @@ export function is_simple_ref(schema: any): boolean {
     }
     const keys = Object.keys(schema);
     return keys.length === 1 && '$ref' in schema;
+}
+
+/**
+ * Convert paths config to Map<path, Set<operation-groups>>
+ * @param paths - The path configuration from spec-filter.yaml
+ * @returns Map where key is path and value is Set of operation groups (null means all operations)
+ */
+export function parsePathsConfig(paths: Record<string, { 'x-operation-group'?: string[] } | null> | undefined): Map<string, Set<string> | null> {
+    const result = new Map<string, Set<string> | null>();
+    if (!paths) {
+        result.set('/_search', null);
+        return result;
+    }
+    for (const [p, config] of Object.entries(paths)) {
+        const groups = config?.['x-operation-group'];
+        result.set(p, groups && groups.length > 0 ? new Set(groups) : null);
+    }
+    return result;
 }
