@@ -110,6 +110,12 @@ To generate Protobuf definitions from the latest OpenSearch API specification, f
 - **Node.js** >= v22
 - **Java** >= 17
 
+**Note:** If you're using an internal npm registry that blocks recent packages, configure npm to use the public registry:
+
+```bash
+npm config set registry https://registry.npmjs.org/
+```
+
 1. **Download the latest OpenSearch API Specification**
 
 
