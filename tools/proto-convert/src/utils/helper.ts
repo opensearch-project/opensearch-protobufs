@@ -218,19 +218,13 @@ export function is_simple_ref(schema: any): boolean {
 }
 
 /**
- * Convert paths config to Map<path, Set<operation-groups>>
- * @param paths - The path configuration from spec-filter.yaml
- * @returns Map where key is path and value is Set of operation groups (null means all operations)
+ * Parse x-operation-groups config from spec-filter.yaml
+ * @param groups - Array of operation group names
+ * @returns Set of operation group names
  */
-export function parsePathsConfig(paths: Record<string, { 'x-operation-group'?: string[] } | null> | undefined): Map<string, Set<string> | null> {
-    const result = new Map<string, Set<string> | null>();
-    if (!paths) {
-        result.set('/_search', null);
-        return result;
+export function parseOperationGroupsConfig(groups: string[] | undefined): Set<string> {
+    if (!groups || groups.length === 0) {
+        return new Set(['search']); // default
     }
-    for (const [p, config] of Object.entries(paths)) {
-        const groups = config?.['x-operation-group'];
-        result.set(p, groups && groups.length > 0 ? new Set(groups) : null);
-    }
-    return result;
+    return new Set(groups);
 }

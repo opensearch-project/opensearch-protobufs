@@ -27,8 +27,8 @@ describe('Filter', () => {
     responses: responses ?? { '200': { description: 'OK' } }
   } as any);
 
-  describe('path filtering', () => {
-    it('should include all operations when targetGroups is null', () => {
+  describe('operation group filtering', () => {
+    it('should include operations matching target groups', () => {
       const spec = createSpec({
         '/pets': {
           get: createOperation('pets.list', 'listPets'),
@@ -36,16 +36,16 @@ describe('Filter', () => {
         }
       });
 
-      const pathsMap = new Map<string, Set<string> | null>([['/pets', null]]);
-      const filter = new Filter(spec, pathsMap);
+      const targetGroups = new Set(['pets.list']);
+      const filter = new Filter(spec, targetGroups);
       const result = filter.filter();
 
       expect(result.paths['/pets']).toBeDefined();
       expect((result.paths['/pets'] as any).get).toBeDefined();
-      expect((result.paths['/pets'] as any).post).toBeDefined();
+      expect((result.paths['/pets'] as any).post).toBeUndefined();
     });
 
-    it('should filter operations by x-operation-group', () => {
+    it('should include multiple operation groups', () => {
       const spec = createSpec({
         '/pets': {
           get: createOperation('pets.list', 'listPets'),
@@ -54,10 +54,8 @@ describe('Filter', () => {
         }
       });
 
-      const pathsMap = new Map<string, Set<string> | null>([
-        ['/pets', new Set(['pets.list', 'pets.create'])]
-      ]);
-      const filter = new Filter(spec, pathsMap);
+      const targetGroups = new Set(['pets.list', 'pets.create']);
+      const filter = new Filter(spec, targetGroups);
       const result = filter.filter();
 
       expect((result.paths['/pets'] as any).get).toBeDefined();
@@ -65,34 +63,35 @@ describe('Filter', () => {
       expect((result.paths['/pets'] as any).delete).toBeUndefined();
     });
 
-    it('should skip paths not in targetPathsMap', () => {
+    it('should discover paths automatically based on operation group', () => {
+      const spec = createSpec({
+        '/pets': { get: createOperation('pets.list', 'listPets') },
+        '/pets/{id}': { get: createOperation('pets.list', 'getPet') },
+        '/users': { get: createOperation('users.list', 'listUsers') }
+      });
+
+      const targetGroups = new Set(['pets.list']);
+      const filter = new Filter(spec, targetGroups);
+      const result = filter.filter();
+
+      // Should discover both /pets and /pets/{id} since both have pets.list group
+      // But they get merged, so only one remains
+      expect(Object.keys(result.paths).length).toBe(1);
+      expect(result.paths['/users']).toBeUndefined();
+    });
+
+    it('should skip paths with no matching operation group', () => {
       const spec = createSpec({
         '/pets': { get: createOperation('pets.list', 'listPets') },
         '/users': { get: createOperation('users.list', 'listUsers') }
       });
 
-      const pathsMap = new Map<string, Set<string> | null>([['/pets', null]]);
-      const filter = new Filter(spec, pathsMap);
+      const targetGroups = new Set(['pets.list']);
+      const filter = new Filter(spec, targetGroups);
       const result = filter.filter();
 
       expect(result.paths['/pets']).toBeDefined();
       expect(result.paths['/users']).toBeUndefined();
-    });
-
-    it('should handle path not found in spec gracefully', () => {
-      const spec = createSpec({
-        '/pets': { get: createOperation('pets.list', 'listPets') }
-      });
-
-      const pathsMap = new Map<string, Set<string> | null>([
-        ['/pets', null],
-        ['/nonexistent', null]
-      ]);
-      const filter = new Filter(spec, pathsMap);
-      const result = filter.filter();
-
-      expect(result.paths['/pets']).toBeDefined();
-      expect(result.paths['/nonexistent']).toBeUndefined();
     });
   });
 
@@ -112,11 +111,8 @@ describe('Filter', () => {
         }
       });
 
-      const pathsMap = new Map<string, Set<string> | null>([
-        ['/pets', null],
-        ['/pets/{petId}', null]
-      ]);
-      const filter = new Filter(spec, pathsMap);
+      const targetGroups = new Set(['pets.list']);
+      const filter = new Filter(spec, targetGroups);
       const result = filter.filter();
 
       // Should merge to first path with merged parameters
@@ -143,11 +139,8 @@ describe('Filter', () => {
         }
       });
 
-      const pathsMap = new Map<string, Set<string> | null>([
-        ['/pets', null],
-        ['/pets/{id}', null]
-      ]);
-      const filter = new Filter(spec, pathsMap);
+      const targetGroups = new Set(['pets.list']);
+      const filter = new Filter(spec, targetGroups);
       const result = filter.filter();
 
       const operation = (result.paths['/pets'] as any)?.get;
@@ -174,11 +167,8 @@ describe('Filter', () => {
         }
       });
 
-      const pathsMap = new Map<string, Set<string> | null>([
-        ['/pets', null],
-        ['/pets/{id}', null]
-      ]);
-      const filter = new Filter(spec, pathsMap);
+      const targetGroups = new Set(['pets.list']);
+      const filter = new Filter(spec, targetGroups);
       const result = filter.filter();
 
       const operation = (result.paths['/pets'] as any)?.get;
@@ -192,8 +182,8 @@ describe('Filter', () => {
         }
       });
 
-      const pathsMap = new Map<string, Set<string> | null>([['/pets', null]]);
-      const filter = new Filter(spec, pathsMap);
+      const targetGroups = new Set(['pets.list']);
+      const filter = new Filter(spec, targetGroups);
       const result = filter.filter();
 
       const operation = (result.paths['/pets'] as any)?.get;
@@ -214,11 +204,8 @@ describe('Filter', () => {
         }
       });
 
-      const pathsMap = new Map<string, Set<string> | null>([
-        ['/pets', null],
-        ['/pets/{id}', null]
-      ]);
-      const filter = new Filter(spec, pathsMap);
+      const targetGroups = new Set(['pets.create']);
+      const filter = new Filter(spec, targetGroups);
 
       expect(() => filter.filter()).toThrow(/inconsistent requestBody/);
     });
@@ -235,11 +222,8 @@ describe('Filter', () => {
         }
       });
 
-      const pathsMap = new Map<string, Set<string> | null>([
-        ['/pets', null],
-        ['/pets/{id}', null]
-      ]);
-      const filter = new Filter(spec, pathsMap);
+      const targetGroups = new Set(['pets.list']);
+      const filter = new Filter(spec, targetGroups);
 
       expect(() => filter.filter()).toThrow(/inconsistent responses/);
     });
@@ -257,11 +241,8 @@ describe('Filter', () => {
         }
       });
 
-      const pathsMap = new Map<string, Set<string> | null>([
-        ['/pets', null],
-        ['/pets/{id}', null]
-      ]);
-      const filter = new Filter(spec, pathsMap);
+      const targetGroups = new Set(['pets.create']);
+      const filter = new Filter(spec, targetGroups);
 
       expect(() => filter.filter()).not.toThrow();
     });
@@ -276,11 +257,8 @@ describe('Filter', () => {
         }
       });
 
-      const pathsMap = new Map<string, Set<string> | null>([
-        ['/pets', null],
-        ['/pets/{id}', null]
-      ]);
-      const filter = new Filter(spec, pathsMap);
+      const targetGroups = new Set(['pets.list']);
+      const filter = new Filter(spec, targetGroups);
 
       expect(() => filter.filter()).not.toThrow();
     });
@@ -317,9 +295,9 @@ describe('Filter', () => {
         parameters: {}
       });
 
-      const pathsMap = new Map<string, Set<string> | null>([['/pets', null]]);
+      const targetGroups = new Set(['pets.list']);
       const excludedSchemas = new Set(['ExcludedSchema']);
-      const filter = new Filter(spec, pathsMap, excludedSchemas);
+      const filter = new Filter(spec, targetGroups, excludedSchemas);
       const result = filter.filter();
 
       expect(result.components?.schemas?.['PetList']).toBeDefined();
@@ -351,8 +329,8 @@ describe('Filter', () => {
         schemas: {}
       });
 
-      const pathsMap = new Map<string, Set<string> | null>([['/pets', null]]);
-      const filter = new Filter(spec, pathsMap);
+      const targetGroups = new Set(['pets.list']);
+      const filter = new Filter(spec, targetGroups);
       const result = filter.filter();
 
       expect(result.components?.parameters?.['limit']).toBeDefined();
@@ -396,8 +374,8 @@ describe('Filter', () => {
         responses: {}
       });
 
-      const pathsMap = new Map<string, Set<string> | null>([['/pets', null]]);
-      const filter = new Filter(spec, pathsMap);
+      const targetGroups = new Set(['pets.list']);
+      const filter = new Filter(spec, targetGroups);
       const result = filter.filter();
 
       expect(result.components?.schemas?.['PetList']).toBeDefined();

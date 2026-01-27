@@ -34,23 +34,24 @@ function traverse_and_enqueue(node: any, queue: string[], visited: Set<string>, 
 }
 
 /**
- * Filters an OpenAPI spec to include only specified paths and their referenced components.
+ * Filters an OpenAPI spec to include only paths matching specified x-operation-groups.
  * Schemas in the excluded set are skipped.
  */
 export default class Filter {
   protected input: Record<string, any>
   protected output: Record<string, any>
-  protected targetPathsMap: Map<string, Set<string> | null>  // path -> operation-groups (null means all operations)
+  protected targetGroups: Set<string>  // operation groups to include
   protected excludedSchemas: Set<string>
   paths: Record<string, Record<string, OpenAPIV3.PathItemObject>> = {} // namespace -> path -> path_item_object
 
-  constructor(input: Record<string, any>, targetPathsMap: Map<string, Set<string> | null>, excludedSchemas: Set<string> = new Set()) {
+  constructor(input: Record<string, any>, targetGroups: Set<string>, excludedSchemas: Set<string> = new Set()) {
     this.input = input;
-    this.targetPathsMap = targetPathsMap;
+    this.targetGroups = targetGroups;
     this.excludedSchemas = excludedSchemas;
     if (this.excludedSchemas.size > 0) {
       logger.info(`Loaded ${this.excludedSchemas.size} excluded schemas: ${Array.from(this.excludedSchemas).join(', ')}`);
     }
+    logger.info(`Filtering for operation groups: ${Array.from(targetGroups).join(', ')}`);
     this.output = {
       openapi: '3.1.0',
       info: {},
@@ -68,27 +69,19 @@ export default class Filter {
   filter(): OpenAPIV3.Document {
     this.output.info = this.input.info;
 
-    for (const [targetPath, targetGroups] of this.targetPathsMap) {
-      if (this.input.paths[targetPath] === undefined) {
-        logger.error(`Path not found in spec: ${targetPath}`);
-        continue;
+    for (const path in this.input.paths) {
+      const pathItem = this.input.paths[path];
+      if (!pathItem) continue;
+
+      const filteredPathItem: any = {};
+      for (const method of ['get', 'post', 'put', 'delete', 'head'] as const) {
+        const operation = pathItem?.[method];
+        if (operation && operation['x-operation-group'] && this.targetGroups.has(operation['x-operation-group'])) {
+          filteredPathItem[method] = operation;
+        }
       }
-
-      const pathItem = this.input.paths[targetPath];
-
-      if (targetGroups === null) {
-        this.output.paths[targetPath] = pathItem;
-      } else {
-        const filteredPathItem: any = {};
-        for (const method of ['get', 'post', 'put', 'delete', 'head'] as const) {
-          const operation = pathItem?.[method];
-          if (operation && operation['x-operation-group'] && targetGroups.has(operation['x-operation-group'])) {
-            filteredPathItem[method] = operation;
-          }
-        }
-        if (Object.keys(filteredPathItem).length > 0) {
-          this.output.paths[targetPath] = filteredPathItem;
-        }
+      if (Object.keys(filteredPathItem).length > 0) {
+        this.output.paths[path] = filteredPathItem;
       }
     }
 
