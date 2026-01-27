@@ -198,6 +198,10 @@ export function remove_unused(spec: OpenAPIV3.Document): void {
             !_.includes(remaining, obj.additionalProperties.items.$ref)) {
             return true;
         }
+        // Case 4: Object has empty properties (properties: {})
+        if (obj.properties && _.isObject(obj.properties) && _.isEmpty(obj.properties) && obj.type !== 'object') {
+            return true;
+        }
         return false;
     });
 }
@@ -211,4 +215,16 @@ export function is_simple_ref(schema: any): boolean {
     }
     const keys = Object.keys(schema);
     return keys.length === 1 && '$ref' in schema;
+}
+
+/**
+ * Parse x-operation-groups config from spec-filter.yaml
+ * @param groups - Array of operation group names
+ * @returns Set of operation group names
+ */
+export function parseOperationGroupsConfig(groups: string[] | undefined): Set<string> {
+    if (!groups || groups.length === 0) {
+        return new Set(['search']); // default
+    }
+    return new Set(groups);
 }
