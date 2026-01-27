@@ -13,7 +13,6 @@ import {
     deleteMatchingKeys,
     find_refs,
     is_simple_ref,
-    parsePathsConfig,
     remove_unused
 } from '../../src/utils/helper';
 import { OpenAPIV3 } from 'openapi-types';
@@ -340,31 +339,6 @@ describe('is_simple_ref', () => {
 
     it('should return false for non-object', () => {
         expect(is_simple_ref('string')).toBe(false);
-    });
-});
-
-describe('parsePathsConfig', () => {
-    it('should return default path when paths is undefined', () => {
-        const result = parsePathsConfig(undefined);
-
-        expect(result.size).toBe(1);
-        expect(result.get('/_search')).toBeNull();
-    });
-
-    it('should parse path with operation groups', () => {
-        const result = parsePathsConfig({
-            '/pets': { 'x-operation-group': ['pets.list', 'pets.create'] }
-        });
-
-        expect(result.get('/pets')).toEqual(new Set(['pets.list', 'pets.create']));
-    });
-
-    it('should parse path without operation groups as null', () => {
-        const result = parsePathsConfig({
-            '/pets': null
-        });
-
-        expect(result.get('/pets')).toBeNull();
     });
 });
 
