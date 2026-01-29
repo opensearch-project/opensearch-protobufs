@@ -8,7 +8,10 @@ package(default_visibility = ["//visibility:public"])
 proto_library(
     name = "common_proto",
     srcs = ["common.proto"],
-    deps = ["@com_google_protobuf//:struct_proto"],
+    deps = [
+        "@com_google_protobuf//:descriptor_proto",
+        "@com_google_protobuf//:struct_proto",
+    ],
 )
 
 java_proto_library(
