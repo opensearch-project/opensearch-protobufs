@@ -13,7 +13,7 @@ import {
 import { CompatibilityReporter, formatField } from './CompatibilityReporter';
 
 const DEPRECATED: Annotation = { name: 'deprecated', value: 'true' };
-const GRPC_ONLY_TAG = '@grpc_only';
+const TOOLING_SKIP: Annotation = { name: '(tooling_skip)', value: 'true' };
 
 /**
  * Extract base name
@@ -43,15 +43,14 @@ function isDeprecated(item: HasAnnotations): boolean {
     ) ?? false;
 }
 
-/** Type with comment field */
-type HasComment = { comment?: string };
-
 /**
- * Check if an item has @grpc_only tag in its comment.
- * Fields with this tag are manually maintained for gRPC and won't be deprecated.
+ * Check if an item has tooling_skip option set to true.
+ * Fields with this option are manually maintained and won't be deprecated.
  */
-function isGrpcOnly(item: HasComment): boolean {
-    return item.comment?.includes(GRPC_ONLY_TAG) ?? false;
+function hasToolingSkip(item: HasAnnotations): boolean {
+    return item.annotations?.some(a =>
+        a.name === TOOLING_SKIP.name && a.value === TOOLING_SKIP.value
+    ) ?? false;
 }
 
 /**
@@ -126,8 +125,7 @@ function mergeField(
             }
         }
     } else {
-        if (isGrpcOnly(sourceField)) {
-            // Keep gRPC-only field as-is, don't deprecate it
+        if (hasToolingSkip(sourceField)) {
             return sourceField;
         }
         reporter?.addFieldChange({

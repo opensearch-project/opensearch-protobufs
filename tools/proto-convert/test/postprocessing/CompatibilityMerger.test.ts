@@ -276,14 +276,14 @@ describe('mergeMessage', () => {
             expect(deprecatedOptions).toHaveLength(1);
         });
 
-        it('should keep fields with @grpc_only comment without deprecating', () => {
+        it('should keep fields with tooling_skip option without deprecating', () => {
             const source: ProtoMessage = {
                 name: 'TestMessage',
                 fields: [{
-                    name: 'grpc_field',
+                    name: 'skip_field',
                     type: 'string',
                     number: 1,
-                    comment: '@grpc_only'
+                    annotations: [{ name: '(tooling_skip)', value: 'true' }]
                 }, {
                     name: 'normal_field',
                     type: 'string',
@@ -301,21 +301,22 @@ describe('mergeMessage', () => {
 
             const result = mergeMessage(source, upcoming);
 
-            // grpc_field should remain without deprecated annotation
+            // skip_field should remain without deprecated annotation added
             expect(result.fields).toHaveLength(2);
-            const grpcField = result.fields.find(f => f.name === 'grpc_field');
-            expect(grpcField).toBeDefined();
-            expect(grpcField!.annotations).toBeUndefined();
+            const skipField = result.fields.find(f => f.name === 'skip_field');
+            expect(skipField).toBeDefined();
+            // Should only have tooling_skip, not deprecated
+            expect(skipField!.annotations).not.toContainEqual({ name: 'deprecated', value: 'true' });
         });
 
-        it('should not report @grpc_only fields as deprecated', () => {
+        it('should not report tooling_skip fields as deprecated', () => {
             const source: ProtoMessage = {
                 name: 'TestMessage',
                 fields: [{
-                    name: 'grpc_field',
+                    name: 'skip_field',
                     type: 'string',
                     number: 1,
-                    comment: '@grpc_only'
+                    annotations: [{ name: '(tooling_skip)', value: 'true' }]
                 }]
             };
             const upcoming: ProtoMessage = {
@@ -327,18 +328,18 @@ describe('mergeMessage', () => {
             mergeMessage(source, upcoming, reporter);
 
             const markdown = reporter.toMarkdown();
-            // Should not report deprecation for @grpc_only fields
+            // Should not report deprecation for tooling_skip fields
             expect(markdown).toContain('No changes detected');
         });
 
-        it('should keep @grpc_only field if it exists in upcoming', () => {
+        it('should keep tooling_skip field if it exists in upcoming', () => {
             const source: ProtoMessage = {
                 name: 'TestMessage',
                 fields: [{
                     name: 'field_name',
                     type: 'string',
                     number: 1,
-                    comment: '@grpc_only'
+                    annotations: [{ name: '(tooling_skip)', value: 'true' }]
                 }]
             };
             const upcoming: ProtoMessage = {
@@ -356,7 +357,7 @@ describe('mergeMessage', () => {
             expect(result.fields[0].name).toBe('field_name');
         });
 
-        it('should assign new field number after max including @grpc_only field', () => {
+        it('should assign new field number after max including tooling_skip field', () => {
             const source: ProtoMessage = {
                 name: 'TestMessage',
                 fields: [{
@@ -364,10 +365,10 @@ describe('mergeMessage', () => {
                     type: 'string',
                     number: 1
                 }, {
-                    name: 'grpc_field',
+                    name: 'skip_field',
                     type: 'string',
                     number: 5,  // This is the max field number
-                    comment: '@grpc_only'
+                    annotations: [{ name: '(tooling_skip)', value: 'true' }]
                 }]
             };
             const upcoming: ProtoMessage = {
@@ -385,9 +386,9 @@ describe('mergeMessage', () => {
 
             const result = mergeMessage(source, upcoming);
 
-            // grpc_field is kept, new_field is added
+            // skip_field is kept, new_field is added
             expect(result.fields).toHaveLength(3);
-            expect(result.fields.find(f => f.name === 'grpc_field')).toBeDefined();
+            expect(result.fields.find(f => f.name === 'skip_field')).toBeDefined();
 
             const newField = result.fields.find(f => f.name === 'new_field');
             expect(newField).toBeDefined();
