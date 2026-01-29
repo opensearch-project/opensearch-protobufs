@@ -275,6 +275,124 @@ describe('mergeMessage', () => {
             );
             expect(deprecatedOptions).toHaveLength(1);
         });
+
+        it('should keep fields with @grpc_only comment without deprecating', () => {
+            const source: ProtoMessage = {
+                name: 'TestMessage',
+                fields: [{
+                    name: 'grpc_field',
+                    type: 'string',
+                    number: 1,
+                    comment: '@grpc_only'
+                }, {
+                    name: 'normal_field',
+                    type: 'string',
+                    number: 2
+                }]
+            };
+            const upcoming: ProtoMessage = {
+                name: 'TestMessage',
+                fields: [{
+                    name: 'normal_field',
+                    type: 'string',
+                    number: 2
+                }]
+            };
+
+            const result = mergeMessage(source, upcoming);
+
+            // grpc_field should remain without deprecated annotation
+            expect(result.fields).toHaveLength(2);
+            const grpcField = result.fields.find(f => f.name === 'grpc_field');
+            expect(grpcField).toBeDefined();
+            expect(grpcField!.annotations).toBeUndefined();
+        });
+
+        it('should not report @grpc_only fields as deprecated', () => {
+            const source: ProtoMessage = {
+                name: 'TestMessage',
+                fields: [{
+                    name: 'grpc_field',
+                    type: 'string',
+                    number: 1,
+                    comment: '@grpc_only'
+                }]
+            };
+            const upcoming: ProtoMessage = {
+                name: 'TestMessage',
+                fields: []
+            };
+
+            const reporter = new CompatibilityReporter();
+            mergeMessage(source, upcoming, reporter);
+
+            const markdown = reporter.toMarkdown();
+            // Should not report deprecation for @grpc_only fields
+            expect(markdown).toContain('No changes detected');
+        });
+
+        it('should keep @grpc_only field if it exists in upcoming', () => {
+            const source: ProtoMessage = {
+                name: 'TestMessage',
+                fields: [{
+                    name: 'field_name',
+                    type: 'string',
+                    number: 1,
+                    comment: '@grpc_only'
+                }]
+            };
+            const upcoming: ProtoMessage = {
+                name: 'TestMessage',
+                fields: [{
+                    name: 'field_name',
+                    type: 'string',
+                    number: 1
+                }]
+            };
+
+            const result = mergeMessage(source, upcoming);
+
+            expect(result.fields).toHaveLength(1);
+            expect(result.fields[0].name).toBe('field_name');
+        });
+
+        it('should assign new field number after max including @grpc_only field', () => {
+            const source: ProtoMessage = {
+                name: 'TestMessage',
+                fields: [{
+                    name: 'existing_field',
+                    type: 'string',
+                    number: 1
+                }, {
+                    name: 'grpc_field',
+                    type: 'string',
+                    number: 5,  // This is the max field number
+                    comment: '@grpc_only'
+                }]
+            };
+            const upcoming: ProtoMessage = {
+                name: 'TestMessage',
+                fields: [{
+                    name: 'existing_field',
+                    type: 'string',
+                    number: 1
+                }, {
+                    name: 'new_field',
+                    type: 'int32',
+                    number: 99  // This will be reassigned
+                }]
+            };
+
+            const result = mergeMessage(source, upcoming);
+
+            // grpc_field is kept, new_field is added
+            expect(result.fields).toHaveLength(3);
+            expect(result.fields.find(f => f.name === 'grpc_field')).toBeDefined();
+
+            const newField = result.fields.find(f => f.name === 'new_field');
+            expect(newField).toBeDefined();
+            expect(newField!.number).toBe(6);
+        });
     });
 
     describe('new fields', () => {
@@ -884,6 +1002,7 @@ describe('mergeEnum', () => {
             const markdown = reporter.toMarkdown();
             expect(markdown).toContain('No changes detected');
         });
+
     });
 
     describe('new values', () => {

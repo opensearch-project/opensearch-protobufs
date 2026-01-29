@@ -13,6 +13,7 @@ import {
 import { CompatibilityReporter, formatField } from './CompatibilityReporter';
 
 const DEPRECATED: Annotation = { name: 'deprecated', value: 'true' };
+const GRPC_ONLY_TAG = '@grpc_only';
 
 /**
  * Extract base name
@@ -40,6 +41,17 @@ function isDeprecated(item: HasAnnotations): boolean {
     return item.annotations?.some(a =>
         a.name === DEPRECATED.name && a.value === DEPRECATED.value
     ) ?? false;
+}
+
+/** Type with comment field */
+type HasComment = { comment?: string };
+
+/**
+ * Check if an item has @grpc_only tag in its comment.
+ * Fields with this tag are manually maintained for gRPC and won't be deprecated.
+ */
+function isGrpcOnly(item: HasComment): boolean {
+    return item.comment?.includes(GRPC_ONLY_TAG) ?? false;
 }
 
 /**
@@ -114,6 +126,10 @@ function mergeField(
             }
         }
     } else {
+        if (isGrpcOnly(sourceField)) {
+            // Keep gRPC-only field as-is, don't deprecate it
+            return sourceField;
+        }
         reporter?.addFieldChange({
             messageName: msgName,
             changeType: 'DEPRECATED',
@@ -244,7 +260,7 @@ export function mergeMessage(
                     continue;
                 }
 
-                // Try 3: No match - deprecate
+                // Try 3: No match - deprecate or skip
                 mergedOneofFields.push(mergeField(sourceField, upcomingOneofByName, sourceMsg.name, reporter));
             }
 
