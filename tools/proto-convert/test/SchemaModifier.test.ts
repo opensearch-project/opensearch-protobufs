@@ -236,4 +236,654 @@ describe('SchemaModifier', () => {
             expect(schema.oneOf).toHaveLength(0);
         });
     });
+
+    describe('handleAdditionalPropertiesUndefined', () => {
+        it('should convert additionalProperties: true to type: object', () => {
+            const doc = createDocument();
+            const modifier = new SchemaModifier(doc);
+
+            const schema: OpenAPIV3.SchemaObject = {
+                additionalProperties: true
+            };
+
+            modifier.handleAdditionalPropertiesUndefined(schema);
+
+            expect(schema.type).toBe('object');
+            expect(schema.additionalProperties).toBeUndefined();
+        });
+
+        it('should convert empty additionalProperties to type: object', () => {
+            const doc = createDocument();
+            const modifier = new SchemaModifier(doc);
+
+            const schema: any = {
+                additionalProperties: { type: 'object' }
+            };
+
+            modifier.handleAdditionalPropertiesUndefined(schema);
+
+            expect(schema.type).toBe('object');
+            expect(schema.additionalProperties).toBeUndefined();
+        });
+
+        it('should not modify when additionalProperties has a schema', () => {
+            const doc = createDocument();
+            const modifier = new SchemaModifier(doc);
+
+            const schema: OpenAPIV3.SchemaObject = {
+                additionalProperties: { type: 'string' }
+            };
+
+            modifier.handleAdditionalPropertiesUndefined(schema);
+
+            expect(schema.additionalProperties).toEqual({ type: 'string' });
+        });
+    });
+
+    describe('handleOneOfConst', () => {
+        it('should convert oneOf with const values to enum', () => {
+            const doc = createDocument();
+            const modifier = new SchemaModifier(doc);
+
+            const schema: any = {
+                oneOf: [
+                    { type: 'string', const: 'value1' },
+                    { type: 'string', const: 'value2' }
+                ]
+            };
+
+            modifier.handleOneOfConst(schema, 'TestSchema');
+
+            expect(schema.oneOf).toBeUndefined();
+            expect(schema.type).toBe('string');
+            expect(schema.enum).toEqual(['value1', 'value2']);
+        });
+
+        it('should use type as enum value for non-const items', () => {
+            const doc = createDocument();
+            const modifier = new SchemaModifier(doc);
+
+            const schema: any = {
+                oneOf: [
+                    { type: 'string', const: 'text' },
+                    { type: 'number' }
+                ]
+            };
+
+            modifier.handleOneOfConst(schema, 'TestSchema');
+
+            expect(schema.enum).toEqual(['text', 'number']);
+        });
+
+        it('should not convert when no const values exist', () => {
+            const doc = createDocument();
+            const modifier = new SchemaModifier(doc);
+
+            const schema: any = {
+                oneOf: [
+                    { type: 'string' },
+                    { type: 'number' }
+                ]
+            };
+
+            modifier.handleOneOfConst(schema, 'TestSchema');
+
+            expect(schema.oneOf).toBeDefined();
+            expect(schema.enum).toBeUndefined();
+        });
+    });
+
+    describe('convertNullTypeToNullValue', () => {
+        it('should convert type: null to type: NullValue', () => {
+            const doc = createDocument();
+            const modifier = new SchemaModifier(doc);
+
+            const schema: any = {
+                type: 'null'
+            };
+
+            modifier.convertNullTypeToNullValue(schema);
+
+            expect(schema.type).toBe('NullValue');
+        });
+
+        it('should not modify other types', () => {
+            const doc = createDocument();
+            const modifier = new SchemaModifier(doc);
+
+            const schema: OpenAPIV3.SchemaObject = {
+                type: 'string'
+            };
+
+            modifier.convertNullTypeToNullValue(schema);
+
+            expect(schema.type).toBe('string');
+        });
+    });
+
+    describe('deduplicateEnumValue', () => {
+        it('should remove duplicate enum values (case-insensitive)', () => {
+            const doc = createDocument();
+            const modifier = new SchemaModifier(doc);
+
+            const schema: any = {
+                enum: ['AND', 'and', 'OR', 'or']
+            };
+
+            modifier.deduplicateEnumValue(schema);
+
+            expect(schema.enum).toHaveLength(2);
+            expect(schema.enum).toContain('and');
+            expect(schema.enum).toContain('or');
+        });
+
+        it('should handle enum with unique values', () => {
+            const doc = createDocument();
+            const modifier = new SchemaModifier(doc);
+
+            const schema: any = {
+                enum: ['red', 'green', 'blue']
+            };
+
+            modifier.deduplicateEnumValue(schema);
+
+            expect(schema.enum).toHaveLength(3);
+        });
+    });
+
+    describe('removeArrayOfMapWrapper', () => {
+        it('should remove array wrapper from array of maps', () => {
+            const doc = createDocument();
+            const modifier = new SchemaModifier(doc);
+
+            const schema: any = {
+                type: 'array',
+                items: {
+                    type: 'object',
+                    additionalProperties: {
+                        $ref: '#/components/schemas/Value'
+                    }
+                }
+            };
+
+            modifier.removeArrayOfMapWrapper(schema);
+
+            expect(schema.type).toBe('object');
+            expect(schema.items).toBeUndefined();
+            expect(schema.additionalProperties).toEqual({
+                $ref: '#/components/schemas/Value'
+            });
+        });
+
+        it('should not remove wrapper if items has properties', () => {
+            const doc = createDocument();
+            const modifier = new SchemaModifier(doc);
+
+            const schema: any = {
+                type: 'array',
+                items: {
+                    type: 'object',
+                    properties: {
+                        id: { type: 'string' }
+                    },
+                    additionalProperties: { type: 'string' }
+                }
+            };
+
+            modifier.removeArrayOfMapWrapper(schema);
+
+            expect(schema.type).toBe('array');
+            expect(schema.items).toBeDefined();
+        });
+
+        it('should not modify non-array schemas', () => {
+            const doc = createDocument();
+            const modifier = new SchemaModifier(doc);
+
+            const schema: OpenAPIV3.SchemaObject = {
+                type: 'object',
+                properties: {
+                    name: { type: 'string' }
+                }
+            };
+
+            modifier.removeArrayOfMapWrapper(schema);
+
+            expect(schema.type).toBe('object');
+        });
+    });
+
+    describe('convertAdditionalPropertiesToProperty', () => {
+        it('should convert additionalProperties with title to named property', () => {
+            const doc = createDocument();
+            const modifier = new SchemaModifier(doc);
+
+            const schema: any = {
+                type: 'object',
+                properties: {
+                    distance: { type: 'string' }
+                },
+                additionalProperties: {
+                    title: 'location',
+                    $ref: '#/components/schemas/GeoLocation'
+                },
+                minProperties: 2
+            };
+
+            modifier.convertAdditionalPropertiesToProperty(schema);
+
+            expect(schema.properties.location).toBeDefined();
+            expect(schema.properties.location.type).toBe('object');
+            expect(schema.properties.location.additionalProperties).toEqual({
+                $ref: '#/components/schemas/GeoLocation'
+            });
+            expect(schema.additionalProperties).toBeUndefined();
+        });
+
+        it('should not convert when minProperties=1 and maxProperties=1', () => {
+            const doc = createDocument();
+            const modifier = new SchemaModifier(doc);
+
+            const schema: any = {
+                type: 'object',
+                additionalProperties: {
+                    title: 'field',
+                    type: 'string'
+                },
+                minProperties: 1,
+                maxProperties: 1
+            };
+
+            modifier.convertAdditionalPropertiesToProperty(schema);
+
+            expect(schema.additionalProperties).toBeDefined();
+            expect(schema.properties).toBeUndefined();
+        });
+
+        it('should not convert when additionalProperties has no title', () => {
+            const doc = createDocument();
+            const modifier = new SchemaModifier(doc);
+
+            const schema: any = {
+                type: 'object',
+                additionalProperties: {
+                    type: 'string'
+                }
+            };
+
+            modifier.convertAdditionalPropertiesToProperty(schema);
+
+            expect(schema.additionalProperties).toEqual({ type: 'string' });
+        });
+    });
+
+    describe('convertOneOfToMinMaxProperties', () => {
+        it('should convert oneOf single properties to minProperties/maxProperties', () => {
+            const doc = createDocument();
+            const modifier = new SchemaModifier(doc);
+
+            const schema: any = {
+                oneOf: [
+                    { properties: { field1: { type: 'string' } }, required: ['field1'] },
+                    { properties: { field2: { type: 'number' } }, required: ['field2'] }
+                ]
+            };
+
+            modifier.convertOneOfToMinMaxProperties(schema);
+
+            expect(schema.oneOf).toBeUndefined();
+            expect(schema.properties).toEqual({
+                field1: { type: 'string' },
+                field2: { type: 'number' }
+            });
+            expect(schema.minProperties).toBe(1);
+            expect(schema.maxProperties).toBe(1);
+        });
+
+        it('should not convert when items have multiple properties', () => {
+            const doc = createDocument();
+            const modifier = new SchemaModifier(doc);
+
+            const schema: any = {
+                oneOf: [
+                    {
+                        properties: {
+                            field1: { type: 'string' },
+                            field2: { type: 'string' }
+                        },
+                        required: ['field1']
+                    }
+                ]
+            };
+
+            modifier.convertOneOfToMinMaxProperties(schema);
+
+            expect(schema.oneOf).toBeDefined();
+        });
+    });
+
+    describe('markOneOfExtensions', () => {
+        it('should mark properties with x-oneof-property when maxProperties=1', () => {
+            const doc = createDocument();
+            const modifier = new SchemaModifier(doc);
+
+            const schema: any = {
+                type: 'object',
+                properties: {
+                    field1: { type: 'string' },
+                    field2: { type: 'number' }
+                },
+                maxProperties: 1
+            };
+
+            modifier.markOneOfExtensions(schema);
+
+            expect(schema.properties.field1['x-oneof-property']).toBe(true);
+            expect(schema.properties.field2['x-oneof-property']).toBe(true);
+            expect(schema['x-oneof-schema']).toBe(true);
+        });
+
+        it('should mark parent schema when nested oneOf pattern exists', () => {
+            const doc = createDocument();
+            const modifier = new SchemaModifier(doc);
+
+            const schema: any = {
+                allOf: [
+                    { properties: { meta: { type: 'string' } } },
+                    { maxProperties: 1, properties: { field: { type: 'string' } } }
+                ]
+            };
+
+            modifier.markOneOfExtensions(schema);
+
+            expect(schema['x-oneof-schema']).toBe(true);
+        });
+
+        it('should not mark schemas without oneOf pattern', () => {
+            const doc = createDocument();
+            const modifier = new SchemaModifier(doc);
+
+            const schema: any = {
+                type: 'object',
+                properties: {
+                    field: { type: 'string' }
+                }
+            };
+
+            modifier.markOneOfExtensions(schema);
+
+            expect(schema['x-oneof-schema']).toBeUndefined();
+        });
+    });
+
+    describe('collapseOneOfObjectPropContainsTitleSchema', () => {
+        it('should collapse when simple schema title matches complex property with $ref', () => {
+            const doc = createDocument();
+            doc.components!.schemas!.TestValue = { type: 'string' };
+
+            const modifier = new SchemaModifier(doc);
+
+            const schema: any = {
+                oneOf: [
+                    { title: 'testField', $ref: '#/components/schemas/TestValue' },
+                    {
+                        type: 'object',
+                        properties: {
+                            testField: { $ref: '#/components/schemas/TestValue' }
+                        }
+                    }
+                ]
+            };
+
+            modifier.collapseOneOfObjectPropContainsTitleSchema(schema);
+
+            expect(schema.oneOf).toBeUndefined();
+            expect(schema.type).toBe('object');
+        });
+
+        it('should not collapse when oneOf length is not 2', () => {
+            const doc = createDocument();
+            const modifier = new SchemaModifier(doc);
+
+            const schema: any = {
+                oneOf: [
+                    { title: 'field', type: 'string' }
+                ]
+            };
+
+            modifier.collapseOneOfObjectPropContainsTitleSchema(schema);
+
+            expect(schema.oneOf).toHaveLength(1);
+        });
+
+        it('should handle complex schema with allOf', () => {
+            const doc = createDocument();
+            const modifier = new SchemaModifier(doc);
+
+            const schema: any = {
+                oneOf: [
+                    { title: 'field', type: 'string' },
+                    {
+                        allOf: [
+                            {
+                                type: 'object',
+                                properties: {
+                                    field: { type: 'string' }
+                                }
+                            }
+                        ]
+                    }
+                ]
+            };
+
+            modifier.collapseOneOfObjectPropContainsTitleSchema(schema);
+
+            // Should collapse because field matches
+            expect(schema.oneOf).toBeUndefined();
+        });
+    });
+
+    describe('simplifySingleMapSchema', () => {
+        it('should simplify single-key map schema with primitives', () => {
+            const doc = createDocument();
+            doc.components!.schemas!.Model = {
+                type: 'object',
+                properties: {
+                    prop1: { type: 'string' }
+                }
+            };
+
+            const modifier = new SchemaModifier(doc);
+            const visit = new Set();
+
+            const schema: any = {
+                type: 'object',
+                additionalProperties: {
+                    $ref: '#/components/schemas/Model'
+                },
+                minProperties: 1,
+                maxProperties: 1
+            };
+
+            modifier.simplifySingleMapSchema(schema, visit);
+
+            expect(schema.additionalProperties).toBeUndefined();
+            expect(schema.minProperties).toBeUndefined();
+            expect(schema.maxProperties).toBeUndefined();
+        });
+
+        it('should not modify when not single-key map', () => {
+            const doc = createDocument();
+            const modifier = new SchemaModifier(doc);
+            const visit = new Set();
+
+            const schema: any = {
+                type: 'object',
+                additionalProperties: { type: 'string' },
+                minProperties: 1,
+                maxProperties: 2
+            };
+
+            modifier.simplifySingleMapSchema(schema, visit);
+
+            expect(schema.additionalProperties).toBeDefined();
+        });
+    });
+
+    describe('convertAdditionalPropertiesToProperty - edge cases', () => {
+        it('should skip conversion when property already exists', () => {
+            const doc = createDocument();
+            const modifier = new SchemaModifier(doc);
+
+            const schema: any = {
+                type: 'object',
+                properties: {
+                    location: { type: 'string' }
+                },
+                additionalProperties: {
+                    title: 'location',
+                    type: 'string'
+                },
+                minProperties: 2
+            };
+
+            modifier.convertAdditionalPropertiesToProperty(schema);
+
+            // Should not convert because property already exists
+            expect(schema.additionalProperties).toBeDefined();
+        });
+
+        it('should create properties object if not exists', () => {
+            const doc = createDocument();
+            const modifier = new SchemaModifier(doc);
+
+            const schema: any = {
+                type: 'object',
+                additionalProperties: {
+                    title: 'newField',
+                    type: 'string'
+                }
+            };
+
+            modifier.convertAdditionalPropertiesToProperty(schema);
+
+            expect(schema.properties).toBeDefined();
+            expect(schema.properties.newField).toBeDefined();
+        });
+
+        it('should handle additionalProperties without schema definition', () => {
+            const doc = createDocument();
+            const modifier = new SchemaModifier(doc);
+
+            const schema: any = {
+                type: 'object',
+                additionalProperties: {
+                    title: 'field'
+                }
+            };
+
+            modifier.convertAdditionalPropertiesToProperty(schema);
+
+            expect(schema.properties.field.additionalProperties).toBe(true);
+        });
+
+        it('should delete propertyNames after conversion', () => {
+            const doc = createDocument();
+            const modifier = new SchemaModifier(doc);
+
+            const schema: any = {
+                type: 'object',
+                propertyNames: { type: 'string' },
+                additionalProperties: {
+                    title: 'field',
+                    type: 'string'
+                }
+            };
+
+            modifier.convertAdditionalPropertiesToProperty(schema);
+
+            expect(schema.propertyNames).toBeUndefined();
+        });
+    });
+
+    describe('convertOneOfToMinMaxProperties - edge cases', () => {
+        it('should handle oneOf with $ref items', () => {
+            const doc = createDocument();
+            const modifier = new SchemaModifier(doc);
+
+            const schema: any = {
+                oneOf: [
+                    { $ref: '#/components/schemas/Field1' },
+                    { properties: { field2: { type: 'string' } }, required: ['field2'] }
+                ]
+            };
+
+            modifier.convertOneOfToMinMaxProperties(schema);
+
+            // Should not convert because of $ref
+            expect(schema.oneOf).toBeDefined();
+        });
+
+        it('should handle empty oneOf', () => {
+            const doc = createDocument();
+            const modifier = new SchemaModifier(doc);
+
+            const schema: any = {
+                oneOf: []
+            };
+
+            modifier.convertOneOfToMinMaxProperties(schema);
+
+            expect(schema.oneOf).toEqual([]);
+        });
+
+        it('should delete unevaluatedProperties when flattening', () => {
+            const doc = createDocument();
+            const modifier = new SchemaModifier(doc);
+
+            const schema: any = {
+                oneOf: [
+                    { properties: { field1: { type: 'string' } }, required: ['field1'] }
+                ],
+                unevaluatedProperties: false
+            };
+
+            modifier.convertOneOfToMinMaxProperties(schema);
+
+            expect(schema.unevaluatedProperties).toBeUndefined();
+        });
+    });
+
+    describe('reconstructAdditionalPropertySchema', () => {
+        it('should add field to allOf schema', () => {
+            const doc = createDocument();
+            doc.components!.schemas!.Base = {
+                allOf: [
+                    { type: 'object', properties: { id: { type: 'string' } } }
+                ]
+            };
+
+            const modifier = new SchemaModifier(doc);
+            const visit = new Set();
+
+            const schema = { $ref: '#/components/schemas/Base' };
+            modifier.reconstructAdditionalPropertySchema(schema, visit);
+
+            const baseSchema = doc.components!.schemas!.Base as any;
+            expect(baseSchema.allOf.length).toBeGreaterThan(1);
+        });
+
+
+        it('should handle primitive types with title', () => {
+            const doc = createDocument();
+            const modifier = new SchemaModifier(doc);
+            const visit = new Set();
+
+            const schema: any = { type: 'string', title: 'customValue' };
+            const result = modifier.reconstructAdditionalPropertySchema(schema, visit);
+
+            expect(result).toHaveProperty('properties');
+            expect((result as any).properties).toHaveProperty('customValue');
+        });
+    });
 });
