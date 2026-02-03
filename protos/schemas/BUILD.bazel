@@ -10,7 +10,6 @@ proto_library(
     srcs = ["common.proto"],
     deps = [
         "@com_google_protobuf//:descriptor_proto",
-        "@com_google_protobuf//:struct_proto",
     ],
 )
 
