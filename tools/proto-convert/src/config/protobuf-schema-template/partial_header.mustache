@@ -4,15 +4,7 @@
 syntax = "proto3";
 package org.opensearch.protobufs;
 
-import "google/protobuf/descriptor.proto";
-
 option go_package = "github.com/opensearch-project/opensearch-protobufs/go/opensearchpb";
 option java_multiple_files = true;
 option java_outer_classname = "CommonProto";
 option java_package = "org.opensearch.protobufs";
-
-// Custom field option for tooling
-extend google.protobuf.FieldOptions {
-  // Mark a field to be skipped by tooling. These fields are manually maintained and won't be marked as deprecated.
-  optional bool tooling_skip = 50001;
-}
