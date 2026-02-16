@@ -9,6 +9,9 @@ on:
         type: string
   repository_dispatch:
     types: [spec-updated]
+  pull_request:
+    paths:
+      - 'tools/proto-convert/**'
 
 jobs:
   auto-proto-convert:

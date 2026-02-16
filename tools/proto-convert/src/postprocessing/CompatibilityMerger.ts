@@ -13,7 +13,6 @@ import {
 import { CompatibilityReporter, formatField } from './CompatibilityReporter';
 
 const DEPRECATED: Annotation = { name: 'deprecated', value: 'true' };
-const TOOLING_SKIP: Annotation = { name: '(tooling_skip)', value: 'true' };
 
 /**
  * Extract base name
@@ -40,16 +39,6 @@ type HasAnnotations = { annotations?: Annotation[] };
 function isDeprecated(item: HasAnnotations): boolean {
     return item.annotations?.some(a =>
         a.name === DEPRECATED.name && a.value === DEPRECATED.value
-    ) ?? false;
-}
-
-/**
- * Check if an item has tooling_skip option set to true.
- * Fields with this option are manually maintained and won't be deprecated.
- */
-function hasToolingSkip(item: HasAnnotations): boolean {
-    return item.annotations?.some(a =>
-        a.name === TOOLING_SKIP.name && a.value === TOOLING_SKIP.value
     ) ?? false;
 }
 
@@ -125,9 +114,6 @@ function mergeField(
             }
         }
     } else {
-        if (hasToolingSkip(sourceField)) {
-            return sourceField;
-        }
         reporter?.addFieldChange({
             messageName: msgName,
             changeType: 'DEPRECATED',
@@ -258,7 +244,7 @@ export function mergeMessage(
                     continue;
                 }
 
-                // Try 3: No match - deprecate or skip
+                // Try 3: No match - deprecate
                 mergedOneofFields.push(mergeField(sourceField, upcomingOneofByName, sourceMsg.name, reporter));
             }
 
