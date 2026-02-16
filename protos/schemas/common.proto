@@ -887,6 +887,9 @@ message BulkRequestBody {
 
   // [optional]
   optional bytes object = 3;
+
+  // Map of fully-qualified field path -> typed value.
+  map<string, BinaryFieldValue> field_values = 4 [(tooling_skip) = true];
 }
 
 message OperationContainer {
@@ -2822,6 +2825,45 @@ message HitMatchedQueries {
 
   }
 }
+
+message BinaryFieldValue {
+  oneof binary_field_value {
+    BytesValue bytes_value = 1;
+
+    FloatArrayValue float_array_value = 2;
+
+  }
+}
+
+message BytesValue {
+
+  bytes bytes = 1;
+}
+
+message FloatArrayValue {
+  oneof float_array_value {
+    // fast path (4 * dimension bytes, little-endian)
+    FloatBinaryLE binary_le = 1;
+
+    // simple path, packed array
+    FloatList values = 2;
+
+  }
+}
+
+message FloatBinaryLE {
+
+  bytes bytes_le = 1;
+
+  // Vector dimension
+  int32 dimension = 2;
+}
+
+message FloatList {
+
+  repeated float values = 1;
+}
+
 
 message BoostingQuery {
 
