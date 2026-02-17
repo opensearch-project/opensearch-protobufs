@@ -2005,17 +2005,18 @@ message KnnQuery {
   // Query vector. Must have the same number of dimensions as the vector field you are searching against.
   repeated float vector = 2;
 
-  // [optional]
-  // The final number of nearest neighbors to return as top hits.
-  optional int32 k = 3;
+  // [required]
+  oneof k_or_min_score_or_max_distance {
+    // [optional] The number of nearest neighbors to return. Valid values are in the [1, 10,000] range.
+    // Required if either max_distance or min_score is not specified.
+    int32 k = 3;
 
-  // [optional]
-  // The minimum similarity score for a neighbor to be considered a hit.
-  optional float min_score = 4;
+    // [optional] The minimum score threshold for search results.
+    float min_score = 4;
 
-  // [optional]
-  // The maximum physical distance in vector space for a neighbor to be considered a hit.
-  optional float max_distance = 5;
+    // [optional] The maximum distance threshold for search results.
+    float max_distance = 5;
+  }
 
   // [optional]
   // Filters for the kNN search query. The kNN search will return the top k documents that also match this filter. If filter is not provided, all documents are allowed to match.
