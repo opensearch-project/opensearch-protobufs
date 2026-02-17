@@ -1294,10 +1294,13 @@ message ShardStatistics {
   int32 total = 3;
 
   // [optional] An array of any shard-specific failures that occurred during the search operation.
-  repeated ShardFailure failures = 4;
+  repeated ShardFailure failures = 4 [deprecated = true];
 
   // [optional] Number of shards that skipped the request because a lightweight check helped realize that no documents could possibly match on this shard. This typically happens when a search request includes a range filter and the shard only has values that fall outside of that range.
   optional int32 skipped = 5;
+
+  // [optional] An array of any shard-specific failures that occurred during the search operation.
+  repeated ShardSearchFailure failures_2 = 6;
 }
 
 message ShardInfo {
@@ -2889,6 +2892,20 @@ message SimpleQueryStringQuery {
 
   // Suffix appended to quoted text in the query string.
   optional string quote_field_suffix = 15;
+}
+
+message ShardSearchFailure {
+
+  // The shard id where the failure occurred.
+  int32 shard = 1;
+
+  // The index name where the failure occurred.
+  optional string index = 2;
+
+  // The node id where the failure occurred.
+  optional string node = 3;
+
+  ErrorCause reason = 4;
 }
 
 enum FieldValueFactorModifier {
