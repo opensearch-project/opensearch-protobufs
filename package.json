@@ -50,7 +50,7 @@
     "lodash.isequal": "^4.5.0",
     "mustache": "^4.2.0",
     "protobufjs": "^6.11.4",
-    "qs": "^6.14.1",
+    "qs": "^6.14.2",
     "semver": "^7.6.0",
     "smile-js": "^0.7.0",
     "titlecase": "^1.1.3",
