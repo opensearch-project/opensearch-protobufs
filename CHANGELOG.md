@@ -9,6 +9,7 @@ Inspired from [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 - Add BoostingQuery and SimpleQueryString protos ([#376](https://github.com/opensearch-project/opensearch-protobufs/pull/376))
 - Add protobuf generation documentation and remove unused BUILD dependency ([#379](https://github.com/opensearch-project/opensearch-protobufs/pull/379))
 - Test Coverage Improvements ([#380](https://github.com/opensearch-project/opensearch-protobufs/pull/380))
+- Add TermsAggregation, MinAggregation, MaxAggregation and FilterAggregation support in AggregationContainer and add TermsAggregate, MinAggregate, and MaxAggregate variants (DoubleTermsAggregate, LongTermsAggregate, StringTermsAggregate, UnmappedTermsAggregate) in Aggregate ([#391](https://github.com/opensearch-project/opensearch-protobufs/pull/391))
 
 ### Changed
 

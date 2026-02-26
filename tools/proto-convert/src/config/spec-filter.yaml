@@ -6,8 +6,6 @@ x-operation-groups:
 # Schemas to exclude from proto generation
 # These schemas and their nested dependencies will not be included
 excluded_schemas:
-  - AggregationContainer
-  - Aggregate
   - Suggester
   - Suggest
   - DisMaxQuery
@@ -39,3 +37,123 @@ excluded_schemas:
   - TypeQuery
   - WrapperQuery
   - XyShapeQuery
+
+  # AggregationContainer - exclude all except TermsAggregation
+  - AdjacencyMatrixAggregation
+  - AutoDateHistogramAggregation
+  - AverageAggregation
+  - AverageBucketAggregation
+  - BoxplotAggregation
+  - BucketScriptAggregation
+  - BucketSelectorAggregation
+  - BucketSortAggregation
+  - CardinalityAggregation
+  - ChildrenAggregation
+  - CompositeAggregation
+  - CumulativeCardinalityAggregation
+  - CumulativeSumAggregation
+  - DateHistogramAggregation
+  - DateRangeAggregation
+  - DerivativeAggregation
+  - DiversifiedSamplerAggregation
+  - ExtendedStatsAggregation
+  - ExtendedStatsBucketAggregation
+  - FiltersAggregation
+  - GeoBoundsAggregation
+  - GeoCentroidAggregation
+  - GeoDistanceAggregation
+  - GeoHashGridAggregation
+  - GeoTileGridAggregation
+  - GlobalAggregation
+  - HistogramAggregation
+  - IpRangeAggregation
+  - MatrixStatsAggregation
+  - MaxBucketAggregation
+  - MedianAbsoluteDeviationAggregation
+  - MinBucketAggregation
+  - MissingAggregation
+  - MovingAverageAggregation
+  - MovingFunctionAggregation
+  - MovingPercentilesAggregation
+  - MultiTermsAggregation
+  - NestedAggregation
+  - NormalizeAggregation
+  - ParentAggregation
+  - PercentileRanksAggregation
+  - PercentilesAggregation
+  - PercentilesBucketAggregation
+  - RangeAggregation
+  - RareTermsAggregation
+  - RateAggregation
+  - ReverseNestedAggregation
+  - SamplerAggregation
+  - ScriptedMetricAggregation
+  - SerialDifferencingAggregation
+  - SignificantTermsAggregation
+  - SignificantTextAggregation
+  - StatsAggregation
+  - StatsBucketAggregation
+  - SumAggregation
+  - SumBucketAggregation
+  - TopHitsAggregation
+  - TTestAggregation
+  - ValueCountAggregation
+  - VariableWidthHistogramAggregation
+  - WeightedAverageAggregation
+
+  # Aggregate - exclude all except TermsAggregate variants (DoubleTerms, LongTerms, StringTerms, UnmappedTerms)
+  - AdjacencyMatrixAggregate
+  - AutoDateHistogramAggregate
+  - AvgAggregate
+  - BoxPlotAggregate
+  - BucketMetricValueAggregate
+  - CardinalityAggregate
+  - ChildrenAggregate
+  - CompositeAggregate
+  - CumulativeCardinalityAggregate
+  - DateHistogramAggregate
+  - DateRangeAggregate
+  - DerivativeAggregate
+  - ExtendedStatsAggregate
+  - ExtendedStatsBucketAggregate
+  - FilterAggregate
+  - FiltersAggregate
+  - GeoBoundsAggregate
+  - GeoCentroidAggregate
+  - GeoDistanceAggregate
+  - GeoHashGridAggregate
+  - GeoTileGridAggregate
+  - GlobalAggregate
+  - HdrPercentileRanksAggregate
+  - HdrPercentilesAggregate
+  - HistogramAggregate
+  - IpRangeAggregate
+  - LongRareTermsAggregate
+  - MatrixStatsAggregate
+  - MedianAbsoluteDeviationAggregate
+  - MissingAggregate
+  - MultiTermsAggregate
+  - NestedAggregate
+  - ParentAggregate
+  - PercentilesBucketAggregate
+  - RangeAggregate
+  - RateAggregate
+  - ReverseNestedAggregate
+  - SamplerAggregate
+  - ScriptedMetricAggregate
+  - SignificantLongTermsAggregate
+  - SignificantStringTermsAggregate
+  - SimpleValueAggregate
+  - StatsAggregate
+  - StatsBucketAggregate
+  - StringRareTermsAggregate
+  - SumAggregate
+  - TDigestPercentileRanksAggregate
+  - TDigestPercentilesAggregate
+  - TopHitsAggregate
+  - TTestAggregate
+  - UnmappedRareTermsAggregate
+  - UnmappedSignificantTermsAggregate
+  - ValueCountAggregate
+  - VariableWidthHistogramAggregate
+  - WeightedAvgAggregate
