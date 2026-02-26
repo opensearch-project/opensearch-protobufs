@@ -18,6 +18,7 @@ excluded_schemas:
   - CombinedFieldsQuery
   - DistanceFeatureQuery
   - GeoPolygonQuery
+  - GeoShapeQuery
   - HasChildQuery
   - HasParentQuery
   - MoreLikeThisQuery
