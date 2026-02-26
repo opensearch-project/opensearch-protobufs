@@ -35,11 +35,24 @@ jobs:
 
       - name: Increment Version
         id: version
-        uses: nguyenvukhang/semver-increment@v1
-        with:
-          increment: minor
-          version-file: version.properties
-          version-regex: '^version=(.*)'
+        run: |
+          # Read current version
+          CURRENT_VERSION=$(grep '^version=' version.properties | cut -d'=' -f2)
+          echo "Current version: $CURRENT_VERSION"
+
+          # Split version into components
+          IFS='.' read -r major minor patch <<< "$CURRENT_VERSION"
+
+          # Increment minor version
+          minor=$((minor + 1))
+          NEW_VERSION="$major.$minor.0"
+
+          # Update version.properties
+          sed -i "s/^version=.*/version=$NEW_VERSION/" version.properties
+
+          # Output for other steps
+          echo "version=$NEW_VERSION" >> $GITHUB_OUTPUT
+          echo "New version: $NEW_VERSION"
 
       - name: Create release notes from current CHANGELOG
         run: |
