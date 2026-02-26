@@ -144,8 +144,21 @@ jobs:
             echo "changed=true" >> $GITHUB_OUTPUT
           fi
 
+      - name: Generate diff file for protos/schemas
+        if: github.event_name == 'pull_request' && steps.check_changes.outputs.changed == 'true'
+        run: |
+          git add -N .
+          git diff protos/schemas/ > protos-schemas.diff
+
+      - name: Upload protos/schemas diff
+        if: github.event_name == 'pull_request' && steps.check_changes.outputs.changed == 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: protos-schemas-diff
+          path: protos-schemas.diff
+
       - name: Create Pull Request if changes exist
-        if: steps.check_changes.outputs.changed == 'true'
+        if: github.event_name != 'pull_request' && steps.check_changes.outputs.changed == 'true' && github.repository == 'opensearch-project/opensearch-protobufs'
         uses: peter-evans/create-pull-request@v7
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
