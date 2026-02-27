@@ -5,6 +5,7 @@
 import {
     getSchemaNames,
     compressMultipleUnderscores,
+    toSnakeCase,
     resolveRef,
     resolveObj,
     isPrimitiveType,
@@ -59,6 +60,39 @@ describe('compressMultipleUnderscores', () => {
 
     it('should handle string without underscores', () => {
         expect(compressMultipleUnderscores('helloworld')).toBe('helloworld');
+    });
+});
+
+describe('toSnakeCase', () => {
+    it('should convert PascalCase to snake_case', () => {
+        expect(toSnakeCase('SortOrder')).toBe('sort_order');
+        expect(toSnakeCase('MyComplexType')).toBe('my_complex_type');
+        expect(toSnakeCase('APIResponse')).toBe('api_response');
+    });
+
+    it('should convert camelCase to snake_case', () => {
+        expect(toSnakeCase('sortOrder')).toBe('sort_order');
+        expect(toSnakeCase('myComplexType')).toBe('my_complex_type');
+    });
+
+    it('should handle already snake_case strings', () => {
+        expect(toSnakeCase('already_snake_case')).toBe('already_snake_case');
+    });
+
+    it('should handle single word strings', () => {
+        expect(toSnakeCase('word')).toBe('word');
+        expect(toSnakeCase('Word')).toBe('word');
+    });
+
+    it('should handle empty string', () => {
+        expect(toSnakeCase('')).toBe('');
+    });
+
+    it('should handle consecutive capitals', () => {
+        expect(toSnakeCase('HTTPSConnection')).toBe('https_connection');
+        expect(toSnakeCase('APIResponse')).toBe('api_response');
+        expect(toSnakeCase('URLPath')).toBe('url_path');
+        expect(toSnakeCase('GeoIP')).toBe('geo_ip');
     });
 });
 

@@ -55,6 +55,19 @@ export function compressMultipleUnderscores(str: string): string {
     return str.replace(/_+/g, '_');
 }
 
+/**
+ * Converts PascalCase or camelCase string to snake_case
+ * Consecutive capitals are treated as a single word.
+ * Example: "SortOrder" -> "sort_order", "APIResponse" -> "api_response", "HTTPSConnection" -> "https_connection"
+ */
+export function toSnakeCase(str: string): string {
+    return str
+        .replace(/([A-Z]+)([A-Z][a-z])/g, '$1_$2') // e.g. "HTTPSCo" -> "HTTPS_Co"
+        .replace(/([a-z\d])([A-Z])/g, '$1_$2')      // e.g. "sortOrder" -> "sort_Order"
+        .toLowerCase()
+        .replace(/^_/, '');
+}
+
 export function resolveObj(
     obj: OpenAPIV3.SchemaObject | OpenAPIV3.ReferenceObject | undefined,
     root: OpenAPIV3.Document

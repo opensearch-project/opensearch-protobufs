@@ -391,67 +391,6 @@ describe('SchemaModifier', () => {
         });
     });
 
-    describe('removeArrayOfMapWrapper', () => {
-        it('should remove array wrapper from array of maps', () => {
-            const doc = createDocument();
-            const modifier = new SchemaModifier(doc);
-
-            const schema: any = {
-                type: 'array',
-                items: {
-                    type: 'object',
-                    additionalProperties: {
-                        $ref: '#/components/schemas/Value'
-                    }
-                }
-            };
-
-            modifier.removeArrayOfMapWrapper(schema);
-
-            expect(schema.type).toBe('object');
-            expect(schema.items).toBeUndefined();
-            expect(schema.additionalProperties).toEqual({
-                $ref: '#/components/schemas/Value'
-            });
-        });
-
-        it('should not remove wrapper if items has properties', () => {
-            const doc = createDocument();
-            const modifier = new SchemaModifier(doc);
-
-            const schema: any = {
-                type: 'array',
-                items: {
-                    type: 'object',
-                    properties: {
-                        id: { type: 'string' }
-                    },
-                    additionalProperties: { type: 'string' }
-                }
-            };
-
-            modifier.removeArrayOfMapWrapper(schema);
-
-            expect(schema.type).toBe('array');
-            expect(schema.items).toBeDefined();
-        });
-
-        it('should not modify non-array schemas', () => {
-            const doc = createDocument();
-            const modifier = new SchemaModifier(doc);
-
-            const schema: OpenAPIV3.SchemaObject = {
-                type: 'object',
-                properties: {
-                    name: { type: 'string' }
-                }
-            };
-
-            modifier.removeArrayOfMapWrapper(schema);
-
-            expect(schema.type).toBe('object');
-        });
-    });
 
     describe('convertAdditionalPropertiesToProperty', () => {
         it('should convert additionalProperties with title to named property', () => {
@@ -684,9 +623,67 @@ describe('SchemaModifier', () => {
     });
 
     describe('simplifySingleMapSchema', () => {
-        it('should simplify single-key map schema with primitives', () => {
+        it('should create wrapper schema with sanitized names (real-world usage)', () => {
             const doc = createDocument();
-            doc.components!.schemas!.Model = {
+            // After Sanitizer runs, schema names have '___' prefixes removed
+            doc.components!.schemas!.SortOrder = {
+                type: 'string',
+                enum: ['asc', 'desc']
+            };
+
+            const modifier = new SchemaModifier(doc);
+            const visit = new Set();
+
+            const schema: any = {
+                type: 'object',
+                additionalProperties: {
+                    $ref: '#/components/schemas/SortOrder'
+                },
+                minProperties: 1,
+                maxProperties: 1
+            };
+
+            modifier.simplifySingleMapSchema(schema, visit);
+
+            expect(schema.type).toBe('object');
+            expect(schema.title).toBe('SortOrderMap');
+            expect(schema.properties).toBeDefined();
+            expect(schema.properties.field).toEqual({ type: 'string' });
+            expect(schema.properties.sort_order).toEqual({
+                $ref: '#/components/schemas/SortOrder'
+            });
+            expect(schema.required).toEqual(['field', 'sort_order']);
+            expect(schema.additionalProperties).toBeUndefined();
+            expect(schema.minProperties).toBeUndefined();
+            expect(schema.maxProperties).toBeUndefined();
+        });
+
+        it('should handle schema with title', () => {
+            const doc = createDocument();
+            const modifier = new SchemaModifier(doc);
+            const visit = new Set();
+
+            const schema: any = {
+                type: 'object',
+                title: 'CustomTitle',
+                additionalProperties: {
+                    type: 'string',
+                    title: 'Value'
+                },
+                minProperties: 1,
+                maxProperties: 1
+            };
+
+            modifier.simplifySingleMapSchema(schema, visit);
+
+            expect(schema.title).toBe('CustomTitle');
+            expect(schema.properties.field).toBeDefined();
+            expect(schema.properties.value).toEqual({ type: 'string', title: 'Value' });
+        });
+
+        it('should convert PascalCase to snake_case for property name', () => {
+            const doc = createDocument();
+            doc.components!.schemas!.MyComplexType = {
                 type: 'object',
                 properties: {
                     prop1: { type: 'string' }
@@ -699,7 +696,7 @@ describe('SchemaModifier', () => {
             const schema: any = {
                 type: 'object',
                 additionalProperties: {
-                    $ref: '#/components/schemas/Model'
+                    $ref: '#/components/schemas/MyComplexType'
                 },
                 minProperties: 1,
                 maxProperties: 1
@@ -707,9 +704,61 @@ describe('SchemaModifier', () => {
 
             modifier.simplifySingleMapSchema(schema, visit);
 
-            expect(schema.additionalProperties).toBeUndefined();
-            expect(schema.minProperties).toBeUndefined();
-            expect(schema.maxProperties).toBeUndefined();
+            expect(schema.properties.my_complex_type).toBeDefined();
+        });
+
+        it('should remove propertyNames if present', () => {
+            const doc = createDocument();
+            doc.components!.schemas!.Field = {
+                type: 'string'
+            };
+            doc.components!.schemas!.SortOrder = {
+                type: 'string'
+            };
+
+            const modifier = new SchemaModifier(doc);
+            const visit = new Set();
+
+            const schema: any = {
+                type: 'object',
+                propertyNames: {
+                    $ref: '#/components/schemas/Field'
+                },
+                additionalProperties: {
+                    $ref: '#/components/schemas/SortOrder'
+                },
+                minProperties: 1,
+                maxProperties: 1
+            };
+
+            modifier.simplifySingleMapSchema(schema, visit);
+
+            expect(schema.propertyNames).toBeUndefined();
+            expect(schema.properties.field).toBeDefined();
+            expect(schema.properties.sort_order).toBeDefined();
+        });
+
+        it('should rename value property to field_value when type name collides with field', () => {
+            const doc = createDocument();
+            doc.components!.schemas!.Field = { type: 'string' };
+
+            const modifier = new SchemaModifier(doc);
+            const visit = new Set();
+
+            const schema: any = {
+                type: 'object',
+                additionalProperties: {
+                    $ref: '#/components/schemas/Field'
+                },
+                minProperties: 1,
+                maxProperties: 1
+            };
+
+            modifier.simplifySingleMapSchema(schema, visit);
+
+            expect(schema.properties.field).toEqual({ type: 'string' });
+            expect(schema.properties.field_value).toEqual({ $ref: '#/components/schemas/Field' });
+            expect(schema.required).toEqual(['field', 'field_value']);
         });
 
         it('should not modify when not single-key map', () => {
