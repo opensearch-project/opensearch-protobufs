@@ -1,7 +1,7 @@
 import type {OpenAPIV3} from "openapi-types";
 import {traverse} from './utils/OpenApiTraverser';
 import isEqual from 'lodash.isequal';
-import {compressMultipleUnderscores, isPrimitiveType, resolveObj, isReferenceObject, isEmptyObjectSchema, is_simple_ref} from './utils/helper';
+import {compressMultipleUnderscores, isPrimitiveType, resolveObj, isReferenceObject, isEmptyObjectSchema, is_simple_ref, toSnakeCase} from './utils/helper';
 import logger from "./utils/logger";
 
 
@@ -21,7 +21,6 @@ export class SchemaModifier {
                 this.convertNullTypeToNullValue(schema)
                 this.deduplicateOneOfWithArrayType(schema)
                 this.collapseSingleItemComposite(schema);
-                this.removeArrayOfMapWrapper(schema)
             },
             onSchema: (schema, schemaName) => {
                 if (!schema || isReferenceObject(schema)) return;
@@ -33,7 +32,6 @@ export class SchemaModifier {
                 this.deduplicateOneOfWithArrayType(schema)
                 this.collapseSingleItemComposite(schema);
                 this.collapseOneOfObjectPropContainsTitleSchema(schema)
-                this.removeArrayOfMapWrapper(schema)
                 this.convertOneOfToMinMaxProperties(schema)
             },
         });
@@ -280,50 +278,70 @@ export class SchemaModifier {
     }
 
     /**
-     * Transforms SchemaObject that single-key maps (`minProperties = 1` and `maxProperties = 1`) into standard schema by reconstructing
-     * the additional property definitions.
+     * Extracts type name from $ref or title
+     * Note: Schema names have already been sanitized by Sanitizer, so '___' prefixes are already removed
+     **/
+    private getTypeName(schema: OpenAPIV3.SchemaObject | OpenAPIV3.ReferenceObject): string | null {
+        if ('$ref' in schema) {
+            const parts = schema.$ref.split('/');
+            return parts[parts.length - 1];
+        }
+        if ('title' in schema && schema.title) {
+            return schema.title;
+        }
+        return null;
+    }
+
+    /**
+     * Transforms SchemaObject that single-key maps (`minProperties = 1` and `maxProperties = 1`) into a new wrapper schema.
+     *
+     *
      * Example:
      *  Input:
      * {
      *   type: "object",
      *   additionalProperties: {
-     *     - ref: "#/components/schemas/Model"
+     *     $ref: "#/components/schemas/SortOrder"
      *   },
      *   minProperties: 1,
      *   maxProperties: 1,
-     * };
-     * Model:
-     *  properties: {
-     *      properties1: string
-     *      properties2: string
-     *  }
+     * }
      *
-     *
-     *Output:
-     *  {
-     *    ref: "#/components/schemas/Example
-     *  }
-     *
-     *  Model:
-     *  properties: {
-     *      field: string
-     *      properties1: string
-     *      properties2: string
-     *  }
+     * Output:
+     * {
+     *   type: "object",
+     *   title: "SortOrderMap",
+     *   properties: {
+     *     field: { type: "string" },
+     *     sort_order: { $ref: "#/components/schemas/SortOrder" }
+     *   },
+     *   required: ["field", "sort_order"]
+     * }
      *
      **/
     simplifySingleMapSchema(schema: OpenAPIV3.SchemaObject, visit: Set<any>): void {
         if (schema.type === 'object' && typeof schema.additionalProperties === 'object' &&
             !Array.isArray(schema.additionalProperties) && schema.minProperties === 1 && schema.maxProperties === 1){
 
-            const reconstructAdditionalPropertySchema = this.reconstructAdditionalPropertySchema(schema.additionalProperties, visit);
+            const valueSchema = schema.additionalProperties;
+            const typeName = this.getTypeName(valueSchema) || 'Value'; // Use 'Value' as fallback
 
-            Object.assign(schema, reconstructAdditionalPropertySchema)
+            // Create new wrapper schema
+            // Avoid collision with the reserved 'field' key property name
+            const rawPropertyName = toSnakeCase(typeName);
+            const valuePropertyName = rawPropertyName === 'field' ? `${rawPropertyName}_value` : rawPropertyName;
+            const wrapperTitle = schema.title || `${typeName}Map`;
+
+            schema.title = wrapperTitle;
+            schema.properties = {
+                field: { type: 'string' as const },
+                [valuePropertyName]: valueSchema
+            };
+            schema.required = ['field', valuePropertyName];
 
             delete schema.additionalProperties;
             delete schema.minProperties;
             delete schema.maxProperties;
-            delete schema.type
             if ('propertyNames' in schema) {
                 delete schema.propertyNames;
             }
@@ -447,44 +465,6 @@ export class SchemaModifier {
         }
 
         logger.info(`Converted additionalProperties to named property '${propertyName}' with type: object`);
-    }
-
-    /**
-     * Removes the array wrapper if the schema is an array of maps (additionalProperties).
-     * Converts array of objects with only additionalProperties into just the additionalProperties schema.
-     *
-     * Example:
-     *   Input:
-     *   {
-     *     type: "array",
-     *     items: {
-     *       type: "object",
-     *       additionalProperties: {
-     *         $ref: "#/components/schemas/Value"
-     *       }
-     *     }
-     *   }
-     *
-     *   Output:
-     *   {
-     *     type: "object",
-     *     additionalProperties: {
-     *       $ref: "#/components/schemas/Value"
-     *     }
-     *   }
-     **/
-    removeArrayOfMapWrapper(schema: OpenAPIV3.SchemaObject): void {
-        if (schema.type === 'array' && schema.items && typeof schema.items === 'object' && !('$ref' in schema.items)) {
-            const items = schema.items as OpenAPIV3.SchemaObject;
-
-            if (items.type === 'object' && items.additionalProperties && !items.properties) {
-                (schema as any).type = 'object';
-                schema.additionalProperties = items.additionalProperties;
-                delete (schema as any).items;
-
-                logger.info(`Removed array wrapper from array of maps schema`);
-            }
-        }
     }
 
     /**
