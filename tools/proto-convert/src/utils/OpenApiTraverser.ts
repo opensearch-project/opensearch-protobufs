@@ -5,7 +5,7 @@ export type SchemaVisitorSet = {
     onResponseSchema?: (schema: OpenAPIV3.SchemaObject, name: string) => void;
     onRequestSchema?: (schema: OpenAPIV3.SchemaObject, name: string) => void;
     onParameter?: (param: OpenAPIV3.ParameterObject, name: string) => void;
-    onSchemaProperty?: (schema: OpenAPIV3.SchemaObject, propertyName: string) => void;
+    onSchemaProperty?: (schema: OpenAPIV3.SchemaObject, propertyName: string, parentSchemaName?: string) => void;
 };
 
 /**
@@ -24,7 +24,7 @@ export function traverse(
             const schema = components.schemas[schemaName];
             visitors.onSchema?.(schema, schemaName);
             if (!('$ref' in schema)) {
-                traverseSchema(schema, visitors);
+                traverseSchema(schema, visitors, schemaName);
             }
         }
     }
@@ -79,7 +79,8 @@ export function traverse(
  */
 export function traverseSchema(
     schema: OpenAPIV3.SchemaObject,
-    visitors: SchemaVisitorSet
+    visitors: SchemaVisitorSet,
+    parentSchemaName?: string
 ): void {
     if (!schema) return;
 
@@ -88,21 +89,23 @@ export function traverseSchema(
         for (const propName in schema.properties) {
             const propSchema = schema.properties[propName];
             if (!('$ref' in propSchema)) {
-                visitors.onSchemaProperty?.(propSchema, propName);
-                traverseSchema(propSchema, visitors); // recurse into nested properties
+                visitors.onSchemaProperty?.(propSchema, propName, parentSchemaName);
+                traverseSchema(propSchema, visitors, parentSchemaName); // recurse into nested properties
             }
         }
     }
 
     // Visit items (for array types)
     if (schema.type === 'array' && schema.items && typeof schema.items === 'object' && !('$ref' in schema.items)) {
-        traverseSchema(schema.items as OpenAPIV3.SchemaObject, visitors);
+        const itemsSchema = schema.items as OpenAPIV3.SchemaObject;
+        visitors.onSchemaProperty?.(itemsSchema, 'items', parentSchemaName);
+        traverseSchema(itemsSchema, visitors, parentSchemaName);
     }
 
     // Visit additionalProperties
     if (schema.additionalProperties && typeof schema.additionalProperties === 'object' && !('$ref' in schema.additionalProperties)
     ) {
-        traverseSchema(schema.additionalProperties as OpenAPIV3.SchemaObject, visitors);
+        traverseSchema(schema.additionalProperties as OpenAPIV3.SchemaObject, visitors, parentSchemaName);
     }
 
     // Visit composed schemas
@@ -113,7 +116,7 @@ export function traverseSchema(
             for (const sub of subschemas) {
                 if (!('$ref' in sub)) {
                     visitors.onSchema?.(sub, `${key}`);
-                    traverseSchema(sub, visitors);
+                    traverseSchema(sub, visitors, parentSchemaName);
                 }
             }
         }

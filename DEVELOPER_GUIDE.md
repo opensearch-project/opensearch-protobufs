@@ -234,8 +234,8 @@ npm config set registry https://registry.npmjs.org/
 3. **Generate Protobuf**
 
    ```bash
-  export OPENAPI_GENERATOR_VERSION=7.19.0
-  npx @openapitools/openapi-generator-cli generate \
+   export OPENAPI_GENERATOR_VERSION=7.19.0
+   npx @openapitools/openapi-generator-cli generate \
     -c tools/proto-convert/src/config/protobuf-generator-config.yaml
    ```
 

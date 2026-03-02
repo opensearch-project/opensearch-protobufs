@@ -29,7 +29,7 @@
     "ajv": "^8.18.0",
     "ajv-errors": "^3.0.0",
     "ajv-formats": "^3.0.1",
-    "aws4-axios": "^3.3.7",
+    "aws4-axios": "^3.4.0",
     "axios": "^1.13.5",
     "axios-mock-adapter": "^2.1.0",
     "cbor": "^9.0.2",
@@ -81,6 +81,7 @@
     "eslint": "^9.39.1",
     "eslint-plugin-jest": "^29.2.1",
     "@apidevtools/swagger-parser": "^12.1.0",
-    "json-schema-to-typescript": "^15.0.4"
+    "json-schema-to-typescript": "^15.0.4",
+    "fast-xml-parser": ">=5.3.8"
   }
 }

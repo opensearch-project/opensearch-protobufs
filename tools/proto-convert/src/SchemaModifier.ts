@@ -1,12 +1,13 @@
 import type {OpenAPIV3} from "openapi-types";
 import {traverse} from './utils/OpenApiTraverser';
 import isEqual from 'lodash.isequal';
-import {compressMultipleUnderscores, isPrimitiveType, resolveObj, isReferenceObject, isEmptyObjectSchema, is_simple_ref} from './utils/helper';
+import {compressMultipleUnderscores, isPrimitiveType, resolveObj, isReferenceObject, isEmptyObjectSchema, is_simple_ref, toSnakeCase} from './utils/helper';
 import logger from "./utils/logger";
 
 
 const DEFAULT_MAP_KEY = 'field' // default key for simplified additionalProperties
 const DEFAULT_MAP_VALUE = 'value' // default value for simplified additionalProperties
+const QUERY_CONTAINER_SCHEMA_NAME = 'QueryContainer' // schema name that requires special inline handling.
 
 export class SchemaModifier {
     root: OpenAPIV3.Document;
@@ -21,7 +22,6 @@ export class SchemaModifier {
                 this.convertNullTypeToNullValue(schema)
                 this.deduplicateOneOfWithArrayType(schema)
                 this.collapseSingleItemComposite(schema);
-                this.removeArrayOfMapWrapper(schema)
             },
             onSchema: (schema, schemaName) => {
                 if (!schema || isReferenceObject(schema)) return;
@@ -33,14 +33,13 @@ export class SchemaModifier {
                 this.deduplicateOneOfWithArrayType(schema)
                 this.collapseSingleItemComposite(schema);
                 this.collapseOneOfObjectPropContainsTitleSchema(schema)
-                this.removeArrayOfMapWrapper(schema)
                 this.convertOneOfToMinMaxProperties(schema)
             },
         });
         const visit = new Set();
         traverse(this.root, {
-            onSchemaProperty: (schema) => {
-                this.simplifySingleMapSchema(schema, visit);
+            onSchemaProperty: (schema, propertyName, parentSchemaName) => {
+                this.simplifySingleMapSchema(schema, visit, parentSchemaName);
                 this.handleAdditionalPropertiesUndefined(schema)
 
             },
@@ -280,53 +279,120 @@ export class SchemaModifier {
     }
 
     /**
-     * Transforms SchemaObject that single-key maps (`minProperties = 1` and `maxProperties = 1`) into standard schema by reconstructing
-     * the additional property definitions.
-     * Example:
-     *  Input:
+     * Extracts type name from $ref or title
+     **/
+    private getTypeName(schema: OpenAPIV3.SchemaObject | OpenAPIV3.ReferenceObject): string | null {
+        if ('$ref' in schema) {
+            const parts = schema.$ref.split('/');
+            return parts[parts.length - 1];
+        }
+        if ('title' in schema && schema.title) {
+            return schema.title;
+        }
+        return null;
+    }
+
+    /**
+     * Transforms SchemaObject that single-key maps (`minProperties = 1` and `maxProperties = 1`) into a $ref to a new map schema.
+     *
+     *  Input (items of DecayFunction):
      * {
      *   type: "object",
+     *   propertyNames: { title: "field", type: "string" },
      *   additionalProperties: {
-     *     - ref: "#/components/schemas/Model"
+     *     title: "placement",
+     *     $ref: "#/components/schemas/DecayPlacement"
      *   },
      *   minProperties: 1,
      *   maxProperties: 1,
-     * };
-     * Model:
-     *  properties: {
-     *      properties1: string
-     *      properties2: string
-     *  }
+     * }
      *
-     *
-     *Output:
-     *  {
-     *    ref: "#/components/schemas/Example
-     *  }
-     *
-     *  Model:
-     *  properties: {
-     *      field: string
-     *      properties1: string
-     *      properties2: string
-     *  }
+     * Output:
+     * - Replaces with: { $ref: "#/components/schemas/DecayPlacementSingleMap" }
+     * - Creates new schema DecayPlacementSingleMap:
+     * {
+     *   type: "object",
+     *   properties: {
+     *     field: { type: "string" },
+     *     decay_placement: {
+     *       title: "placement",
+     *       $ref: "#/components/schemas/DecayPlacement"
+     *     }
+     *   },
+     *   required: ["field", "decay_placement"]
+     * }
      *
      **/
-    simplifySingleMapSchema(schema: OpenAPIV3.SchemaObject, visit: Set<any>): void {
+    simplifySingleMapSchema(schema: OpenAPIV3.SchemaObject, visit: Set<any>, parentSchemaName?: string): void {
         if (schema.type === 'object' && typeof schema.additionalProperties === 'object' &&
             !Array.isArray(schema.additionalProperties) && schema.minProperties === 1 && schema.maxProperties === 1){
 
-            const reconstructAdditionalPropertySchema = this.reconstructAdditionalPropertySchema(schema.additionalProperties, visit);
+            // Check if this is a QueryContainer property
+            // If so, use the old inline behavior to avoid breaking QueryContainer structure
+            // TODO: Remove this special case in next major release and use SingleMap wrapper for all schemas
+            if (parentSchemaName === QUERY_CONTAINER_SCHEMA_NAME) {
+                logger.info(`Using inline modification for ${QUERY_CONTAINER_SCHEMA_NAME} property (legacy behavior)`+JSON.stringify(schema));
+                // Old behavior: inline modification
+                const reconstructAdditionalPropertySchema = this.reconstructAdditionalPropertySchema(schema.additionalProperties, visit);
+                Object.assign(schema, reconstructAdditionalPropertySchema);
+            } else {
+                // New behavior: create intermediate SingleMap schema
+                const valueSchema = schema.additionalProperties;
+                const typeName = this.getTypeName(valueSchema) || 'Value';
 
-            Object.assign(schema, reconstructAdditionalPropertySchema)
+                // Extract field property name and schema from propertyNames
+                let fieldPropertyName = 'field';
+                let fieldPropertySchema: any = { type: 'string' as const };
 
+                if ((schema as any).propertyNames) {
+                    const propertyNames = (schema as any).propertyNames;
+
+                    // If propertyNames has a title, use it as the property name
+                    if (propertyNames.title && typeof propertyNames.title === 'string') {
+                        fieldPropertyName = propertyNames.title;
+
+                        fieldPropertySchema = { ...propertyNames };
+                        delete fieldPropertySchema.title;
+                    } else {
+                        // Use propertyNames as-is for the field schema
+                        fieldPropertySchema = propertyNames;
+                    }
+                }
+
+                // Create new map schema name
+                const mapSchemaName = `${typeName}SingleMap`;
+
+                // Create the new map schema
+                const newMapSchema: OpenAPIV3.SchemaObject = {
+                    type: 'object',
+                    properties: {
+                        [fieldPropertyName]: fieldPropertySchema,
+                        [toSnakeCase(typeName)]: valueSchema
+                    },
+                    required: [fieldPropertyName, toSnakeCase(typeName)]
+                };
+
+                // Add to components.schemas if not already exists
+                if (!this.root.components) {
+                    this.root.components = {};
+                }
+                if (!this.root.components.schemas) {
+                    this.root.components.schemas = {};
+                }
+                if (!this.root.components.schemas[mapSchemaName]) {
+                    this.root.components.schemas[mapSchemaName] = newMapSchema;
+                }
+
+                // Replace current schema with $ref to the new map schema
+                (schema as any).$ref = `#/components/schemas/${mapSchemaName}`;
+            }
+
+            // Cleanup properties for both paths (keep vendor extensions like x-*)
+            delete schema.type;
             delete schema.additionalProperties;
             delete schema.minProperties;
             delete schema.maxProperties;
-            delete schema.type
-            if ('propertyNames' in schema) {
-                delete schema.propertyNames;
-            }
+            delete (schema as any).propertyNames
         }
     }
 
@@ -447,44 +513,6 @@ export class SchemaModifier {
         }
 
         logger.info(`Converted additionalProperties to named property '${propertyName}' with type: object`);
-    }
-
-    /**
-     * Removes the array wrapper if the schema is an array of maps (additionalProperties).
-     * Converts array of objects with only additionalProperties into just the additionalProperties schema.
-     *
-     * Example:
-     *   Input:
-     *   {
-     *     type: "array",
-     *     items: {
-     *       type: "object",
-     *       additionalProperties: {
-     *         $ref: "#/components/schemas/Value"
-     *       }
-     *     }
-     *   }
-     *
-     *   Output:
-     *   {
-     *     type: "object",
-     *     additionalProperties: {
-     *       $ref: "#/components/schemas/Value"
-     *     }
-     *   }
-     **/
-    removeArrayOfMapWrapper(schema: OpenAPIV3.SchemaObject): void {
-        if (schema.type === 'array' && schema.items && typeof schema.items === 'object' && !('$ref' in schema.items)) {
-            const items = schema.items as OpenAPIV3.SchemaObject;
-
-            if (items.type === 'object' && items.additionalProperties && !items.properties) {
-                (schema as any).type = 'object';
-                schema.additionalProperties = items.additionalProperties;
-                delete (schema as any).items;
-
-                logger.info(`Removed array wrapper from array of maps schema`);
-            }
-        }
     }
 
     /**
