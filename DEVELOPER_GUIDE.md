@@ -217,12 +217,42 @@ To generate Protobuf definitions from the latest OpenSearch API specification lo
 npm config set registry https://registry.npmjs.org/
 ```
 
-1. **Download the latest OpenSearch API Specification**
+1. **Download the OpenSearch API Specification**
 
-
+   **Option A: For main branch (latest stable spec)**
+   
    ```bash
    curl -L -o opensearch-openapi.yaml \
      https://github.com/opensearch-project/opensearch-api-specification/releases/download/main-latest/opensearch-openapi.yaml
+   ```
+
+   **Option B: For spec feature branch development**
+   
+   If you're working with changes from a feature branch in the API specification:
+   
+   a. Clone/navigate to the opensearch-api-specification repository:
+   ```bash
+   cd /path/to/opensearch-api-specification
+   ```
+   
+   b. Checkout the feature branch:
+   ```bash
+   git checkout <feature-branch-name>
+   ```
+   
+   c. Build the merged OpenAPI spec:
+   ```bash
+   npm ci && npm run merge
+   ```
+   
+   d. Copy the built spec to the opensearch-protobufs repository:
+   ```bash
+   cp build/opensearch-openapi.yaml /path/to/opensearch-protobufs/opensearch-openapi.yaml
+   ```
+   
+   e. Return to the opensearch-protobufs repository:
+   ```bash
+   cd /path/to/opensearch-protobufs
    ```
 
 2. **Run Preprocessing**
