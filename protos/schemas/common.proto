@@ -134,7 +134,7 @@ message SearchRequestBody {
   optional TrackHits track_total_hits = 7;
 
   // [optional] Values used to boost the score of specified indexes. Specify in the format of <index> : <boost-multiplier>
-  map<string, float> indices_boost = 8;
+  map<string, float> indices_boost = 8 [deprecated = true];
 
   // [optional] The fields that OpenSearch should return using their docvalue forms. Specify a format to return results in a certain format, such as date and time.
   repeated FieldAndFormat docvalue_fields = 9;
@@ -210,6 +210,9 @@ message SearchRequestBody {
 
   // [optional]
   map<string, DerivedField> derived = 35;
+
+  // [optional] Values used to boost the score of specified indexes. Specify in the format of <index> : <boost-multiplier>
+  repeated FloatMap indices_boost_2 = 36;
 }
 
 message DerivedField {
@@ -2906,6 +2909,11 @@ message ShardSearchFailure {
   optional string node = 3;
 
   ErrorCause reason = 4;
+}
+
+message FloatMap {
+
+  map<string, float> float_map = 1;
 }
 
 enum FieldValueFactorModifier {
