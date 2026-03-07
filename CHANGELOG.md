@@ -5,6 +5,7 @@ Inspired from [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 ## [Unreleased]
 ### Added
 - Add tooling_skip field option to preserve manually-maintained protobuf fields ([#417](https://github.com/opensearch-project/opensearch-protobufs/pull/417))
+- Add min aggregation and max aggregation support to search protobufs. ([#410](https://github.com/opensearch-project/opensearch-protobufs/pull/410))
 
 ### Changed
  - Fix simplifySingleMapSchema to generate named wrapper schemas. ([#406](https://github.com/opensearch-project/opensearch-protobufs/pull/406))
