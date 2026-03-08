@@ -8,6 +8,7 @@ x-operation-groups:
 excluded_schemas:
   - Suggester
   - Suggest
+  - AgenticQuery
   - DisMaxQuery
   - QueryStringQuery
   - IntervalsQuery
@@ -95,7 +96,6 @@ excluded_schemas:
   - StatsBucketAggregation
   - SumAggregation
   - SumBucketAggregation
-  - TermsAggregation
   - TopHitsAggregation
   - TTestAggregation
   - ValueCountAggregation
@@ -115,7 +115,6 @@ excluded_schemas:
   - DateHistogramAggregate
   - DateRangeAggregate
   - DerivativeAggregate
-  - DoubleTermsAggregate
   - ExtendedStatsAggregate
   - ExtendedStatsBucketAggregate
   - FilterAggregate
@@ -130,7 +129,6 @@ excluded_schemas:
   - HdrPercentilesAggregate
   - HistogramAggregate
   - IpRangeAggregate
-  - LongTermsAggregate
   - LongRareTermsAggregate
   - MatrixStatsAggregate
   - MedianAbsoluteDeviationAggregate
@@ -149,7 +147,6 @@ excluded_schemas:
   - SimpleValueAggregate
   - StatsAggregate
   - StatsBucketAggregate
-  - StringTermsAggregate
   - StringRareTermsAggregate
   - SumAggregate
   - TDigestPercentileRanksAggregate
@@ -158,8 +155,6 @@ excluded_schemas:
   - TTestAggregate
   - UnmappedRareTermsAggregate
   - UnmappedSignificantTermsAggregate
-  - UnmappedTermsAggregate
-  - UnsignedLongTermsAggregate
   - ValueCountAggregate
   - VariableWidthHistogramAggregate
   - WeightedAvgAggregate
