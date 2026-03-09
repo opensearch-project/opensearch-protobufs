@@ -303,7 +303,7 @@ describe('VendorExtensionProcessor - Basic Tests', () => {
     });
 
     describe('x-protobuf-type extension', () => {
-        it('should apply type mapping for int32', () => {
+        it('should apply x-protobuf-type directly to schema type', () => {
             const spec: any = {
                 openapi: '3.1.0',
                 info: { title: 'Test API', version: '1.0.0' },
@@ -342,12 +342,11 @@ describe('VendorExtensionProcessor - Basic Tests', () => {
             const result = processor.process();
 
             const schema = result.components!.schemas!['TestSchema'] as any;
-            expect(schema.properties.count.type).toBe('integer');
-            expect(schema.properties.count.format).toBe('int32');
+            expect(schema.properties.count.type).toBe('int32');
             expect(schema.properties.count['x-protobuf-type']).toBeUndefined();
         });
 
-        it('should apply type mapping for int64', () => {
+        it('should apply x-protobuf-type for schema-level override', () => {
             const spec: any = {
                 openapi: '3.1.0',
                 info: { title: 'Test API', version: '1.0.0' },
@@ -380,12 +379,11 @@ describe('VendorExtensionProcessor - Basic Tests', () => {
             const result = processor.process();
 
             const schema = result.components!.schemas!['TestSchema'] as any;
-            expect(schema.type).toBe('integer');
-            expect(schema.format).toBe('int64');
+            expect(schema.type).toBe('int64');
         });
 
 
-        it('should use custom type when not in mapping', () => {
+        it('should use custom type directly', () => {
             const spec: any = {
                 openapi: '3.1.0',
                 info: { title: 'Test API', version: '1.0.0' },
@@ -419,7 +417,6 @@ describe('VendorExtensionProcessor - Basic Tests', () => {
 
             const schema = result.components!.schemas!['TestSchema'] as any;
             expect(schema.type).toBe('CustomType');
-            expect(schema.format).toBeUndefined();
         });
 
         it('should apply type override in request bodies', () => {
@@ -456,7 +453,7 @@ describe('VendorExtensionProcessor - Basic Tests', () => {
                                     schema: {
                                         type: 'object',
                                         properties: {
-                                            field: { 'x-protobuf-type': 'int64' }
+                                            field: { 'x-protobuf-type': 'uint64' }
                                         }
                                     }
                                 }
@@ -479,12 +476,10 @@ describe('VendorExtensionProcessor - Basic Tests', () => {
 
             const requestBody = result.components!.requestBodies!['TestRequest'] as any;
             const requestSchema = requestBody.content['application/json'].schema;
-            expect(requestSchema.properties.field.type).toBe('integer');
-            expect(requestSchema.properties.field.format).toBe('int64');
+            expect(requestSchema.properties.field.type).toBe('uint64');
 
             const schema = result.components!.schemas!['RequestSchema'] as any;
-            expect(schema.properties.count.type).toBe('integer');
-            expect(schema.properties.count.format).toBe('int32');
+            expect(schema.properties.count.type).toBe('int32');
         });
 
         it('should apply name override in responses', () => {
@@ -620,6 +615,166 @@ describe('VendorExtensionProcessor - Basic Tests', () => {
             const schema = result.components!.schemas!['TestSchema'] as any;
             expect(schema.oneOf).toHaveLength(2);
             expect(schema.oneOf[0].title).toBeUndefined();
+        });
+
+        it('should handle bool protobuf type', () => {
+            const spec: any = {
+                openapi: '3.1.0',
+                info: { title: 'Test API', version: '1.0.0' },
+                paths: {
+                    '/test': {
+                        get: {
+                            responses: {
+                                '200': {
+                                    description: 'Success',
+                                    content: {
+                                        'application/json': {
+                                            schema: { $ref: '#/components/schemas/TestSchema' }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                components: {
+                    schemas: {
+                        'TestSchema': {
+                            type: 'object',
+                            properties: {
+                                enabled: { 'x-protobuf-type': 'bool' }
+                            }
+                        }
+                    }
+                }
+            };
+
+            const processor = new VendorExtensionProcessor(spec);
+            const result = processor.process();
+
+            const schema = result.components!.schemas!['TestSchema'] as any;
+            expect(schema.properties.enabled.type).toBe('bool');
+            expect(schema.properties.enabled['x-protobuf-type']).toBeUndefined();
+        });
+
+        it('should handle bytes protobuf type', () => {
+            const spec: any = {
+                openapi: '3.1.0',
+                info: { title: 'Test API', version: '1.0.0' },
+                paths: {
+                    '/test': {
+                        get: {
+                            responses: {
+                                '200': {
+                                    description: 'Success',
+                                    content: {
+                                        'application/json': {
+                                            schema: { $ref: '#/components/schemas/TestSchema' }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                components: {
+                    schemas: {
+                        'TestSchema': {
+                            type: 'object',
+                            properties: {
+                                data: { 'x-protobuf-type': 'bytes' }
+                            }
+                        }
+                    }
+                }
+            };
+
+            const processor = new VendorExtensionProcessor(spec);
+            const result = processor.process();
+
+            const schema = result.components!.schemas!['TestSchema'] as any;
+            expect(schema.properties.data.type).toBe('bytes');
+            expect(schema.properties.data['x-protobuf-type']).toBeUndefined();
+        });
+
+        it('should handle double protobuf type', () => {
+            const spec: any = {
+                openapi: '3.1.0',
+                info: { title: 'Test API', version: '1.0.0' },
+                paths: {
+                    '/test': {
+                        get: {
+                            responses: {
+                                '200': {
+                                    description: 'Success',
+                                    content: {
+                                        'application/json': {
+                                            schema: { $ref: '#/components/schemas/TestSchema' }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                components: {
+                    schemas: {
+                        'TestSchema': {
+                            type: 'object',
+                            properties: {
+                                value: { 'x-protobuf-type': 'double' }
+                            }
+                        }
+                    }
+                }
+            };
+
+            const processor = new VendorExtensionProcessor(spec);
+            const result = processor.process();
+
+            const schema = result.components!.schemas!['TestSchema'] as any;
+            expect(schema.properties.value.type).toBe('double');
+            expect(schema.properties.value['x-protobuf-type']).toBeUndefined();
+        });
+
+        it('should handle uint64 protobuf type', () => {
+            const spec: any = {
+                openapi: '3.1.0',
+                info: { title: 'Test API', version: '1.0.0' },
+                paths: {
+                    '/test': {
+                        get: {
+                            responses: {
+                                '200': {
+                                    description: 'Success',
+                                    content: {
+                                        'application/json': {
+                                            schema: { $ref: '#/components/schemas/TestSchema' }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                components: {
+                    schemas: {
+                        'TestSchema': {
+                            type: 'object',
+                            properties: {
+                                count: { 'x-protobuf-type': 'uint64' }
+                            }
+                        }
+                    }
+                }
+            };
+
+            const processor = new VendorExtensionProcessor(spec);
+            const result = processor.process();
+
+            const schema = result.components!.schemas!['TestSchema'] as any;
+            expect(schema.properties.count.type).toBe('uint64');
+            expect(schema.properties.count['x-protobuf-type']).toBeUndefined();
         });
     });
 });

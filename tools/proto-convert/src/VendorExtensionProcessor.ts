@@ -13,15 +13,6 @@ export class VendorExtensionProcessor {
     private static readonly PROTOBUF_TYPE_EXTENSION = 'x-protobuf-type';
     private static readonly PROTOBUF_NAME_EXTENSION = 'x-protobuf-name';
 
-    private static readonly PROTOBUF_TYPE_MAPPING: Record<string, { type: string; format?: string }> = {
-        'int32': { type: 'integer', format: 'int32' },
-        'int64': { type: 'integer', format: 'int64' },
-        'float': { type: 'number', format: 'float' },
-        'double': { type: 'number', format: 'double' },
-        'bool': { type: 'boolean' },
-        'string': { type: 'string' },
-    };
-
     private root: OpenAPIV3.Document;
 
     constructor(root: OpenAPIV3.Document) {
@@ -167,18 +158,11 @@ export class VendorExtensionProcessor {
                 delete schema.allOf;
             }
 
-            const typeMapping = VendorExtensionProcessor.PROTOBUF_TYPE_MAPPING[protoType];
-            if (typeMapping) {
-                schema.type = typeMapping.type;
-                if (typeMapping.format) {
-                    schema.format = typeMapping.format;
-                }
-            } else {
-                schema.type = protoType;
-            }
+            // Directly use the x-protobuf-type value as the OpenAPI type
+            schema.type = protoType;
 
             delete schema[VendorExtensionProcessor.PROTOBUF_TYPE_EXTENSION];
-            logger.info(`Applied ${VendorExtensionProcessor.PROTOBUF_TYPE_EXTENSION}: ${protoType} -> type: ${schema.type}${schema.format ? `, format: ${schema.format}` : ''}`);
+            logger.info(`Applied ${VendorExtensionProcessor.PROTOBUF_TYPE_EXTENSION}: ${protoType} -> type: ${schema.type}`);
         }
     }
 
