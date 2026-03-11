@@ -1,0 +1,19 @@
+codecov:
+  require_ci_to_pass: yes
+
+coverage:
+  status:
+    project:
+      default:
+        target: 85%  # Require 85% overall coverage
+        threshold: 1%  # Allow 1% decrease
+    patch:
+      default:
+        target: 85%  # Require 85% coverage on new code
+        threshold: 1%  # Allow 1% decrease on patches
+
+comment:
+  layout: "header, diff, flags, files"
+  behavior: default
+  require_changes: false
+  require_base: false
