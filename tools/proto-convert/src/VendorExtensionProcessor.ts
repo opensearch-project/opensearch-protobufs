@@ -13,15 +13,6 @@ export class VendorExtensionProcessor {
     private static readonly PROTOBUF_TYPE_EXTENSION = 'x-protobuf-type';
     private static readonly PROTOBUF_NAME_EXTENSION = 'x-protobuf-name';
 
-    private static readonly PROTOBUF_TYPE_MAPPING: Record<string, { type: string; format?: string }> = {
-        'int32': { type: 'integer', format: 'int32' },
-        'int64': { type: 'integer', format: 'int64' },
-        'float': { type: 'number', format: 'float' },
-        'double': { type: 'number', format: 'double' },
-        'bool': { type: 'boolean' },
-        'string': { type: 'string' },
-    };
-
     private root: OpenAPIV3.Document;
 
     constructor(root: OpenAPIV3.Document) {
@@ -30,7 +21,7 @@ export class VendorExtensionProcessor {
 
     /**
      * Process the spec by pruning anything marked with x-protobuf-excluded
-     * and applying vendor extensions (x-protobuf-name, x-protobuf-type)
+     * and applying vendor extensions (x-protobuf-name, x-protobuf-data-type)
      */
     public process(): OpenAPIV3.Document {
         deleteMatchingKeys(this.root, (item: any) => this.hasProtobufExcluded(item));
@@ -139,7 +130,7 @@ export class VendorExtensionProcessor {
     }
 
     /**
-     * Apply type override to a schema if it has x-protobuf-type
+     * Apply type override to simplify complex schemas to a single protobuf type.
      */
     private applyTypeOverride(schema: any): void {
         if (!schema) return;
@@ -147,38 +138,17 @@ export class VendorExtensionProcessor {
         if (VendorExtensionProcessor.PROTOBUF_TYPE_EXTENSION in schema) {
             const protoType = schema[VendorExtensionProcessor.PROTOBUF_TYPE_EXTENSION];
 
-            // Clear structural properties that might conflict
-            if ('$ref' in schema) {
-                delete schema.$ref;
-            }
-            if ('properties' in schema) {
-                delete schema.properties;
-            }
-            if ('additionalProperties' in schema) {
-                delete schema.additionalProperties;
-            }
-            if ('oneOf' in schema) {
-                delete schema.oneOf;
-            }
-            if ('anyOf' in schema) {
-                delete schema.anyOf;
-            }
-            if ('allOf' in schema) {
-                delete schema.allOf;
-            }
+            // Clear structural properties that conflict with simple type
+            delete schema.$ref;
+            delete schema.properties;
+            delete schema.additionalProperties;
+            delete schema.oneOf;
+            delete schema.anyOf;
+            delete schema.allOf;
 
-            const typeMapping = VendorExtensionProcessor.PROTOBUF_TYPE_MAPPING[protoType];
-            if (typeMapping) {
-                schema.type = typeMapping.type;
-                if (typeMapping.format) {
-                    schema.format = typeMapping.format;
-                }
-            } else {
-                schema.type = protoType;
-            }
-
-            delete schema[VendorExtensionProcessor.PROTOBUF_TYPE_EXTENSION];
-            logger.info(`Applied ${VendorExtensionProcessor.PROTOBUF_TYPE_EXTENSION}: ${protoType} -> type: ${schema.type}${schema.format ? `, format: ${schema.format}` : ''}`);
+            // Set type to x-protobuf-type value (preserves x-protobuf-type for template)
+            schema.type = protoType;
+            logger.info(`Applied ${VendorExtensionProcessor.PROTOBUF_TYPE_EXTENSION}: ${protoType} -> simplified to type: ${schema.type}`);
         }
     }
 

@@ -17,7 +17,5 @@ typeMappings:
   object: "ObjectMap"
   AnyType: "ObjectMap"
   number: "GeneralNumber"
-  bytes: "bytes"
-  NullValue: "NullValue"
 openapiGeneratorIgnoreList:
   - "README.md"
