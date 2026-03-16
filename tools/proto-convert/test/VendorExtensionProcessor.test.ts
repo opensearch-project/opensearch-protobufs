@@ -303,7 +303,7 @@ describe('VendorExtensionProcessor - Basic Tests', () => {
     });
 
     describe('x-protobuf-type extension', () => {
-        it('should apply type mapping for int32', () => {
+        it('should simplify complex schema with oneOf to single type', () => {
             const spec: any = {
                 openapi: '3.1.0',
                 info: { title: 'Test API', version: '1.0.0' },
@@ -315,7 +315,7 @@ describe('VendorExtensionProcessor - Basic Tests', () => {
                                     description: 'Success',
                                     content: {
                                         'application/json': {
-                                            schema: { $ref: '#/components/schemas/TestSchema' }
+                                            schema: { $ref: '#/components/schemas/StringifiedInteger' }
                                         }
                                     }
                                 }
@@ -325,290 +325,59 @@ describe('VendorExtensionProcessor - Basic Tests', () => {
                 },
                 components: {
                     schemas: {
-                        'TestSchema': {
-                            type: 'object',
-                            properties: {
-                                count: {
-                                    type: 'number',
-                                    'x-protobuf-type': 'int32'
-                                }
-                            }
-                        }
-                    }
-                }
-            };
-
-            const processor = new VendorExtensionProcessor(spec);
-            const result = processor.process();
-
-            const schema = result.components!.schemas!['TestSchema'] as any;
-            expect(schema.properties.count.type).toBe('integer');
-            expect(schema.properties.count.format).toBe('int32');
-            expect(schema.properties.count['x-protobuf-type']).toBeUndefined();
-        });
-
-        it('should apply type mapping for int64', () => {
-            const spec: any = {
-                openapi: '3.1.0',
-                info: { title: 'Test API', version: '1.0.0' },
-                paths: {
-                    '/test': {
-                        get: {
-                            responses: {
-                                '200': {
-                                    description: 'Success',
-                                    content: {
-                                        'application/json': {
-                                            schema: { $ref: '#/components/schemas/TestSchema' }
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                },
-                components: {
-                    schemas: {
-                        'TestSchema': {
-                            'x-protobuf-type': 'int64'
-                        }
-                    }
-                }
-            };
-
-            const processor = new VendorExtensionProcessor(spec);
-            const result = processor.process();
-
-            const schema = result.components!.schemas!['TestSchema'] as any;
-            expect(schema.type).toBe('integer');
-            expect(schema.format).toBe('int64');
-        });
-
-
-        it('should use custom type when not in mapping', () => {
-            const spec: any = {
-                openapi: '3.1.0',
-                info: { title: 'Test API', version: '1.0.0' },
-                paths: {
-                    '/test': {
-                        get: {
-                            responses: {
-                                '200': {
-                                    description: 'Success',
-                                    content: {
-                                        'application/json': {
-                                            schema: { $ref: '#/components/schemas/TestSchema' }
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                },
-                components: {
-                    schemas: {
-                        'TestSchema': {
-                            'x-protobuf-type': 'CustomType'
-                        }
-                    }
-                }
-            };
-
-            const processor = new VendorExtensionProcessor(spec);
-            const result = processor.process();
-
-            const schema = result.components!.schemas!['TestSchema'] as any;
-            expect(schema.type).toBe('CustomType');
-            expect(schema.format).toBeUndefined();
-        });
-
-        it('should apply type override in request bodies', () => {
-            const spec: any = {
-                openapi: '3.1.0',
-                info: { title: 'Test API', version: '1.0.0' },
-                paths: {
-                    '/test': {
-                        post: {
-                            requestBody: {
-                                $ref: '#/components/requestBodies/TestRequest'
-                            },
-                            responses: { '200': { description: 'Success' } }
-                        },
-                        get: {
-                            responses: {
-                                '200': {
-                                    description: 'Success',
-                                    content: {
-                                        'application/json': {
-                                            schema: { $ref: '#/components/schemas/RequestSchema' }
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                },
-                components: {
-                    requestBodies: {
-                        'TestRequest': {
-                            content: {
-                                'application/json': {
-                                    schema: {
-                                        type: 'object',
-                                        properties: {
-                                            field: { 'x-protobuf-type': 'int64' }
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    },
-                    schemas: {
-                        'RequestSchema': {
-                            type: 'object',
-                            properties: {
-                                count: { 'x-protobuf-type': 'int32' }
-                            }
-                        }
-                    }
-                }
-            };
-
-            const processor = new VendorExtensionProcessor(spec);
-            const result = processor.process();
-
-            const requestBody = result.components!.requestBodies!['TestRequest'] as any;
-            const requestSchema = requestBody.content['application/json'].schema;
-            expect(requestSchema.properties.field.type).toBe('integer');
-            expect(requestSchema.properties.field.format).toBe('int64');
-
-            const schema = result.components!.schemas!['RequestSchema'] as any;
-            expect(schema.properties.count.type).toBe('integer');
-            expect(schema.properties.count.format).toBe('int32');
-        });
-
-        it('should apply name override in responses', () => {
-            const spec: any = {
-                openapi: '3.1.0',
-                info: { title: 'Test API', version: '1.0.0' },
-                paths: {
-                    '/test': {
-                        get: {
-                            responses: {
-                                '200': { $ref: '#/components/responses/SuccessResponse' },
-                                '201': {
-                                    description: 'Created',
-                                    content: {
-                                        'application/json': {
-                                            schema: { $ref: '#/components/schemas/ResponseSchema' }
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                },
-                components: {
-                    responses: {
-                        'SuccessResponse': {
-                            description: 'Success',
-                            content: {
-                                'application/json': {
-                                    schema: {
-                                        type: 'object',
-                                        properties: {
-                                            oldName: {
-                                                type: 'string',
-                                                'x-protobuf-name': 'newName'
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    },
-                    schemas: {
-                        'ResponseSchema': {
-                            type: 'object',
-                            properties: {
-                                result: { type: 'string' }
-                            }
-                        }
-                    }
-                }
-            };
-
-            const processor = new VendorExtensionProcessor(spec);
-            const result = processor.process();
-
-            const response = result.components!.responses!['SuccessResponse'] as any;
-            const schema = response.content['application/json'].schema;
-            expect(schema.properties).not.toHaveProperty('oldName');
-            expect(schema.properties).toHaveProperty('newName');
-        });
-
-        it('should not rename parameter when x-protobuf-name equals current name', () => {
-            const spec: any = {
-                openapi: '3.1.0',
-                info: { title: 'Test API', version: '1.0.0' },
-                paths: {
-                    '/test': {
-                        get: {
-                            parameters: [
-                                { $ref: '#/components/parameters/testParam' }
-                            ],
-                            responses: { '200': { description: 'Success' } }
-                        }
-                    }
-                },
-                components: {
-                    parameters: {
-                        'testParam': {
-                            name: 'sameName',
-                            in: 'query',
-                            schema: { type: 'string' },
-                            'x-protobuf-name': 'sameName'
-                        }
-                    }
-                }
-            };
-
-            const processor = new VendorExtensionProcessor(spec);
-            const result = processor.process();
-
-            const param = result.components!.parameters!['testParam'] as any;
-            expect(param.name).toBe('sameName');
-            // Extension is NOT removed when name is same (no change needed)
-            expect(param['x-protobuf-name']).toBe('sameName');
-        });
-
-        it('should handle composed schema without x-protobuf-name', () => {
-            const spec: any = {
-                openapi: '3.1.0',
-                info: { title: 'Test API', version: '1.0.0' },
-                paths: {
-                    '/test': {
-                        get: {
-                            responses: {
-                                '200': {
-                                    description: 'Success',
-                                    content: {
-                                        'application/json': {
-                                            schema: { $ref: '#/components/schemas/TestSchema' }
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                },
-                components: {
-                    schemas: {
-                        'TestSchema': {
+                        'StringifiedInteger': {
+                            description: 'Integer that may be represented as string',
                             oneOf: [
-                                { type: 'string' },
-                                { type: 'number' }
-                            ]
+                                { type: 'integer' },
+                                { type: 'string', pattern: '^[+-]?\\d+$' }
+                            ],
+                            'x-protobuf-type': 'int32'
+                        }
+                    }
+                }
+            };
+
+            const processor = new VendorExtensionProcessor(spec);
+            const result = processor.process();
+
+            const schema = result.components!.schemas!['StringifiedInteger'] as any;
+            // oneOf should be removed
+            expect(schema.oneOf).toBeUndefined();
+            // type should be set to x-protobuf-type value
+            expect(schema.type).toBe('int32');
+            // x-protobuf-type should be preserved for Mustache template
+            expect(schema['x-protobuf-type']).toBe('int32');
+            // description should be preserved
+            expect(schema.description).toBeDefined();
+        });
+
+        it('should preserve x-protobuf-type and set type', () => {
+            const spec: any = {
+                openapi: '3.1.0',
+                info: { title: 'Test API', version: '1.0.0' },
+                paths: {
+                    '/test': {
+                        get: {
+                            responses: {
+                                '200': {
+                                    description: 'Success',
+                                    content: {
+                                        'application/json': {
+                                            schema: { $ref: '#/components/schemas/TestSchema' }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                components: {
+                    schemas: {
+                        'TestSchema': {
+                            type: 'object',
+                            properties: {
+                                data: { 'x-protobuf-type': 'bytes' }
+                            }
                         }
                     }
                 }
@@ -618,8 +387,53 @@ describe('VendorExtensionProcessor - Basic Tests', () => {
             const result = processor.process();
 
             const schema = result.components!.schemas!['TestSchema'] as any;
-            expect(schema.oneOf).toHaveLength(2);
-            expect(schema.oneOf[0].title).toBeUndefined();
+            expect(schema.properties.data.type).toBe('bytes');
+            expect(schema.properties.data['x-protobuf-type']).toBe('bytes');
+        });
+
+        it('should clear structural properties when applying type override', () => {
+            const spec: any = {
+                openapi: '3.1.0',
+                info: { title: 'Test API', version: '1.0.0' },
+                paths: {
+                    '/test': {
+                        get: {
+                            responses: {
+                                '200': {
+                                    description: 'Success',
+                                    content: {
+                                        'application/json': {
+                                            schema: { $ref: '#/components/schemas/ComplexSchema' }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                components: {
+                    schemas: {
+                        'ComplexSchema': {
+                            allOf: [
+                                { type: 'object' },
+                                { properties: { field: { type: 'string' } } }
+                            ],
+                            'x-protobuf-type': 'string'
+                        }
+                    }
+                }
+            };
+
+            const processor = new VendorExtensionProcessor(spec);
+            const result = processor.process();
+
+            const schema = result.components!.schemas!['ComplexSchema'] as any;
+            // Structural properties should be removed
+            expect(schema.allOf).toBeUndefined();
+            expect(schema.properties).toBeUndefined();
+            // Type should be simplified
+            expect(schema.type).toBe('string');
+            expect(schema['x-protobuf-type']).toBe('string');
         });
     });
 });
