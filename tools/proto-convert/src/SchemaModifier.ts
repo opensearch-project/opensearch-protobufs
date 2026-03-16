@@ -22,6 +22,7 @@ export class SchemaModifier {
                 this.convertNullTypeToNullValue(schema)
                 this.deduplicateOneOfWithArrayType(schema)
                 this.collapseSingleItemComposite(schema);
+                this.normalizeMixedOneOf(schema)
             },
             onSchema: (schema, schemaName) => {
                 if (!schema || isReferenceObject(schema)) return;
@@ -33,6 +34,7 @@ export class SchemaModifier {
                 this.deduplicateOneOfWithArrayType(schema)
                 this.collapseSingleItemComposite(schema);
                 this.collapseOneOfObjectPropContainsTitleSchema(schema)
+                this.normalizeMixedOneOf(schema)
                 this.convertOneOfToMinMaxProperties(schema)
             },
         });
@@ -513,6 +515,81 @@ export class SchemaModifier {
         }
 
         logger.info(`Converted additionalProperties to named property '${propertyName}' with type: object`);
+    }
+
+    /**
+     * Normalizes mixed oneOf patterns where some items have properties and others are direct $refs.
+     * Converts direct $ref items into property-based format to match the inline property items.
+     *
+     *
+     * Example:
+     *   Input:
+     *   {
+     *     type: object,
+     *     oneOf: [
+     *       { properties: { max: { $ref: '#/components/schemas/MaxAggregation' } }, required: ['max'] },
+     *       { $ref: '#/components/schemas/TermsAggregation' }
+     *     ]
+     *   }
+     *
+     *   Output:
+     *   {
+     *     type: object,
+     *     oneOf: [
+     *       { properties: { max: { $ref: '#/components/schemas/MaxAggregation' } }, required: ['max'] },
+     *       { properties: { terms_aggregation: { $ref: '#/components/schemas/TermsAggregation' } }, required: ['terms_aggregation'] }
+     *     ]
+     *   }
+     **/
+    normalizeMixedOneOf(schema: OpenAPIV3.SchemaObject): void {
+        // Check if this schema has oneOf with mixed types (properties + $ref)
+        if (!Array.isArray(schema.oneOf) || schema.oneOf.length === 0) {
+            return;
+        }
+
+        let hasPropertiesType = false;
+        let hasRefType = false;
+
+        for (const item of schema.oneOf) {
+            if (!item || typeof item !== 'object') continue;
+
+            if ('$ref' in item) {
+                hasRefType = true;
+            } else if ('properties' in item) {
+                hasPropertiesType = true;
+            }
+        }
+
+        // Only process if we have both types
+        if (!hasPropertiesType || !hasRefType) {
+            return;
+        }
+
+        // Normalize $ref items to properties format
+        for (let i = 0; i < schema.oneOf.length; i++) {
+            const item = schema.oneOf[i];
+            if (!item || typeof item !== 'object') continue;
+
+            if ('$ref' in item) {
+                const ref = item.$ref;
+                // Extract schema name from $ref
+                const schemaName = ref.split('/').pop();
+                if (!schemaName) continue;
+
+                // Convert to snake_case for property name
+                const propertyName = toSnakeCase(schemaName);
+
+                // Replace $ref item with properties format
+                schema.oneOf[i] = {
+                    properties: {
+                        [propertyName]: { $ref: ref }
+                    },
+                    required: [propertyName]
+                };
+
+                logger.info(`Normalized oneOf $ref to properties: ${ref} -> ${propertyName}`);
+            }
+        }
     }
 
     /**

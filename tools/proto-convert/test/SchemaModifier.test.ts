@@ -59,7 +59,7 @@ describe('SchemaModifier', () => {
             doc.components!.schemas!.BoolQuery = {
                 type: 'object',
                 properties: {
-                    must: { 
+                    must: {
                         type: 'array',
                         items: { type: 'string' }
                     }
@@ -262,7 +262,7 @@ describe('SchemaModifier', () => {
             };
 
             const modifier = new SchemaModifier(doc);
-            
+
             // Should not throw error on $ref
             expect(() => modifier.modify()).not.toThrow();
         });
@@ -1032,7 +1032,7 @@ describe('SchemaModifier', () => {
             doc.components!.schemas!.BoolQuery = {
                 type: 'object',
                 properties: {
-                    must: { 
+                    must: {
                         type: 'array',
                         items: { type: 'string' }
                     }
@@ -1057,7 +1057,7 @@ describe('SchemaModifier', () => {
             // Should use old inline behavior - becomes a $ref directly (no SingleMap wrapper)
             expect(schema.$ref).toBe('#/components/schemas/BoolQuery');
             expect(doc.components!.schemas!.BoolQuerySingleMap).toBeUndefined();
-            
+
             // Properties should be deleted
             expect(schema.type).toBeUndefined();
             expect(schema.additionalProperties).toBeUndefined();
@@ -1274,7 +1274,7 @@ describe('SchemaModifier', () => {
 
             const optionA = doc.components!.schemas!.OptionA as any;
             const optionB = doc.components!.schemas!.OptionB as any;
-            
+
             // Both options should have the field property added
             expect(optionA.properties).toHaveProperty('field');
             expect(optionB.properties).toHaveProperty('field');
@@ -1305,7 +1305,7 @@ describe('SchemaModifier', () => {
 
             const optionC = doc.components!.schemas!.OptionC as any;
             const optionD = doc.components!.schemas!.OptionD as any;
-            
+
             // Both options should have the field property added
             expect(optionC.properties).toHaveProperty('field');
             expect(optionD.properties).toHaveProperty('field');
@@ -1320,14 +1320,14 @@ describe('SchemaModifier', () => {
 
             const modifier = new SchemaModifier(doc);
             const visit = new Set();
-            
+
             const schema = { $ref: '#/components/schemas/TestSchema' };
             const resolvedSchema = doc.components!.schemas!.TestSchema;
-            
+
             visit.add(resolvedSchema);
-            
+
             const result = modifier.reconstructAdditionalPropertySchema(schema, visit);
-            
+
             // Should return original schema without modification
             expect(result).toBe(schema);
             expect((resolvedSchema as any).properties).not.toHaveProperty('field');
@@ -1359,11 +1359,11 @@ describe('SchemaModifier', () => {
             const visit = new Set();
 
             const schema = { $ref: '#/components/schemas/ConflictSchema' };
-            
+
             const errorSpy = jest.spyOn(console, 'error').mockImplementation();
-            
+
             modifier.reconstructAdditionalPropertySchema(schema, visit);
-            
+
             expect(errorSpy).toHaveBeenCalled();
             errorSpy.mockRestore();
         });
@@ -1450,6 +1450,249 @@ describe('SchemaModifier', () => {
 
             const result = modifier.isArraySchemaObject(schema);
             expect(result).toBe(false);
+        });
+    });
+
+    describe('normalizeMixedOneOf', () => {
+        it('should normalize mixed oneOf with properties and $ref items', () => {
+            const doc: OpenAPIV3.Document = {
+                openapi: '3.1.0',
+                info: { title: 'Test', version: '1.0.0' },
+                paths: {},
+                components: {
+                    schemas: {
+                        TestSchema: {
+                            type: 'object',
+                            oneOf: [
+                                {
+                                    properties: {
+                                        max: { $ref: '#/components/schemas/MaxAggregation' }
+                                    },
+                                    required: ['max']
+                                },
+                                {
+                                    $ref: '#/components/schemas/TermsAggregation'
+                                }
+                            ]
+                        }
+                    }
+                }
+            };
+
+            const modifier = new SchemaModifier(doc);
+            const schema = doc.components!.schemas!.TestSchema as OpenAPIV3.SchemaObject;
+
+            modifier.normalizeMixedOneOf(schema);
+
+            // The $ref item should be converted to properties format
+            expect(schema.oneOf).toHaveLength(2);
+
+            // First item should remain unchanged (already has properties)
+            expect((schema.oneOf![0] as any).properties).toEqual({
+                max: { $ref: '#/components/schemas/MaxAggregation' }
+            });
+            expect((schema.oneOf![0] as any).required).toEqual(['max']);
+
+            // Second item should now have properties format with snake_case property name
+            expect((schema.oneOf![1] as any).properties).toEqual({
+                terms_aggregation: { $ref: '#/components/schemas/TermsAggregation' }
+            });
+            expect((schema.oneOf![1] as any).required).toEqual(['terms_aggregation']);
+            expect((schema.oneOf![1] as any).$ref).toBeUndefined();
+        });
+
+        it('should handle multiple $ref items in oneOf', () => {
+            const doc: OpenAPIV3.Document = {
+                openapi: '3.1.0',
+                info: { title: 'Test', version: '1.0.0' },
+                paths: {},
+                components: {
+                    schemas: {
+                        TestSchema: {
+                            type: 'object',
+                            oneOf: [
+                                {
+                                    properties: {
+                                        max: { type: 'string' }
+                                    },
+                                    required: ['max']
+                                },
+                                {
+                                    $ref: '#/components/schemas/FirstAgg'
+                                },
+                                {
+                                    $ref: '#/components/schemas/SecondAgg'
+                                }
+                            ]
+                        }
+                    }
+                }
+            };
+
+            const modifier = new SchemaModifier(doc);
+            const schema = doc.components!.schemas!.TestSchema as OpenAPIV3.SchemaObject;
+
+            modifier.normalizeMixedOneOf(schema);
+
+            expect(schema.oneOf).toHaveLength(3);
+
+            // Second item should be normalized
+            expect((schema.oneOf![1] as any).properties).toEqual({
+                first_agg: { $ref: '#/components/schemas/FirstAgg' }
+            });
+
+            // Third item should be normalized
+            expect((schema.oneOf![2] as any).properties).toEqual({
+                second_agg: { $ref: '#/components/schemas/SecondAgg' }
+            });
+        });
+
+        it('should not modify oneOf with only properties items', () => {
+            const doc: OpenAPIV3.Document = {
+                openapi: '3.1.0',
+                info: { title: 'Test', version: '1.0.0' },
+                paths: {},
+                components: {
+                    schemas: {
+                        TestSchema: {
+                            type: 'object',
+                            oneOf: [
+                                {
+                                    properties: {
+                                        field1: { type: 'string' }
+                                    },
+                                    required: ['field1']
+                                },
+                                {
+                                    properties: {
+                                        field2: { type: 'number' }
+                                    },
+                                    required: ['field2']
+                                }
+                            ]
+                        }
+                    }
+                }
+            };
+
+            const modifier = new SchemaModifier(doc);
+            const schema = doc.components!.schemas!.TestSchema as OpenAPIV3.SchemaObject;
+            const originalOneOf = JSON.parse(JSON.stringify(schema.oneOf));
+
+            modifier.normalizeMixedOneOf(schema);
+
+            // Should remain unchanged
+            expect(schema.oneOf).toEqual(originalOneOf);
+        });
+
+        it('should not modify oneOf with only $ref items', () => {
+            const doc: OpenAPIV3.Document = {
+                openapi: '3.1.0',
+                info: { title: 'Test', version: '1.0.0' },
+                paths: {},
+                components: {
+                    schemas: {
+                        TestSchema: {
+                            type: 'object',
+                            oneOf: [
+                                {
+                                    $ref: '#/components/schemas/Schema1'
+                                },
+                                {
+                                    $ref: '#/components/schemas/Schema2'
+                                }
+                            ]
+                        }
+                    }
+                }
+            };
+
+            const modifier = new SchemaModifier(doc);
+            const schema = doc.components!.schemas!.TestSchema as OpenAPIV3.SchemaObject;
+            const originalOneOf = JSON.parse(JSON.stringify(schema.oneOf));
+
+            modifier.normalizeMixedOneOf(schema);
+
+            // Should remain unchanged
+            expect(schema.oneOf).toEqual(originalOneOf);
+        });
+
+        it('should handle oneOf within allOf (full integration)', () => {
+            const doc: OpenAPIV3.Document = {
+                openapi: '3.0.0',
+                info: { title: 'Test', version: '1.0.0' },
+                paths: {
+                    '/test': {
+                        get: {
+                            responses: {
+                                '200': {
+                                    description: 'OK',
+                                    content: {
+                                        'application/json': {
+                                            schema: {
+                                                $ref: '#/components/schemas/AggregationContainer'
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                components: {
+                    schemas: {
+                        AggregationContainer: {
+                            allOf: [
+                                {
+                                    $ref: '#/components/schemas/Aggregation'
+                                },
+                                {
+                                    type: 'object',
+                                    oneOf: [
+                                        {
+                                            properties: {
+                                                max: { $ref: '#/components/schemas/MaxAggregation' }
+                                            },
+                                            required: ['max']
+                                        },
+                                        {
+                                            $ref: '#/components/schemas/TermsAggregation'
+                                        }
+                                    ]
+                                }
+                            ] as any
+                        },
+                        Aggregation: {
+                            type: 'object',
+                            properties: {
+                                meta: { type: 'object' }
+                            }
+                        },
+                        MaxAggregation: {
+                            type: 'object'
+                        },
+                        TermsAggregation: {
+                            type: 'object'
+                        }
+                    }
+                }
+            };
+
+            const modifier = new SchemaModifier(doc);
+            const result = modifier.modify();
+
+            const aggContainer = result.components!.schemas!.AggregationContainer as OpenAPIV3.SchemaObject;
+            const secondAllOfItem = (aggContainer.allOf![1] as OpenAPIV3.SchemaObject);
+
+            // After full pipeline: normalizeMixedOneOf runs first, then convertOneOfToMinMaxProperties
+            // The oneOf should be normalized first (mixed -> all properties)
+            // Then converted to minProperties/maxProperties pattern
+            expect(secondAllOfItem.oneOf).toBeUndefined();
+            expect(secondAllOfItem.properties).toBeDefined();
+            expect(secondAllOfItem.properties!.max).toBeDefined();
+            expect(secondAllOfItem.properties!.terms_aggregation).toBeDefined();
+            expect(secondAllOfItem.minProperties).toBe(1);
+            expect(secondAllOfItem.maxProperties).toBe(1);
         });
     });
 });
