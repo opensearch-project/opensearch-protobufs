@@ -9,9 +9,10 @@ import { ProtoMessage, ProtoEnum } from './types';
 
 const TEMPLATE = readFileSync(join(__dirname, 'templates', 'proto.mustache'), 'utf8');
 
-const TEMPLATE_DIR = join(__dirname, '../config/protobuf-schema-template');
-const PROTO_HEADER = readFileSync(join(TEMPLATE_DIR, 'partial_header.mustache'), 'utf-8');
-const CUSTOM_MESSAGES = readFileSync(join(TEMPLATE_DIR, 'custom_message.mustache'), 'utf-8');
+const CONFIG_TEMPLATE_DIR = join(__dirname, '../config/protobuf-schema-template');
+const PROTO_HEADER = readFileSync(join(CONFIG_TEMPLATE_DIR, 'partial_header.mustache'), 'utf-8');
+const FIELD_OPTIONS = readFileSync(join(CONFIG_TEMPLATE_DIR, 'field_options.mustache'), 'utf-8');
+const CUSTOM_MESSAGES = readFileSync(join(CONFIG_TEMPLATE_DIR, 'custom_message.mustache'), 'utf-8');
 
 // Custom messages/enums defined in template - always handled separately
 export const CUSTOM_MESSAGE_NAMES = new Set(['ObjectMap', 'GeneralNumber']);
@@ -96,6 +97,9 @@ export function writeProtoFile(
 
     // Use fixed header from template
     outputParts.push(PROTO_HEADER.trim());
+    
+    // Add field options (import descriptor + extend)
+    outputParts.push(FIELD_OPTIONS.trim());
 
     // Generate messages (excluding custom ones - they're added from template)
     for (const msg of messages) {
