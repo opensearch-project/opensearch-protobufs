@@ -14,3 +14,4 @@ Inspired from [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 ### Fixed
 
 ### Security
+ - Bump eslint/eslintrc version([#418](https://github.com/opensearch-project/opensearch-protobufs/pull/418))
