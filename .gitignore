@@ -30,8 +30,10 @@ bazel-opensearch-protos
 .bazel-cache/
 .bazelrc.user
 
-# Generated files
-/generated/
+# Generated files (keep root generated/ ignored except versioned Go protobufs)
+/generated/*
+!/generated/go/
+!/generated/go/**
 
 # Maven output
 maven_output/
