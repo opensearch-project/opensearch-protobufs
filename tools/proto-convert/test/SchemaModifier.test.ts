@@ -1695,4 +1695,109 @@ describe('SchemaModifier', () => {
             expect(secondAllOfItem.maxProperties).toBe(1);
         });
     });
+
+    describe('hoistAnyOfFromAllOf', () => {
+        it('should move $ref variants into anyOf array', () => {
+            const doc = createDocument();
+            doc.components!.schemas = {
+                TestSchema: {
+                    allOf: [
+                        { $ref: '#/components/schemas/BaseSchema' },
+                        {
+                            anyOf: [
+                                { title: 'variant1', $ref: '#/components/schemas/Variant1' },
+                                { title: 'variant2', $ref: '#/components/schemas/Variant2' }
+                            ]
+                        }
+                    ]
+                },
+                BaseSchema: { type: 'object' },
+                Variant1: { type: 'object' },
+                Variant2: { type: 'object' }
+            };
+
+            const modifier = new SchemaModifier(doc) as any;
+            const schema = doc.components!.schemas!.TestSchema as OpenAPIV3.SchemaObject;
+
+            modifier.hoistAnyOfFromAllOf(schema);
+
+            expect(schema.allOf).toBeUndefined();
+            expect(schema.anyOf).toBeDefined();
+            expect(schema.anyOf).toHaveLength(3);
+            expect(schema.anyOf![0]).toEqual({ $ref: '#/components/schemas/BaseSchema' });
+            expect(schema.anyOf![1]).toEqual({ title: 'variant1', $ref: '#/components/schemas/Variant1' });
+            expect(schema.anyOf![2]).toEqual({ title: 'variant2', $ref: '#/components/schemas/Variant2' });
+        });
+
+        it('should NOT hoist anyOf when variants are inline objects (like field/script alternatives)', () => {
+            const doc = createDocument();
+            doc.components!.schemas!.TermsAggregationFields = {
+                allOf: [
+                    {
+                        type: 'object',
+                        properties: {
+                            collect_mode: { type: 'string' },
+                            min_doc_count: { type: 'integer' }
+                        }
+                    },
+                    {
+                        anyOf: [
+                            {
+                                type: 'object',
+                                properties: {
+                                    field: { type: 'string' }
+                                }
+                            },
+                            {
+                                type: 'object',
+                                properties: {
+                                    script: { type: 'string' }
+                                }
+                            }
+                        ]
+                    }
+                ]
+            };
+
+            const modifier = new SchemaModifier(doc) as any;
+            const schema = doc.components!.schemas!.TermsAggregationFields as OpenAPIV3.SchemaObject;
+            const originalSchema = JSON.parse(JSON.stringify(schema));
+
+            modifier.hoistAnyOfFromAllOf(schema);
+
+            // Should NOT modify schema when variants are inline objects
+            expect(schema).toEqual(originalSchema);
+            expect(schema.allOf).toBeDefined();
+            expect(schema.anyOf).toBeUndefined();
+        });
+
+        it('should hoist even when $ref variants have additional properties like title', () => {
+            const doc = createDocument();
+            doc.components!.schemas = {
+                Aggregate: {
+                    allOf: [
+                        { $ref: '#/components/schemas/AggregateBase' },
+                        {
+                            anyOf: [
+                                { title: 'adjacency_matrix', $ref: '#/components/schemas/AdjacencyMatrixAggregate' },
+                                { title: 'avg', $ref: '#/components/schemas/AvgAggregate' }
+                            ]
+                        }
+                    ]
+                },
+                AggregateBase: { type: 'object' },
+                AdjacencyMatrixAggregate: { type: 'object' },
+                AvgAggregate: { type: 'object' }
+            };
+
+            const modifier = new SchemaModifier(doc) as any;
+            const schema = doc.components!.schemas!.Aggregate as OpenAPIV3.SchemaObject;
+
+            modifier.hoistAnyOfFromAllOf(schema);
+
+            expect(schema.allOf).toBeUndefined();
+            expect(schema.anyOf).toBeDefined();
+            expect(schema.anyOf).toHaveLength(3);
+        });
+    });
 });

@@ -23,6 +23,7 @@ export class SchemaModifier {
                 this.deduplicateOneOfWithArrayType(schema)
                 this.collapseSingleItemComposite(schema);
                 this.normalizeMixedOneOf(schema)
+                this.hoistAnyOfFromAllOf(schema);
             },
             onSchema: (schema, schemaName) => {
                 if (!schema || isReferenceObject(schema)) return;
@@ -33,6 +34,7 @@ export class SchemaModifier {
                 this.handleOneOfConst(schema, schemaName)
                 this.deduplicateOneOfWithArrayType(schema)
                 this.collapseSingleItemComposite(schema);
+                this.hoistAnyOfFromAllOf(schema);
                 this.collapseOneOfObjectPropContainsTitleSchema(schema)
                 this.normalizeMixedOneOf(schema)
                 this.convertOneOfToMinMaxProperties(schema)
@@ -143,6 +145,65 @@ export class SchemaModifier {
         } else if (Array.isArray(schema.anyOf) && schema.anyOf.length === 1) {
             Object.assign(schema, schema.anyOf[0]);
             delete schema.anyOf;
+        }
+    }
+
+    /**
+     * Hoists anyOf from within allOf to the top level and moves all base items into the anyOf.
+     *
+     * Transforms:
+     *   allOf: [base1, { anyOf: [{ $ref: 'Variant1' }, { $ref: 'Variant2' }] }]
+     *
+     * Into:
+     *   anyOf: [base1, { $ref: 'Variant1' }, { $ref: 'Variant2' }]
+     *
+     * This prevents OpenAPI Generator from flattening named schema variants while preserving
+     * inline property alternatives.
+     */
+    hoistAnyOfFromAllOf(schema: OpenAPIV3.SchemaObject): void {
+        if (!Array.isArray(schema.allOf) || schema.allOf.length === 0) {
+            return;
+        }
+
+        // Find if any allOf item contains anyOf
+        let variantItem: OpenAPIV3.SchemaObject | null = null;
+        const baseItems: Array<OpenAPIV3.ReferenceObject | OpenAPIV3.SchemaObject> = [];
+
+        for (const item of schema.allOf) {
+            if (!item || typeof item !== 'object') continue;
+
+            const schemaItem = item as OpenAPIV3.SchemaObject;
+            if ('anyOf' in schemaItem && Array.isArray(schemaItem.anyOf)) {
+                variantItem = schemaItem;
+            } else {
+                baseItems.push(item);
+            }
+        }
+
+        // If we found anyOf, hoist it and move all items into it
+        if (variantItem) {
+            const variants = variantItem.anyOf as Array<OpenAPIV3.ReferenceObject | OpenAPIV3.SchemaObject>;
+
+            // Check if at least one variant is a $ref
+            const hasRefVariants = variants.some(variant => {
+                if (!variant || typeof variant !== 'object') return false;
+                return '$ref' in variant;
+            });
+
+            // Only apply transformation if variants are $ref (not inline objects)
+            if (!hasRefVariants) {
+                logger.info(`Skipping anyOf hoist: variants are inline objects (preserving property alternatives)`);
+                return;
+            }
+
+            // Combine base items + variant items into a single anyOf array
+            const newAnyOf = [...baseItems, ...variants];
+
+            // Replace the schema with the hoisted structure
+            delete schema.allOf;
+            schema.anyOf = newAnyOf;
+
+            logger.info(`Hoisted anyOf from allOf (moved ${baseItems.length} base items + ${variants.length} variants into anyOf)`);
         }
     }
 
