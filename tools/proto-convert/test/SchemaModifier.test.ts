@@ -1695,4 +1695,113 @@ describe('SchemaModifier', () => {
             expect(secondAllOfItem.maxProperties).toBe(1);
         });
     });
+
+    describe('normalizeAnyOfInAllOf', () => {
+        it('should replace anyOf item in allOf with merged properties object', () => {
+            const doc = createDocument();
+            doc.components!.schemas = {
+                TestSchema: {
+                    allOf: [
+                        { $ref: '#/components/schemas/BaseSchema' },
+                        {
+                            anyOf: [
+                                { title: 'lterms', $ref: '#/components/schemas/Variant1' },
+                                { title: 'max',    $ref: '#/components/schemas/Variant2' }
+                            ]
+                        }
+                    ]
+                } as any,
+                BaseSchema: { type: 'object', properties: { meta: { type: 'string' } } },
+                Variant1: { type: 'object' },
+                Variant2: { type: 'object' }
+            };
+
+            const modifier = new SchemaModifier(doc) as any;
+            const schema = doc.components!.schemas!.TestSchema as any;
+            modifier.normalizeAnyOfInAllOf(schema);
+
+            // allOf is preserved with base ref untouched
+            expect(schema.allOf).toBeDefined();
+            expect(schema.allOf).toHaveLength(2);
+            expect(schema.allOf[0]).toEqual({ $ref: '#/components/schemas/BaseSchema' });
+            // anyOf item replaced with merged properties object
+            expect(schema.allOf[1].anyOf).toBeUndefined();
+            expect(schema.allOf[1].type).toBe('object');
+            expect(schema.allOf[1].properties.lterms).toEqual({ $ref: '#/components/schemas/Variant1' });
+            expect(schema.allOf[1].properties.max).toEqual({ $ref: '#/components/schemas/Variant2' });
+        });
+
+        it('should use type name snake_case for untitled variants mixed with titled ones', () => {
+            const doc = createDocument();
+            doc.components!.schemas = {
+                TestSchema: {
+                    allOf: [
+                        { $ref: '#/components/schemas/BaseSchema' },
+                        {
+                            anyOf: [
+                                { title: 'lterms', $ref: '#/components/schemas/LongTermsAggregate' },
+                                { $ref: '#/components/schemas/MaxAggregate' }  // no title
+                            ]
+                        }
+                    ]
+                } as any,
+                BaseSchema: { type: 'object' },
+                LongTermsAggregate: { type: 'object' },
+                MaxAggregate: { type: 'object' }
+            };
+
+            const modifier = new SchemaModifier(doc) as any;
+            const schema = doc.components!.schemas!.TestSchema as any;
+            modifier.normalizeAnyOfInAllOf(schema);
+
+            expect(schema.allOf[1].type).toBe('object');
+            // titled variant uses its title
+            expect(schema.allOf[1].properties.lterms).toEqual({ $ref: '#/components/schemas/LongTermsAggregate' });
+            // untitled variant falls back to snake_case of the type name
+            expect(schema.allOf[1].properties.max_aggregate).toEqual({ $ref: '#/components/schemas/MaxAggregate' });
+        });
+
+        it('should not modify when variants have no titles', () => {
+            const doc = createDocument();
+            const original = {
+                allOf: [
+                    { $ref: '#/components/schemas/Base' },
+                    { anyOf: [{ $ref: '#/components/schemas/V1' }, { $ref: '#/components/schemas/V2' }] }
+                ]
+            };
+            doc.components!.schemas!.TestSchema = JSON.parse(JSON.stringify(original)) as any;
+
+            const modifier = new SchemaModifier(doc) as any;
+            const schema = doc.components!.schemas!.TestSchema as any;
+            modifier.normalizeAnyOfInAllOf(schema);
+
+            expect(schema).toEqual(original);
+        });
+
+        it('should not modify when allOf has no anyOf item', () => {
+            const doc = createDocument();
+            doc.components!.schemas!.TestSchema = {
+                allOf: [{ $ref: '#/components/schemas/Base' }, { $ref: '#/components/schemas/Base2' }]
+            } as any;
+
+            const modifier = new SchemaModifier(doc) as any;
+            const schema = doc.components!.schemas!.TestSchema as any;
+            const original = JSON.parse(JSON.stringify(schema));
+            modifier.normalizeAnyOfInAllOf(schema);
+
+            expect(schema).toEqual(original);
+        });
+
+        it('should not modify schema without allOf', () => {
+            const doc = createDocument();
+            doc.components!.schemas!.TestSchema = { type: 'object', properties: { x: { type: 'string' } } };
+
+            const modifier = new SchemaModifier(doc) as any;
+            const schema = doc.components!.schemas!.TestSchema as any;
+            modifier.normalizeAnyOfInAllOf(schema);
+
+            expect(schema.allOf).toBeUndefined();
+            expect(schema.type).toBe('object');
+        });
+    });
 });

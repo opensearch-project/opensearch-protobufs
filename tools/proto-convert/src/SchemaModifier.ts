@@ -23,6 +23,7 @@ export class SchemaModifier {
                 this.deduplicateOneOfWithArrayType(schema)
                 this.collapseSingleItemComposite(schema);
                 this.normalizeMixedOneOf(schema)
+                this.normalizeAnyOfInAllOf(schema);
             },
             onSchema: (schema, schemaName) => {
                 if (!schema || isReferenceObject(schema)) return;
@@ -33,6 +34,7 @@ export class SchemaModifier {
                 this.handleOneOfConst(schema, schemaName)
                 this.deduplicateOneOfWithArrayType(schema)
                 this.collapseSingleItemComposite(schema);
+                this.normalizeAnyOfInAllOf(schema);
                 this.collapseOneOfObjectPropContainsTitleSchema(schema)
                 this.normalizeMixedOneOf(schema)
                 this.convertOneOfToMinMaxProperties(schema)
@@ -144,6 +146,81 @@ export class SchemaModifier {
             Object.assign(schema, schema.anyOf[0]);
             delete schema.anyOf;
         }
+    }
+
+    /**
+     * When allOf contains an anyOf item whose variants carry `title` fields, replaces
+     * that anyOf item with a single merged properties object so the generator can
+     * flatten the entire allOf naturally.
+     *
+     * Only fires when at least one anyOf variant has a title (typed-discriminator pattern).
+     * Base $refs in allOf are left untouched — the generator flattens them automatically.
+     *
+     * Input:
+     *   allOf:
+     *     - $ref: '#/components/schemas/AggregateBase'
+     *     - anyOf:
+     *         - { title: lterms, $ref: '#/components/schemas/LongTermsAggregate' }
+     *         - { title: max,    $ref: '#/components/schemas/MaxAggregate' }
+     *
+     * Output:
+     *   allOf:
+     *     - $ref: '#/components/schemas/AggregateBase'    # untouched, generator flattens
+     *     - type: object
+     *       properties:
+     *         lterms: { $ref: '#/components/schemas/LongTermsAggregate' }
+     *         max:    { $ref: '#/components/schemas/MaxAggregate' }
+     */
+    normalizeAnyOfInAllOf(schema: OpenAPIV3.SchemaObject): void {
+        if (!Array.isArray(schema.allOf) || schema.allOf.length === 0) {
+            return;
+        }
+
+        // Find the anyOf item inside allOf
+        const anyOfIndex = schema.allOf.findIndex(
+            item => item && typeof item === 'object' && !('$ref' in item) && Array.isArray((item as OpenAPIV3.SchemaObject).anyOf)
+        );
+
+        if (anyOfIndex === -1) {
+            return;
+        }
+
+        const anyOfItem = schema.allOf[anyOfIndex] as OpenAPIV3.SchemaObject;
+        const variants = anyOfItem.anyOf as Array<OpenAPIV3.ReferenceObject | OpenAPIV3.SchemaObject>;
+
+        // Only apply when variants carry titles (typed-discriminator pattern)
+        if (!variants.some(v => (v as any).title)) {
+            return;
+        }
+
+        // Merge variants into a single properties object.
+        // Use title as the property name if present; otherwise derive from the $ref type name in snake_case.
+        const properties: Record<string, OpenAPIV3.SchemaObject | OpenAPIV3.ReferenceObject> = {};
+        for (const variant of variants) {
+            const v = variant as any;
+            let propName: string;
+            if (v.title) {
+                propName = v.title;
+            } else if (v['$ref']) {
+                const refName = (v['$ref'] as string).split('/').pop() ?? '';
+                propName = toSnakeCase(refName);
+            } else {
+                continue; // no way to derive a name
+            }
+            const propSchema: Record<string, any> = {};
+            for (const key of Object.keys(v)) {
+                if (key !== 'title') propSchema[key] = v[key];
+            }
+            properties[propName] = propSchema;
+        }
+
+        // Replace the anyOf item in-place with a flat properties object
+        schema.allOf[anyOfIndex] = {
+            type: 'object',
+            properties,
+        };
+
+        logger.info(`normalizeAnyOfInAllOf: replaced anyOf (${variants.length} variants) with merged properties object`);
     }
 
     isArraySchemaObject(schema: any): schema is OpenAPIV3.ArraySchemaObject {
