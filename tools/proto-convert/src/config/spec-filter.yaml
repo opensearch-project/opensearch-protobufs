@@ -2,6 +2,8 @@
 x-operation-groups:
   - bulk
   - search
+  - ml.predict_model_stream
+  - ml.execute_agent_stream
 
 # Schemas to exclude from proto generation
 # These schemas and their nested dependencies will not be included
