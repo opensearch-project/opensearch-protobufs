@@ -11,6 +11,8 @@ This repository will also include a variety of tooling and CI, linters and valid
 Each OpenSearch Protobufs release includes:
 
 - **Java Archive**: `opensearch-protobufs-java.tar.gz` - Maven-compatible JAR files for Java/Gradle projects
+- **Go Archive**: `opensearch-protobufs-go.tar.gz` - Pre-generated Go module with protobuf and gRPC code
+- **Python Wheel**: `opensearch_protobufs-{version}-py3-none-any.whl` - Python package (also published to PyPI)
 - **Protobuf ZIP**: `opensearch-protobufs-{version}.zip` - Raw `.proto` files for generating client libraries in any language
 
 Download the latest release from the [GitHub Releases page](https://github.com/opensearch-project/opensearch-protobufs/releases).
@@ -25,6 +27,28 @@ unzip opensearch-protobufs-{version}.zip
 cd opensearch-protobufs-{version}
 ```
 3. Follow latest documentation on https://protobuf.dev/reference/ to generate client libraries for different languages.
+
+### Using Pre-generated Go Module
+
+1. Download `opensearch-protobufs-go.tar.gz` from releases:
+```bash
+tar -xzf opensearch-protobufs-go.tar.gz
+```
+
+2. Add to your `go.mod`:
+```
+require github.com/opensearch-project/opensearch-protobufs/go v{version}
+
+replace github.com/opensearch-project/opensearch-protobufs/go => ./opensearch-protobufs-go-{version}
+```
+
+3. Import and use:
+```go
+import (
+    "github.com/opensearch-project/opensearch-protobufs/go/opensearchpb"
+    "github.com/opensearch-project/opensearch-protobufs/go/services"
+)
+```
 
 ## Generated Code Usage
 
