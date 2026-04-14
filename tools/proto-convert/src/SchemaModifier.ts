@@ -111,7 +111,7 @@ export class SchemaModifier {
         if (!('$ref' in schema) && Array.isArray(schema.oneOf)) {
             const oneOfs = schema.oneOf;
 
-            const arrayMap = new Map<string, any>(); // signature -> array item
+            const arrayMap = new Map<string, any>();
             var deleteIndx = -1;
 
             // Collect all array items
