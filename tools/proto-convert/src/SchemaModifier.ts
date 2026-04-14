@@ -105,24 +105,41 @@ export class SchemaModifier {
     // Simplify schemas with `oneOf` by aggregating items.
     // If there are only two `oneOf` items and one matches an array schema, remove oneOf type and set type to array.
     // If there are more than two `oneOf` items and one matches an array schema, remove that item from `oneOf`.
+    // IMPORTANT: Skips deduplication if BOTH single and array items have titles AND they're different.
+    // This preserves semantically different variants (e.g., 'regexp' vs 'terms', 'single' vs 'array').
     deduplicateOneOfWithArrayType(schema: OpenAPIV3.SchemaObject): void{
         if (!('$ref' in schema) && Array.isArray(schema.oneOf)) {
             const oneOfs = schema.oneOf;
 
-            const arraySet = new Set<string>();
+            const arrayMap = new Map<string, any>(); // signature -> array item
             var deleteIndx = -1;
 
+            // Collect all array items
             for (const oneOf of oneOfs) {
                 if (this.isArraySchemaObject(oneOf)) {
                     const { type, $ref, additionalProperties} = oneOf.items as any;
                     const oneOfStr = JSON.stringify({ type, $ref, additionalProperties});
-                    arraySet.add(oneOfStr)
+                    arrayMap.set(oneOfStr, oneOf);
                 }
             }
+
+            // Find matching single items and check titles before removing
             for (const oneOf of oneOfs) {
                 const { type, $ref, additionalProperties} = oneOf as any;
                 const oneOfStr = JSON.stringify({ type, $ref, additionalProperties});
-                if (arraySet.has(oneOfStr)) {
+
+                if (arrayMap.has(oneOfStr)) {
+                    const arrayItem = arrayMap.get(oneOfStr);
+                    const singleTitle = (oneOf as any).title;
+                    const arrayTitle = arrayItem.title;
+
+                    // Only skip if BOTH have titles AND they're different
+                    if (singleTitle && arrayTitle && singleTitle !== arrayTitle) {
+                        logger.info(`Skipping deduplicateOneOfWithArrayType: different titles '${singleTitle}' vs '${arrayTitle}'`);
+                        continue;
+                    }
+
+                    // Same title or at least one has no title -> proceed with deduplication
                     deleteIndx = oneOfs.findIndex(item => isEqual(item, oneOf));
                     oneOfs.splice(deleteIndx, 1);
                 }

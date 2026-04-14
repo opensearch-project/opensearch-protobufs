@@ -416,6 +416,119 @@ describe('SchemaModifier', () => {
             expect(schema.oneOf).toContainEqual({ type: 'boolean' });
             expect(schema.oneOf).toContainEqual({ type: 'array', items: { type: 'string' } });
         });
+
+        it('should NOT remove single item when it has different title from array item', () => {
+            const doc = createDocument();
+            const modifier = new SchemaModifier(doc);
+
+            const schema: any = {
+                oneOf: [
+                    { title: 'regexp', type: 'string' },
+                    { title: 'terms', type: 'array', items: { type: 'string' } }
+                ]
+            };
+
+            modifier.deduplicateOneOfWithArrayType(schema);
+
+            // Both items should be preserved because titles differ
+            expect(schema.oneOf).toHaveLength(2);
+            expect(schema.oneOf[0]).toEqual({ title: 'regexp', type: 'string' });
+            expect(schema.oneOf[1]).toEqual({ title: 'terms', type: 'array', items: { type: 'string' } });
+        });
+
+        it('should NOT remove single item when titles differ (BucketsPath pattern)', () => {
+            const doc = createDocument();
+            const modifier = new SchemaModifier(doc);
+
+            const schema: any = {
+                oneOf: [
+                    { title: 'single', type: 'string' },
+                    { title: 'array', type: 'array', items: { type: 'string' } },
+                    { title: 'dict', type: 'object', additionalProperties: { type: 'string' } }
+                ]
+            };
+
+            modifier.deduplicateOneOfWithArrayType(schema);
+
+            // All items should be preserved because single and array have different titles
+            expect(schema.oneOf).toHaveLength(3);
+            expect(schema.oneOf).toContainEqual({ title: 'single', type: 'string' });
+            expect(schema.oneOf).toContainEqual({ title: 'array', type: 'array', items: { type: 'string' } });
+            expect(schema.oneOf).toContainEqual({ title: 'dict', type: 'object', additionalProperties: { type: 'string' } });
+        });
+
+        it('should remove single item when both have the same title', () => {
+            const doc = createDocument();
+            const modifier = new SchemaModifier(doc);
+
+            const schema: any = {
+                oneOf: [
+                    { title: 'value', type: 'string' },
+                    { title: 'value', type: 'array', items: { type: 'string' } }
+                ]
+            };
+
+            modifier.deduplicateOneOfWithArrayType(schema);
+
+            // Single item should be removed since titles match
+            expect(schema.oneOf).toHaveLength(1);
+            expect(schema.oneOf[0]).toEqual({ title: 'value', type: 'array', items: { type: 'string' } });
+        });
+
+        it('should remove single item when only single item has title', () => {
+            const doc = createDocument();
+            const modifier = new SchemaModifier(doc);
+
+            const schema: any = {
+                oneOf: [
+                    { title: 'value', type: 'string' },
+                    { type: 'array', items: { type: 'string' } }
+                ]
+            };
+
+            modifier.deduplicateOneOfWithArrayType(schema);
+
+            // Single item should be removed (no conflict since array has no title)
+            expect(schema.oneOf).toHaveLength(1);
+            expect(schema.oneOf[0]).toEqual({ type: 'array', items: { type: 'string' } });
+        });
+
+        it('should remove single item when only array item has title', () => {
+            const doc = createDocument();
+            const modifier = new SchemaModifier(doc);
+
+            const schema: any = {
+                oneOf: [
+                    { type: 'string' },
+                    { title: 'array', type: 'array', items: { type: 'string' } }
+                ]
+            };
+
+            modifier.deduplicateOneOfWithArrayType(schema);
+
+            // Single item should be removed (no conflict since single has no title)
+            expect(schema.oneOf).toHaveLength(1);
+            expect(schema.oneOf[0]).toEqual({ title: 'array', type: 'array', items: { type: 'string' } });
+        });
+
+        it('should NOT remove when different titles with $ref types', () => {
+            const doc = createDocument();
+            const modifier = new SchemaModifier(doc);
+
+            const schema: any = {
+                oneOf: [
+                    { title: 'inline', $ref: '#/components/schemas/InlineScript' },
+                    { title: 'stored', type: 'array', items: { $ref: '#/components/schemas/InlineScript' } }
+                ]
+            };
+
+            modifier.deduplicateOneOfWithArrayType(schema);
+
+            // Both should be preserved because titles differ
+            expect(schema.oneOf).toHaveLength(2);
+            expect(schema.oneOf[0]).toEqual({ title: 'inline', $ref: '#/components/schemas/InlineScript' });
+            expect(schema.oneOf[1]).toEqual({ title: 'stored', type: 'array', items: { $ref: '#/components/schemas/InlineScript' } });
+        });
     });
 
     describe('collapseSingleItemComposite', () => {
