@@ -61,6 +61,7 @@ genrule(
         "//protos/services:document_service.proto",
         "//protos/services:search_service.proto",
         "@com_google_protobuf//:well_known_type_protos",
+        "@com_google_protobuf//:descriptor_proto_srcs",
     ],
     outs = [
         "python_pyi/schemas/common_pb2.pyi",
