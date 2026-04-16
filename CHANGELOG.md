@@ -5,7 +5,7 @@ Inspired from [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 ## [Unreleased]
 ### Added
 - Add tooling_skip field option to preserve manually-maintained protobuf fields ([#417](https://github.com/opensearch-project/opensearch-protobufs/pull/417))
-- Add min, max and terms bucket aggregation and remove BoostingQuery and SimpleQueryStringQuery. ([#410](https://github.com/opensearch-project/opensearch-protobufs/pull/410))
+- Add min, max and terms bucket aggregation and remove BoostingQuery and SimpleQueryStringQuery. ([#438](https://github.com/opensearch-project/opensearch-protobufs/pull/438))
 ### Changed
  - Fix simplifySingleMapSchema to generate named wrapper schemas. ([#406](https://github.com/opensearch-project/opensearch-protobufs/pull/406))
  - Change vendorExtension protobuf type handling to use protobuf type instead of openApi type ([#409](https://github.com/opensearch-project/opensearch-protobufs/pull/409))

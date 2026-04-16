@@ -8,6 +8,13 @@ option go_package = "github.com/opensearch-project/opensearch-protobufs/go/opens
 option java_multiple_files = true;
 option java_outer_classname = "CommonProto";
 option java_package = "org.opensearch.protobufs";
+import "google/protobuf/descriptor.proto";
+
+// Custom field option for tooling
+extend google.protobuf.FieldOptions {
+  // Mark a field to be skipped by tooling. These fields are manually maintained and won't be marked as deprecated.
+  optional bool tooling_skip = 50001;
+}
 
 // The Search API operation to perform a search across all indices in the cluster or index search
 message SearchRequest {
@@ -890,6 +897,18 @@ message BulkRequestBody {
 
   // [optional]
   optional bytes object = 3;
+
+  // EXPERIMENTAL field
+  // [optional] Map of fully-qualified field path -> typed value.
+  // This field is intended for large field values, such as large vectors, that
+  // should be provided separately from `_source`.
+  // Supported operations: index, create and update
+  // Compatibility:
+  // - May be provided together with `object`and update_action.
+  // - `object` and `update_action` continue to represent `_source`.
+  // - `extra_field_values` provides additional out-of-band field values and does
+  //   not replace `_source`.
+  map<string, BinaryFieldValue> extra_field_values = 4 [(tooling_skip) = true];
 }
 
 message OperationContainer {
@@ -2828,6 +2847,51 @@ message HitMatchedQueries {
 
   }
 }
+
+message BinaryFieldValue {
+  oneof binary_field_value {
+
+    // [optional] Raw bytes payload for a field-specific binary representation.
+    BytesValue bytes_value = 1;
+
+    // [optional] Float array payload for fields that support vector-like input.
+    FloatArrayValue float_array_value = 2;
+
+  }
+}
+
+message BytesValue {
+
+  // [required] Raw bytes for the field value.
+  bytes bytes = 1;
+}
+
+message FloatArrayValue {
+  oneof encoding {
+
+    // [optional] Fast path: 4 * dimension bytes, little-endian binary float array.
+    FloatBinaryLE binary_le = 1;
+
+    // [optional] Simple path: packed array
+    FloatList values = 2;
+  }
+}
+
+message FloatBinaryLE {
+
+  // [required] Raw float data encoded as little-endian IEEE-754 float32 values.
+  bytes bytes_le = 1;
+
+  // [required] Number of float elements in the payload.
+  int32 dimension = 2;
+}
+
+message FloatList {
+
+  // [required] Float values for the field.
+  repeated float values = 1;
+}
+
 
 message BoostingQuery {
 
