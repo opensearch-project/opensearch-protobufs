@@ -9,8 +9,10 @@ excluded_schemas:
   - Suggester
   - Suggest
   - AgenticQuery
+  - BoostingQuery
   - DisMaxQuery
   - QueryStringQuery
+  - SimpleQueryStringQuery
   - IntervalsQuery
   - ScriptScoreQuery
   - CommonTermsQuery

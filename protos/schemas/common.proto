@@ -8,13 +8,6 @@ option go_package = "github.com/opensearch-project/opensearch-protobufs/go/opens
 option java_multiple_files = true;
 option java_outer_classname = "CommonProto";
 option java_package = "org.opensearch.protobufs";
-import "google/protobuf/descriptor.proto";
-
-// Custom field option for tooling
-extend google.protobuf.FieldOptions {
-  // Mark a field to be skipped by tooling. These fields are manually maintained and won't be marked as deprecated.
-  optional bool tooling_skip = 50001;
-}
 
 // The Search API operation to perform a search across all indices in the cluster or index search
 message SearchRequest {
@@ -220,9 +213,6 @@ message SearchRequestBody {
 
   // [optional] Values used to boost the score of specified indexes. Specify in the format of <index> : <boost-multiplier>
   repeated FloatMap indices_boost_2 = 36;
-
-  // Defines the aggregations that are run as part of the search request.
-  map<string, AggregationContainer> aggregations = 37;
 }
 
 message DerivedField {
@@ -299,8 +289,6 @@ message SearchResponse {
 
   // [optional] If the query was terminated early, the terminated_early flag will be set to true in the response
   optional bool terminated_early = 13;
-
-  map<string, Aggregate> aggregations = 14;
 }
 
 message ProcessorExecutionDetail {
@@ -902,18 +890,6 @@ message BulkRequestBody {
 
   // [optional]
   optional bytes object = 3;
-
-  // EXPERIMENTAL field
-  // [optional] Map of fully-qualified field path -> typed value.
-  // This field is intended for large field values, such as large vectors, that
-  // should be provided separately from `_source`.
-  // Supported operations: index, create and update
-  // Compatibility:
-  // - May be provided together with `object`and update_action.
-  // - `object` and `update_action` continue to represent `_source`.
-  // - `extra_field_values` provides additional out-of-band field values and does
-  //   not replace `_source`.
-  map<string, BinaryFieldValue> extra_field_values = 4 [(tooling_skip) = true];
 }
 
 message OperationContainer {
@@ -2853,51 +2829,6 @@ message HitMatchedQueries {
   }
 }
 
-message BinaryFieldValue {
-  oneof binary_field_value {
-
-    // [optional] Raw bytes payload for a field-specific binary representation.
-    BytesValue bytes_value = 1;
-
-    // [optional] Float array payload for fields that support vector-like input.
-    FloatArrayValue float_array_value = 2;
-
-  }
-}
-
-message BytesValue {
-
-  // [required] Raw bytes for the field value.
-  bytes bytes = 1;
-}
-
-message FloatArrayValue {
-  oneof encoding {
-
-    // [optional] Fast path: 4 * dimension bytes, little-endian binary float array.
-    FloatBinaryLE binary_le = 1;
-
-    // [optional] Simple path: packed array
-    FloatList values = 2;
-  }
-}
-
-message FloatBinaryLE {
-
-  // [required] Raw float data encoded as little-endian IEEE-754 float32 values.
-  bytes bytes_le = 1;
-
-  // [required] Number of float elements in the payload.
-  int32 dimension = 2;
-}
-
-message FloatList {
-
-  // [required] Float values for the field.
-  repeated float values = 1;
-}
-
-
 message BoostingQuery {
 
   // Floating point number used to decrease or increase the relevance scores of the query. Boost values are relative to the default value of 1.0. A boost value between 0 and 1.0 decreases the relevance score. A value greater than 1.0 increases the relevance score.
@@ -2983,146 +2914,6 @@ message ShardSearchFailure {
 message FloatMap {
 
   map<string, float> float_map = 1;
-}
-
-message Aggregate {
-
-  // The custom metadata attached to a resource.
-  optional ObjectMap meta = 1;
-
-  repeated ObjectMap buckets = 2;
-
-  optional int64 doc_count_error_upper_bound = 3;
-
-  optional int64 sum_other_doc_count = 4;
-
-  SingleMetricAggregateBaseValue value = 5;
-
-  optional string value_as_string = 6;
-}
-
-message AggregationContainer {
-
-  // Custom metadata to associate with the aggregation (optional)
-  optional ObjectMap meta = 1;
-  oneof aggregation_container {
-    MaxAggregation max = 2;
-
-    MinAggregation min = 3;
-
-    TermsAggregation terms_aggregation = 4;
-
-  }
-}
-
-message MaxAggregation {
-
-  optional FieldValue missing = 1;
-
-  // The path to a field or an array of paths. Some APIs support wildcards in the path, which allows you to select multiple fields.
-  optional string field = 2;
-
-  optional Script script = 3;
-
-  optional string format = 4;
-
-  optional ValueType value_type = 5;
-}
-
-message MinAggregation {
-
-  optional FieldValue missing = 1;
-
-  // The path to a field or an array of paths. Some APIs support wildcards in the path, which allows you to select multiple fields.
-  optional string field = 2;
-
-  optional Script script = 3;
-
-  optional string format = 4;
-
-  optional ValueType value_type = 5;
-}
-
-message SingleMetricAggregateBaseValue {
-  oneof single_metric_aggregate_base_value {
-    double double = 1;
-
-    NullValue null_value = 2;
-
-  }
-}
-
-message SortOrderSingleMap {
-
-  string field = 1;
-
-  SortOrder sort_order = 2;
-}
-
-message TermsAggregation {
-
-  // Sub-aggregations for this bucket aggregation
-  map<string, AggregationContainer> aggregations = 1;
-
-  TermsAggregationFields terms = 2;
-}
-
-message TermsAggregationFields {
-
-  optional TermsAggregationCollectMode collect_mode = 1;
-
-  repeated string exclude = 2;
-
-  optional TermsAggregationExecutionHint execution_hint = 3;
-
-  optional TermsInclude include = 4;
-
-  // Only return values that are found in more than `min_doc_count` hits.
-  optional int64 min_doc_count = 5;
-
-  optional FieldValue missing = 6;
-
-  // Coerced unmapped fields into the specified type.
-  optional ValueType value_type = 7;
-
-  repeated SortOrderSingleMap order = 8;
-
-  // The number of candidate terms produced by each shard. By default, `shard_size` will be automatically estimated based on the number of shards and the `size` parameter.
-  optional int32 shard_size = 9;
-
-  // The minimum number of documents in a bucket on each shard for it to be returned.
-  optional int64 shard_min_doc_count = 10;
-
-  // Set to `true` to return the `doc_count_error_upper_bound`, which is an upper bound to the error on the `doc_count` returned by each shard.
-  optional bool show_term_doc_count_error = 11;
-
-  // The number of buckets returned out of the overall terms list.
-  optional int32 size = 12;
-
-  optional string format = 13;
-
-  // The path to a field or an array of paths. Some APIs support wildcards in the path, which allows you to select multiple fields.
-  optional string field = 14;
-
-  optional Script script = 15;
-}
-
-message TermsInclude {
-  oneof terms_include {
-    StringArray terms = 1;
-
-    TermsPartition partition = 2;
-
-  }
-}
-
-message TermsPartition {
-
-  // The number of partitions.
-  int32 num_partitions = 1;
-
-  // The partition number for this request.
-  int32 partition = 2;
 }
 
 enum FieldValueFactorModifier {
@@ -3458,37 +3249,6 @@ enum SimpleQueryStringFlag {
   SIMPLE_QUERY_STRING_FLAG_PREFIX = 11;
   SIMPLE_QUERY_STRING_FLAG_SLOP = 12;
   SIMPLE_QUERY_STRING_FLAG_WHITESPACE = 13;
-}
-
-enum TermsAggregationCollectMode {
-  TERMS_AGGREGATION_COLLECT_MODE_UNSPECIFIED = 0;
-  TERMS_AGGREGATION_COLLECT_MODE_BREADTH_FIRST = 1;
-  TERMS_AGGREGATION_COLLECT_MODE_DEPTH_FIRST = 2;
-}
-
-enum TermsAggregationExecutionHint {
-  TERMS_AGGREGATION_EXECUTION_HINT_UNSPECIFIED = 0;
-  TERMS_AGGREGATION_EXECUTION_HINT_GLOBAL_ORDINALS = 1;
-  TERMS_AGGREGATION_EXECUTION_HINT_GLOBAL_ORDINALS_HASH = 2;
-  TERMS_AGGREGATION_EXECUTION_HINT_GLOBAL_ORDINALS_LOW_CARDINALITY = 3;
-  TERMS_AGGREGATION_EXECUTION_HINT_MAP = 4;
-}
-
-enum ValueType {
-  VALUE_TYPE_UNSPECIFIED = 0;
-  VALUE_TYPE_BOOLEAN = 1;
-  VALUE_TYPE_BYTE = 2;
-  VALUE_TYPE_DATE = 3;
-  VALUE_TYPE_DOUBLE = 4;
-  VALUE_TYPE_FLOAT = 5;
-  VALUE_TYPE_INTEGER = 6;
-  VALUE_TYPE_IP = 7;
-  VALUE_TYPE_LONG = 8;
-  VALUE_TYPE_NUMBER = 9;
-  VALUE_TYPE_NUMERIC = 10;
-  VALUE_TYPE_SHORT = 11;
-  VALUE_TYPE_STRING = 12;
-  VALUE_TYPE_UNSIGNED_LONG = 13;
 }
 
 message ObjectMap {
