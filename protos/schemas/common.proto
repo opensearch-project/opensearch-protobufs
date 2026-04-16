@@ -220,6 +220,9 @@ message SearchRequestBody {
 
   // [optional] Values used to boost the score of specified indexes. Specify in the format of <index> : <boost-multiplier>
   repeated FloatMap indices_boost_2 = 36;
+
+  // Defines the aggregations that are run as part of the search request.
+  map<string, AggregationContainer> aggregations = 37;
 }
 
 message DerivedField {
@@ -296,6 +299,8 @@ message SearchResponse {
 
   // [optional] If the query was terminated early, the terminated_early flag will be set to true in the response
   optional bool terminated_early = 13;
+
+  map<string, Aggregate> aggregations = 14;
 }
 
 message ProcessorExecutionDetail {
@@ -2906,6 +2911,293 @@ message FloatMap {
   map<string, float> float_map = 1;
 }
 
+message Aggregate {
+
+  optional DoubleTermsAggregate dterms = 1;
+
+  optional LongTermsAggregate lterms = 2;
+
+  optional SingleMetricAggregateBase max = 3;
+
+  optional SingleMetricAggregateBase min = 4;
+
+  optional StringTermsAggregate sterms = 5;
+
+  optional UnsignedLongTermsAggregate ulterms = 6;
+
+  optional UnmappedTermsAggregate umterms = 7;
+}
+
+message AggregationContainer {
+
+  // Custom metadata to associate with the aggregation (optional)
+  optional ObjectMap meta = 1;
+  oneof aggregation_container {
+    MaxAggregation max = 2;
+
+    MinAggregation min = 3;
+
+    TermsAggregation terms_aggregation = 4;
+
+  }
+}
+
+message DoubleTermsAggregate {
+
+  // The custom metadata attached to a resource.
+  optional ObjectMap meta = 1;
+
+  repeated DoubleTermsBucket buckets = 2;
+
+  optional int64 doc_count_error_upper_bound = 3;
+
+  optional int64 sum_other_doc_count = 4;
+}
+
+message DoubleTermsBucket {
+
+  int64 doc_count = 1;
+
+  map<string, Aggregate> aggregate = 2;
+
+  // Upper bound of the document count error. Only present when `show_term_doc_count_error` is true.
+  optional int64 doc_count_error_upper_bound = 3;
+
+  double key = 4;
+
+  optional string key_as_string = 5;
+}
+
+message LongTermsAggregate {
+
+  // The custom metadata attached to a resource.
+  optional ObjectMap meta = 1;
+
+  repeated LongTermsBucket buckets = 2;
+
+  optional int64 doc_count_error_upper_bound = 3;
+
+  optional int64 sum_other_doc_count = 4;
+}
+
+message LongTermsBucket {
+
+  int64 doc_count = 1;
+
+  map<string, Aggregate> aggregate = 2;
+
+  // Upper bound of the document count error. Only present when `show_term_doc_count_error` is true.
+  optional int64 doc_count_error_upper_bound = 3;
+
+  LongTermsBucketKey key = 4;
+
+  optional string key_as_string = 5;
+}
+
+message LongTermsBucketKey {
+  oneof long_terms_bucket_key {
+    int64 signed = 1;
+
+    string unsigned = 2;
+
+  }
+}
+
+message MaxAggregation {
+
+  optional FieldValue missing = 1;
+
+  // The path to a field or an array of paths. Some APIs support wildcards in the path, which allows you to select multiple fields.
+  optional string field = 2;
+
+  optional Script script = 3;
+
+  optional string format = 4;
+
+  optional ValueType value_type = 5;
+}
+
+message MinAggregation {
+
+  optional FieldValue missing = 1;
+
+  // The path to a field or an array of paths. Some APIs support wildcards in the path, which allows you to select multiple fields.
+  optional string field = 2;
+
+  optional Script script = 3;
+
+  optional string format = 4;
+
+  optional ValueType value_type = 5;
+}
+
+message SingleMetricAggregateBase {
+
+  // The custom metadata attached to a resource.
+  optional ObjectMap meta = 1;
+
+  SingleMetricAggregateBaseAllOfValue value = 2;
+
+  optional string value_as_string = 3;
+}
+
+message SingleMetricAggregateBaseAllOfValue {
+  oneof single_metric_aggregate_base_all_of_value {
+    double double = 1;
+
+    NullValue null_value = 2;
+
+  }
+}
+
+message SortOrderSingleMap {
+
+  string field = 1;
+
+  SortOrder sort_order = 2;
+}
+
+message StringTermsAggregate {
+
+  // The custom metadata attached to a resource.
+  optional ObjectMap meta = 1;
+
+  repeated StringTermsBucket buckets = 2;
+
+  optional int64 doc_count_error_upper_bound = 3;
+
+  optional int64 sum_other_doc_count = 4;
+}
+
+message StringTermsBucket {
+
+  int64 doc_count = 1;
+
+  map<string, Aggregate> aggregate = 2;
+
+  // Upper bound of the document count error. Only present when `show_term_doc_count_error` is true.
+  optional int64 doc_count_error_upper_bound = 3;
+
+  string key = 4;
+}
+
+message TermsAggregation {
+
+  // Sub-aggregations for this bucket aggregation
+  map<string, AggregationContainer> aggregations = 1;
+
+  TermsAggregationFields terms = 2;
+}
+
+message TermsAggregationFields {
+
+  optional TermsAggregationCollectMode collect_mode = 1;
+
+  optional TermsExclude exclude = 2;
+
+  optional TermsAggregationExecutionHint execution_hint = 3;
+
+  optional TermsInclude include = 4;
+
+  // Only return values that are found in more than `min_doc_count` hits.
+  optional int64 min_doc_count = 5;
+
+  optional FieldValue missing = 6;
+
+  // Coerced unmapped fields into the specified type.
+  optional ValueType value_type = 7;
+
+  repeated SortOrderSingleMap order = 8;
+
+  // The number of candidate terms produced by each shard. By default, `shard_size` will be automatically estimated based on the number of shards and the `size` parameter.
+  optional int32 shard_size = 9;
+
+  // The minimum number of documents in a bucket on each shard for it to be returned.
+  optional int64 shard_min_doc_count = 10;
+
+  // Set to `true` to return the `doc_count_error_upper_bound`, which is an upper bound to the error on the `doc_count` returned by each shard.
+  optional bool show_term_doc_count_error = 11;
+
+  // The number of buckets returned out of the overall terms list.
+  optional int32 size = 12;
+
+  optional string format = 13;
+
+  // The path to a field or an array of paths. Some APIs support wildcards in the path, which allows you to select multiple fields.
+  optional string field = 14;
+
+  optional Script script = 15;
+}
+
+message TermsExclude {
+  oneof terms_exclude {
+    string regexp = 1;
+
+    StringArray terms = 2;
+
+  }
+}
+
+message TermsInclude {
+  oneof terms_include {
+    string regexp = 1;
+
+    StringArray terms = 2;
+
+    TermsPartition partition = 3;
+
+  }
+}
+
+message TermsPartition {
+
+  // The number of partitions.
+  int32 num_partitions = 1;
+
+  // The partition number for this request.
+  int32 partition = 2;
+}
+
+message UnmappedTermsAggregate {
+
+  // The custom metadata attached to a resource.
+  optional ObjectMap meta = 1;
+
+  repeated ObjectMap buckets = 2;
+
+  optional int64 doc_count_error_upper_bound = 3;
+
+  optional int64 sum_other_doc_count = 4;
+}
+
+message UnsignedLongTermsAggregate {
+
+  // The custom metadata attached to a resource.
+  optional ObjectMap meta = 1;
+
+  repeated UnsignedLongTermsBucket buckets = 2;
+
+  optional int64 doc_count_error_upper_bound = 3;
+
+  optional int64 sum_other_doc_count = 4;
+}
+
+message UnsignedLongTermsBucket {
+
+  int64 doc_count = 1;
+
+  map<string, Aggregate> aggregate = 2;
+
+  // Upper bound of the document count error. Only present when `show_term_doc_count_error` is true.
+  optional int64 doc_count_error_upper_bound = 3;
+
+  // The unsigned 64-bit integer bucket key. While JSON represents this as a number, values larger than 2^53--1 may lose precision in JSON serialization. The gRPC protocol buffer definition uses uint64 to preserve full precision. Use `key_as_string` for exact string representation of large values.
+  uint64 key = 4;
+
+  // String representation of the key. Only present when a custom `format` parameter is specified in the aggregation request.
+  optional string key_as_string = 5;
+}
+
 enum FieldValueFactorModifier {
   FIELD_VALUE_FACTOR_MODIFIER_UNSPECIFIED = 0;
   FIELD_VALUE_FACTOR_MODIFIER_LN = 1;
@@ -3222,6 +3514,37 @@ enum GeoExecution {
   GEO_EXECUTION_UNSPECIFIED = 0;
   GEO_EXECUTION_INDEXED = 1;
   GEO_EXECUTION_MEMORY = 2;
+}
+
+enum TermsAggregationCollectMode {
+  TERMS_AGGREGATION_COLLECT_MODE_UNSPECIFIED = 0;
+  TERMS_AGGREGATION_COLLECT_MODE_BREADTH_FIRST = 1;
+  TERMS_AGGREGATION_COLLECT_MODE_DEPTH_FIRST = 2;
+}
+
+enum TermsAggregationExecutionHint {
+  TERMS_AGGREGATION_EXECUTION_HINT_UNSPECIFIED = 0;
+  TERMS_AGGREGATION_EXECUTION_HINT_GLOBAL_ORDINALS = 1;
+  TERMS_AGGREGATION_EXECUTION_HINT_GLOBAL_ORDINALS_HASH = 2;
+  TERMS_AGGREGATION_EXECUTION_HINT_GLOBAL_ORDINALS_LOW_CARDINALITY = 3;
+  TERMS_AGGREGATION_EXECUTION_HINT_MAP = 4;
+}
+
+enum ValueType {
+  VALUE_TYPE_UNSPECIFIED = 0;
+  VALUE_TYPE_BOOLEAN = 1;
+  VALUE_TYPE_BYTE = 2;
+  VALUE_TYPE_DATE = 3;
+  VALUE_TYPE_DOUBLE = 4;
+  VALUE_TYPE_FLOAT = 5;
+  VALUE_TYPE_INTEGER = 6;
+  VALUE_TYPE_IP = 7;
+  VALUE_TYPE_LONG = 8;
+  VALUE_TYPE_NUMBER = 9;
+  VALUE_TYPE_NUMERIC = 10;
+  VALUE_TYPE_SHORT = 11;
+  VALUE_TYPE_STRING = 12;
+  VALUE_TYPE_UNSIGNED_LONG = 13;
 }
 
 message ObjectMap {
