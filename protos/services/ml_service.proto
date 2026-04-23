@@ -1,0 +1,28 @@
+/*
+ * SPDX-License-Identifier: Apache-2.0
+ *
+ * The OpenSearch Contributors require contributions made to
+ * this file be licensed under the Apache-2.0 license or a
+ * compatible open source license.
+ *
+ * Modifications Copyright OpenSearch Contributors. See
+ * GitHub history for details.
+ */
+ 
+syntax = "proto3";
+package org.opensearch.protobufs.services;
+ 
+option java_multiple_files = true;
+option java_package = "org.opensearch.protobufs.services";
+option java_outer_classname = "MLServiceProto";
+option go_package = "github.com/opensearch-project/opensearch-protobufs/go/services";
+ 
+import "protos/schemas/common.proto";
+ 
+service MLService {
+  // Predict a remote model in streaming mode.
+  rpc PredictModelStream(MlPredictModelStreamRequest) returns (stream PredictResponse) {}
+ 
+  // Execute an agent in streaming mode.
+  rpc ExecuteAgentStream(MlExecuteAgentStreamRequest) returns (stream PredictResponse) {}
+}
