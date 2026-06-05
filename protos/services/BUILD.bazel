@@ -17,9 +17,21 @@ proto_library(
     deps = ["//protos/schemas:common_proto"],
 )
 
+proto_library(
+    name = "ml_service_proto",
+    srcs = ["ml_service.proto"],
+    deps = ["//protos/schemas:common_proto"],
+)
+
 java_grpc_library(
     name = "document_service_java_proto",
     protos = [":document_service_proto"],
+    deps = ["//protos/schemas:common_java_proto"],
+)
+
+java_grpc_library(
+    name = "ml_service_java_proto",
+    protos = [":ml_service_proto"],
     deps = ["//protos/schemas:common_java_proto"],
 )
 
@@ -38,5 +50,11 @@ go_grpc_library(
 go_grpc_library(
     name = "search_service_go_proto",
     protos = [":search_service_proto"],
+    deps = ["//protos/schemas:common_go_proto"],
+)
+
+go_grpc_library(
+    name = "ml_service_go_proto",
+    protos = [":ml_service_proto"],
     deps = ["//protos/schemas:common_go_proto"],
 )
