@@ -2857,6 +2857,14 @@ message BinaryFieldValue {
     // [optional] Float array payload for fields that support vector-like input.
     FloatArrayValue float_array_value = 2;
 
+    // [optional] Double array payload for fields that support vector-like input.
+    DoubleArrayValue double_array_value = 3;
+
+    // [optional] Int array payload for fields that support vector-like input.
+    IntArrayValue int_array_value = 4;
+
+    // [optional] Long array payload for fields that support vector-like input.
+    LongArrayValue long_array_value = 5;
   }
 }
 
@@ -2890,6 +2898,84 @@ message FloatList {
 
   // [required] Float values for the field.
   repeated float values = 1;
+}
+
+message DoubleArrayValue {
+  oneof encoding {
+
+    // [optional] Fast path: 8 * dimension bytes, little-endian binary double array.
+    DoubleBinaryLE binary_le = 1;
+
+    // [optional] Simple path: packed array
+    DoubleList values = 2;
+  }
+}
+
+message DoubleBinaryLE {
+
+  // [required] Raw double data encoded as little-endian IEEE-754 float64 values.
+  bytes bytes_le = 1;
+
+  // [required] Number of double elements in the payload.
+  int32 dimension = 2;
+}
+
+message DoubleList {
+
+  // [required] Double values for the field.
+  repeated double values = 1;
+}
+
+message IntArrayValue {
+  oneof encoding {
+
+    // [optional] Fast path: 4 * dimension bytes, little-endian binary int32 array.
+    IntBinaryLE binary_le = 1;
+
+    // [optional] Simple path: packed array
+    IntList values = 2;
+  }
+}
+
+message IntBinaryLE {
+
+  // [required] Raw int data encoded as little-endian int32 values.
+  bytes bytes_le = 1;
+
+  // [required] Number of int elements in the payload.
+  int32 dimension = 2;
+}
+
+message IntList {
+
+  // [required] Int values for the field.
+  repeated int32 values = 1;
+}
+
+message LongArrayValue {
+  oneof encoding {
+
+    // [optional] Fast path: 8 * dimension bytes, little-endian binary int64 array.
+    LongBinaryLE binary_le = 1;
+
+    // [optional] Simple path: packed array
+    LongList values = 2;
+  }
+}
+
+message LongBinaryLE {
+
+  // [required] Raw long data encoded as little-endian int64 values.
+  bytes bytes_le = 1;
+
+  // [required] Number of long elements in the payload.
+  int32 dimension = 2;
+}
+
+message LongList {
+
+  // [required] Long values for the field.
+  repeated int64 values = 1;
 }
 
 message ShardSearchFailure {
