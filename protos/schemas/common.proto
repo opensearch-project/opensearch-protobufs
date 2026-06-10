@@ -374,8 +374,7 @@ message HitsMetadata {
   // [required] Array of returned document objects.
   repeated HitsMetadataHitsInner hits = 2;
 
-  // [optional] Highest returned document _score.
-  optional HitsMetadataMaxScore max_score = 3;
+  HitsMetadataMaxScore max_score = 3;
 }
 
 message TotalHits {
@@ -2865,6 +2864,7 @@ message BinaryFieldValue {
 
     // [optional] Long array payload for fields that support vector-like input.
     LongArrayValue long_array_value = 5;
+
   }
 }
 
@@ -2902,12 +2902,12 @@ message FloatList {
 
 message DoubleArrayValue {
   oneof encoding {
-
     // [optional] Fast path: 8 * dimension bytes, little-endian binary double array.
     DoubleBinaryLE binary_le = 1;
 
     // [optional] Simple path: packed array
     DoubleList values = 2;
+
   }
 }
 
@@ -2928,12 +2928,12 @@ message DoubleList {
 
 message IntArrayValue {
   oneof encoding {
-
     // [optional] Fast path: 4 * dimension bytes, little-endian binary int32 array.
     IntBinaryLE binary_le = 1;
 
     // [optional] Simple path: packed array
     IntList values = 2;
+
   }
 }
 
@@ -2954,12 +2954,12 @@ message IntList {
 
 message LongArrayValue {
   oneof encoding {
-
     // [optional] Fast path: 8 * dimension bytes, little-endian binary int64 array.
     LongBinaryLE binary_le = 1;
 
     // [optional] Simple path: packed array
     LongList values = 2;
+
   }
 }
 
@@ -3411,6 +3411,65 @@ message MlPredictModelStreamRequest {
   optional GlobalParams global_params = 2;
 
   optional MLPredictModelStreamRequestBody ml_predict_model_stream_request_body = 3;
+}
+
+message CreatePITResponse {
+
+  string pit_id = 1;
+
+  int64 creation_time = 2;
+
+  ShardStatistics x_shards = 3;
+}
+
+message DeletePITResponse {
+
+  repeated DeletedPit pits = 1;
+}
+
+message DeletePitRequest {
+
+  repeated string pit_id = 1;
+}
+
+message DeletedPit {
+
+  string pit_id = 1;
+
+  bool successful = 2;
+}
+
+message CreatePitRequest {
+
+  // A comma-separated list of indexes; use `_all` or empty string to perform the operation on all indexes.
+  repeated string index = 1;
+
+  // Specify the keep alive for point in time.
+  string keep_alive = 2;
+
+  // If `false`, the request returns an error if any wildcard expression, index alias, or `_all` value targets only missing or closed indexes. This behavior applies even if the request targets other open indexes.
+  optional bool allow_no_indices = 3;
+
+  // Allow if point in time can be created with partial failures.
+  optional bool allow_partial_pit_creation = 4;
+
+  // Whether to expand wildcard expression to concrete indexes that are open, closed or both.
+  repeated ExpandWildcard expand_wildcards = 5;
+
+  // If `true`, concrete, expanded or aliased indexes will be ignored when frozen.
+  optional bool ignore_throttled = 6;
+
+  // If `false`, the request returns an error if it targets a missing or closed index.
+  optional bool ignore_unavailable = 7;
+
+  // Specify the node or shard the operation should be performed on.
+  optional string preference = 8;
+
+  // A comma-separated list of specific routing values.
+  repeated string routing = 9;
+
+  // Global query parameters
+  optional GlobalParams global_params = 10;
 }
 
 enum FieldValueFactorModifier {
