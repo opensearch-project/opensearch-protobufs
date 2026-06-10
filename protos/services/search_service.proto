@@ -22,6 +22,10 @@ import "protos/schemas/common.proto";
 service SearchService {
   rpc Search(SearchRequest) returns (SearchResponse) {}
 
+  rpc CreatePit(CreatePitRequest) returns (CreatePITResponse) {}
+
+  rpc DeletePit(DeletePitRequest) returns (DeletePITResponse) {}
+
   // Server side grpc stream endpoint
   rpc ServerStreamSearch(SearchRequest) returns (stream SearchResponse) {}
 }
