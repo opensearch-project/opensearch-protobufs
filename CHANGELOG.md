@@ -10,6 +10,7 @@ Inspired from [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 - Add PIT RPCs to `SearchService` ([#469](https://github.com/opensearch-project/opensearch-protobufs/pull/469)).
 
 ### Changed
+- Make the release workflow manually triggered ([#470](https://github.com/opensearch-project/opensearch-protobufs/pull/470)).
 
 ### Removed
 
