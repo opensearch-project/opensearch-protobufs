@@ -1,25 +1,22 @@
 name: Release Workflow
 
-# Triggered manually to create release artifacts:
+# Push events to every tag not containing "/"
+#
+# Create artifacts for Github release and publish to public repositories
 # - opensearch-protobufs-java.tar.gz (Java/Maven artifacts)
 # - opensearch-protobufs-{version}.zip (Raw proto files)
 # - opensearch_protobufs-{version}-py3-none-any.whl (Python/PyPI artifacts)
 
 on:
-  workflow_dispatch:
-    inputs:
-      release_tag:
-        description: 'Release tag to create (for example, 1.6.0)'
-        required: true
-        type: string
+  push:
+    tags:
+      - "*"
 
 jobs:
   release:
     environment: release-approval
     runs-on: ubuntu-latest
     permissions: write-all
-    env:
-      RELEASE_TAG: ${{ inputs.release_tag }}
     steps:
       - name: Checkout
         uses: actions/checkout@v6
@@ -57,7 +54,6 @@ jobs:
       - name: Release on Github
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: ${{ env.RELEASE_TAG }}
           draft: true
           generate_release_notes: true
           files: |
