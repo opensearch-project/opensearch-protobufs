@@ -64,8 +64,8 @@ describe('mergeMessage', () => {
         });
     });
 
-    describe('optional changes (breaking, no versioning)', () => {
-        it('should report when optional is added (no versioning, just update)', () => {
+    describe('optional changes (breaking, versioned)', () => {
+        it('should deprecate the old field and create a new version when optional is added', () => {
             const source: ProtoMessage = {
                 name: 'TestMessage',
                 fields: [field('id', 'int32', 1)]
@@ -78,38 +78,44 @@ describe('mergeMessage', () => {
 
             const result = mergeMessage(source, upcoming, reporter);
 
-            // Optional change is reported as optional_change (incompatible)
             const optionalChanges = reporter.getFieldChanges().filter(c => c.changeType === 'OPTIONAL CHANGE');
             expect(optionalChanges).toHaveLength(1);
             expect(reporter.hasIncompatibleChanges()).toBe(true);
-            expect(result.fields).toHaveLength(1);
+            expect(result.fields).toHaveLength(2);
+            expect(result.fields[0].name).toBe('id');
+            expect(result.fields[0].modifier).toBeUndefined();
+            expect(result.fields[0].annotations).toContainEqual({ name: 'deprecated', value: 'true' });
+            expect(result.fields[0].number).toBe(1);
+            expect(result.fields[1].name).toBe('id_2');
+            expect(result.fields[1].modifier).toBe('optional');
+            expect(result.fields[1].number).toBe(2);
+        });
+
+        it('should deprecate the old field and create a new version when optional is removed', () => {
+            const source: ProtoMessage = {
+                name: 'TestMessage',
+                fields: [field('id', 'int32', 1, 'optional')]
+            };
+            const upcoming: ProtoMessage = {
+                name: 'TestMessage',
+                fields: [field('id', 'int32', 1)]
+            };
+            const reporter = new CompatibilityReporter();
+
+            const result = mergeMessage(source, upcoming, reporter);
+
+            const optionalChanges = reporter.getFieldChanges().filter(c => c.changeType === 'OPTIONAL CHANGE');
+            expect(optionalChanges).toHaveLength(1);
+            expect(reporter.hasIncompatibleChanges()).toBe(true);
+
+            expect(result.fields).toHaveLength(2);
             expect(result.fields[0].name).toBe('id');
             expect(result.fields[0].modifier).toBe('optional');
             expect(result.fields[0].number).toBe(1);
-        });
-
-        it('should report when optional is removed (no versioning, just update)', () => {
-            const source: ProtoMessage = {
-                name: 'TestMessage',
-                fields: [field('id', 'int32', 1, 'optional')]
-            };
-            const upcoming: ProtoMessage = {
-                name: 'TestMessage',
-                fields: [field('id', 'int32', 1)]
-            };
-            const reporter = new CompatibilityReporter();
-
-            const result = mergeMessage(source, upcoming, reporter);
-
-            // Optional change is reported as optional_change (incompatible)
-            const optionalChanges = reporter.getFieldChanges().filter(c => c.changeType === 'OPTIONAL CHANGE');
-            expect(optionalChanges).toHaveLength(1);
-            expect(reporter.hasIncompatibleChanges()).toBe(true);
-
-            expect(result.fields).toHaveLength(1);
-            expect(result.fields[0].name).toBe('id');
-            expect(result.fields[0].modifier).toBeUndefined();
-            expect(result.fields[0].number).toBe(1);
+            expect(result.fields[0].annotations).toContainEqual({ name: 'deprecated', value: 'true' });
+            expect(result.fields[1].name).toBe('id_2');
+            expect(result.fields[1].modifier).toBeUndefined();
+            expect(result.fields[1].number).toBe(2);
         });
     });
 
@@ -226,6 +232,30 @@ describe('mergeMessage', () => {
             const versionedField = result.fields.find(f => f.name === 'data_2');
             expect(versionedField).toBeDefined();
             expect(versionedField!.comment).toBe('This is a field description');
+        });
+
+        it('should always increment from the highest existing lineage version', () => {
+            const source: ProtoMessage = {
+                name: 'TestMessage',
+                fields: [
+                    {
+                        name: 'data',
+                        type: 'string',
+                        number: 1,
+                        annotations: [{ name: 'deprecated', value: 'true' }]
+                    },
+                    field('data_2', 'int32', 2)
+                ]
+            };
+            const upcoming: ProtoMessage = {
+                name: 'TestMessage',
+                fields: [field('data', 'int64', 1)]
+            };
+
+            const result = mergeMessage(source, upcoming);
+
+            expect(result.fields[2].name).toBe('data_3');
+            expect(result.fields[2].type).toBe('int64');
         });
     });
 
@@ -727,6 +757,76 @@ describe('mergeMessage', () => {
             expect(reporter.hasIncompatibleChanges()).toBe(true);
         });
 
+        it('should deprecate the old field and version the new oneof field when migrating from regular fields', () => {
+            const source: ProtoMessage = {
+                name: 'TermsLookup',
+                fields: [
+                    field('index', 'string', 1),
+                    field('id', 'string', 2),
+                    field('path', 'string', 3),
+                    field('routing', 'string', 4, 'optional'),
+                    field('store', 'bool', 5, 'optional')
+                ]
+            };
+            const upcoming: ProtoMessage = {
+                name: 'TermsLookup',
+                fields: [
+                    field('index', 'string', 1),
+                    field('path', 'string', 3),
+                    field('routing', 'string', 4, 'optional'),
+                    field('store', 'bool', 6, 'optional')
+                ],
+                oneofs: [{
+                    name: 'terms_lookup',
+                    fields: [
+                        field('id', 'string', 2),
+                        field('query', 'QueryContainer', 5)
+                    ]
+                }]
+            };
+            const reporter = new CompatibilityReporter();
+
+            const result = mergeMessage(source, upcoming, reporter);
+
+            expect(result.fields.map(f => f.name)).toEqual(['index', 'id', 'path', 'routing', 'store']);
+            expect(result.fields[1].annotations).toContainEqual({ name: 'deprecated', value: 'true' });
+            expect(result.oneofs).toHaveLength(1);
+            expect(result.oneofs![0].name).toBe('terms_lookup');
+            expect(result.oneofs![0].fields).toHaveLength(2);
+            expect(result.oneofs![0].fields[0]).toMatchObject({ name: 'id_2', type: 'string', number: 6 });
+            expect(result.oneofs![0].fields[1]).toMatchObject({ name: 'query', type: 'QueryContainer', number: 7 });
+
+            const oneofChanges = reporter.getFieldChanges().filter(c => c.changeType === 'ONEOF CHANGE');
+            expect(oneofChanges).toHaveLength(1);
+            expect(oneofChanges[0].existingLocation).toBe('no oneof');
+            expect(oneofChanges[0].incomingLocation).toBe('has oneof');
+        });
+
+        it('should continue incrementing version suffixes when migrating into oneof', () => {
+            const source: ProtoMessage = {
+                name: 'TermsLookup',
+                fields: [
+                    {
+                        ...field('id', 'string', 2),
+                        annotations: [{ name: 'deprecated', value: 'true' }]
+                    },
+                    field('id_2', 'string', 6)
+                ]
+            };
+            const upcoming: ProtoMessage = {
+                name: 'TermsLookup',
+                fields: [],
+                oneofs: [{
+                    name: 'terms_lookup',
+                    fields: [field('id', 'string', 2)]
+                }]
+            };
+
+            const result = mergeMessage(source, upcoming);
+
+            expect(result.oneofs![0].fields[0]).toMatchObject({ name: 'id_3' });
+        });
+
         it('should report when oneof is removed', () => {
             const source: ProtoMessage = {
                 name: 'TestMessage',
@@ -749,6 +849,29 @@ describe('mergeMessage', () => {
             expect(oneofChanges[0].existingLocation).toBe('has oneof');
             expect(oneofChanges[0].incomingLocation).toBe('no oneof');
             expect(reporter.hasIncompatibleChanges()).toBe(true);
+        });
+
+        it('should continue incrementing version suffixes when migrating out of oneof', () => {
+            const source: ProtoMessage = {
+                name: 'Example',
+                fields: [{
+                    ...field('id', 'string', 1),
+                    annotations: [{ name: 'deprecated', value: 'true' }]
+                }],
+                oneofs: [{
+                    name: 'data',
+                    fields: [field('id_2', 'string', 6)]
+                }]
+            };
+            const upcoming: ProtoMessage = {
+                name: 'Example',
+                fields: [field('id', 'string', 2)]
+            };
+
+            const result = mergeMessage(source, upcoming);
+
+            expect(result.fields[1]).toMatchObject({ name: 'id_3' });
+            expect(result.oneofs![0].fields[0].annotations).toContainEqual({ name: 'deprecated', value: 'true' });
         });
 
         it('should not report when both have oneof', () => {

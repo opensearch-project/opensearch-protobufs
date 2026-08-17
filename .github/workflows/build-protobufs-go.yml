@@ -9,6 +9,6 @@ jobs:
     if: github.repository == 'opensearch-project/opensearch-protobufs'
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
       - name: build protobufs go
         run: bazel build //:go_protos_all

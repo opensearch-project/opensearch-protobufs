@@ -138,6 +138,9 @@ py_wheel(
     distribution = "opensearch-protobufs",
     python_tag = "py3",
     version = VERSION,
+    summary = "Protocol Buffer definitions for OpenSearch gRPC APIs",
+    description_file = "//:README.md",
+    description_content_type = "text/markdown",
     requires = [
         "protobuf>=3.25.8",
         "grpcio>=1.70.0",

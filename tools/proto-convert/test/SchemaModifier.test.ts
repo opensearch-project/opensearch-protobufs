@@ -839,9 +839,39 @@ describe('SchemaModifier', () => {
 
             expect(schema.oneOf).toBeUndefined();
             expect(schema.properties).toEqual({
-                field1: { type: 'string' },
-                field2: { type: 'number' }
+                field1: { type: 'string', 'x-oneof-property': true },
+                field2: { type: 'number', 'x-oneof-property': true }
             });
+            expect(schema.minProperties).toBe(1);
+            expect(schema.maxProperties).toBe(1);
+        });
+
+        it('should preserve existing parent properties and required fields', () => {
+            const doc = createDocument();
+            const modifier = new SchemaModifier(doc);
+
+            const schema: any = {
+                properties: {
+                    index: { type: 'string' },
+                    path: { type: 'string' }
+                },
+                required: ['index', 'path'],
+                oneOf: [
+                    { properties: { id: { type: 'string' } }, required: ['id'] },
+                    { properties: { query: { type: 'string' } }, required: ['query'] }
+                ]
+            };
+
+            modifier.convertOneOfToMinMaxProperties(schema);
+
+            expect(schema.oneOf).toBeUndefined();
+            expect(schema.properties).toEqual({
+                index: { type: 'string' },
+                path: { type: 'string' },
+                id: { type: 'string', 'x-oneof-property': true },
+                query: { type: 'string', 'x-oneof-property': true }
+            });
+            expect(schema.required).toEqual(['index', 'path']);
             expect(schema.minProperties).toBe(1);
             expect(schema.maxProperties).toBe(1);
         });
@@ -886,6 +916,28 @@ describe('SchemaModifier', () => {
 
             expect(schema.properties.field1['x-oneof-property']).toBe(true);
             expect(schema.properties.field2['x-oneof-property']).toBe(true);
+            expect(schema['x-oneof-schema']).toBe(true);
+        });
+
+        it('should preserve pre-marked oneof properties without marking all properties', () => {
+            const doc = createDocument();
+            const modifier = new SchemaModifier(doc);
+
+            const schema: any = {
+                type: 'object',
+                properties: {
+                    index: { type: 'string' },
+                    id: { type: 'string', 'x-oneof-property': true },
+                    query: { type: 'string', 'x-oneof-property': true }
+                },
+                maxProperties: 1
+            };
+
+            modifier.markOneOfExtensions(schema);
+
+            expect(schema.properties.index['x-oneof-property']).toBeUndefined();
+            expect(schema.properties.id['x-oneof-property']).toBe(true);
+            expect(schema.properties.query['x-oneof-property']).toBe(true);
             expect(schema['x-oneof-schema']).toBe(true);
         });
 

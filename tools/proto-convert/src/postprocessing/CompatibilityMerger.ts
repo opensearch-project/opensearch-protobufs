@@ -79,6 +79,7 @@ function fieldsMatch(a: ProtoField, b: ProtoField): boolean {
 function mergeField(
     sourceField: ProtoField,
     upcomingMap: Map<string, ProtoField>,
+    versionMap: Map<string, number>,
     msgName: string,
     reporter?: CompatibilityReporter
 ): ProtoField {
@@ -99,18 +100,20 @@ function mergeField(
             const sourceOptional = sourceField.modifier === 'optional';
             const upcomingOptional = upcomingField.modifier === 'optional';
             const isOptionalChange = sameType && (sourceOptional !== upcomingOptional);
+            const newName = nextVersionedName(baseName, versionMap);
 
             if (isOptionalChange) {
+                upcomingMap.set(newName, { ...upcomingField, name: newName, comment: sourceField.comment });
                 reporter?.addFieldChange({
                     messageName: msgName,
                     changeType: 'OPTIONAL CHANGE',
                     fieldName: sourceField.name,
-                    existingType: formatField({ ...sourceField, number: sourceField.number }),
-                    incomingType: formatField({ ...upcomingField, number: sourceField.number })
+                    existingType: formatField({ ...sourceField, number: sourceField.number, deprecated: true }),
+                    incomingType: formatField(upcomingField),
+                    versionedName: newName
                 });
-                return { ...upcomingField, name: sourceField.name, number: sourceField.number };
+                return addDeprecated(sourceField);
             } else {
-                const newName = `${baseName}_${getFieldVersion(sourceField.name) + 1}`;
                 upcomingMap.set(newName, { ...upcomingField, name: newName, comment: sourceField.comment });
 
                 reporter?.addFieldChange({
@@ -168,6 +171,34 @@ function hasOneof(msg: ProtoMessage): boolean {
     return (msg.oneofs?.some(o => o.fields.length > 0)) ?? false;
 }
 
+function collectMaxVersions(msg: ProtoMessage): Map<string, number> {
+    const versions = new Map<string, number>();
+
+    const track = (field: ProtoField): void => {
+        const baseName = getBaseName(field.name);
+        const version = getFieldVersion(field.name);
+        versions.set(baseName, Math.max(versions.get(baseName) ?? 1, version));
+    };
+
+    for (const field of msg.fields) {
+        track(field);
+    }
+
+    for (const oneof of msg.oneofs || []) {
+        for (const field of oneof.fields) {
+            track(field);
+        }
+    }
+
+    return versions;
+}
+
+function nextVersionedName(baseName: string, versionMap: Map<string, number>): string {
+    const nextVersion = (versionMap.get(baseName) ?? 1) + 1;
+    versionMap.set(baseName, nextVersion);
+    return `${baseName}_${nextVersion}`;
+}
+
 /**
  * Merge a source message with an upcoming message.
  */
@@ -179,6 +210,8 @@ export function mergeMessage(
     // Check for oneof structure change (one has oneof, other doesn't)
     const sourceHasOneof = hasOneof(sourceMsg);
     const upcomingHasOneof = hasOneof(upcomingMsg);
+    const upcomingOneofs = upcomingMsg.oneofs || [];
+    const versionMap = collectMaxVersions(sourceMsg);
 
     if (sourceHasOneof !== upcomingHasOneof) {
         reporter?.addFieldChange({
@@ -193,12 +226,15 @@ export function mergeMessage(
     const upcomingByName = new Map(upcomingMsg.fields.map(f => [f.name, f]));
 
     let maxFieldNumber = 0;
+    const usedFieldNumbers = new Set<number>();
     const mergedFields: ProtoField[] = [];
 
     // Process regular fields
     for (const sourceField of sourceMsg.fields) {
         maxFieldNumber = Math.max(maxFieldNumber, sourceField.number);
-        mergedFields.push(mergeField(sourceField, upcomingByName, sourceMsg.name, reporter));
+        const mergedField = mergeField(sourceField, upcomingByName, versionMap, sourceMsg.name, reporter);
+        usedFieldNumbers.add(mergedField.number);
+        mergedFields.push(mergedField);
     }
 
     // Process oneofs
@@ -207,7 +243,7 @@ export function mergeMessage(
 
     if (sourceMsg.oneofs) {
         const upcomingOneofMap = new Map(
-            (upcomingMsg.oneofs || []).map(o => [o.name, o])
+            upcomingOneofs.map(o => [o.name, o])
         );
 
         mergedOneofs = [];
@@ -232,7 +268,7 @@ export function mergeMessage(
 
                 // Name match
                 if (upcomingOneofByName.has(getBaseName(sourceField.name))) {
-                    mergedOneofFields.push(mergeField(sourceField, upcomingOneofByName, sourceMsg.name, reporter));
+                    mergedOneofFields.push(mergeField(sourceField, upcomingOneofByName, versionMap, sourceMsg.name, reporter));
                     continue;
                 }
 
@@ -245,6 +281,7 @@ export function mergeMessage(
                         number: sourceField.number,
                         comment: sourceField.comment || upcomingField.comment
                     });
+                    usedFieldNumbers.add(sourceField.number);
 
                     upcomingOneofByName.delete(upcomingField.name);
                     upcomingByType.delete(sourceField.type);
@@ -259,28 +296,78 @@ export function mergeMessage(
                 }
 
                 // Try 3: No match - deprecate or skip
-                mergedOneofFields.push(mergeField(sourceField, upcomingOneofByName, sourceMsg.name, reporter));
+                mergedOneofFields.push(mergeField(sourceField, upcomingOneofByName, versionMap, sourceMsg.name, reporter));
             }
 
             mergedOneofs.push({ ...sourceOneof, fields: mergedOneofFields });
             oneofMaps.set(sourceOneof.name, upcomingOneofByName);
         }
+    } else if (upcomingHasOneof) {
+        const sourceFieldByName = new Map(
+            sourceMsg.fields.map(f => [getBaseName(f.name), f])
+        );
+        mergedOneofs = [];
+
+        for (const upcomingOneof of upcomingOneofs) {
+            const mergedOneofFields: ProtoField[] = [];
+
+            for (const field of upcomingOneof.fields) {
+                const sourceField = sourceFieldByName.get(getBaseName(field.name));
+                let oneofField = { ...field };
+                let fieldNumber = field.number;
+
+                if (sourceField) {
+                    oneofField = {
+                        ...oneofField,
+                        name: nextVersionedName(getBaseName(sourceField.name), versionMap),
+                        comment: sourceField.comment || field.comment
+                    };
+                }
+
+                if (sourceField || usedFieldNumbers.has(fieldNumber)) {
+                    do {
+                        fieldNumber = ++maxFieldNumber;
+                    } while (usedFieldNumbers.has(fieldNumber));
+                }
+                maxFieldNumber = Math.max(maxFieldNumber, fieldNumber);
+                usedFieldNumbers.add(fieldNumber);
+
+                reporter?.addFieldChange({
+                    messageName: sourceMsg.name,
+                    changeType: 'ADDED',
+                    fieldName: `${upcomingOneof.name}.${oneofField.name}`,
+                    incomingType: formatField({ ...oneofField, number: fieldNumber })
+                });
+                mergedOneofFields.push({ ...oneofField, number: fieldNumber });
+            }
+
+            mergedOneofs.push({ ...upcomingOneof, fields: mergedOneofFields });
+        }
     }
 
     // Assign field max number to remaining fields.
     for (const field of upcomingByName.values()) {
+        let addedField = { ...field };
+        if (!isVersionedName(addedField.name) && versionMap.has(getBaseName(addedField.name))) {
+            addedField = {
+                ...addedField,
+                name: nextVersionedName(getBaseName(addedField.name), versionMap)
+            };
+        }
+
         const fieldNumber = ++maxFieldNumber;
-        if (isVersionedName(field.name)) {
-            reporter?.updateVersionedNumber(field.name, fieldNumber);
+        if (isVersionedName(addedField.name)) {
+            reporter?.updateVersionedNumber(addedField.name, fieldNumber);
         } else {
             reporter?.addFieldChange({
                 messageName: sourceMsg.name,
                 changeType: 'ADDED',
-                fieldName: field.name,
-                incomingType: formatField({ ...field, number: fieldNumber })
+                fieldName: addedField.name,
+                incomingType: formatField({ ...addedField, number: fieldNumber })
             });
         }
-        mergedFields.push({ ...field, number: fieldNumber });
+        usedFieldNumbers.add(fieldNumber);
+        mergedFields.push({ ...addedField, number: fieldNumber });
     }
 
     // Assign field max number to remaining oneof fields.
@@ -289,18 +376,26 @@ export function mergeMessage(
             const remaining = oneofMaps.get(oneof.name);
             if (remaining) {
                 for (const field of remaining.values()) {
+                    let addedField = { ...field };
+                    if (!isVersionedName(addedField.name) && versionMap.has(getBaseName(addedField.name))) {
+                        addedField = {
+                            ...addedField,
+                            name: nextVersionedName(getBaseName(addedField.name), versionMap)
+                        };
+                    }
                     const fieldNumber = ++maxFieldNumber;
-                    if (isVersionedName(field.name)) {
-                        reporter?.updateVersionedNumber(field.name, fieldNumber);
+                    if (isVersionedName(addedField.name)) {
+                        reporter?.updateVersionedNumber(addedField.name, fieldNumber);
                     } else {
                         reporter?.addFieldChange({
                             messageName: sourceMsg.name,
                             changeType: 'ADDED',
-                            fieldName: `${oneof.name}.${field.name}`,
-                            incomingType: formatField({ ...field, number: fieldNumber })
+                            fieldName: `${oneof.name}.${addedField.name}`,
+                            incomingType: formatField({ ...addedField, number: fieldNumber })
                         });
                     }
-                    oneof.fields.push({ ...field, number: fieldNumber });
+                    usedFieldNumbers.add(fieldNumber);
+                    oneof.fields.push({ ...addedField, number: fieldNumber });
                 }
             }
         }

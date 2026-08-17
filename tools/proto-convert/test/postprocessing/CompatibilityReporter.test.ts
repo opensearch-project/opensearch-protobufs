@@ -119,13 +119,15 @@ describe('CompatibilityReporter', () => {
                 messageName: 'TestMessage',
                 changeType: 'OPTIONAL CHANGE',
                 fieldName: 'field',
-                existingType: 'string field',
-                incomingType: 'optional string field'
+                existingType: 'string field [deprecated = true]',
+                incomingType: 'optional string field',
+                versionedName: 'field_2'
             });
+            reporter.updateVersionedNumber('field_2', 9);
 
             const md = reporter.toMarkdown();
-            expect(md).toContain('🚨 **BREAKING**');
-            expect(md).toContain('`string field` → `optional string field`');
+            expect(md).toContain('`string field [deprecated = true]`');
+            expect(md).toContain('`optional string field_2 = 9`');
         });
 
         it('should format oneof_change with breaking icon', () => {

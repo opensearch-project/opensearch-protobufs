@@ -54,7 +54,7 @@ export class CompatibilityReporter {
      */
     updateVersionedNumber(versionedName: string, number: number): void {
         for (const change of this.fieldChanges) {
-            if (change.changeType === 'TYPE CHANGED' && change.versionedName === versionedName) {
+            if ((change.changeType === 'TYPE CHANGED' || change.changeType === 'OPTIONAL CHANGE') && change.versionedName === versionedName) {
                 change.versionedNumber = number;
                 break;
             }
@@ -133,7 +133,7 @@ export class CompatibilityReporter {
     }
 
     private formatChangeRows(c: FieldChange): string[] {
-        if (c.changeType === 'TYPE CHANGED') {
+        if (c.changeType === 'TYPE CHANGED' || c.changeType === 'OPTIONAL CHANGE') {
             // Replace field name with versioned name and strip any wrong number
             let versionedField = c.incomingType?.replace(c.fieldName, c.versionedName || c.fieldName) || '';
             // Remove any existing field number (e.g., " = 1")

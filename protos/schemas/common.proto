@@ -1445,6 +1445,8 @@ message QueryContainer {
     // To combine relevance scores from multiple queries into one score for a given document.
     HybridQuery hybrid = 32;
 
+    StoredLtrQuery sltr = 33;
+
   }
 }
 
@@ -2342,7 +2344,7 @@ message TermsLookup {
   string index = 1;
 
   // The unique identifier for a resource.
-  string id = 2;
+  string id = 2 [deprecated = true];
 
   // The path to a field or an array of paths. Some APIs support wildcards in the path, which allows you to select multiple fields.
   string path = 3;
@@ -2351,6 +2353,13 @@ message TermsLookup {
   optional string routing = 4;
 
   optional bool store = 5;
+  oneof terms_lookup {
+    // The unique identifier for a resource.
+    string id_2 = 6;
+
+    QueryContainer query = 7;
+
+  }
 }
 
 message FieldValueArray {
@@ -3470,6 +3479,25 @@ message CreatePitRequest {
 
   // Global query parameters
   optional GlobalParams global_params = 10;
+}
+
+message StoredLtrQuery {
+
+  repeated string active_features = 1;
+
+  optional float boost = 2;
+
+  optional bool cache = 3;
+
+  optional string featureset = 4;
+
+  optional string model = 5;
+
+  ObjectMap params = 6;
+
+  optional string store = 7;
+
+  optional string x_name = 8;
 }
 
 enum FieldValueFactorModifier {

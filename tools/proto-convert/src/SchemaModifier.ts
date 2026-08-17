@@ -749,23 +749,38 @@ export class SchemaModifier {
             return;
         }
 
+        const existingProperties = schema.properties ? { ...schema.properties } : {};
+        const existingRequired = Array.isArray(schema.required) ? [...schema.required] : undefined;
         const mergedProperties: any = {};
 
         for (const item of schema.oneOf) {
             if (item && item.properties) {
-                Object.assign(mergedProperties, item.properties);
+                for (const [name, property] of Object.entries(item.properties)) {
+                    mergedProperties[name] = {
+                        ...(property as Record<string, unknown>),
+                        'x-oneof-property': true
+                    };
+                }
             }
         }
 
-        schema.properties = mergedProperties;
+        schema.properties = {
+            ...existingProperties,
+            ...mergedProperties
+        };
         schema.minProperties = 1;
         schema.maxProperties = 1;
+        if (existingRequired) {
+            schema.required = existingRequired;
+        }
 
         if ('unevaluatedProperties' in schema) {
             delete schema.unevaluatedProperties;
         }
         delete schema.oneOf;
-        delete schema.required;
+        if (!existingRequired) {
+            delete schema.required;
+        }
     }
 
     /**
@@ -783,9 +798,12 @@ export class SchemaModifier {
 
         if (hasDirectPattern) {
             if (schema.properties) {
+                const hasPreMarkedProperties = Object.values(schema.properties).some(prop =>
+                    prop && typeof prop === 'object' && 'x-oneof-property' in (prop as Record<string, unknown>)
+                );
                 for (const propName in schema.properties) {
                     const prop = schema.properties[propName] as any;
-                    if (prop && typeof prop === 'object') {
+                    if (prop && typeof prop === 'object' && (!hasPreMarkedProperties || prop['x-oneof-property'])) {
                         prop['x-oneof-property'] = true;
                     }
                 }
