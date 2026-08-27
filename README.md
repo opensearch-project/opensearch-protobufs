@@ -30,10 +30,21 @@ cd opensearch-protobufs-{version}
 
 ### Go
 
+Sources under [`generated/go/`](./generated/go/) (`opensearchpb`, `services`). Module: [`go.mod`](./generated/go/go.mod) (no `go.mod` at repo root). Use `replace` or copy `generated/go` into your project. After editing `.proto` files:
+
+```bash
+./generate_go.sh
+cd generated/go && go mod tidy
+```
+
+(`protoc`, `protoc-gen-go`, `protoc-gen-go-grpc` on `PATH`.)
+
 ```go
+package example
+
 import (
-    "github.com/opensearch-project/opensearch-protobufs/go/opensearchpb"
-    "github.com/opensearch-project/opensearch-protobufs/go/services"
+    "github.com/opensearch-project/opensearch-protobufs/generated/go/opensearchpb"
+    "github.com/opensearch-project/opensearch-protobufs/generated/go/services"
 )
 
 // Use generated message types
@@ -86,7 +97,11 @@ response = client.Search(request)
 After building, find generated code in:
 
 ```bash
-# Go
+# Go (checked-in or from ./generate_go.sh)
+generated/go/opensearchpb/*.pb.go
+generated/go/services/*.pb.go
+
+# Go (Bazel only)
 bazel-bin/protos/schemas/*_go_proto_pb/protos/schemas/*.pb.go
 bazel-bin/protos/services/*_go_proto_pb/protos/services/*.pb.go
 
