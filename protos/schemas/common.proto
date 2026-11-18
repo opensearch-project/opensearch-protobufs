@@ -301,6 +301,9 @@ message SearchResponse {
   optional bool terminated_early = 13;
 
   map<string, Aggregate> aggregations = 14;
+
+  // Additional response content supplied by search extensions.
+  optional ObjectMap ext = 15;
 }
 
 message ProcessorExecutionDetail {
