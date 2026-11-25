@@ -62,25 +62,27 @@ jobs:
       - name: Get Latest OpenSearch Core Version
         id: get_opensearch_version
         uses: actions/github-script@d7906e4ad0b1822421a7e6a35d5ca353c962f410 # v6
+        env:
+          INPUT_OPENSEARCH_VERSION: ${{ inputs.opensearch_version }}
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
             // Check if version was provided as input
-            const inputVersion = "${{ inputs.opensearch_version }}";
+            const inputVersion = process.env.INPUT_OPENSEARCH_VERSION;
             if (inputVersion && inputVersion.trim() !== "") {
               core.setOutput("version", inputVersion.trim());
               console.log("Using provided OpenSearch version: " + inputVersion.trim());
               return;
             }
 
-            // Otherwise fetch version from buildSrc/version.properties on main branch
+            // Otherwise fetch the version catalog on main.
             try {
               const response = await github.request(
                 'GET /repos/{owner}/{repo}/contents/{path}',
                 {
                   owner: 'opensearch-project',
                   repo: 'OpenSearch',
-                  path: 'buildSrc/version.properties',
+                  path: 'gradle/libs.versions.toml',
                   ref: 'main'
                 }
               );
@@ -88,11 +90,11 @@ jobs:
               // Decode the file content
               const content = Buffer.from(response.data.content, 'base64').toString('utf-8');
 
-              // Extract opensearch version (e.g., "opensearch = 3.4.0")
-              const match = content.match(/opensearch\s*=\s*([^\s]+)/);
+              const versions = content.split(/^[ \t]*\[versions\][ \t]*(?:#.*)?\r?$/m)[1]?.split(/^[ \t]*\[/m)[0];
+              const match = versions?.match(/^[ \t]*opensearch[ \t]*=[ \t]*(["'])(\d+\.\d+\.\d+)\1[ \t]*(?:#.*)?\r?$/m);
 
-              if (match && match[1]) {
-                const version = match[1].trim();
+              if (match) {
+                const version = match[2];
                 core.setOutput("version", version);
                 console.log("Fetched OpenSearch version from source: " + version);
               } else {
